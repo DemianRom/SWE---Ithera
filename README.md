@@ -141,6 +141,7 @@ ithera/
 |-- docs/
 |   |-- README.md                   # Indice general de documentacion
 |   |-- ADS/                        # Entregables academicos de ADS
+|   |-- Documentacion_oficial/      # Documentacion oficial y material relevante del curso
 |   |-- api/                        # Endpoints REST
 |   |-- architecture/               # Arquitectura actual
 |   |-- casos-de-uso/               # Casos de uso
@@ -165,6 +166,7 @@ ithera/
 | [backend/README.md](backend/README.md) | Arquitectura, scripts, variables, modulos y convenciones del backend. |
 | [frontend/README.md](frontend/README.md) | Arquitectura, rutas, servicios, componentes, variables y build del frontend. |
 | [docs/README.md](docs/README.md) | Indice general de documentacion tecnica, funcional y academica. |
+| [docs/Documentacion_oficial/](docs/Documentacion_oficial/) | Documentacion oficial del proyecto y material relevante para el curso. |
 | [docs/architecture/README.md](docs/architecture/README.md) | Vista de arquitectura actual del proyecto. |
 | [docs/api/endpoints.md](docs/api/endpoints.md) | Inventario de endpoints REST. |
 | [docs/workflows/README.md](docs/workflows/README.md) | Guia completa de CI/CD, Vercel y GitHub Actions. |
