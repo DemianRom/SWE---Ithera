@@ -1,14 +1,12 @@
 import crypto from 'crypto';
 import { sendEmail } from '../../services/email.service';
 import { supabase } from '../../infrastructure/db/supabase.client';
-import { getPlaceDetails } from '../maps/maps.service';
 import { baseTemplate } from '../../infrastructure/email/templates/baseTemplate';
 import { emitGroupDeleted } from '../../infrastructure/sockets/socket.gateway';
 import {
   CreateGroupInvitationsPayload,
   CreateGroupPayload,
   GroupInvitePreview,
-  GroupTravelContext,
   InvitationStatus,
   JoinGroupPayload,
   MemberRole,
@@ -136,29 +134,6 @@ const hasTripStarted = (startDate?: string | null): boolean => {
   return Boolean(date && date < todayISO());
 };
 
-const coordinatesAreAvailable = (latitude?: unknown, longitude?: unknown): latitude is number =>
-  Number.isFinite(Number(latitude)) && Number.isFinite(Number(longitude));
-
-const distanceInKilometers = (
-  fromLatitude: number,
-  fromLongitude: number,
-  toLatitude: number,
-  toLongitude: number
-): number => {
-  const earthRadiusKm = 6371;
-  const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
-  const deltaLatitude = toRadians(toLatitude - fromLatitude);
-  const deltaLongitude = toRadians(toLongitude - fromLongitude);
-  const startLatitude = toRadians(fromLatitude);
-  const endLatitude = toRadians(toLatitude);
-
-  const a =
-    Math.sin(deltaLatitude / 2) ** 2 +
-    Math.cos(startLatitude) * Math.cos(endLatitude) * Math.sin(deltaLongitude / 2) ** 2;
-
-  return earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-};
-
 const getGroupActivityDateStats = async (groupId: string) => {
   const { data: itineraries, error: itineraryError } = await supabase
     .from('itinerarios')
@@ -217,47 +192,6 @@ const assertDateUpdateDoesNotBreakExistingPlan = async (
       }
     );
   }
-};
-
-const assertDestinationUpdateIsSafe = async (currentGroup: any, destinationFields: any) => {
-  const currentPlaceId = currentGroup.destino_place_id ?? null;
-  const nextPlaceId = destinationFields.destino_place_id ?? null;
-  const placeChanged = Boolean(nextPlaceId && currentPlaceId && nextPlaceId !== currentPlaceId);
-  const coordinatesChanged =
-    coordinatesAreAvailable(currentGroup.destino_latitud, currentGroup.destino_longitud) &&
-    coordinatesAreAvailable(destinationFields.destino_latitud, destinationFields.destino_longitud) &&
-    distanceInKilometers(
-      Number(currentGroup.destino_latitud),
-      Number(currentGroup.destino_longitud),
-      Number(destinationFields.destino_latitud),
-      Number(destinationFields.destino_longitud)
-    ) > 50;
-
-  if (!placeChanged && !coordinatesChanged) return;
-
-  const stats = await getGroupActivityDateStats(String(currentGroup.id));
-  if (stats.count === 0) return;
-
-  if (
-    coordinatesAreAvailable(currentGroup.destino_latitud, currentGroup.destino_longitud) &&
-    coordinatesAreAvailable(destinationFields.destino_latitud, destinationFields.destino_longitud)
-  ) {
-    const distance = distanceInKilometers(
-      Number(currentGroup.destino_latitud),
-      Number(currentGroup.destino_longitud),
-      Number(destinationFields.destino_latitud),
-      Number(destinationFields.destino_longitud)
-    );
-
-    if (distance <= 50) return;
-  }
-
-  throw Object.assign(
-    new Error(
-      'ERR-23-003: El destino nuevo está lejos del destino original y el viaje ya tiene actividades. Crea un viaje nuevo o elimina/reagenda las actividades antes de cambiarlo.'
-    ),
-    { statusCode: 409, code: 'TRIP_DESTINATION_CONFLICT', errorCode: 'ERR-23-003' }
-  );
 };
 
 const generateGroupCode = (length = 8): string => {
@@ -469,84 +403,6 @@ const getGroupById = async (groupId: string) => {
   return data;
 };
 
-type DestinationPayload = Pick<
-  CreateGroupPayload | UpdateGroupPayload,
-  | 'destino_latitud'
-  | 'destino_longitud'
-  | 'destino_place_id'
-  | 'destino_formatted_address'
-  | 'destino_photo_name'
-  | 'destino_photo_url'
->;
-
-const buildDestinationFields = async (payload: DestinationPayload) => {
-  const placeId = payload.destino_place_id ?? null;
-
-  if (!placeId) {
-    return {
-      destino_latitud: payload.destino_latitud ?? null,
-      destino_longitud: payload.destino_longitud ?? null,
-      destino_place_id: null,
-      destino_formatted_address: payload.destino_formatted_address ?? null,
-      destino_photo_name: payload.destino_photo_name ?? null,
-      destino_photo_url: payload.destino_photo_url ?? null,
-    };
-  }
-
-  try {
-    const details = await getPlaceDetails(placeId);
-
-    return {
-      destino_latitud: details?.latitude ?? payload.destino_latitud ?? null,
-      destino_longitud: details?.longitude ?? payload.destino_longitud ?? null,
-      destino_place_id: details?.id ?? placeId,
-      destino_formatted_address:
-        details?.formattedAddress ?? payload.destino_formatted_address ?? null,
-      destino_photo_name: details?.photoName ?? payload.destino_photo_name ?? null,
-      destino_photo_url: details?.photoUrl ?? payload.destino_photo_url ?? null,
-    };
-  } catch {
-    return {
-      destino_latitud: payload.destino_latitud ?? null,
-      destino_longitud: payload.destino_longitud ?? null,
-      destino_place_id: placeId,
-      destino_formatted_address: payload.destino_formatted_address ?? null,
-      destino_photo_name: payload.destino_photo_name ?? null,
-      destino_photo_url: payload.destino_photo_url ?? null,
-    };
-  }
-};
-
-const ensureDestinationPhotoCached = async (grupo: any) => {
-  if (!grupo?.destino_place_id || grupo.destino_photo_url) return grupo;
-
-  const destinationFields = await buildDestinationFields({
-    destino_latitud: grupo.destino_latitud ?? null,
-    destino_longitud: grupo.destino_longitud ?? null,
-    destino_place_id: grupo.destino_place_id ?? null,
-    destino_formatted_address: grupo.destino_formatted_address ?? null,
-    destino_photo_name: grupo.destino_photo_name ?? null,
-    destino_photo_url: grupo.destino_photo_url ?? null,
-  });
-
-  if (!destinationFields.destino_photo_url) return grupo;
-
-  const { data } = await supabase
-    .from('grupos_viaje')
-    .update({
-      destino_latitud: destinationFields.destino_latitud,
-      destino_longitud: destinationFields.destino_longitud,
-      destino_formatted_address: destinationFields.destino_formatted_address,
-      destino_photo_name: destinationFields.destino_photo_name,
-      destino_photo_url: destinationFields.destino_photo_url,
-    })
-    .eq('id', grupo.id)
-    .select('*')
-    .single();
-
-  return data ?? grupo;
-};
-
 const getMembership = async (groupId: string, usuarioId: string) => {
   const { data, error } = await supabase
     .from('grupo_miembros')
@@ -641,111 +497,13 @@ const normalizeMaxMembers = (value?: number | null): number | null => {
 
 export const getGroupDetails = async (authUserId: string, groupId: string) => {
   const { membership } = await ensureGroupMember(authUserId, groupId);
-  const grupo = await ensureDestinationPhotoCached(await getGroupById(groupId));
+  const grupo = await getGroupById(groupId);
   const memberCount = await countMembers(groupId);
 
   return {
     ...grupo,
     memberCount,
     myRole: membership.rol,
-  };
-};
-
-
-const toNullableNumber = (value: unknown): number | null => {
-  if (value === null || value === undefined || value === '') return null;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
-};
-
-const buildDestinationTravelLocation = (grupo: any) => ({
-  source: 'destino_viaje' as const,
-  label: grupo.destino_formatted_address ?? grupo.destino ?? null,
-  formattedAddress: grupo.destino_formatted_address ?? grupo.destino ?? null,
-  latitude: toNullableNumber(grupo.destino_latitud),
-  longitude: toNullableNumber(grupo.destino_longitud),
-  placeId: grupo.destino_place_id ?? null,
-  photoUrl: grupo.destino_photo_url ?? null,
-});
-
-const buildPersistedStartLocation = (grupo: any) => {
-  const latitude = toNullableNumber(grupo.punto_partida_latitud);
-  const longitude = toNullableNumber(grupo.punto_partida_longitud);
-
-  if (grupo.punto_partida_tipo !== 'hotel_reservado' || latitude === null || longitude === null) {
-    return null;
-  }
-
-  return {
-    source: 'hotel_reservado' as const,
-    label: grupo.punto_partida_nombre ?? 'Hotel reservado',
-    formattedAddress: grupo.punto_partida_direccion ?? grupo.punto_partida_nombre ?? null,
-    latitude,
-    longitude,
-    placeId: grupo.punto_partida_place_id ?? null,
-    photoUrl: null,
-    hotelId: grupo.punto_partida_hospedaje_id ? String(grupo.punto_partida_hospedaje_id) : null,
-    folioReserva: null,
-  };
-};
-
-const getConfirmedHotelStartLocation = async (groupId: string) => {
-  const { data: proposals, error: proposalsError } = await supabase
-    .from('propuestas')
-    .select('id_propuesta')
-    .eq('grupo_id', groupId)
-    .eq('tipo_item', 'hospedaje')
-    .in('estado', ['aprobada', 'guardada', 'en_votacion']);
-
-  if (proposalsError) throw new Error(proposalsError.message);
-
-  const proposalIds = (proposals ?? [])
-    .map((proposal: any) => Number(proposal.id_propuesta))
-    .filter((id) => Number.isFinite(id));
-
-  if (!proposalIds.length) return null;
-
-  const { data: hotels, error: hotelsError } = await supabase
-    .from('hospedajes')
-    .select('id_hospedaje, propuesta_id, nombre, direccion, latitud, longitud, google_place_id, foto_url, folio_reserva, reserva_estado, ultima_actualizacion, fecha_creacion')
-    .in('propuesta_id', proposalIds)
-    .eq('reserva_estado', 'confirmada_simulada')
-    .order('ultima_actualizacion', { ascending: false })
-    .order('fecha_creacion', { ascending: false })
-    .limit(1);
-
-  if (hotelsError) throw new Error(hotelsError.message);
-
-  const hotel = hotels?.[0];
-  const latitude = toNullableNumber((hotel as any)?.latitud);
-  const longitude = toNullableNumber((hotel as any)?.longitud);
-
-  if (!hotel || latitude === null || longitude === null) return null;
-
-  return {
-    source: 'hotel_reservado' as const,
-    label: (hotel as any).nombre ?? 'Hotel reservado',
-    formattedAddress: (hotel as any).direccion ?? (hotel as any).nombre ?? null,
-    latitude,
-    longitude,
-    placeId: (hotel as any).google_place_id ?? null,
-    photoUrl: (hotel as any).foto_url ?? null,
-    hotelId: String((hotel as any).id_hospedaje),
-    folioReserva: (hotel as any).folio_reserva ?? null,
-  };
-};
-
-export const getGroupTravelContext = async (authUserId: string, groupId: string): Promise<GroupTravelContext> => {
-  await ensureGroupMember(authUserId, groupId);
-  const grupo = await ensureDestinationPhotoCached(await getGroupById(groupId));
-  const destinationLocation = buildDestinationTravelLocation(grupo);
-  const persistedStartLocation = buildPersistedStartLocation(grupo);
-  const hotelStartLocation = persistedStartLocation ?? await getConfirmedHotelStartLocation(groupId);
-
-  return {
-    groupId: String(grupo.id),
-    startLocation: hotelStartLocation ?? destinationLocation,
-    destinationLocation,
   };
 };
 
@@ -857,7 +615,6 @@ export const createGroup = async (authUserId: string, payload: CreateGroupPayloa
     'La descripción',
     GROUP_DESCRIPTION_MAX_LENGTH
   );
-  const destinationFields = await buildDestinationFields(payload);
   const maximoMiembros = normalizeMaxMembers(payload.maximo_miembros);
   const presupuestoTotal = Number(payload.presupuesto_total);
 
@@ -893,7 +650,6 @@ export const createGroup = async (authUserId: string, payload: CreateGroupPayloa
       codigo_invitacion: codigo,
       creado_por: Number(usuarioId),
       estado: 'activo',
-      ...destinationFields,
     })
     .select('*')
     .single();
@@ -2195,13 +1951,7 @@ export const getMyTravelHistory = async (authUserId: string) => {
         es_publico,
         codigo_invitacion,
         estado,
-        created_at,
-        destino_latitud,
-        destino_longitud,
-        destino_place_id,
-        destino_formatted_address,
-        destino_photo_name,
-        destino_photo_url
+        created_at
       )
     `)
     .eq('usuario_id', usuarioId);
@@ -2238,7 +1988,6 @@ export const updateGroup = async (
   payload: UpdateGroupPayload
 ) => {
   await ensureGroupAdmin(authUserId, groupId);
-  const destinationFields = await buildDestinationFields(payload);
   const maximoMiembros =
     payload.maximo_miembros !== undefined ? normalizeMaxMembers(payload.maximo_miembros) : undefined;
   const nombre =
@@ -2286,15 +2035,6 @@ export const updateGroup = async (
     await assertDateUpdateDoesNotBreakExistingPlan(groupId, nextStartDate, nextEndDate);
   }
 
-  if (
-    payload.destino !== undefined ||
-    payload.destino_latitud !== undefined ||
-    payload.destino_longitud !== undefined ||
-    payload.destino_place_id !== undefined
-  ) {
-    await assertDestinationUpdateIsSafe(currentGroup, destinationFields);
-  }
-
   const updateData = {
     ...(payload.nombre !== undefined ? { nombre } : {}),
     ...(payload.descripcion !== undefined ? { descripcion } : {}),
@@ -2308,28 +2048,6 @@ export const updateGroup = async (
       : {}),
     ...(payload.modulo_presupuesto_bloqueado !== undefined
       ? { modulo_presupuesto_bloqueado: payload.modulo_presupuesto_bloqueado === true }
-      : {}),
-    ...(payload.destino_latitud !== undefined ? { destino_latitud: destinationFields.destino_latitud } : {}),
-    ...(payload.destino_longitud !== undefined ? { destino_longitud: destinationFields.destino_longitud } : {}),
-    ...(payload.destino_place_id !== undefined ? { destino_place_id: destinationFields.destino_place_id } : {}),
-    ...(payload.destino_formatted_address !== undefined ? { destino_formatted_address: destinationFields.destino_formatted_address } : {}),
-    ...(payload.destino_place_id !== undefined || payload.destino_photo_name !== undefined
-      ? { destino_photo_name: destinationFields.destino_photo_name }
-      : {}),
-    ...(payload.destino_place_id !== undefined || payload.destino_photo_url !== undefined
-      ? { destino_photo_url: destinationFields.destino_photo_url }
-      : {}),
-    ...((payload.destino !== undefined || payload.destino_latitud !== undefined || payload.destino_longitud !== undefined || payload.destino_place_id !== undefined) &&
-    (currentGroup.punto_partida_tipo ?? 'destino_viaje') === 'destino_viaje'
-      ? {
-          punto_partida_tipo: 'destino_viaje',
-          punto_partida_nombre: payload.destino || currentGroup.destino || null,
-          punto_partida_direccion: destinationFields.destino_formatted_address ?? payload.destino ?? currentGroup.destino ?? null,
-          punto_partida_latitud: destinationFields.destino_latitud,
-          punto_partida_longitud: destinationFields.destino_longitud,
-          punto_partida_place_id: destinationFields.destino_place_id,
-          punto_partida_actualizado_at: new Date().toISOString(),
-        }
       : {}),
   };
 

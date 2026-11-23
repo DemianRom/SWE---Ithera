@@ -75,12 +75,9 @@ router.patch('/preferences', requireAuth, async (req: Request, res: Response, ne
     const validKeys = [
       'notificaciones_correo',
       'notificaciones_grupo',
-      'notificaciones_votos',
-      'notificaciones_comentarios',
       'notificaciones_invitaciones',
       'notificaciones_finanzas',
-      'notificaciones_vuelos',
-      'notificaciones_hospedajes'
+      'notificaciones_alertas',
     ];
     
     const updatePayload: any = {};

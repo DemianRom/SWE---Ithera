@@ -13,7 +13,7 @@ import {
   updateBudget,
   updateExpense,
 } from '../domain/budget/budget.service';
-import { generateCollectionReceiptPdf } from '../domain/checkout/pdf.service';
+import { generateCollectionReceiptPdf } from '../domain/budget/pdf.service';
 
 const router = Router({ mergeParams: true });
 

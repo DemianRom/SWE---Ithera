@@ -22,7 +22,6 @@ jobs:
       SUPABASE_SECRET_KEY: test-service-role-key
       FRONTEND_URL: http://localhost:5173
       PORT: 3001
-      LOCK_TTL_MINUTES: 10
 
     defaults:
       run:

@@ -11,12 +11,8 @@ import {
 const DEFAULT_PREFERENCES = {
   notificaciones_correo: true,
   notificaciones_grupo: true,
-  notificaciones_votos: true,
-  notificaciones_comentarios: true,
   notificaciones_invitaciones: true,
   notificaciones_finanzas: true,
-  notificaciones_vuelos: true,
-  notificaciones_hospedajes: true,
   notificaciones_alertas: true,
 };
 
@@ -91,12 +87,8 @@ export const updatePreferences = async (
 
   if (payload.notificaciones_correo !== undefined) updateData.notificaciones_correo = payload.notificaciones_correo;
   if (payload.notificaciones_grupo !== undefined) updateData.notificaciones_grupo = payload.notificaciones_grupo;
-  if (payload.notificaciones_votos !== undefined) updateData.notificaciones_votos = payload.notificaciones_votos;
-  if (payload.notificaciones_comentarios !== undefined) updateData.notificaciones_comentarios = payload.notificaciones_comentarios;
   if (payload.notificaciones_invitaciones !== undefined) updateData.notificaciones_invitaciones = payload.notificaciones_invitaciones;
   if (payload.notificaciones_finanzas !== undefined) updateData.notificaciones_finanzas = payload.notificaciones_finanzas;
-  if (payload.notificaciones_vuelos !== undefined) updateData.notificaciones_vuelos = payload.notificaciones_vuelos;
-  if (payload.notificaciones_hospedajes !== undefined) updateData.notificaciones_hospedajes = payload.notificaciones_hospedajes;
   if (payload.notificaciones_alertas !== undefined) updateData.notificaciones_alertas = payload.notificaciones_alertas;
 
   const { data, error } = await supabase
@@ -165,16 +157,11 @@ const shouldNotifyByPreferences = (
   tipo: string,
   preferences: typeof DEFAULT_PREFERENCES
 ): boolean => {
-  if (tipo.includes('voto')) return preferences.notificaciones_votos;
-  if (tipo.includes('comentario')) return preferences.notificaciones_comentarios;
   if (tipo.includes('invitacion')) return preferences.notificaciones_invitaciones;
   if (tipo.includes('finanzas') || tipo.includes('gasto') || tipo.includes('presupuesto')) return preferences.notificaciones_finanzas ?? true;
-  if (tipo.includes('vuelo')) return preferences.notificaciones_vuelos ?? true;
-  if (tipo.includes('hospedaje') || tipo.includes('hotel')) return preferences.notificaciones_hospedajes ?? true;
   if (
     tipo.includes('grupo') ||
     tipo.includes('miembro') ||
-    tipo.includes('propuesta') ||
     tipo.includes('actividad')
   ) {
     return preferences.notificaciones_grupo;
@@ -237,15 +224,8 @@ const buildNotificationAction = (
   if (tipo.includes('documento')) {
     return { actionUrl: `${base}&tab=boveda`, actionLabel: 'Ver archivos' };
   }
-  if (tipo.includes('vuelo') || tipo.includes('hospedaje') || tipo.includes('hotel')) {
-    return { actionUrl: base, actionLabel: 'Ver propuesta' };
-  }
   if (
     tipo.includes('actividad') ||
-    tipo.includes('propuesta') ||
-    tipo.includes('voto') ||
-    tipo.includes('comentario') ||
-    tipo.includes('subgrupo') ||
     tipo.includes('itinerario') ||
     tipo.includes('solicitud_union') ||
     tipo.includes('invitacion') ||

@@ -350,32 +350,6 @@ const ensureNoGroupActivityCollision = async ({
     );
   }
 
-  if (!groupId) return;
-
-  const { data: subgroupSlots, error: subgroupSlotsError } = await supabase
-    .from("subgroup_slots")
-    .select("id, title, starts_at, ends_at")
-    .eq("group_id", groupId);
-  if (subgroupSlotsError) throw new Error(subgroupSlotsError.message);
-
-  const conflictingSlot = (subgroupSlots ?? []).find((slot: any) => {
-    const slotRange = toActivityRange(
-      slot.starts_at ? String(slot.starts_at) : null,
-      slot.ends_at ? String(slot.ends_at) : null,
-    );
-    return candidateRange && slotRange
-      ? rangesOverlap(candidateRange, slotRange)
-      : false;
-  });
-
-  if (conflictingSlot) {
-    throw Object.assign(
-      new Error(
-        `Este horario se empalma con el bloque de subgrupos "${String((conflictingSlot as any).title ?? "Horario de subgrupos")}"`,
-      ),
-      { statusCode: 409 },
-    );
-  }
 };
 
 const addDays = (dateValue: string, days: number): string => {

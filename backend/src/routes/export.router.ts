@@ -8,7 +8,7 @@ import { supabase } from '../infrastructure/db/supabase.client';
 const router = Router();
 
 const TOKEN_TTL_MS = 1000 * 60 * 60 * 24 * 7;
-const SHARE_SECRET = process.env.SHARE_LINK_SECRET || env.SUPABASE_SECRET_KEY;
+const SHARE_SECRET = env.SHARE_LINK_SECRET;
 
 type SharePayload = {
   groupId: string;
@@ -99,7 +99,7 @@ router.get('/shared/:token', async (req: Request, res: Response): Promise<void> 
 
     const { data: group, error: groupError } = await supabase
       .from('grupos_viaje')
-      .select('id, nombre, destino, destino_formatted_address, fecha_inicio, fecha_fin')
+      .select('id, nombre, destino, fecha_inicio, fecha_fin')
       .eq('id', payload.groupId)
       .maybeSingle();
 

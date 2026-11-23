@@ -240,7 +240,6 @@ export const deleteAccountByAuthId = async (authUserId: string) => {
 export interface UserTravelStats {
   tripsAsAdmin: number;
   tripsAsTraveler: number;
-  acceptedProposals: number;
   totalSpent: number;
   countriesVisited: number;
   destinations: string[];
@@ -276,7 +275,7 @@ export const getUserTravelStatsByAuthId = async (authUserId: string): Promise<Us
 
   const { data: memberships, error: membershipsError } = await supabaseAdmin
     .from('grupo_miembros')
-    .select('rol, grupos_viaje(id, nombre, destino, destino_formatted_address, estado, fecha_inicio, fecha_fin)')
+    .select('rol, grupos_viaje(id, nombre, destino, estado, fecha_inicio, fecha_fin)')
     .eq('usuario_id', userId);
 
   if (membershipsError) {
@@ -298,22 +297,6 @@ export const getUserTravelStatsByAuthId = async (authUserId: string): Promise<Us
 
   const tripsAsAdmin = normalizedMemberships.filter((item) => item.rol === 'admin').length;
   const tripsAsTraveler = normalizedMemberships.filter((item) => item.rol !== 'admin').length;
-  const groupIds = normalizedMemberships
-    .map((item) => Number(item.group.id))
-    .filter((id) => Number.isFinite(id));
-
-  let acceptedProposals = 0;
-  if (groupIds.length > 0) {
-    const { count, error } = await supabaseAdmin
-      .from('propuestas')
-      .select('id_propuesta', { count: 'exact', head: true })
-      .in('grupo_id', groupIds)
-      .eq('estado', 'aprobada');
-
-    if (error) throw error;
-    acceptedProposals = count ?? 0;
-  }
-
   const { data: paidExpenses, error: paidExpensesError } = await supabaseAdmin
     .from('expenses')
     .select('amount')
@@ -329,10 +312,7 @@ export const getUserTravelStatsByAuthId = async (authUserId: string): Promise<Us
   }, 0);
 
   const destinations = uniqueNonEmpty(
-    normalizedMemberships.flatMap((item) => [
-      item.group.destino,
-      item.group.destino_formatted_address,
-    ]),
+    normalizedMemberships.map((item) => item.group.destino),
   );
 
   const recentTrips = normalizedMemberships
@@ -346,7 +326,7 @@ export const getUserTravelStatsByAuthId = async (authUserId: string): Promise<Us
     .map((item) => ({
       id: Number(item.group.id),
       nombre: String(item.group.nombre ?? 'Viaje sin nombre'),
-      destino: item.group.destino ?? item.group.destino_formatted_address ?? null,
+      destino: item.group.destino ?? null,
       estado: item.group.estado ?? null,
       fecha_inicio: item.group.fecha_inicio ?? null,
       fecha_fin: item.group.fecha_fin ?? null,
@@ -356,7 +336,6 @@ export const getUserTravelStatsByAuthId = async (authUserId: string): Promise<Us
   return {
     tripsAsAdmin,
     tripsAsTraveler,
-    acceptedProposals,
     totalSpent,
     countriesVisited: destinations.length,
     destinations,

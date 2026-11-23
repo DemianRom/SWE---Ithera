@@ -63,7 +63,6 @@ export interface BudgetExpensePayload {
   member_ids?: string[];
   split_amounts?: Record<string, number>;
   expense_date?: string | null;
-  subgroup_id?: string;
 }
 
 export interface MarkSettlementPaymentPayload {

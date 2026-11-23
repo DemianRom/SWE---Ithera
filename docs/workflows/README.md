@@ -52,7 +52,6 @@ SUPABASE_ANON_KEY=test-anon-key
 SUPABASE_SECRET_KEY=test-service-role-key
 FRONTEND_URL=http://localhost:5173
 PORT=3001
-LOCK_TTL_MINUTES=10
 ```
 
 Notas:

@@ -6,20 +6,12 @@ import { env } from './config/env';
 import { errorHandler } from './middlewares/errorHandler.middleware';
 import authRouter from './routes/auth.router';
 import tripsRouter from './routes/trips.router';
-import flightsRouter from './routes/flights.router';
-import hotelsRouter from './routes/hotels.router';
-import mapsRouter from './routes/maps.router';
-import proposalsRouter from './routes/proposals.router';
-import votesCommentsRouter from './routes/votesComments.router';
 import budgetRouter from './routes/budget.router';
 import notificationsRouter from './routes/notifications.router';
 import documentsRouter from './routes/documents.router';
-import checkoutRouter from './routes/checkout.router';
 import contextLinksRouter from './routes/context-links.router';
-import searchHistoryRouter from './routes/search-history.router';
 import exportRouter from './routes/export.router';
 import { initSocketServer } from './infrastructure/sockets/socket.server';
-import { startLockScheduler } from './infrastructure/sockets/lock.scheduler';
 
 const app = express();
 const httpServer = createServer(app);
@@ -64,22 +56,14 @@ app.use('/api/groups/:groupId/context-links', contextLinksRouter);
 app.use('/api/groups/:groupId/documents', documentsRouter);
 app.use('/api/groups/:groupId/vault', documentsRouter);
 app.use('/api/groups', tripsRouter);
-app.use('/api/flights', flightsRouter);
-app.use('/api/hotels', hotelsRouter);
-app.use('/api/maps', mapsRouter);
-app.use('/api/proposals', proposalsRouter);
-app.use('/api/proposals', votesCommentsRouter);
 app.use('/api/budget', budgetRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/documents', documentsRouter);
-app.use('/api/checkout', checkoutRouter);
-app.use('/api/search-history', searchHistoryRouter);
 app.use('/api/export', exportRouter);
 app.use(errorHandler);
 
-// ── Socket.IO + Scheduler ─────────────────────────────────────────
-const io = initSocketServer(httpServer);
-startLockScheduler(io);
+// ── Socket.IO ─────────────────────────────────────────────────────
+initSocketServer(httpServer);
 
 // ── Arranque ──────────────────────────────────────────────────────
 httpServer.listen(env.PORT, () => {

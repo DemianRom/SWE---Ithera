@@ -63,10 +63,6 @@ router.post('/', requireAuth, async (req: Request, res: Response): Promise<void>
       nombre,
       descripcion,
       destino,
-      destino_latitud,
-      destino_longitud,
-      destino_place_id,
-      destino_formatted_address,
       fecha_inicio,
       fecha_fin,
       maximo_miembros,
@@ -76,10 +72,6 @@ router.post('/', requireAuth, async (req: Request, res: Response): Promise<void>
       nombre?: string;
       descripcion?: string;
       destino?: string;
-      destino_latitud?: number | null;
-      destino_longitud?: number | null;
-      destino_place_id?: string | null;
-      destino_formatted_address?: string | null;
       fecha_inicio?: string;
       fecha_fin?: string;
       maximo_miembros?: number;
@@ -162,10 +154,6 @@ router.post('/', requireAuth, async (req: Request, res: Response): Promise<void>
       nombre,
       descripcion,
       destino,
-      destino_latitud,
-      destino_longitud,
-      destino_place_id,
-      destino_formatted_address,
       fecha_inicio,
       fecha_fin,
       maximo_miembros,
@@ -227,17 +215,6 @@ router.get('/invite-preview/:code', async (req: Request, res: Response): Promise
 router.use('/:groupId/itinerary', itineraryRouter);
 router.use('/:groupId/chat', chatRouter);
 
-
-router.get('/:groupId/travel-context', requireAuth, async (req: Request, res: Response): Promise<void> => {
-  try {
-    const context = await GroupsService.getGroupTravelContext(req.user!.id, req.params.groupId);
-    res.status(200).json({ ok: true, data: context });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Error desconocido';
-    const status = (err as any).statusCode ?? 500;
-    res.status(status).json({ ok: false, error: status === 500 ? 'No se pudo cargar el punto de partida del viaje' : msg });
-  }
-});
 
 router.get('/:groupId', requireAuth, async (req: Request, res: Response): Promise<void> => {
   try {

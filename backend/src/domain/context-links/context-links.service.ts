@@ -24,7 +24,7 @@ type RawContextLink = {
   updated_at?: string | null;
 };
 
-const ENTITY_TYPES: ContextEntityType[] = ['activity', 'document', 'expense', 'subgroup_activity'];
+const ENTITY_TYPES: ContextEntityType[] = ['activity', 'document', 'expense'];
 
 const createError = (message: string, statusCode: number): ServiceError => {
   const err = new Error(message) as ServiceError;
@@ -112,16 +112,6 @@ const getItineraryIds = async (groupId: string): Promise<string[]> => {
   return (data ?? []).map((item: any) => String(item.id_itinerario));
 };
 
-const getSlotIds = async (groupId: string): Promise<string[]> => {
-  const { data, error } = await supabaseAdmin
-    .from('subgroup_slots')
-    .select('id')
-    .eq('group_id', groupId);
-
-  if (error) throw createError(error.message, 500);
-  return (data ?? []).map((item: any) => String(item.id));
-};
-
 const loadExpenses = async (groupId: string): Promise<ContextEntitySummary[]> => {
   const { data, error } = await supabaseAdmin
     .from('expenses')
@@ -192,39 +182,12 @@ const loadActivities = async (groupId: string): Promise<ContextEntitySummary[]> 
   }));
 };
 
-const loadSubgroupActivities = async (groupId: string): Promise<ContextEntitySummary[]> => {
-  const slotIds = await getSlotIds(groupId);
-  if (slotIds.length === 0) return [];
-
-  const { data, error } = await supabaseAdmin
-    .from('subgroup_activities')
-    .select('id, title, location, starts_at, subgroup_id, slot_id')
-    .in('slot_id', slotIds)
-    .order('starts_at', { ascending: true, nullsFirst: false });
-
-  if (error) throw createError(error.message, 500);
-
-  return (data ?? []).map((item: any) => ({
-    type: 'subgroup_activity',
-    id: String(item.id),
-    label: item.title || `Actividad de subgrupo ${item.id}`,
-    subtitle: compactSubtitle(item.starts_at, item.location),
-    metadata: {
-      startsAt: item.starts_at,
-      location: item.location,
-      subgroupId: item.subgroup_id,
-      slotId: item.slot_id,
-    },
-  }));
-};
-
 const buildSummaryMap = async (groupId: string): Promise<Map<string, ContextEntitySummary>> => {
   const options = await getContextLinkOptionsForGroup(groupId);
   const summaries = [
     ...options.expenses,
     ...options.documents,
     ...options.activities,
-    ...options.subgroupActivities,
   ];
 
   return new Map(summaries.map((summary) => [keyFor(summary), summary]));
@@ -268,20 +231,6 @@ const assertEntityBelongsToGroup = async (groupId: string, entity: ContextEntity
       if (!data) throw createError('El elemento seleccionado no existe o no pertenece a este grupo', 404);
       return;
     }
-    case 'subgroup_activity': {
-      const slotIds = await getSlotIds(groupId);
-      if (slotIds.length === 0) throw createError('El elemento seleccionado no existe o no pertenece a este grupo', 404);
-
-      const { data, error } = await supabaseAdmin
-        .from('subgroup_activities')
-        .select('id')
-        .eq('id', entity.id)
-        .in('slot_id', slotIds)
-        .maybeSingle();
-      if (error) throw createError(error.message, 500);
-      if (!data) throw createError('El elemento seleccionado no existe o no pertenece a este grupo', 404);
-      return;
-    }
   }
 };
 
@@ -305,14 +254,13 @@ const mapLink = (
 };
 
 export const getContextLinkOptionsForGroup = async (groupId: string): Promise<ContextLinkOptions> => {
-  const [expenses, documents, activities, subgroupActivities] = await Promise.all([
+  const [expenses, documents, activities] = await Promise.all([
     loadExpenses(groupId),
     loadDocuments(groupId),
     loadActivities(groupId),
-    loadSubgroupActivities(groupId),
   ]);
 
-  return { expenses, documents, activities, subgroupActivities };
+  return { expenses, documents, activities };
 };
 
 export const getContextLinkOptions = async (authUserId: string, groupId: string) => {

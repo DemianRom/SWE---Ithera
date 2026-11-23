@@ -37,12 +37,6 @@ const initialDb = (): MockDatabase => ({
     { id_actividad: '30', itinerario_id: '20', titulo: 'Museo', ubicacion: 'Centro', fecha_inicio: '2026-06-07T12:00:00Z', estado: 'confirmada' },
     { id_actividad: '31', itinerario_id: '21', titulo: 'Actividad otro grupo', ubicacion: 'Otro', fecha_inicio: '2026-06-07T12:00:00Z', estado: 'confirmada' },
   ],
-  subgroup_slots: [
-    { id: '40', group_id: '7' },
-  ],
-  subgroup_activities: [
-    { id: '50', slot_id: '40', subgroup_id: '41', title: 'Playa en subgrupo', location: 'Bahia', starts_at: '2026-06-08T12:00:00Z' },
-  ],
   trip_context_links: [],
 });
 
@@ -177,26 +171,6 @@ describe('ContextLinksService integration trajectories', () => {
     expect(fromDocument).toHaveLength(3);
     expect(labels).toEqual(expect.arrayContaining(['Cena centro', 'Taxi museo', 'Museo', 'recibo-cena.pdf']));
     expect(mockDb.trip_context_links).toHaveLength(3);
-  });
-
-  it('subgroup activity can link to expense and document', async () => {
-    await ContextLinksService.createContextLink('auth-user', '7', {
-      source: { type: 'subgroup_activity', id: '50' },
-      target: { type: 'expense', id: '10' },
-    });
-    await ContextLinksService.createContextLink('auth-user', '7', {
-      source: { type: 'subgroup_activity', id: '50' },
-      target: { type: 'document', id: 'doc-b' },
-    });
-
-    const links = await ContextLinksService.listContextLinks('auth-user', '7', {
-      type: 'subgroup_activity',
-      id: '50',
-    });
-
-    expect(links).toHaveLength(2);
-    expect(links.map((link) => [link.entityA.label, link.entityB.label]).flat())
-      .toEqual(expect.arrayContaining(['Playa en subgrupo', 'Cena centro', 'boleto-museo.pdf']));
   });
 
   it('rejects linking an entity from another group', async () => {

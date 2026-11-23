@@ -250,7 +250,7 @@ async function main() {
       target: { type: 'document', id: String(doc.id) },
     });
     await api(b.token, 'GET', `/groups/${gid}/context-links`);
-  }, { expectedUntil: 3 }); // hoy carga también entidades de subgrupos (subgroup_slots)
+  });
 
   const payment = await step('Registrar pago entre compañeros con comprobante', async () => {
     assert(doc, 'falta el documento del paso anterior');
