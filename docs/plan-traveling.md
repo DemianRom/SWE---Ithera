@@ -1,6 +1,6 @@
 # Plan de migración: Ithera → Traveling (Equipo 2)
 
-> Estado: **Fase 1 en curso** · Última actualización: 2026-11-23
+> Estado: **Fase 3 en curso** (fases 1 y 2 aplicadas en producción, pendientes de merge) · Última actualización: 2026-11-23
 
 ## Contexto
 
@@ -62,8 +62,8 @@ la versión del Equipo 2: **cuentas compartidas del viaje**.
 | --- | --- | --- | --- |
 | 0 | Preparación: repo, DNS, Supabase, correo | S | Lista |
 | 1 | Hosting en el servidor | M | En curso |
-| 2 | Esquema base en Supabase | L | Pendiente |
-| 3 | Poda de módulos del Equipo 1 y fuera de alcance | L | Pendiente |
+| 2 | Esquema base en Supabase | L | Lista |
+| 3 | Poda de módulos del Equipo 1 y fuera de alcance | L | En curso |
 | 4 | Itinerario básico | M | Pendiente |
 | 5 | Funciones de finanzas del Equipo 2 | L | Pendiente |
 | 6 | Renombre, documentación y CI | M | Pendiente |
@@ -227,56 +227,67 @@ con OTP funciona.
 
 ## Fase 3 — Poda
 
-Backend, se borra:
+Rama: `refactor/remove-team1-modules` (sale de `feature/traveling-schema`).
 
-- [ ] `domain/`: `flights`, `hotels`, `maps`, `proposals` (con `lock.service`), `votes-comments`,
-      `checkout`, `search-history`, `itinerary/subgroup-schedule.service.ts`,
-      `groups/subgroup-chat.service.ts`.
-- [ ] `routes/`: los routers equivalentes, las rutas `/subgroups/*` de `itinerary.router.ts` y
-      `/travel-context` de `trips.router.ts`.
-- [ ] `infrastructure/`: `external-apis/*`, `sockets/lock.scheduler.ts`, handlers de locks y de
-      salas de subgrupo, placeholder de Redis.
-- [ ] **Antes** de borrar `checkout`: mover `generateCollectionReceiptPdf` a `domain/budget/`
-      (lo usa `budget.router.ts`).
+Backend:
 
-Backend, se recorta:
+- [x] Borrados `domain/` `flights`, `hotels`, `maps`, `proposals` (con `lock.service`),
+      `votes-comments`, `checkout`, `search-history`, `subgroup-schedule.service.ts`,
+      `subgroup-chat.service.ts`; sus routers; las rutas `/subgroups/*` y `/travel-context`;
+      `infrastructure/external-apis/*`, `lock.scheduler.ts` y el placeholder de Redis.
+- [x] `generateCollectionReceiptPdf` movido a `domain/budget/pdf.service.ts` antes de borrar `checkout`.
+- [x] Sockets: sin bloqueos de propuestas ni salas de subgrupo; quedan salas del viaje, presencia y chat.
+- [x] Recortes: destino en texto libre (sin Google Places), sin punto de partida/hotel, sin
+      estadística de propuestas, sin gastos por subgrupo, sin `subgroup_activity` en enlaces, sin
+      tipos de notificación de propuestas/vuelos/hospedajes.
+- [x] `env.ts`/`.env.example` solo con Supabase, SMTP y `SHARE_LINK_SECRET` (obligatorio en
+      producción; ya no se firma con la secret key).
+- [x] Tests: fuera `proposals.service.test.ts`, `INTEGRITY_TEST_REPORT.md` y `test_sockets.mjs`
+      (eran de propuestas y bloqueos); `context-links` sin el caso de subgrupos. 21/21 pasan.
+- [x] Dependencias sin uso fuera: `axios`, `socket.io-client` (backend).
+- [x] Migración `20261123210400_remove_ithera_leftovers.sql`: quita las columnas temporales de
+      `grupos_viaje`, el tipo `subgroup_activity` y las preferencias `votos`, `comentarios`,
+      `vuelos`, `hospedajes`.
+- [x] De paso: la lista de preferencias permitidas no incluía `notificaciones_alertas` (no se
+      podía guardar); corregido.
 
-- [ ] `groups.service.ts`: Google Places del destino (texto libre) y punto de partida/hotel.
-- [ ] `auth.service.ts`: estadística de propuestas aceptadas del perfil.
-- [ ] `budget.service.ts`: gastos con alcance de subgrupo.
-- [ ] `context-links`: el tipo `subgroup_activity`.
-- [ ] `notifications.service.ts`: tipos y acciones de propuestas.
-- [ ] `env.ts` y `.env.example`: fuera `AMADEUS_*`, `DUFFEL_*`, `LITEAPI_*`, `GOOGLE_*`,
-      `WEATHER_*`, `LOCK_TTL_MINUTES`; entra `SHARE_LINK_SECRET` propio (hoy cae a la secret key).
-- [ ] Tests: fuera `proposals.service.test.ts` (y su `INTEGRITY_TEST_REPORT.md`); ajustar `budget`
-      y `context-links`.
-- [ ] Migración: quitar de `grupos_viaje` las columnas temporales (`destino_place_id`,
-      `destino_photo_*`, `destino_latitud/longitud`, `punto_partida_*`) y el tipo
-      `subgroup_activity` de `trip_context_links`.
-- [ ] Smoke test: los pasos "esperado hasta la fase 3" deben pasar.
+Frontend:
 
-Frontend, se borra:
+- [x] Borrados `pages/Search/*`, `Comparison`, `Checkout`; componentes de propuestas, checkout,
+      subgrupos, `SubgroupChatDrawer`, `GoogleMiniMap`, `DestinationSearch`,
+      `ActivityProposalModal`; servicios de vuelos, hoteles, mapas, propuestas, checkout,
+      historial y subgrupos; `useSyncQueue` (cola offline de propuestas) e `idb`; `mock/`.
+- [x] `DashboardPage.tsx` de 4,663 a ~2,050 líneas: pestañas Finanzas (por defecto),
+      Itinerario y Archivos; sin vista de subgrupos, votación, comentarios, mapas ni el bloqueo
+      de "presupuesto requerido". La carga pide cada parte por separado (si falla el itinerario,
+      Finanzas y Archivos siguen funcionando).
+- [x] Panel derecho: el mapa/clima/punto de partida se cambió por una tarjeta de destino con
+      enlace a Google Maps por texto (sin API key); el resumen de presupuesto ya existía.
+- [x] Crear viaje y configuración: destino como campo de texto.
+- [x] Finanzas y Archivos sin gastos por subgrupo ni actividades de subgrupo.
+- [x] Perfil: sin la estadística de propuestas ni las preferencias de votos, vuelos y hospedajes.
+- [x] Botones de Google/Facebook solo si están en `VITE_OAUTH_PROVIDERS` (vacío = solo correo).
+- [x] `tsc`, lint y build limpios.
 
-- [ ] `pages/`: `Search/*`, `Comparison`, `Checkout`.
-- [ ] `components/`: `ProposalCard`, `ProposalDetailModal`, `ConfirmProposalModal`, `checkout/*`,
-      `subgroups/*`, `chat/SubgroupChatDrawer`, `GoogleMiniMap`, `DestinationSearch`.
-- [ ] `services/`: `flights`, `hotels`, `maps`, `proposals`, `checkout`, `search-history`,
-      `subgroups`, `subgroup-chat`; `hooks/useSyncQueue.ts` y la dependencia `idb`.
-- [ ] Rutas en `App.tsx`; variable `VITE_GOOGLE_MAPS_BROWSER_KEY`.
+Verificación:
 
-Frontend, se recorta:
+- [x] Supabase local con las 3 migraciones + backend nuevo: smoke test **29/29**, y ligar
+      comprobante a gasto ya pasa. Sin el error de bloqueos en los logs.
 
-- [ ] `DashboardPage.tsx`: fuera pestañas Vuelos y Hoteles, Comparar, Mapas, la vista de subgrupos
-      y el bloqueo `requiresInitialBudget`. Quedan Finanzas (por defecto), Itinerario, Archivos y el
-      chat. Sin reescribir; si sigue enorme, extraer componentes.
-- [ ] `RightPanelDashboard`: mapa/clima/punto de partida → resumen financiero.
-- [ ] `Navbar` (acciones de notificaciones), `ProfilePage`, `CreateGroupPage` (destino en texto libre).
-- [ ] Botones de OAuth según `VITE_OAUTH_PROVIDERS`.
-- [ ] **[Tú]** Revisión y merge del PR por otra persona del equipo (regla del repo).
+Pendiente:
+
+- [ ] **[OK]** Desplegar en producción **antes** de aplicar la migración (el backend anterior
+      todavía escribe las columnas que se borran) y luego `npx supabase db push`.
+- [ ] **[Tú]** Revisar en el navegador que Finanzas, Archivos, chat, crear viaje y perfil se ven bien.
+- [ ] **[Tú]** Revisión y merge del PR por otra persona del equipo.
+
+Mientras llega la fase 4, la pestaña Itinerario muestra el estado vacío y no hay botón para
+agregar actividades (el backend del itinerario todavía depende de `propuestas`). La documentación
+de API, tiempo real, variables y arquitectura se actualiza en la fase 6.
 
 **Lista cuando:** `tsc`, lint, build y tests pasan en ambos lados; buscar
-`proposal|subgroup|duffel|amadeus|liteapi|googlemaps` solo encuentra lo intencional; en producción
-no hay 404 de la API.
+`proposal|subgroup|duffel|amadeus|liteapi|googlemaps` solo encuentra lo intencional (itinerario y
+`DayView`, fase 4; textos de la landing, fase 6); en producción no hay 404 de la API.
 
 ## Fase 4 — Itinerario básico
 
