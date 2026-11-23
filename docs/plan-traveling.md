@@ -210,10 +210,16 @@ legados). En lugar de repetirlas se creó una línea base nueva.
       inesperados**. Fallas esperadas: crear/consultar actividad (fase 4), ligar comprobante a
       gasto (fase 3: el servicio carga entidades de subgrupos) y notificación de pagos (fase 5:
       Ithera nunca las guardaba, solo emitía el evento de socket).
-- [ ] **[Tú]** `npx supabase login` y `npx supabase link --project-ref mgbobudfoxfaxzwougys`
+- [x] **[Tú]** `npx supabase login` y `npx supabase link --project-ref mgbobudfoxfaxzwougys`
       (desde la raíz del repo; pide la contraseña de la base de datos).
-- [ ] **[OK]** `npx supabase db push` y `npx supabase config push` al proyecto en la nube.
-- [ ] Smoke test contra producción (`https://traveling.tonyquezada.com/api`).
+- [x] **[OK]** `npx supabase db push` y `npx supabase config push` al proyecto en la nube.
+      Antes de empujar la config se alinearon con la nube los valores que no se querían cambiar
+      (MFA TOTP, pooler, `storage.vector`); el proyecto traía OTP de 8 dígitos y quedó en 6.
+- [x] Migración `20261123204821_grant_service_role.sql`: en proyectos nuevos de Supabase las tablas
+      de una migración no reciben privilegios automáticos (ni para `service_role`), a diferencia de
+      la pila local. Se otorgan solo a `service_role` y se revocan a `anon`/`authenticated`.
+- [x] Smoke test contra producción (`https://traveling.tonyquezada.com/api`): **29/29 sin errores
+      inesperados**, y la base quedó vacía después de la limpieza.
 - [ ] **[Tú]** Registrarte con un correo real y confirmar que llega el código OTP.
 
 **Lista cuando:** el smoke test pasa contra producción sin errores inesperados y el registro

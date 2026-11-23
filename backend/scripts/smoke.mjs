@@ -316,8 +316,9 @@ async function main() {
   await step('RLS: con la publishable key no se leen ni escriben tablas', async () => {
     const anon = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, clientOptions);
     for (const table of ['usuarios', 'grupos_viaje', 'expenses', 'settlement_payments', 'trip_documents']) {
+      // Sin privilegios responde "permission denied"; con RLS sin políticas, una lista vacía.
       const { data, error } = await anon.from(table).select('*').limit(1);
-      assert(!error && data?.length === 0, `${table}: la publishable key pudo leer filas`);
+      assert(error || data?.length === 0, `${table}: la publishable key pudo leer filas`);
     }
     const { error } = await anon.from('grupos_viaje').insert({ nombre: 'x', codigo_invitacion: run, presupuesto_total: 1 });
     assert(error, 'la publishable key pudo insertar en grupos_viaje');

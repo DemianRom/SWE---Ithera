@@ -10,7 +10,8 @@ y se aplican con la Supabase CLI.
 supabase/
 |-- config.toml                    # Configuracion del proyecto (Auth, SMTP, plantillas, local)
 |-- migrations/
-|   `-- 20261123120000_traveling_baseline.sql   # Esquema base
+|   |-- 20261123120000_traveling_baseline.sql   # Esquema base
+|   `-- 20261123204821_grant_service_role.sql   # Privilegios explicitos de tablas
 `-- templates/                     # Plantillas de correo de Auth (codigo OTP)
 ```
 
@@ -29,8 +30,12 @@ Archivo: `backend/src/infrastructure/db/supabase.client.ts`
 
 ## Seguridad (RLS)
 
-- RLS esta activo en todas las tablas y **no hay politicas**. Con la publishable key no se puede
-  leer ni escribir ninguna tabla; el smoke test lo verifica.
+- Solo `service_role` (secret key) tiene privilegios sobre las tablas; `anon` y `authenticated`
+  no tienen ninguno. Ademas, RLS esta activo en todas las tablas y **no hay politicas**. Con la
+  publishable key no se puede leer ni escribir nada; el smoke test lo verifica.
+- Ojo: en proyectos nuevos de Supabase las tablas creadas por migraciones **no** reciben
+  privilegios automaticos (en la pila local si). Los `alter default privileges` de
+  `20261123204821_grant_service_role.sql` cubren las tablas futuras creadas como `postgres`.
 - El backend usa la secret key (ignora RLS), por eso **cada endpoint debe validar permisos**
   (miembro del viaje, admin, autor) antes de consultar o modificar datos.
 - El frontend solo usa Supabase para autenticarse; nunca consulta tablas directo.
@@ -113,7 +118,8 @@ tablas del Equipo 1 (ver [../plan-traveling.md](../plan-traveling.md)).
 - Una migracion por cambio, creada con `npx supabase migration new`.
 - No editar migraciones ya aplicadas en la nube; crear una nueva.
 - Incluir constraints cuando el dato tenga estados cerrados.
-- Toda tabla nueva lleva `enable row level security`.
+- Toda tabla nueva lleva `enable row level security` (los privilegios para `service_role` llegan
+  solos por los default privileges).
 - Actualizar servicios backend y tipos frontend si cambia el contrato.
 - Actualizar [../api/endpoints.md](../api/endpoints.md) si cambia un payload visible.
 - Probar en local (`db reset` + smoke test) antes de `db push`.
