@@ -332,7 +332,7 @@ Verificación:
 
 Pendiente:
 
-- [ ] **[OK]** Desplegar en producción y luego `npx supabase db push`.
+- [x] **[OK]** Desplegar en producción y luego `npx supabase db push`. Smoke test en producción: 34/34.
 - [ ] **[Tú]** Revisar en el navegador: agregar, editar y borrar actividades; ligar un gasto a
       una actividad y ver "Gastado aquí"; enlace público del itinerario.
 
