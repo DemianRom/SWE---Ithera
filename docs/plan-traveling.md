@@ -140,9 +140,9 @@ Servidor:
 
 - [x] Clon de producción en `~/traveling` con `.env` de la raíz (valores públicos) y
       `backend/.env` (no secretos + `SHARE_LINK_SECRET` generado).
-- [ ] **[Tú]** Llenar en `~/traveling/backend/.env`: `SUPABASE_SECRET_KEY`, `SMTP_USER`,
+- [x] **[Tú]** Llenar en `~/traveling/backend/.env`: `SUPABASE_SECRET_KEY`, `SMTP_USER`,
       `SMTP_PASS` y `MAIL_FROM`.
-- [ ] **[OK]** Agregar el bloque de `traveling.tonyquezada.com` al Caddyfile del servidor y recargar Caddy:
+- [x] **[OK]** Agregar el bloque de `traveling.tonyquezada.com` al Caddyfile del servidor y recargar Caddy:
 
   ```
   traveling.tonyquezada.com {
@@ -157,16 +157,21 @@ Servidor:
   }
   ```
 
-- [ ] **[OK]** Primer `docker compose up -d --build` en `~/traveling`.
-- [ ] **[OK]** Autorizar la llave de deploy en `~/.ssh/authorized_keys` con
+- [x] **[OK]** Primer `docker compose up -d --build` en `~/traveling` (desde la rama `ci/self-hosting`).
+- [x] **[OK]** Autorizar la llave de deploy en `~/.ssh/authorized_keys` con
       `restrict,command="/home/tony/traveling/deploy.sh --ssh"`.
-- [ ] **[Tú]** Secrets en GitHub (*Settings → Secrets and variables → Actions*): `DEPLOY_KEY`,
+- [x] **[Tú]** Secrets en GitHub (*Settings → Secrets and variables → Actions*): `DEPLOY_KEY`,
       `DEPLOY_TARGET`, `DEPLOY_KNOWN_HOSTS`.
 - [ ] **[Tú]** PR `ci/self-hosting` → `develop` (revisión de otra persona) y luego `develop` → `main`.
       Al llegar a `main`, la copia de `~/traveling` pasa a la rama `main` y el deploy queda automático.
 
 **Lista cuando:** `https://traveling.tonyquezada.com/health` responde; recargar `/my-trips` no da
 404; `/socket.io/?EIO=4&transport=polling` responde 200; un push a `main` se publica solo.
+
+Verificado en producción (2026-11-23): certificado de Let's Encrypt emitido por Caddy; `/health`,
+`/`, `/my-trips` y el polling de Socket.IO responden 200; el upgrade a WebSocket responde 101; la
+API sin token responde 401; la llave de deploy solo puede ejecutar `deploy.sh`. Falta solo el
+primer deploy automático, que ocurre al llegar esta rama a `main`.
 
 ## Fase 2 — Esquema base en Supabase
 
