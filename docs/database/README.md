@@ -75,7 +75,7 @@ npx supabase migration new descripcion_corta    # crea supabase/migrations/<time
 Probarla en local antes de subirla (levanta Postgres, Auth, REST y Storage en Docker):
 
 ```bash
-SMTP_USER=local@example.com SMTP_PASS=x npx supabase start \
+SMTP_USER=local@example.com SMTP_PASS=x GOOGLE_CLIENT_SECRET=x npx supabase start \
   -x realtime,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
 npx supabase db reset          # recrea la base local aplicando todas las migraciones
 npx supabase stop --no-backup  # al terminar
@@ -90,12 +90,19 @@ Aplicar al proyecto en la nube:
 npx supabase db push           # aplica las migraciones pendientes
 ```
 
-Cambios de Auth (URLs, SMTP, plantillas) se editan en `supabase/config.toml` y se aplican con:
+Cambios de Auth (URLs, SMTP, plantillas, proveedores OAuth) se editan en `supabase/config.toml`
+y se aplican con `config push`. Los secretos se leen del entorno: `SMTP_USER` y `SMTP_PASS`
+(los mismos de `backend/.env`) y `GOOGLE_CLIENT_SECRET` (en `supabase/.env`, que git ignora).
 
 ```bash
-set -a; . <ruta>/backend/.env; set +a     # SMTP_USER y SMTP_PASS
+export SMTP_USER=... SMTP_PASS=... GOOGLE_CLIENT_SECRET=...
+npx supabase config diff     # revisar qué cambiaría
 npx supabase config push
 ```
+
+Inicio de sesión con Google: el cliente OAuth vive en Google Cloud y su URI de redirección
+autorizada es `https://<project-ref>.supabase.co/auth/v1/callback`. En el frontend los botones
+se muestran solo si `VITE_OAUTH_PROVIDERS` los incluye (p. ej. `google`).
 
 `deploy.sh` no toca la base de datos: las migraciones se aplican a mano con la CLI.
 
