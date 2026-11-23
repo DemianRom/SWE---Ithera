@@ -279,9 +279,11 @@ Pendiente:
 - [x] **[OK]** Desplegar en producción **antes** de aplicar la migración (el backend anterior
       todavía escribe las columnas que se borran) y luego `npx supabase db push`. Smoke test en
       producción: 29/29; los datos reales se conservan.
-- [ ] Inicio de sesión con Google: proveedor configurado en `supabase/config.toml` (Client ID).
-      Falta **[Tú]** la URI de redirección y la pantalla de consentimiento en Google Cloud y el
-      secreto en `supabase/.env`; luego **[OK]** `config push` y `VITE_OAUTH_PROVIDERS=google`.
+- [x] Inicio de sesión con Google: proveedor en `supabase/config.toml` (Client ID público; el
+      secreto vive en `supabase/.env`, ignorado por git), `config push` aplicado y
+      `VITE_OAUTH_PROVIDERS=google` en producción. Verificado: Supabase redirige a Google con el
+      cliente y callback correctos y Google no reporta errores de cliente.
+- [ ] **[Tú]** Probar el login con Google de punta a punta en el navegador.
 - [ ] **[Tú]** Revisar en el navegador que Finanzas, Archivos, chat, crear viaje y perfil se ven bien.
 - [ ] **[Tú]** Revisión y merge del PR por otra persona del equipo.
 
