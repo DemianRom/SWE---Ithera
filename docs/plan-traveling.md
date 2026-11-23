@@ -129,13 +129,16 @@ Código:
       (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`).
 - [x] CI y README: Node 20 → 24.
 
-Verificado en local: `tsc`, build y tests del backend (falla solo `amadeus.integrity.test.ts`,
-que llama a la API real de Amadeus y se borra en la fase 3); ambas imágenes construyen; `/health`,
-el polling de Socket.IO, el healthcheck, el fallback SPA y la caché de `/assets` responden bien.
+- [x] Borrado `backend/tests/amadeus.integrity.test.ts`: llamaba a `test.api.amadeus.com`, que ya
+      no resuelve, y dejaba el CI en rojo (de todos modos era de la fase 3).
+
+Verificado en local: backend `tsc`, build y 27/27 tests; frontend lint y `tsc`; ambas imágenes
+construyen; `/health`, el polling de Socket.IO, el healthcheck, el fallback SPA y la caché de
+`/assets` responden bien.
 
 Servidor:
 
-- [ ] Clon de producción en `~/traveling` con `.env` de la raíz (valores públicos) y
+- [x] Clon de producción en `~/traveling` con `.env` de la raíz (valores públicos) y
       `backend/.env` (no secretos + `SHARE_LINK_SECRET` generado).
 - [ ] **[Tú]** Llenar en `~/traveling/backend/.env`: `SUPABASE_SECRET_KEY`, `SMTP_USER`,
       `SMTP_PASS` y `MAIL_FROM`.
