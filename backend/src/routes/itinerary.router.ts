@@ -39,46 +39,13 @@ router.post('/activities', requireAuth, async (req: Request, res: Response): Pro
       return;
     }
 
-    const {
+    const { titulo, descripcion, ubicacion, fecha_inicio, fecha_fin } = req.body ?? {};
+    const activity = await ItineraryService.createGroupActivity(req.user!.id, groupId, {
       titulo,
       descripcion,
       ubicacion,
-      latitud,
-      longitud,
       fecha_inicio,
       fecha_fin,
-      referencia_externa,
-      fuente,
-      payload,
-    } = req.body as {
-      titulo?: string;
-      descripcion?: string | null;
-      ubicacion?: string | null;
-      latitud?: number | null;
-      longitud?: number | null;
-      fecha_inicio?: string | null;
-      fecha_fin?: string | null;
-      referencia_externa?: string | null;
-      fuente?: string | null;
-      payload?: Record<string, unknown> | null;
-    };
-
-    if (!titulo?.trim()) {
-      res.status(400).json({ ok: false, error: 'titulo es requerido' });
-      return;
-    }
-
-    const activity = await ItineraryService.createGroupActivity(req.user!.id, groupId, {
-      titulo: titulo.trim(),
-      descripcion: descripcion ?? null,
-      ubicacion: ubicacion ?? null,
-      latitud: latitud ?? null,
-      longitud: longitud ?? null,
-      fecha_inicio: fecha_inicio ?? null,
-      fecha_fin: fecha_fin ?? null,
-      referencia_externa: referencia_externa ?? null,
-      fuente: fuente ?? 'google_maps',
-      payload: payload ?? null,
     });
 
     res.status(201).json({
@@ -107,11 +74,16 @@ router.patch('/activities/:activityId', requireAuth, async (req: Request, res: R
       return;
     }
 
+    const { titulo, descripcion, ubicacion, fecha_inicio, fecha_fin } = req.body ?? {};
+    const payload = Object.fromEntries(
+      Object.entries({ titulo, descripcion, ubicacion, fecha_inicio, fecha_fin })
+        .filter(([, value]) => value !== undefined),
+    );
     const activity = await ItineraryService.updateGroupActivity(
       req.user!.id,
       groupId,
       activityId,
-      req.body
+      payload
     );
 
     res.status(200).json({

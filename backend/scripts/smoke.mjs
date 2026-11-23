@@ -83,6 +83,14 @@ async function step(name, fn, { expectedUntil } = {}) {
   }
 }
 
+async function expectStatus(token, method, route, body, status) {
+  const res = await api(token, method, route, body, { raw: true });
+  if (res.status !== status) {
+    const text = await res.text();
+    throw new Error(`${method} ${route}: se esperaba HTTP ${status} y llegó ${res.status} (${text.slice(0, 120)})`);
+  }
+}
+
 function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
@@ -180,19 +188,43 @@ async function main() {
     await api(b.token, 'GET', '/groups/my-history');
   });
 
-  await step('Crear actividad en el itinerario', async () => {
-    await api(a.token, 'POST', `/groups/${gid}/itinerary/activities`, {
+  // 16:00 UTC = 10:00 en Ciudad de México
+  const activity = await step('Crear actividad en el itinerario (integrante, sin votación)', async () => {
+    const res = await api(b.token, 'POST', `/groups/${gid}/itinerary/activities`, {
       titulo: 'Visita a Monte Albán',
       descripcion: 'Smoke test',
       ubicacion: 'Monte Albán, Oaxaca',
       fecha_inicio: `${day(8)}T16:00:00.000Z`,
       fecha_fin: `${day(8)}T18:00:00.000Z`,
     });
-  }, { expectedUntil: 4 });
+    assert(res.activity?.id && res.activity.status === 'confirmada', 'la actividad no quedó confirmada');
+    return res.activity;
+  });
 
   await step('Consultar itinerario (GET /groups/:id/itinerary)', async () => {
-    await api(a.token, 'GET', `/groups/${gid}/itinerary`);
-  }, { expectedUntil: 4 });
+    const res = await api(c.token, 'GET', `/groups/${gid}/itinerary`);
+    assert(res.days?.length === 4, `se esperaban 4 días, llegaron ${res.days?.length}`);
+    const found = res.days.flatMap((d) => d.activities).find((x) => x.id === activity?.id);
+    assert(found?.time === '10:00', `hora esperada 10:00, llegó ${found?.time}`);
+  });
+
+  await step('Editar actividad (quien la creó)', async () => {
+    const res = await api(b.token, 'PATCH', `/groups/${gid}/itinerary/activities/${activity.id}`, {
+      titulo: 'Monte Albán y Atzompa',
+    });
+    assert(res.activity?.title === 'Monte Albán y Atzompa', 'no se actualizó el título');
+  });
+
+  await step('Permisos: otro integrante no edita una actividad ajena', async () => {
+    await expectStatus(c.token, 'PATCH', `/groups/${gid}/itinerary/activities/${activity.id}`, { titulo: 'x' }, 403);
+  });
+
+  await step('Validación: se rechaza una actividad que se traslapa', async () => {
+    await expectStatus(c.token, 'POST', `/groups/${gid}/itinerary/activities`, {
+      titulo: 'Traslape',
+      fecha_inicio: `${day(8)}T17:00:00.000Z`,
+    }, 409);
+  });
 
   await step('Registrar gasto con reparto equitativo', async () => {
     await api(a.token, 'POST', `/budget/${gid}/expenses`, {
@@ -250,6 +282,14 @@ async function main() {
       target: { type: 'document', id: String(doc.id) },
     });
     await api(b.token, 'GET', `/groups/${gid}/context-links`);
+  });
+
+  await step('Ligar un gasto a una actividad del itinerario', async () => {
+    assert(activity && expenseB, 'faltan la actividad o el gasto de pasos anteriores');
+    await api(b.token, 'POST', `/groups/${gid}/context-links`, {
+      source: { type: 'expense', id: String(expenseB.id) },
+      target: { type: 'activity', id: String(activity.id) },
+    });
   });
 
   const payment = await step('Registrar pago entre compañeros con comprobante', async () => {
@@ -322,6 +362,12 @@ async function main() {
     }
     const { error } = await anon.from('grupos_viaje').insert({ nombre: 'x', codigo_invitacion: run, presupuesto_total: 1 });
     assert(error, 'la publishable key pudo insertar en grupos_viaje');
+  });
+
+  await step('Eliminar actividad (admin) y sus enlaces', async () => {
+    await api(a.token, 'DELETE', `/groups/${gid}/itinerary/activities/${activity.id}`);
+    const res = await api(a.token, 'GET', `/groups/${gid}/context-links`);
+    assert(!JSON.stringify(res).includes(`"activity","id":"${activity.id}"`), 'quedó un enlace a la actividad borrada');
   });
 
   await step('Eliminar viaje (DELETE /groups/:id)', async () => {

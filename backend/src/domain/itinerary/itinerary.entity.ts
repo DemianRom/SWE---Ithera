@@ -1,25 +1,22 @@
-export type ItineraryActivityStatus = 'pendiente' | 'confirmada' | 'cancelada';
+export type ItineraryActivityStatus = 'confirmada' | 'cancelada';
 
 export interface ItineraryActivity {
   id: string;
-  proposalId?: string | null;
   title: string;
   description: string;
-  category: 'transporte' | 'hospedaje' | 'actividad';
-  status: 'confirmada' | 'pendiente';
+  location?: string;
+  /** Hora de inicio formateada (HH:mm, hora de Ciudad de México). */
+  time: string;
+  startsAt: string | null;
+  endsAt: string | null;
+  status: 'confirmada';
+  createdBy: string | null;
+  createdByName: string | null;
+  // Campos de presentación que el frontend ya espera para cada tarjeta.
+  category: 'actividad';
   price: number;
   currency: string;
-  time: string;
-  location?: string;
   image: string;
-  externalReference?: string | null;
-  latitude?: number | null;
-  longitude?: number | null;
-  createdBy?: string | null;
-  hasVoted?: boolean;
-  adminDecisionType?: 'A' | null;
-  startsAt?: string | null;
-  endsAt?: string | null;
 }
 
 export interface ItineraryDay {
@@ -28,15 +25,10 @@ export interface ItineraryDay {
   activities: ItineraryActivity[];
 }
 
-export interface CreateItineraryActivityPayload {
-  titulo: string;
+export interface ActivityPayload {
+  titulo?: string | null;
   descripcion?: string | null;
   ubicacion?: string | null;
-  latitud?: number | null;
-  longitud?: number | null;
   fecha_inicio?: string | null;
   fecha_fin?: string | null;
-  referencia_externa?: string | null;
-  fuente?: string | null;
-  payload?: Record<string, unknown> | null;
 }

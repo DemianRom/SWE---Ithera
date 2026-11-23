@@ -1833,7 +1833,7 @@ export const resolveJoinRequest = async (
  * CU-2.10 — Autoarchivar viajes vencidos.
  * Actualiza a 'cerrado' todos los grupos con estado 'activo' cuya fecha_fin
  * ya pasó. Se ejecuta antes de responder /groups/my-history.
- * No toca viajes sin fecha_fin ni elimina miembros, gastos ni propuestas.
+ * No toca viajes sin fecha_fin ni elimina miembros ni gastos.
  * Si falla lanza ERR-210-001 según el estándar de manejo de errores.
  */
 const CLOSED_GROUP_STATUSES = new Set(['cerrado', 'archivado', 'finalizado']);
