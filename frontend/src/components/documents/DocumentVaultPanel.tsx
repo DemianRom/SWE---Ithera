@@ -64,7 +64,6 @@ interface Props {
   } | null
   onOpenBudget?: () => void
   onOpenItinerary?: () => void
-  onOpenSubgroups?: () => void
   isReadOnly?: boolean
 }
 
@@ -79,7 +78,6 @@ const EMPTY_LINK_OPTIONS: ContextLinkOptions = {
   expenses: [],
   documents: [],
   activities: [],
-  subgroupActivities: [],
 }
 
 const VAULT_CACHE_TTL_MS = 2 * 60 * 1000
@@ -133,7 +131,7 @@ const otherEntityForDocument = (link: ContextLink, documentId: string): ContextE
 }
 
 const isVaultContextType = (type: ContextEntityRef['type']): boolean =>
-  type === 'expense' || type === 'activity' || type === 'subgroup_activity'
+  type === 'expense' || type === 'activity'
 
 const todayValue = () => new Date().toISOString().split('T')[0]
 
@@ -199,7 +197,6 @@ export const DocumentVaultPanel: FC<Props> = ({
   currentUser = null,
   onOpenBudget,
   onOpenItinerary,
-  onOpenSubgroups,
   isReadOnly = false,
 }) => {
   const { accessToken } = useAuth()
@@ -416,7 +413,7 @@ export const DocumentVaultPanel: FC<Props> = ({
     setEditingExpenseIds(linked.filter((entity) => entity.type === 'expense').map((entity) => entity.id))
     setEditingActivityKeys(
       linked
-        .filter((entity) => entity.type === 'activity' || entity.type === 'subgroup_activity')
+        .filter((entity) => entity.type === 'activity')
         .map(entityKey)
     )
   }
@@ -836,7 +833,7 @@ export const DocumentVaultPanel: FC<Props> = ({
             {filteredItems.map((item) => {
               const linkedEntities = getLinksForDocument(item.id)
               const linkedExpenses = linkedEntities.filter((entity) => entity.type === 'expense')
-              const linkedActivities = linkedEntities.filter((entity) => entity.type === 'activity' || entity.type === 'subgroup_activity')
+              const linkedActivities = linkedEntities.filter((entity) => entity.type === 'activity')
 
               return (
                 <div key={item.id} className="rounded-2xl border border-[#E2E8F0] bg-[#FCFDFE] px-4 py-4">
@@ -886,14 +883,11 @@ export const DocumentVaultPanel: FC<Props> = ({
                               <button
                                 key={entityKey(entity)}
                                 type="button"
-                                onClick={() => {
-                                  if (entity.type === 'subgroup_activity') onOpenSubgroups?.()
-                                  else onOpenItinerary?.()
-                                }}
+                                onClick={() => onOpenItinerary?.()}
                                 className="max-w-full rounded-full border border-[#D8C8FF] bg-[#F3EEFF] px-2.5 py-1 font-body text-[11px] font-semibold text-[#5B35B1] hover:bg-[#ECE4FF]"
                                 title={entity.label}
                               >
-                                {entity.type === 'subgroup_activity' ? 'Subgrupo' : 'Actividad'}:{' '}
+                                Actividad:{' '}
                                 <span className="font-medium">{entity.label}</span>
                               </button>
                             ))}
@@ -1062,11 +1056,11 @@ export const DocumentVaultPanel: FC<Props> = ({
                   )
                 })}
                 {selectedActivityKeys.map((activityKey) => {
-                  const activity = [...linkOptions.activities, ...linkOptions.subgroupActivities].find((item) => entityKey(item) === activityKey)
+                  const activity = linkOptions.activities.find((item) => entityKey(item) === activityKey)
                   if (!activity) return null
                   return (
                     <span key={activityKey} className="rounded-full border border-[#D8C8FF] bg-[#F3EEFF] px-3 py-1.5 font-body text-xs font-semibold text-[#5B35B1]">
-                      {activity.type === 'subgroup_activity' ? 'Subgrupo' : 'Actividad'}: {activity.label}
+                      Actividad: {activity.label}
                     </span>
                   )
                 })}
@@ -1190,7 +1184,7 @@ export const DocumentVaultPanel: FC<Props> = ({
         }}
       >
         <div className="flex max-h-56 flex-wrap gap-2 overflow-y-auto">
-          {[...linkOptions.activities, ...linkOptions.subgroupActivities].map((activity) => {
+          {linkOptions.activities.map((activity) => {
             const key = entityKey(activity)
             const selected =
               actionModal?.target === 'document'
@@ -1208,7 +1202,7 @@ export const DocumentVaultPanel: FC<Props> = ({
                 className={`max-w-full rounded-full border px-3 py-1.5 font-body text-xs font-semibold ${selected ? 'border-[#7A4FD6] bg-[#7A4FD6] text-white' : 'border-[#D7DEEA] bg-white text-[#3D4A5C]'}`}
               >
                 <span className="mr-1 text-[10px] opacity-75">
-                  {activity.type === 'subgroup_activity' ? 'Subgrupo' : 'Itinerario'}
+                  Itinerario
                 </span>
                 <span className="inline-block max-w-[190px] truncate align-bottom">{activity.label}</span>
               </button>

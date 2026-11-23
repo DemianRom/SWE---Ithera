@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import logoWhite from "../../assets/logo-white.png";
 import googleIcon from "../../assets/google.png";
 import facebookIcon from "../../assets/facebook.png";
+import { isOAuthProviderEnabled, oauthProviderCount } from "../../lib/oauth";
 import { useNavigate, Link, useSearchParams, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
 import { ApiError, apiClient } from "../../services/apiClient";
@@ -482,69 +483,77 @@ export function LoginPage() {
               Bienvenido de nuevo
             </h2>
 
-            {/* Social buttons */}
-            <div className="mb-8 grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                disabled={isOffline || loading}
-                onClick={async () => {
-                  try {
-                    setLoading(true);
-                    await loginWithGoogle(redirect);
-                  } catch (err) {
-                    const message =
-                      err instanceof Error
-                        ? err.message
-                        : "No se pudo iniciar con Google";
-                    setError(message);
-                    setLoading(false);
-                  }
-                }}
-                className="flex h-[54px] items-center justify-center gap-3 rounded-[14px] border border-[#D9DEE7] bg-white text-[16px] font-medium text-[#344054] transition hover:border-[#2C8BE6] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <img
-                  src={googleIcon}
-                  alt="Google"
-                  className="h-5 w-5 object-contain"
-                />
-                <span>Google</span>
-              </button>
+            {oauthProviderCount > 0 && (
+              <>
+                {/* Social buttons */}
+                <div className={`mb-8 grid gap-4 ${oauthProviderCount > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
+                  {isOAuthProviderEnabled("google") && (
+                    <button
+                      type="button"
+                      disabled={isOffline || loading}
+                      onClick={async () => {
+                        try {
+                          setLoading(true);
+                          await loginWithGoogle(redirect);
+                        } catch (err) {
+                          const message =
+                            err instanceof Error
+                              ? err.message
+                              : "No se pudo iniciar con Google";
+                          setError(message);
+                          setLoading(false);
+                        }
+                      }}
+                      className="flex h-[54px] items-center justify-center gap-3 rounded-[14px] border border-[#D9DEE7] bg-white text-[16px] font-medium text-[#344054] transition hover:border-[#2C8BE6] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <img
+                        src={googleIcon}
+                        alt="Google"
+                        className="h-5 w-5 object-contain"
+                      />
+                      <span>Google</span>
+                    </button>
+                  )}
 
-              <button
-                type="button"
-                disabled={isOffline || loading}
-                onClick={async () => {
-                  try {
-                    setLoading(true);
-                    await loginWithFacebook(redirect);
-                  } catch (err) {
-                    const message =
-                      err instanceof Error
-                        ? err.message
-                        : "No se pudo iniciar con Facebook";
-                    setError(message);
-                    setLoading(false);
-                  }
-                }}
-                className="flex h-[54px] items-center justify-center gap-3 rounded-[14px] border border-[#D9DEE7] bg-white text-[16px] font-medium text-[#344054] transition hover:border-[#2C8BE6] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <img
-                  src={facebookIcon}
-                  alt="Facebook"
-                  className="h-5 w-5 object-contain"
-                />
-                <span>Facebook</span>
-              </button>
-            </div>
+                  {isOAuthProviderEnabled("facebook") && (
+                    <button
+                      type="button"
+                      disabled={isOffline || loading}
+                      onClick={async () => {
+                        try {
+                          setLoading(true);
+                          await loginWithFacebook(redirect);
+                        } catch (err) {
+                          const message =
+                            err instanceof Error
+                              ? err.message
+                              : "No se pudo iniciar con Facebook";
+                          setError(message);
+                          setLoading(false);
+                        }
+                      }}
+                      className="flex h-[54px] items-center justify-center gap-3 rounded-[14px] border border-[#D9DEE7] bg-white text-[16px] font-medium text-[#344054] transition hover:border-[#2C8BE6] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <img
+                        src={facebookIcon}
+                        alt="Facebook"
+                        className="h-5 w-5 object-contain"
+                      />
+                      <span>Facebook</span>
+                    </button>
+                  )}
+                </div>
 
-            {/* Divider */}
-            <div className="mb-8 flex items-center gap-4">
-              <div className="h-px flex-1 bg-[#E4E7EC]" />
-              <span className="text-[14px] text-[#98A2B3]">
-                o continúa con tu correo
-              </span>
-              <div className="h-px flex-1 bg-[#E4E7EC]" />
-            </div>
+                {/* Divider */}
+                <div className="mb-8 flex items-center gap-4">
+                  <div className="h-px flex-1 bg-[#E4E7EC]" />
+                  <span className="text-[14px] text-[#98A2B3]">
+                    o continúa con tu correo
+                  </span>
+                  <div className="h-px flex-1 bg-[#E4E7EC]" />
+                </div>
+              </>
+            )}
 
             {/* Session expired banner */}
             {sessionExpired && (

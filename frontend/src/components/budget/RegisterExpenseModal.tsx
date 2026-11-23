@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import type { FC } from 'react'
 import type { Expense } from './BudgetDashboard'
 import type { BudgetMember } from '../../services/budget'
@@ -8,11 +8,6 @@ import type { TripDocumentCategory } from '../../services/documents'
 interface Props {
   open: boolean
   members: BudgetMember[]
-  subgroupScope?: {
-    subgroupId: string
-    memberUserIds: string[]
-    label?: string | null
-  } | null
   activityOptions?: ContextEntitySummary[]
   documentOptions?: ContextEntitySummary[]
   editingExpense?: Expense | null
@@ -119,7 +114,6 @@ function ActionModal({
 export const RegisterExpenseModal: FC<Props> = ({
   open,
   members,
-  subgroupScope = null,
   activityOptions = [],
   documentOptions = [],
   editingExpense,
@@ -147,11 +141,7 @@ export const RegisterExpenseModal: FC<Props> = ({
   const [activeContextModal, setActiveContextModal] = useState<ExpenseContextModalMode>(null)
   const [activityFilter, setActivityFilter] = useState('')
   const [documentModalTab, setDocumentModalTab] = useState<'associate' | 'create'>('associate')
-  const scopedMemberIds = useMemo(() => subgroupScope?.memberUserIds ?? [], [subgroupScope?.memberUserIds])
-  const hasScopedMembers = scopedMemberIds.length > 0
-  const effectiveMembers = hasScopedMembers
-    ? members.filter((member) => scopedMemberIds.includes(member.usuario_id))
-    : members
+  const effectiveMembers = members
 
   useEffect(() => {
     if (!open) return
@@ -161,17 +151,12 @@ export const RegisterExpenseModal: FC<Props> = ({
       setDescription(editingExpense.titulo)
       setDate(editingExpense.fecha)
       setCategory(editingExpense.categoria)
-      setPaidBy(
-        hasScopedMembers && !scopedMemberIds.includes(editingExpense.pagadoPorId)
-          ? (effectiveMembers[0]?.usuario_id ?? '')
-          : editingExpense.pagadoPorId
-      )
+      setPaidBy(editingExpense.pagadoPorId)
       setSplitType(editingExpense.splitType ?? 'equitativa')
       setSelectedMemberIds(
-        (editingExpense.participantIds?.length
+        editingExpense.participantIds?.length
           ? editingExpense.participantIds
-          : effectiveMembers.map((member) => member.usuario_id))
-          .filter((memberId) => !hasScopedMembers || scopedMemberIds.includes(memberId))
+          : effectiveMembers.map((member) => member.usuario_id)
       )
       setSplitAmounts(
         Object.fromEntries(
@@ -200,7 +185,7 @@ export const RegisterExpenseModal: FC<Props> = ({
       setDraftDocumentNotes('')
       setActivityFilter('')
     }
-  }, [open, editingExpense, effectiveMembers, hasScopedMembers, scopedMemberIds])
+  }, [open, editingExpense, effectiveMembers])
 
   if (!open) return null
 
@@ -292,7 +277,6 @@ export const RegisterExpenseModal: FC<Props> = ({
         category: draftDocumentCategory,
         notes: draftDocumentNotes.trim(),
       } : null,
-      subgroupId: subgroupScope?.subgroupId ?? undefined,
       ...(parsedSplitAmounts !== undefined && { splitAmounts: parsedSplitAmounts }),
     }
 
@@ -422,11 +406,6 @@ export const RegisterExpenseModal: FC<Props> = ({
 
             <div>
               <label className="mb-1.5 block font-body text-sm font-medium text-[#3D4A5C]">Participantes</label>
-              {subgroupScope?.label && (
-                <p className="mb-1.5 font-body text-xs text-[#64748B]">
-                  Modo subgrupo: solo integrantes de {subgroupScope.label}
-                </p>
-              )}
               <div className="flex flex-wrap gap-2 rounded-xl border border-[#E2E8F0] bg-[#F4F6F8] px-3 py-3">
                 {effectiveMembers.map((member) => {
                   const selected = selectedMemberIds.includes(member.usuario_id)
@@ -616,7 +595,7 @@ export const RegisterExpenseModal: FC<Props> = ({
                       ].join(' ')}
                     >
                       <span className="mr-1 text-[10px] opacity-75">
-                        {activity.type === 'subgroup_activity' ? 'Subgrupo' : 'Itinerario'}
+                        Itinerario
                       </span>
                       <span className="inline-block max-w-[210px] truncate align-bottom">{activity.label}</span>
                     </button>

@@ -173,7 +173,6 @@ function Toggle({
 type TravelStats = {
   tripsAsAdmin: number
   tripsAsTraveler: number
-  acceptedProposals: number
   totalSpent: number
   countriesVisited: number
   destinations: string[]
@@ -489,10 +488,7 @@ export function ProfilePage() {
   // ── Preferences state ─────────────────────────────────────────────────────
   const [notifEmail, setNotifEmail] = useState(true)
   const [notifGroup, setNotifGroup] = useState(true)
-  const [notifVotes, setNotifVotes] = useState(true)
   const [notifFinance, setNotifFinance] = useState(true)
-  const [notifFlights, setNotifFlights] = useState(true)
-  const [notifHotels, setNotifHotels] = useState(true)
 
   useEffect(() => {
     if (accessToken) {
@@ -501,10 +497,7 @@ export function ProfilePage() {
           if (res.ok && res.preferences) {
             setNotifEmail(res.preferences.notificaciones_correo)
             setNotifGroup(res.preferences.notificaciones_grupo)
-            setNotifVotes(res.preferences.notificaciones_votos ?? true)
             setNotifFinance(res.preferences.notificaciones_finanzas ?? true)
-            setNotifFlights(res.preferences.notificaciones_vuelos ?? true)
-            setNotifHotels(res.preferences.notificaciones_hospedajes ?? true)
           }
         })
         .catch(console.error)
@@ -514,27 +507,18 @@ export function ProfilePage() {
   type NotificationPreferenceKey =
     | 'notificaciones_correo'
     | 'notificaciones_grupo'
-    | 'notificaciones_votos'
     | 'notificaciones_finanzas'
-    | 'notificaciones_vuelos'
-    | 'notificaciones_hospedajes'
 
   const preferenceSetters: Record<NotificationPreferenceKey, Dispatch<SetStateAction<boolean>>> = {
     notificaciones_correo: setNotifEmail,
     notificaciones_grupo: setNotifGroup,
-    notificaciones_votos: setNotifVotes,
     notificaciones_finanzas: setNotifFinance,
-    notificaciones_vuelos: setNotifFlights,
-    notificaciones_hospedajes: setNotifHotels,
   }
 
   const preferenceValues: Record<NotificationPreferenceKey, boolean> = {
     notificaciones_correo: notifEmail,
     notificaciones_grupo: notifGroup,
-    notificaciones_votos: notifVotes,
     notificaciones_finanzas: notifFinance,
-    notificaciones_vuelos: notifFlights,
-    notificaciones_hospedajes: notifHotels,
   }
 
   const handleTogglePref = async (key: NotificationPreferenceKey, val: boolean) => {
@@ -635,7 +619,7 @@ export function ProfilePage() {
               <div>
                 <h2 className="font-heading font-bold text-[#1E0A4E] text-base">Mis estadísticas de viaje</h2>
                 <p className="mt-0.5 font-body text-xs text-[#64748B]">
-                  Resumen acumulado de tus viajes, propuestas aceptadas y gasto registrado.
+                  Resumen acumulado de tus viajes y del gasto registrado.
                 </p>
               </div>
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EEF4FF] text-[#1E6FD9]">
@@ -670,7 +654,7 @@ export function ProfilePage() {
                   </div>
                 ) : (
                   <div className="space-y-5">
-                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid gap-3 sm:grid-cols-3">
                       <div className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-4">
                         <p className="font-body text-xs font-semibold uppercase tracking-wide text-[#64748B]">Como Admin</p>
                         <p className="mt-2 font-heading text-2xl font-extrabold text-[#1E0A4E]">{travelStats.tripsAsAdmin}</p>
@@ -678,10 +662,6 @@ export function ProfilePage() {
                       <div className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-4">
                         <p className="font-body text-xs font-semibold uppercase tracking-wide text-[#64748B]">Como Viajero</p>
                         <p className="mt-2 font-heading text-2xl font-extrabold text-[#1E0A4E]">{travelStats.tripsAsTraveler}</p>
-                      </div>
-                      <div className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-4">
-                        <p className="font-body text-xs font-semibold uppercase tracking-wide text-[#64748B]">Propuestas aceptadas</p>
-                        <p className="mt-2 font-heading text-2xl font-extrabold text-[#1E0A4E]">{travelStats.acceptedProposals}</p>
                       </div>
                       <div className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-4">
                         <p className="font-body text-xs font-semibold uppercase tracking-wide text-[#64748B]">Gasto registrado</p>
@@ -976,28 +956,10 @@ export function ProfilePage() {
                 onChange={(val) => handleTogglePref('notificaciones_grupo', val)}
               />
               <Toggle
-                label="Votos y propuestas"
-                description="Avisos cuando votan o cambian propuestas colaborativas."
-                checked={notifVotes}
-                onChange={(val) => handleTogglePref('notificaciones_votos', val)}
-              />
-              <Toggle
                 label="Finanzas"
                 description="Avisos cuando registran gastos, pagos o ajustes de presupuesto."
                 checked={notifFinance}
                 onChange={(val) => handleTogglePref('notificaciones_finanzas', val)}
-              />
-              <Toggle
-                label="Vuelos"
-                description="Avisos cuando alguien propone o actualiza vuelos."
-                checked={notifFlights}
-                onChange={(val) => handleTogglePref('notificaciones_vuelos', val)}
-              />
-              <Toggle
-                label="Hospedajes"
-                description="Avisos cuando alguien propone o actualiza hospedajes."
-                checked={notifHotels}
-                onChange={(val) => handleTogglePref('notificaciones_hospedajes', val)}
               />
             </div>
           </section>

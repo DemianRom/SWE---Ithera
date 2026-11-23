@@ -7,12 +7,6 @@ import {
   saveCurrentGroup,
 } from "../../services/groups";
 import type { ItineraryDay } from "../../services/groups";
-import { mapsService } from "../../services/maps";
-import {
-  proposalsService,
-  type ProposalComment,
-  type VoteResult,
-} from "../../services/proposals";
 import { useAuth } from "../../context/useAuth";
 import {
   AppLayout,
@@ -25,10 +19,6 @@ import type {
   Activity as DayActivity,
   DayViewHandle,
 } from "../../components/ui/DayView";
-import { ComparisonPage } from "../Comparison/ComparisonPage";
-import { ProposalDetailModal } from "../../components/ProposalDetailModal/ProposalDetailModal";
-import { ConfirmProposalModal } from "../../components/ConfirmProposalModal/ConfirmProposalModal";
-import { ActivityProposalModal } from "../../components/ActivityProposalModal/ActivityProposalModal";
 import { BudgetDashboard } from "../../components/budget/BudgetDashboard";
 import { budgetService, type BudgetSummary } from "../../services/budget";
 import {
@@ -38,16 +28,10 @@ import {
   type ContextLink,
 } from "../../services/context-links";
 import { DocumentVaultPanel } from "../../components/documents/DocumentVaultPanel";
-import { SubgroupSchedulePanel } from "../../components/subgroups/SubgroupSchedulePanel";
-import { HelpButton } from "../../components/ui/HelpButton";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
-import {
-  subgroupScheduleService,
-  type SubgroupSlot,
-} from "../../services/subgroups";
 import { useSocket } from "../../hooks/useSocket";
 import { useNetworkMonitor } from "../../hooks/useNetworkMonitor";
-import type { Group, TravelStartLocation } from "../../types/groups";
+import type { Group } from "../../types/groups";
 
 function IconDownload({ size = 14 }: { size?: number }) {
   return (
@@ -83,34 +67,6 @@ function IconDownload({ size = 14 }: { size?: number }) {
   );
 }
 
-function IconSpinner({ size = 14 }: { size?: number }) {
-  return (
-    <svg
-      className="animate-spin"
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <circle
-        cx="12"
-        cy="12"
-        r="9"
-        stroke="currentColor"
-        strokeWidth="3"
-        opacity="0.25"
-      />
-      <path
-        d="M21 12a9 9 0 0 0-9-9"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 function IconPlus({ size = 14 }: { size?: number }) {
   return (
     <svg
@@ -134,38 +90,6 @@ function IconPlus({ size = 14 }: { size?: number }) {
         y1="12"
         x2="19"
         y2="12"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function IconInfo({ size = 16 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-      <line
-        x1="12"
-        y1="8"
-        x2="12"
-        y2="12"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <line
-        x1="12"
-        y1="16"
-        x2="12.01"
-        y2="16"
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
@@ -239,11 +163,7 @@ function DashboardSwitchLoading({
   group?: SwitchingGroupState | Group | null;
 }) {
   const title = group?.nombre || "Cargando viaje";
-  const destination =
-    group?.destino ||
-    group?.destino_formatted_address ||
-    "Preparando información del destino";
-  const imageUrl = group?.destino_photo_url;
+  const destination = group?.destino || "Preparando información del destino";
   const typedGroup = group as Group | SwitchingGroupState | null | undefined;
   const startDate = typedGroup?.fecha_inicio
     ? new Date(typedGroup.fecha_inicio)
@@ -308,19 +228,11 @@ function DashboardSwitchLoading({
     <div className="flex flex-1 items-center justify-center bg-[#F0EEF8] px-6 py-8">
       <div className="w-full max-w-2xl overflow-hidden rounded-3xl border border-[#E2E8F0] bg-white shadow-[0_24px_60px_rgba(30,10,78,0.14)]">
         <div className="relative h-48 overflow-hidden bg-purpleNavbar">
-          {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt={destination}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1E6FD9] via-[#7A4FD6] to-[#1E0A4E]">
-              <span className="font-heading text-6xl font-bold text-white/70">
-                {title[0] ?? "V"}
-              </span>
-            </div>
-          )}
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1E6FD9] via-[#7A4FD6] to-[#1E0A4E]">
+            <span className="font-heading text-6xl font-bold text-white/70">
+              {title[0] ?? "V"}
+            </span>
+          </div>
           <div className="absolute inset-0 bg-gradient-to-t from-[#1E0A4E]/95 via-[#1E0A4E]/45 to-transparent" />
           <div className="absolute bottom-5 left-6 right-6">
             <p className="font-body text-xs font-semibold uppercase tracking-[0.24em] text-white/60">
@@ -375,7 +287,7 @@ function DashboardSwitchLoading({
   );
 }
 
-function EmptyState({ onAdd }: { onAdd: () => void }) {
+function EmptyState({ onAdd }: { onAdd?: () => void }) {
   return (
     <div className="flex flex-1 items-center justify-center px-6 py-16">
       <div className="w-full max-w-2xl rounded-2xl border border-[#D9E4F7] bg-white px-6 py-8 text-center shadow-sm">
@@ -459,13 +371,15 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
             </span>
           ))}
         </div>
-        <button
-          onClick={onAdd}
-          className="inline-flex items-center gap-2 rounded-xl bg-greenAccent px-5 py-3 font-body text-sm font-semibold text-white transition-opacity hover:opacity-90"
-        >
-          <IconPlus size={14} />
-          Proponer primer plan
-        </button>
+        {onAdd && (
+          <button
+            onClick={onAdd}
+            className="inline-flex items-center gap-2 rounded-xl bg-greenAccent px-5 py-3 font-body text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          >
+            <IconPlus size={14} />
+            Agregar primera actividad
+          </button>
+        )}
       </div>
     </div>
   );
@@ -478,28 +392,19 @@ function HeroCard({
   group,
   onAdd,
   onExportPdf,
-  canManageSubgroups,
-  onOpenSubgroups,
 }: {
   activeDay: number | null;
   totalDays: number;
   selectedDay?: ItineraryDay;
   group: ReturnType<typeof getCurrentGroup> | null;
-  onAdd: () => void;
+  onAdd?: () => void;
   onExportPdf: () => void;
-  canManageSubgroups?: boolean;
-  onOpenSubgroups?: () => void;
 }) {
   const activities = selectedDay?.activities ?? [];
-  const pending = activities.filter(
-    (activity) => activity.status === "pendiente",
-  ).length;
-  const destination =
-    group?.destino || group?.destino_formatted_address || "Destino pendiente";
+  const destination = group?.destino || "Destino pendiente";
   const heroTitle = group?.nombre || destination;
   const dateLabel = formatTripDateRange(group?.fecha_inicio, group?.fecha_fin);
   const heroImage =
-    group?.destino_photo_url ||
     "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900&h=400&fit=crop";
 
   return (
@@ -546,19 +451,17 @@ function HeroCard({
               planeada
               {activities.length !== 1 ? "s" : ""}
             </span>
-            <span className="inline-flex items-center gap-2 rounded-xl border border-[#E9D5FF]/40 bg-[#7A4FD6]/35 px-3 py-2 font-body text-sm font-bold text-white shadow-sm backdrop-blur-md">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#F59E0B]" />
-              {pending} pendiente{pending !== 1 ? "s" : ""} de confirmacion
-            </span>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button
-              onClick={onAdd}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-greenAccent px-4 py-2.5 font-body text-base font-semibold text-white transition-opacity hover:opacity-90"
-            >
-              <IconPlus size={14} />
-              Proponer actividad
-            </button>
+            {onAdd && (
+              <button
+                onClick={onAdd}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-greenAccent px-4 py-2.5 font-body text-base font-semibold text-white transition-opacity hover:opacity-90"
+              >
+                <IconPlus size={14} />
+                Agregar actividad
+              </button>
+            )}
             <button
               onClick={onExportPdf}
               className="inline-flex items-center gap-1.5 rounded-xl border border-white/45 bg-black/10 px-4 py-2.5 font-body text-base font-semibold text-white transition-colors hover:bg-white/10"
@@ -566,14 +469,6 @@ function HeroCard({
               <IconDownload size={13} />
               Exportar PDF
             </button>
-            {canManageSubgroups && onOpenSubgroups && (
-              <button
-                onClick={onOpenSubgroups}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-white/45 bg-white/10 px-4 py-2.5 font-body text-base font-semibold text-white transition-colors hover:bg-white/20"
-              >
-                Horario subgrupos
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -788,88 +683,6 @@ function toDateKey(value?: string | null): string | null {
   return `${byType.year}-${byType.month}-${byType.day}`;
 }
 
-function formatSlotTimeRange(startsAt: string, endsAt: string): string {
-  const format = (value: string) =>
-    new Date(value).toLocaleTimeString("es-MX", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-      timeZone: "America/Mexico_City",
-    });
-  return `${format(startsAt)} - ${format(endsAt)}`;
-}
-
-function subgroupSlotsByDay(
-  slots: SubgroupSlot[],
-  tripStartDate?: string | null,
-  currentUserId?: string | number | null,
-): Record<number, DayActivity[]> {
-  const startKey = toDateKey(tripStartDate);
-  if (!startKey) return {};
-
-  return slots.reduce<Record<number, DayActivity[]>>((acc, slot) => {
-    const slotDayKey = toDateKey(slot.starts_at);
-    if (!slotDayKey) return acc;
-
-    const start = new Date(`${startKey}T00:00:00.000Z`).getTime();
-    const current = new Date(`${slotDayKey}T00:00:00.000Z`).getTime();
-    const diffDays = Math.floor((current - start) / 86_400_000);
-    if (!Number.isFinite(diffDays) || diffDays < 0) return acc;
-
-    const dayNumber = diffDays + 1;
-    const participantCount = new Set(
-      slot.memberships.map((membership) => String(membership.user_id)),
-    ).size;
-    const currentMembership = slot.memberships.find(
-      (membership) =>
-        String(membership.user_id) === String(currentUserId ?? ""),
-    );
-    const targetSubgroupId =
-      currentMembership?.subgroup_id != null
-        ? Number(currentMembership.subgroup_id)
-        : (slot.subgroups[0]?.id ?? null);
-    const activity: DayActivity = {
-      id: `subgroup-slot-${slot.id}`,
-      kind: "subgroup-slot",
-      title: slot.title || "Horario de subgrupos",
-      description:
-        slot.description || "Bloque reservado para planes por subgrupo.",
-      category: "actividad",
-      status: "confirmada",
-      price: 0,
-      currency: "MXN",
-      time: formatSlotTimeRange(slot.starts_at, slot.ends_at),
-      image: "",
-      startsAt: slot.starts_at,
-      endsAt: slot.ends_at,
-      createdBy: String(slot.created_by),
-      subgroupSlot: {
-        slotId: slot.id,
-        startsAt: slot.starts_at,
-        endsAt: slot.ends_at,
-        groupCount: slot.subgroups.length,
-        participantCount,
-        targetSubgroupId,
-      },
-    };
-    acc[dayNumber] = [...(acc[dayNumber] ?? []), activity];
-    return acc;
-  }, {});
-}
-
-function mergeSubgroupSlotsIntoDays(
-  days: ItineraryDay[],
-  slots: SubgroupSlot[],
-  tripStartDate?: string | null,
-  currentUserId?: string | number | null,
-): ItineraryDay[] {
-  const byDay = subgroupSlotsByDay(slots, tripStartDate, currentUserId);
-  return days.map((day) => ({
-    ...day,
-    activities: [...day.activities, ...(byDay[day.dayNumber] ?? [])],
-  }));
-}
-
 function addDaysToDateKey(dateKey: string, daysToAdd: number): string {
   const date = new Date(`${dateKey}T00:00:00.000Z`);
   date.setUTCDate(date.getUTCDate() + daysToAdd);
@@ -922,155 +735,14 @@ function formatTripDateRange(
   return `${fullFormatter.format(startDate)} al ${fullFormatter.format(endDate)}`;
 }
 
-function InfoBanner({ memberCount }: { memberCount: number }) {
-  const isSoloTrip = memberCount <= 1;
-
-  return (
-    <div className="mb-4 flex items-start gap-3 rounded-xl border border-bluePrimary/20 bg-[#EEF4FF] px-4 py-3">
-      <span className="mt-0.5 shrink-0 text-bluePrimary">
-        <IconInfo size={16} />
-      </span>
-      <div>
-        <p className="font-body text-base font-semibold leading-tight text-gray700">
-          {isSoloTrip
-            ? "Tus propuestas se confirman automaticamente"
-            : "Acepta propuestas para confirmarlas"}
-        </p>
-        <p className="mt-0.5 font-body text-sm leading-relaxed text-gray500">
-          {isSoloTrip
-            ? "Como eres el unico integrante, cada propuesta nueva se aprueba en cuanto la creas."
-            : "Las actividades con votos necesitan tu aprobacion para ser incluidas en el itinerario final del grupo."}
-        </p>
-      </div>
-    </div>
-  );
-}
-
 function BottomNavbar({
   activeTab,
   onTabChange,
-  isReadOnly = false,
 }: {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  isReadOnly?: boolean;
 }) {
   const tabs = [
-    {
-      id: "inicio",
-      label: "Inicio",
-      color: "#1E6FD9",
-      bg: "#EEF4FF",
-      icon: (
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <polyline
-            points="9 22 9 12 15 12 15 22"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "buscar",
-      label: "Vuelos y Hoteles",
-      color: "#7A4FD6",
-      bg: "#F3EEFF",
-      icon: (
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M21 16v-2l-8-5V3.5a1.5 1.5 0 00-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5L21 16z"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "comparar",
-      label: "Comparar y Reservar",
-      color: "#F59E0B",
-      bg: "#FFF7E6",
-      icon: (
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M18 20V10M12 20V4M6 20v-6"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "mapas",
-      label: "Mapas",
-      color: "#35C56A",
-      bg: "#EAFBF1",
-      icon: (
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-        >
-          <polygon
-            points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <line
-            x1="8"
-            y1="2"
-            x2="8"
-            y2="18"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-          <line
-            x1="16"
-            y1="6"
-            x2="16"
-            y2="22"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-        </svg>
-      ),
-    },
     {
       id: "pagar",
       label: "Finanzas",
@@ -1103,6 +775,36 @@ function BottomNavbar({
       ),
     },
     {
+      id: "inicio",
+      label: "Itinerario",
+      color: "#1E6FD9",
+      bg: "#EEF4FF",
+      icon: (
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <polyline
+            points="9 22 9 12 15 12 15 22"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      ),
+    },
+    {
       id: "boveda",
       label: "Archivos",
       color: "#DB2777",
@@ -1126,9 +828,7 @@ function BottomNavbar({
     },
   ];
 
-  const visibleTabs = isReadOnly
-    ? tabs.filter((tab) => ["inicio", "pagar", "boveda"].includes(tab.id))
-    : tabs;
+  const visibleTabs = tabs;
 
   return (
     <div className="flex h-16 shrink-0 items-center justify-around border-t border-[#E2E8F0] bg-white px-4 shadow-[0_-10px_24px_rgba(15,23,42,0.04)]">
@@ -1165,365 +865,6 @@ function BottomNavbar({
   );
 }
 
-function parseCoordinate(value: unknown, axis: "lat" | "lng"): number | null {
-  if (value == null) return null;
-  if (typeof value === "string" && value.trim() === "") return null;
-
-  const numeric = Number(value);
-  if (!Number.isFinite(numeric)) return null;
-
-  const min = axis === "lat" ? -90 : -180;
-  const max = axis === "lat" ? 90 : 180;
-  if (numeric < min || numeric > max) return null;
-
-  return numeric;
-}
-
-function coordinateKey(lat: number, lng: number): string {
-  return `${lat.toFixed(6)},${lng.toFixed(6)}`;
-}
-
-function MapsTabView({
-  days,
-  group,
-}: {
-  days: ItineraryDay[];
-  group: Group | null;
-}) {
-  const [selectedActivityId, setSelectedActivityId] = useState<
-    string | number | null
-  >(null);
-  const [dayFilter, setDayFilter] = useState<number | "all">("all");
-
-  const activities = useMemo(
-    () =>
-      days.flatMap((day) =>
-        day.activities.map((activity) => ({
-          ...activity,
-          dayNumber: day.dayNumber,
-          dayDate: day.date,
-        })),
-      ),
-    [days],
-  );
-
-  const withCoords = useMemo(() => {
-    return activities.filter((activity) => {
-      const lat = parseCoordinate(activity.latitude, "lat");
-      const lng = parseCoordinate(activity.longitude, "lng");
-      return lat != null && lng != null;
-    });
-  }, [activities]);
-
-  const availableDays = useMemo(
-    () =>
-      Array.from(
-        new Set(withCoords.map((activity) => activity.dayNumber)),
-      ).sort((a, b) => a - b),
-    [withCoords],
-  );
-
-  const filteredActivities = useMemo(
-    () =>
-      dayFilter === "all"
-        ? withCoords
-        : withCoords.filter((activity) => activity.dayNumber === dayFilter),
-    [dayFilter, withCoords],
-  );
-
-  const hubLabel =
-    (group?.punto_partida_tipo === "hotel_reservado" &&
-      group?.punto_partida_direccion) ||
-    group?.destino ||
-    "Punto de partida";
-
-  const hubCoordinates = useMemo(() => {
-    if (
-      group?.punto_partida_tipo === "hotel_reservado" &&
-      group.punto_partida_latitud != null &&
-      group.punto_partida_longitud != null
-    ) {
-      return {
-        lat: Number(group.punto_partida_latitud),
-        lng: Number(group.punto_partida_longitud),
-      };
-    }
-
-    if (group?.destino_latitud != null && group.destino_longitud != null) {
-      return {
-        lat: Number(group.destino_latitud),
-        lng: Number(group.destino_longitud),
-      };
-    }
-
-    return null;
-  }, [group]);
-
-  const activeCardId =
-    selectedActivityId != null &&
-    filteredActivities.some((activity) => activity.id === selectedActivityId)
-      ? selectedActivityId
-      : (filteredActivities[0]?.id ?? null);
-
-  const selectedActivity =
-    selectedActivityId != null
-      ? (filteredActivities.find(
-          (activity) => activity.id === selectedActivityId,
-        ) ?? null)
-      : null;
-
-  if (withCoords.length === 0) {
-    return (
-      <div className="rounded-2xl border border-[#E2E8F0] bg-white p-6 text-center">
-        <p className="font-body text-base text-gray500">
-          No hay actividades con ubicacion para mostrar en mapas.
-        </p>
-      </div>
-    );
-  }
-
-  const firstActivityLat = parseCoordinate(withCoords[0].latitude, "lat");
-  const firstActivityLng = parseCoordinate(withCoords[0].longitude, "lng");
-  const fallbackLat = firstActivityLat ?? 16.8531;
-  const fallbackLng = firstActivityLng ?? -99.8237;
-  const normalizedCenter = hubCoordinates
-    ? { lat: Number(hubCoordinates.lat), lng: Number(hubCoordinates.lng) }
-    : { lat: fallbackLat, lng: fallbackLng };
-
-  const mapCenter =
-    Number.isFinite(normalizedCenter.lat) &&
-    Number.isFinite(normalizedCenter.lng)
-      ? `${normalizedCenter.lat},${normalizedCenter.lng}`
-      : `${fallbackLat},${fallbackLng}`;
-
-  const normalizedPoints = filteredActivities
-    .map((activity) => {
-      const lat = parseCoordinate(activity.latitude, "lat");
-      const lng = parseCoordinate(activity.longitude, "lng");
-      if (lat == null || lng == null) return null;
-      const startsAtValue =
-        typeof activity.startsAt === "string" ? activity.startsAt : null;
-      const startsAtMs = startsAtValue
-        ? new Date(startsAtValue).getTime()
-        : Number.POSITIVE_INFINITY;
-      return { lat, lng, dayNumber: activity.dayNumber, startsAtMs };
-    })
-    .filter(
-      (
-        point,
-      ): point is {
-        lat: number;
-        lng: number;
-        dayNumber: number;
-        startsAtMs: number;
-      } => point != null,
-    )
-    .sort((left, right) => {
-      if (left.dayNumber !== right.dayNumber)
-        return left.dayNumber - right.dayNumber;
-      return left.startsAtMs - right.startsAtMs;
-    });
-
-  const uniqueRoutePoints = normalizedPoints.filter(
-    (point, index, allPoints) => {
-      if (index === 0) return true;
-      const prev = allPoints[index - 1];
-      return (
-        coordinateKey(point.lat, point.lng) !==
-        coordinateKey(prev.lat, prev.lng)
-      );
-    },
-  );
-
-  const mapPoints = uniqueRoutePoints.map(
-    (point) => `${point.lat},${point.lng}`,
-  );
-  const destinationPoint = mapPoints[0] ?? mapCenter;
-  const waypointPoints = mapPoints.slice(1);
-
-  const mapParams = new URLSearchParams({
-    saddr: mapCenter,
-    daddr:
-      waypointPoints.length > 0
-        ? `${destinationPoint} to:${waypointPoints.join(" to:")}`
-        : destinationPoint,
-    dirflg: "d",
-    hl: "es",
-  });
-
-  const mapSrc = `https://maps.google.com/maps?${mapParams.toString()}&output=embed`;
-
-  return (
-    <>
-      <div className="flex flex-1 flex-col gap-3 overflow-hidden px-5 py-4">
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={() => setDayFilter("all")}
-            className={[
-              "rounded-full px-4 py-1.5 font-body text-sm font-bold transition-all",
-              dayFilter === "all"
-                ? "bg-[#1E6FD9] text-white shadow-[0_4px_12px_rgba(30,111,217,0.35)]"
-                : "border border-[#D5DEEE] bg-white text-[#334155] hover:border-[#93B3FF] hover:text-[#1E6FD9]",
-            ].join(" ")}
-          >
-            Todos los dias
-          </button>
-          {availableDays.map((dayNumber) => (
-            <button
-              key={dayNumber}
-              type="button"
-              onClick={() => setDayFilter(dayNumber)}
-              className={[
-                "rounded-full px-4 py-1.5 font-body text-sm font-bold transition-all",
-                dayFilter === dayNumber
-                  ? "bg-[#1E6FD9] text-white shadow-[0_4px_12px_rgba(30,111,217,0.35)]"
-                  : "border border-[#D5DEEE] bg-white text-[#334155] hover:border-[#93B3FF] hover:text-[#1E6FD9]",
-              ].join(" ")}
-            >
-              Dia {dayNumber}
-            </button>
-          ))}
-        </div>
-
-        <div className="grid min-h-0 flex-1 grid-cols-12 gap-4 overflow-hidden">
-          <section className="col-span-8 flex min-h-0 flex-col overflow-hidden">
-            <div className="flex min-h-0 flex-1 flex-col rounded-2xl border border-[#E2E8F0] bg-white overflow-hidden">
-              <div
-                className="shrink-0 px-4 py-3"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #1E0A4E 0%, #2D1472 60%, #1E6FD9 100%)",
-                }}
-              >
-                <p className="font-body text-[11px] font-bold uppercase tracking-widest text-[#9AF0B8]">
-                  Centro del viaje
-                </p>
-                <p className="mt-0.5 font-heading text-base font-extrabold leading-snug text-white">
-                  {hubLabel}
-                </p>
-              </div>
-              <iframe
-                title="Mapa del viaje"
-                src={mapSrc}
-                className="min-h-0 flex-1 w-full border-t border-[#E2E8F0]"
-                loading="lazy"
-              />
-            </div>
-          </section>
-
-          <aside className="col-span-4 flex min-h-0 flex-col overflow-hidden">
-            <div className="mb-2 shrink-0 flex items-center gap-2">
-              <span className="font-body text-sm font-bold text-[#1E0A4E]">
-                Lugares
-              </span>
-              <span className="rounded-full bg-[#1E6FD9]/15 px-2 py-0.5 font-body text-xs font-bold text-[#1E6FD9]">
-                {filteredActivities.length}
-              </span>
-            </div>
-            <div className="flex-1 space-y-2.5 overflow-y-auto pr-1">
-              {filteredActivities.map((activity) => (
-                <button
-                  key={activity.id}
-                  type="button"
-                  onClick={() => setSelectedActivityId(activity.id)}
-                  className={[
-                    "w-full rounded-2xl border text-left transition-all duration-200",
-                    activeCardId === activity.id
-                      ? "border-[#1E6FD9] bg-white shadow-[0_0_0_3px_rgba(30,111,217,0.12),0_4px_16px_rgba(30,111,217,0.1)]"
-                      : "border-[#E2E8F0] bg-white hover:border-[#BFD0FF] hover:shadow-sm",
-                  ].join(" ")}
-                >
-                  <div
-                    className={`flex items-center justify-between rounded-t-2xl px-3 py-1.5 ${activeCardId === activity.id ? "bg-[#1E6FD9]" : "bg-[#F0F4FF]"}`}
-                  >
-                    <p
-                      className={`font-body text-xs font-bold uppercase tracking-widest ${activeCardId === activity.id ? "text-[#BFD7FF]" : "text-[#1E6FD9]"}`}
-                    >
-                      Dia {activity.dayNumber} · {activity.dayDate}
-                    </p>
-                    {activity.routeDistanceText &&
-                      activity.routeDurationText && (
-                        <span
-                          className={`font-body text-xs font-semibold ${activeCardId === activity.id ? "text-[#9AF0B8]" : "text-[#16794A]"}`}
-                        >
-                          {activity.routeDistanceText}
-                        </span>
-                      )}
-                  </div>
-                  <div className="px-3 py-2.5">
-                    <h3 className="font-heading text-base font-bold leading-snug text-[#1E0A4E]">
-                      {activity.title}
-                    </h3>
-                    <p className="mt-1 line-clamp-1 font-body text-sm leading-relaxed text-[#6B7280]">
-                      {activity.location || "Ubicación no disponible"}
-                    </p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </aside>
-        </div>
-      </div>
-
-      {selectedActivity ? (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-[#1A114B]/50 p-4">
-          <div className="w-full max-w-xl rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-xl">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="font-body text-[13px] font-semibold uppercase tracking-wide text-bluePrimary">
-                  Dia {selectedActivity.dayNumber} - {selectedActivity.dayDate}
-                </p>
-                <h3 className="mt-1 font-heading text-2xl font-bold text-purpleNavbar">
-                  {selectedActivity.title}
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedActivityId(null)}
-                className="rounded-lg border border-[#D9E2FF] px-3 py-1.5 font-body text-sm font-semibold text-bluePrimary hover:bg-[#F3F6FF]"
-              >
-                Cerrar
-              </button>
-            </div>
-            <p className="mt-3 font-body text-base text-gray600">
-              {selectedActivity.location || "Ubicacion no disponible"}
-            </p>
-            {selectedActivity.routeDistanceText &&
-            selectedActivity.routeDurationText ? (
-              <p className="mt-2 font-body text-xs text-gray700">
-                Ruta estimada: {selectedActivity.routeDistanceText} -{" "}
-                {selectedActivity.routeDurationText}
-              </p>
-            ) : null}
-            <div className="mt-4 flex flex-wrap gap-2">
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${selectedActivity.latitude},${selectedActivity.longitude}`}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-xl bg-bluePrimary px-3 py-2 font-body text-sm font-semibold text-white hover:bg-[#1E5EEA]"
-              >
-                Abrir en Google Maps
-              </a>
-              {hubCoordinates ? (
-                <a
-                  href={`https://www.google.com/maps/dir/?api=1&origin=${hubCoordinates.lat},${hubCoordinates.lng}&destination=${selectedActivity.latitude},${selectedActivity.longitude}&travelmode=driving`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-xl border border-[#BFD0FF] px-3 py-2 font-body text-sm font-semibold text-bluePrimary hover:bg-[#F3F6FF]"
-                >
-                  Ver ruta desde hospedaje
-                </a>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      ) : null}
-    </>
-  );
-}
-const ROUTE_TRAVEL_MODE = "DRIVE" as const;
-const ROUTE_REQUEST_TIMEOUT_MS = 4500;
 const DASHBOARD_AUX_REQUEST_TIMEOUT_MS = 6500;
 const DASHBOARD_MAIN_REQUEST_TIMEOUT_MS = 8500;
 
@@ -1540,113 +881,6 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
   });
 }
 
-function resolveRouteOrigin(
-  group: Group | null,
-  startLocation?: TravelStartLocation | null,
-) {
-  const startLat = startLocation?.latitude;
-  const startLng = startLocation?.longitude;
-
-  if (startLat != null && startLng != null) {
-    return {
-      lat: Number(startLat),
-      lng: Number(startLng),
-    };
-  }
-
-  if (
-    group?.punto_partida_tipo === "hotel_reservado" &&
-    group.punto_partida_latitud != null &&
-    group.punto_partida_longitud != null
-  ) {
-    return {
-      lat: Number(group.punto_partida_latitud),
-      lng: Number(group.punto_partida_longitud),
-    };
-  }
-
-  if (group?.destino_latitud != null && group.destino_longitud != null) {
-    return {
-      lat: Number(group.destino_latitud),
-      lng: Number(group.destino_longitud),
-    };
-  }
-
-  return null;
-}
-
-async function enrichDaysWithRoutes(
-  itineraryDays: ItineraryDay[],
-  group: Group | null,
-  token: string,
-  startLocation?: TravelStartLocation | null,
-): Promise<ItineraryDay[]> {
-  const origin = resolveRouteOrigin(group, startLocation);
-
-  if (!origin || !Number.isFinite(origin.lat) || !Number.isFinite(origin.lng)) {
-    return itineraryDays;
-  }
-
-  const routeTasks = itineraryDays.flatMap((day) =>
-    day.activities
-      .filter(
-        (activity) => activity.latitude != null && activity.longitude != null,
-      )
-      .map(async (activity) => {
-        try {
-          const response = await withTimeout(
-            mapsService.computeRoute(
-              {
-                originLat: origin.lat,
-                originLng: origin.lng,
-                destinationLat: Number(activity.latitude),
-                destinationLng: Number(activity.longitude),
-                travelMode: ROUTE_TRAVEL_MODE,
-              },
-              token,
-            ),
-            ROUTE_REQUEST_TIMEOUT_MS,
-          );
-
-          return {
-            activityId: activity.id,
-            routeDistanceText: response.data?.distanceText ?? null,
-            routeDurationText:
-              response.data?.durationText ??
-              response.data?.staticDurationText ??
-              null,
-            routeTravelMode: ROUTE_TRAVEL_MODE,
-          };
-        } catch {
-          return {
-            activityId: activity.id,
-            routeDistanceText: null,
-            routeDurationText: null,
-            routeTravelMode: null,
-          };
-        }
-      }),
-  );
-
-  const routeResults = await Promise.all(routeTasks);
-  const routeMap = new Map(routeResults.map((item) => [item.activityId, item]));
-
-  return itineraryDays.map((day) => ({
-    ...day,
-    activities: day.activities.map((activity) => {
-      const route = routeMap.get(activity.id);
-      if (!route) return activity;
-
-      return {
-        ...activity,
-        routeDistanceText: route.routeDistanceText,
-        routeDurationText: route.routeDurationText,
-        routeTravelMode: route.routeTravelMode,
-      };
-    }),
-  }));
-}
-
 interface DashboardUpdatedSocketPayload {
   grupoId?: number | string;
   groupId?: number | string;
@@ -1656,15 +890,6 @@ interface DashboardUpdatedSocketPayload {
   actorUsuarioId?: number | string | null;
   metadata?: Record<string, unknown>;
   createdAt?: string;
-}
-
-interface ProposalCommentSocketPayload {
-  grupoId?: number | string;
-  groupId?: number | string;
-  proposalId?: number | string;
-  entidadId?: number | string | null;
-  comment?: Record<string, unknown> | null;
-  commentId?: number | string | null;
 }
 
 const isAccessDeniedError = (error: unknown): boolean => {
@@ -1677,25 +902,6 @@ const isAccessDeniedError = (error: unknown): boolean => {
     message.includes("acceso") ||
     message.includes("forbidden")
   );
-};
-
-const normalizeRealtimeProposalComment = (
-  raw: Record<string, unknown> | null | undefined,
-): ProposalComment | null => {
-  if (!raw) return null;
-  return {
-    id: String(raw.id ?? raw.id_comentario ?? ""),
-    proposalId: String(raw.proposalId ?? raw.id_propuesta ?? ""),
-    usuarioId: String(raw.usuarioId ?? raw.id_usuario ?? ""),
-    authorName: (raw.authorName ?? raw.nombre ?? null) as string | null,
-    contenido: String(raw.contenido ?? ""),
-    createdAt: String(
-      raw.createdAt ?? raw.created_at ?? new Date().toISOString(),
-    ),
-    updatedAt: String(
-      raw.updatedAt ?? raw.updated_at ?? new Date().toISOString(),
-    ),
-  };
 };
 
 const otherEntityForActivity = (
@@ -1712,29 +918,64 @@ const otherEntityForActivity = (
 const isActivityContextType = (type: ContextEntityRef["type"]): boolean =>
   type === "expense" || type === "document";
 
-const applyVoteResultsToDays = (
-  itineraryDays: ItineraryDay[],
-  voteResultsByProposal: Record<string, VoteResult>,
-): ItineraryDay[] =>
-  itineraryDays.map((day) => ({
-    ...day,
-    activities: day.activities.map((activity) => {
-      const voteResult = activity.proposalId
-        ? voteResultsByProposal[String(activity.proposalId)]
-        : null;
-      if (!voteResult) return activity;
-      return {
-        ...activity,
-        hasVoted: Boolean(voteResult.mi_voto),
-        myVote: voteResult.mi_voto ?? null,
-        votes: voteResult.votos_a_favor ?? voteResult.votos ?? 0,
-        votesFor: voteResult.votos_a_favor ?? voteResult.votos ?? 0,
-        votesAgainst: voteResult.votos_en_contra ?? 0,
-        pendingVotes: voteResult.votos_pendientes ?? 0,
-        requiresAdminTieBreak: Boolean(voteResult.requiere_desempate_admin),
-      };
-    }),
-  }));
+type DashboardData = {
+  group?: Group;
+  members?: Parameters<typeof RightPanelDashboard>[0]["members"];
+  days?: ItineraryDay[];
+  budgetSummary?: BudgetSummary;
+  contextLinks?: ContextLink[];
+};
+
+// Cada parte se pide por separado: si una falla (p. ej. el itinerario), lo demás
+// del tablero (finanzas, integrantes, archivos) sigue funcionando.
+async function fetchDashboardData(
+  groupId: string,
+  accessToken: string,
+): Promise<DashboardData> {
+  const [groupResult, membersResult, itineraryResult, budgetResult, contextResult] =
+    await Promise.allSettled([
+      withTimeout(
+        groupsService.getGroupDetails(groupId, accessToken),
+        DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
+      ),
+      withTimeout(
+        groupsService.getMembers(groupId, accessToken),
+        DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
+      ),
+      withTimeout(
+        groupsService.getItinerary(groupId, accessToken),
+        DASHBOARD_MAIN_REQUEST_TIMEOUT_MS,
+      ),
+      withTimeout(
+        budgetService.getDashboard(groupId, accessToken),
+        DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
+      ),
+      withTimeout(
+        contextLinksService.list(groupId, accessToken),
+        DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
+      ),
+    ]);
+
+  if (itineraryResult.status === "rejected") {
+    console.warn("No se pudo cargar el itinerario:", itineraryResult.reason);
+  }
+
+  return {
+    group: groupResult.status === "fulfilled" ? groupResult.value.group : undefined,
+    members:
+      membersResult.status === "fulfilled"
+        ? (membersResult.value.members ?? [])
+        : undefined,
+    days:
+      itineraryResult.status === "fulfilled"
+        ? (itineraryResult.value.days ?? [])
+        : undefined,
+    budgetSummary:
+      budgetResult.status === "fulfilled" ? budgetResult.value.summary : undefined,
+    contextLinks:
+      contextResult.status === "fulfilled" ? contextResult.value.links : undefined,
+  };
+}
 
 export function DashboardPage() {
   const navigate = useNavigate();
@@ -1779,10 +1020,7 @@ export function DashboardPage() {
     routeState?.activeTab ??
       (tabFromQuery && VALID_DASHBOARD_TABS.includes(tabFromQuery)
         ? tabFromQuery
-        : "inicio"),
-  );
-  const [dashboardView, setDashboardView] = useState<"general" | "subgrupos">(
-    "general",
+        : "pagar"),
   );
   const [isLoading, setIsLoading] = useState(false);
   const [forcedNotice, setForcedNotice] = useState<{
@@ -1797,16 +1035,6 @@ export function DashboardPage() {
     null,
   );
   const [days, setDays] = useState<ItineraryDay[]>([]);
-  const [, setSubgroupSlots] = useState<SubgroupSlot[]>([]);
-  const [editSubgroupSlotRequest, setEditSubgroupSlotRequest] = useState<{
-    slotId: number;
-    nonce: number;
-  } | null>(null);
-  const [focusSubgroupRequest, setFocusSubgroupRequest] = useState<{
-    slotId: number;
-    subgroupId?: number | null;
-    nonce: number;
-  } | null>(null);
   const [group, setGroup] = useState<typeof currentGroup>(currentGroup);
   const loadingGroupSnapshot = useMemo(() => {
     const current = currentGroup ?? null;
@@ -1827,54 +1055,6 @@ export function DashboardPage() {
   );
   const dayRefs = useRef<Record<number, DayViewHandle | null>>({});
   const collaborativeRefreshTimerRef = useRef<number | null>(null);
-  const [showActivityModal, setShowActivityModal] = useState(false);
-  const [selectedActivityDay, setSelectedActivityDay] = useState<number | null>(
-    null,
-  );
-  const [editingActivity, setEditingActivity] = useState<DayActivity | null>(
-    null,
-  );
-  const [, setAcceptErrorActivityIds] = useState<Record<string, boolean>>({});
-  const [, setLockedProposalIds] = useState<Record<string, boolean>>({});
-  const [, setLockErrorActivityIds] = useState<Record<string, boolean>>({});
-  const [voteResultByProposal, setVoteResultByProposal] = useState<
-    Record<string, VoteResult>
-  >({});
-  const [adminDecisionBusyProposalId, setAdminDecisionBusyProposalId] =
-    useState<string | null>(null);
-  const [adminDecisionBusyType, setAdminDecisionBusyType] = useState<
-    "aprobar" | "rechazar" | null
-  >(null);
-  const [subgroupQuickBusyKey, setSubgroupQuickBusyKey] = useState<
-    string | null
-  >(null);
-  const [selectedProposal, setSelectedProposal] = useState<DayActivity | null>(
-    null,
-  );
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [expandedCommentsProposalId, setExpandedCommentsProposalId] = useState<
-    string | null
-  >(null);
-  const [voteHistoryActivity, setVoteHistoryActivity] =
-    useState<DayActivity | null>(null);
-  const [chatProposalActivity, setChatProposalActivity] =
-    useState<DayActivity | null>(null);
-  const [commentsByProposal, setCommentsByProposal] = useState<
-    Record<string, ProposalComment[]>
-  >({});
-  const [commentDraftByProposal, setCommentDraftByProposal] = useState<
-    Record<string, string>
-  >({});
-  const [loadingCommentsProposalId, setLoadingCommentsProposalId] = useState<
-    string | null
-  >(null);
-  const [sendingCommentProposalId, setSendingCommentProposalId] = useState<
-    string | null
-  >(null);
-  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
-  const [editingCommentText, setEditingCommentText] = useState("");
-  const [visibleCommentsCountByProposal, setVisibleCommentsCountByProposal] =
-    useState<Record<string, number>>({});
   const [chatOpen, setChatOpen] = useState(false);
   const [chatUnread, setChatUnread] = useState(0);
   const [contextLinks, setContextLinks] = useState<ContextLink[]>([]);
@@ -1906,17 +1086,6 @@ export function DashboardPage() {
     [activeDay],
   );
 
-  const openActivityModalForDay = useCallback((dayNumber: number) => {
-    setActiveDay(dayNumber);
-    setExpandedDay(dayNumber);
-    setSelectedActivityDay(dayNumber);
-    setShowActivityModal(true);
-  }, []);
-
-  // const handleDayExpand = useCallback((dayNumber: number) => {
-  //   setExpandedDay((prev) => prev === dayNumber ? null : dayNumber)
-  // }, [])
-
   const isEmpty = days.length === 0;
   const resolvedGroupId =
     groupIdFromState ||
@@ -1930,9 +1099,6 @@ export function DashboardPage() {
       ),
     [members],
   );
-  const uniqueMemberCount = new Set(
-    safeMembers.map((member) => String(member.usuario_id ?? member.id)),
-  ).size;
   const currentMember = safeMembers.find(
     (member) =>
       String(member.usuario_id ?? member.id) === String(localUser?.id_usuario),
@@ -1946,29 +1112,6 @@ export function DashboardPage() {
   const isReadOnly = ["cerrado", "archivado", "finalizado"].includes(
     String(group?.estado ?? currentGroup?.estado ?? "").toLowerCase(),
   );
-
-  useEffect(() => {
-    if (!isReadOnly) return;
-    if (["buscar", "comparar", "mapas"].includes(activeTab)) {
-      setActiveTab("inicio");
-    }
-    if (dashboardView === "subgrupos") {
-      setDashboardView("general");
-    }
-  }, [activeTab, dashboardView, isReadOnly]);
-  const budgetFromSummary = Number(budgetSummary?.totalBudget ?? NaN);
-  const hasSummaryBudget = Number.isFinite(budgetFromSummary);
-  const groupBudgetRaw =
-    group?.presupuesto_total ?? currentGroup?.presupuesto_total ?? 0;
-  const groupBudgetValue = Number(groupBudgetRaw ?? 0);
-  const effectiveBudgetValue = hasSummaryBudget
-    ? budgetFromSummary
-    : groupBudgetValue;
-  const requiresInitialBudget =
-    !Number.isFinite(effectiveBudgetValue) || effectiveBudgetValue <= 0;
-  const handleSubgroupScheduleChanged = useCallback((slots: SubgroupSlot[]) => {
-    setSubgroupSlots(slots);
-  }, []);
 
   const chatParticipants = useMemo(() => {
     const colors = ["#1E6FD9", "#35C56A", "#7A4FD6", "#F59E0B"];
@@ -2017,21 +1160,16 @@ export function DashboardPage() {
       ? daysWithContext.find((day) => day.dayNumber === activeDay)
       : undefined;
 
-  const openActivityEditor = (activity: DayActivity) => {
-    const activityDayNumber =
-      days.find(
-        (day) =>
-          Array.isArray(day.activities) &&
-          day.activities.some((item) => item.id === activity.id),
-      )?.dayNumber ??
-      selectedActivityDay ??
-      activeDay ??
-      1;
-    lockProposalForActivity(activity);
-    setSelectedActivityDay(activityDayNumber);
-    setEditingActivity(activity);
-    setShowActivityModal(true);
-  };
+  const applyDashboardData = useCallback((data: DashboardData) => {
+    if (data.group) {
+      setGroup(data.group);
+      saveCurrentGroup(data.group);
+    }
+    if (data.members) setMembers(data.members);
+    if (data.days) setDays(data.days);
+    if (data.budgetSummary) setBudgetSummary(data.budgetSummary);
+    if (data.contextLinks) setContextLinks(data.contextLinks);
+  }, []);
 
   useEffect(() => {
     const resolvedGroupId =
@@ -2052,112 +1190,14 @@ export function DashboardPage() {
       try {
         setIsLoading(true);
 
+        // Valida el acceso al viaje antes de pedir lo demás (403 → aviso de acceso revocado).
         await withTimeout(
           groupsService.getGroupDetails(resolvedGroupId, accessToken),
           DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
         );
 
-        const itineraryRes = await withTimeout(
-          groupsService.getItinerary(resolvedGroupId, accessToken),
-          DASHBOARD_MAIN_REQUEST_TIMEOUT_MS,
-        );
-        const [
-          groupResult,
-          membersResult,
-          votesResult,
-          budgetResult,
-          contextResult,
-          travelContextResult,
-          subgroupResult,
-        ] = await Promise.allSettled([
-          withTimeout(
-            groupsService.getGroupDetails(resolvedGroupId, accessToken),
-            DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
-          ),
-          withTimeout(
-            groupsService.getMembers(resolvedGroupId, accessToken),
-            DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
-          ),
-          withTimeout(
-            proposalsService.getVoteResults(
-              String(resolvedGroupId),
-              accessToken,
-            ),
-            DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
-          ),
-          withTimeout(
-            budgetService.getDashboard(String(resolvedGroupId), accessToken),
-            DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
-          ),
-          withTimeout(
-            Promise.all([
-              contextLinksService.list(resolvedGroupId, accessToken),
-              contextLinksService.options(resolvedGroupId, accessToken),
-            ]),
-            DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
-          ),
-          withTimeout(
-            groupsService.getTravelContext(resolvedGroupId, accessToken),
-            DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
-          ),
-          withTimeout(
-            subgroupScheduleService.getSchedule(
-              String(resolvedGroupId),
-              accessToken,
-            ),
-            DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
-          ),
-        ]);
-
-        const groupData =
-          groupResult.status === "fulfilled" ? groupResult.value.group : null;
-
-        const startLocation =
-          travelContextResult.status === "fulfilled"
-            ? travelContextResult.value.data?.startLocation
-            : null;
-        const daysWithRoutes = await enrichDaysWithRoutes(
-          itineraryRes.days,
-          groupData,
-          accessToken,
-          startLocation,
-        );
-        const nextVotesMap = (
-          votesResult.status === "fulfilled" ? votesResult.value.results : []
-        ).reduce<Record<string, VoteResult>>((acc, item: VoteResult) => {
-          acc[String(item.id_propuesta)] = item;
-          return acc;
-        }, {});
-
-        if (isMounted) {
-          if (groupResult.status === "fulfilled") {
-            setGroup(groupResult.value.group);
-            saveCurrentGroup(groupResult.value.group);
-          }
-          if (membersResult.status === "fulfilled") {
-            setMembers(membersResult.value.members ?? []);
-          }
-          const nextSubgroupSlots =
-            subgroupResult.status === "fulfilled"
-              ? (subgroupResult.value.slots ?? [])
-              : [];
-          setSubgroupSlots(nextSubgroupSlots);
-          setDays(
-            mergeSubgroupSlotsIntoDays(
-              applyVoteResultsToDays(daysWithRoutes, nextVotesMap),
-              nextSubgroupSlots,
-              groupData?.fecha_inicio ?? currentGroup?.fecha_inicio ?? null,
-              localUser?.id_usuario ?? null,
-            ),
-          );
-          setVoteResultByProposal(nextVotesMap);
-          if (budgetResult.status === "fulfilled") {
-            setBudgetSummary(budgetResult.value.summary);
-          }
-          if (contextResult.status === "fulfilled") {
-            setContextLinks(contextResult.value[0].links);
-          }
-        }
+        const data = await fetchDashboardData(resolvedGroupId, accessToken);
+        if (isMounted) applyDashboardData(data);
       } catch (error) {
         console.error("Error cargando dashboard:", error);
         if (isAccessDeniedError(error)) {
@@ -2185,10 +1225,9 @@ export function DashboardPage() {
     groupIdFromState,
     groupId,
     currentGroup?.id,
-    currentGroup?.fecha_inicio,
-    localUser?.id_usuario,
     accessToken,
     navigate,
+    applyDashboardData,
   ]);
 
   const reloadDashboard = useCallback(async () => {
@@ -2199,141 +1238,8 @@ export function DashboardPage() {
 
     if (!resolvedGroupId || !accessToken) return;
 
-    await withTimeout(
-      groupsService.getGroupDetails(resolvedGroupId, accessToken),
-      DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
-    );
-
-    const itineraryRes = await withTimeout(
-      groupsService.getItinerary(resolvedGroupId, accessToken),
-      DASHBOARD_MAIN_REQUEST_TIMEOUT_MS,
-    );
-    const [
-      groupResult,
-      membersResult,
-      votesResult,
-      budgetResult,
-      contextResult,
-      travelContextResult,
-      subgroupResult,
-    ] = await Promise.allSettled([
-      withTimeout(
-        groupsService.getGroupDetails(resolvedGroupId, accessToken),
-        DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
-      ),
-      withTimeout(
-        groupsService.getMembers(resolvedGroupId, accessToken),
-        DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
-      ),
-      withTimeout(
-        proposalsService.getVoteResults(String(resolvedGroupId), accessToken),
-        DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
-      ),
-      withTimeout(
-        budgetService.getDashboard(String(resolvedGroupId), accessToken),
-        DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
-      ),
-      withTimeout(
-        Promise.all([
-          contextLinksService.list(resolvedGroupId, accessToken),
-          contextLinksService.options(resolvedGroupId, accessToken),
-        ]),
-        DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
-      ),
-      withTimeout(
-        groupsService.getTravelContext(resolvedGroupId, accessToken),
-        DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
-      ),
-      withTimeout(
-        subgroupScheduleService.getSchedule(
-          String(resolvedGroupId),
-          accessToken,
-        ),
-        DASHBOARD_AUX_REQUEST_TIMEOUT_MS,
-      ),
-    ]);
-
-    const groupData =
-      groupResult.status === "fulfilled" ? groupResult.value.group : null;
-
-    const startLocation =
-      travelContextResult.status === "fulfilled"
-        ? travelContextResult.value.data?.startLocation
-        : null;
-    const daysWithRoutes = await enrichDaysWithRoutes(
-      itineraryRes.days,
-      groupData,
-      accessToken,
-      startLocation,
-    );
-    const nextVotesMap = (
-      votesResult.status === "fulfilled" ? votesResult.value.results : []
-    ).reduce<Record<string, VoteResult>>((acc, item: VoteResult) => {
-      acc[String(item.id_propuesta)] = item;
-      return acc;
-    }, {});
-
-    if (groupResult.status === "fulfilled") {
-      setGroup(groupResult.value.group);
-      saveCurrentGroup(groupResult.value.group);
-    }
-    if (membersResult.status === "fulfilled") {
-      setMembers(membersResult.value.members ?? []);
-    }
-    const nextSubgroupSlots =
-      subgroupResult.status === "fulfilled"
-        ? (subgroupResult.value.slots ?? [])
-        : [];
-    setSubgroupSlots(nextSubgroupSlots);
-    setDays(
-      mergeSubgroupSlotsIntoDays(
-        applyVoteResultsToDays(daysWithRoutes, nextVotesMap),
-        nextSubgroupSlots,
-        groupData?.fecha_inicio ?? currentGroup?.fecha_inicio ?? null,
-        localUser?.id_usuario ?? null,
-      ),
-    );
-    if (budgetResult.status === "fulfilled") {
-      setBudgetSummary(budgetResult.value.summary);
-    }
-    if (contextResult.status === "fulfilled") {
-      setContextLinks(contextResult.value[0].links);
-    }
-    setVoteResultByProposal(nextVotesMap);
-  }, [
-    groupIdFromState,
-    groupId,
-    currentGroup?.id,
-    currentGroup?.fecha_inicio,
-    localUser?.id_usuario,
-    accessToken,
-  ]);
-
-  const refreshCommentsForProposal = useCallback(
-    async (proposalId: string) => {
-      if (!accessToken || !resolvedGroupId) return;
-
-      try {
-        setLoadingCommentsProposalId((current) => current ?? proposalId);
-        const response = await proposalsService.getComments(
-          String(resolvedGroupId),
-          proposalId,
-          accessToken,
-        );
-        setCommentsByProposal((prev) => ({
-          ...prev,
-          [proposalId]: response.comments ?? [],
-        }));
-      } catch (error) {
-        console.error("Error actualizando comentarios colaborativos:", error);
-      } finally {
-        setLoadingCommentsProposalId((current) =>
-          current === proposalId ? null : current,
-        );
-      }
-    },
-    [accessToken, resolvedGroupId],
-  );
+    applyDashboardData(await fetchDashboardData(resolvedGroupId, accessToken));
+  }, [groupIdFromState, groupId, currentGroup?.id, accessToken, applyDashboardData]);
 
   useEffect(() => {
     if (!socket || !resolvedGroupId || !accessToken) return;
@@ -2356,25 +1262,6 @@ export function DashboardPage() {
         void (async () => {
           try {
             await reloadDashboard();
-
-            const tipo = String(payload?.tipo ?? "");
-            const isCommentEvent =
-              tipo.startsWith("comentario_") ||
-              payload?.entidadTipo === "comentario";
-            const proposalId =
-              payload?.entidadTipo === "propuesta" &&
-              payload?.entidadId !== null &&
-              payload?.entidadId !== undefined
-                ? String(payload.entidadId)
-                : null;
-
-            if (
-              isCommentEvent &&
-              proposalId &&
-              expandedCommentsProposalId === proposalId
-            ) {
-              await refreshCommentsForProposal(proposalId);
-            }
           } catch (error) {
             console.error("Error actualizando dashboard colaborativo:", error);
           }
@@ -2412,13 +1299,7 @@ export function DashboardPage() {
       scheduleCollaborativeRefresh(payload);
     };
 
-    const handleVoteUpdated = (payload: DashboardUpdatedSocketPayload) => {
-      scheduleCollaborativeRefresh(payload);
-    };
-
     socket.on("dashboard_updated", handleDashboardUpdated);
-    socket.on("vote_updated", handleVoteUpdated);
-    socket.on("checkout_updated", handleDashboardUpdated);
     socket.on("group_deleted", handleDashboardUpdated);
 
     return () => {
@@ -2427,8 +1308,6 @@ export function DashboardPage() {
         collaborativeRefreshTimerRef.current = null;
       }
       socket.off("dashboard_updated", handleDashboardUpdated);
-      socket.off("vote_updated", handleVoteUpdated);
-      socket.off("checkout_updated", handleDashboardUpdated);
       socket.off("group_deleted", handleDashboardUpdated);
     };
   }, [
@@ -2436,74 +1315,9 @@ export function DashboardPage() {
     resolvedGroupId,
     accessToken,
     reloadDashboard,
-    expandedCommentsProposalId,
-    refreshCommentsForProposal,
     navigate,
     localUser?.id_usuario,
   ]);
-
-  useEffect(() => {
-    if (!socket || !resolvedGroupId) return;
-
-    const belongsToGroup = (payload: ProposalCommentSocketPayload) => {
-      const payloadGroupId = payload.grupoId ?? payload.groupId;
-      return (
-        payloadGroupId === undefined ||
-        String(payloadGroupId) === String(resolvedGroupId)
-      );
-    };
-
-    const getProposalId = (payload: ProposalCommentSocketPayload) =>
-      String(payload.proposalId ?? payload.entidadId ?? "");
-
-    const handleCommentCreated = (payload: ProposalCommentSocketPayload) => {
-      if (!belongsToGroup(payload)) return;
-      const proposalId = getProposalId(payload);
-      const comment = normalizeRealtimeProposalComment(payload.comment);
-      if (!proposalId || !comment?.id) return;
-      setCommentsByProposal((prev) => {
-        const current = prev[proposalId] ?? [];
-        if (current.some((item) => item.id === comment.id)) return prev;
-        return { ...prev, [proposalId]: [...current, comment] };
-      });
-    };
-
-    const handleCommentUpdated = (payload: ProposalCommentSocketPayload) => {
-      if (!belongsToGroup(payload)) return;
-      const proposalId = getProposalId(payload);
-      const comment = normalizeRealtimeProposalComment(payload.comment);
-      if (!proposalId || !comment?.id) return;
-      setCommentsByProposal((prev) => ({
-        ...prev,
-        [proposalId]: (prev[proposalId] ?? []).map((item) =>
-          item.id === comment.id ? comment : item,
-        ),
-      }));
-    };
-
-    const handleCommentDeleted = (payload: ProposalCommentSocketPayload) => {
-      if (!belongsToGroup(payload)) return;
-      const proposalId = getProposalId(payload);
-      const commentId = String(payload.commentId ?? "");
-      if (!proposalId || !commentId) return;
-      setCommentsByProposal((prev) => ({
-        ...prev,
-        [proposalId]: (prev[proposalId] ?? []).filter(
-          (item) => item.id !== commentId,
-        ),
-      }));
-    };
-
-    socket.on("proposal_comment_created", handleCommentCreated);
-    socket.on("proposal_comment_updated", handleCommentUpdated);
-    socket.on("proposal_comment_deleted", handleCommentDeleted);
-
-    return () => {
-      socket.off("proposal_comment_created", handleCommentCreated);
-      socket.off("proposal_comment_updated", handleCommentUpdated);
-      socket.off("proposal_comment_deleted", handleCommentDeleted);
-    };
-  }, [socket, resolvedGroupId]);
 
   const handleDeleteActivity = useCallback(
     (activityId: string) => {
@@ -2545,346 +1359,6 @@ export function DashboardPage() {
     groupIdFromState,
     reloadDashboard,
   ]);
-
-  const handleOpenSubgroupSlot = useCallback(
-    (slotId: number, subgroupId?: number | null) => {
-      setActiveTab("inicio");
-      setDashboardView("subgrupos");
-      setFocusSubgroupRequest({
-        slotId,
-        subgroupId: subgroupId ?? null,
-        nonce: Date.now(),
-      });
-    },
-    [],
-  );
-
-  const handleEditSubgroupSlot = useCallback((slotId: number) => {
-    setActiveTab("inicio");
-    setDashboardView("subgrupos");
-    setEditSubgroupSlotRequest({ slotId, nonce: Date.now() });
-  }, []);
-
-  const handleDeleteSubgroupSlot = useCallback(
-    async (slotId: number) => {
-      const resolvedGroupId =
-        groupIdFromState ||
-        groupId ||
-        (currentGroup?.id ? String(currentGroup.id) : null);
-      const busyKey = `slot-delete:${slotId}`;
-      if (!resolvedGroupId || !accessToken || subgroupQuickBusyKey) return;
-      if (
-        !window.confirm(
-          "Eliminar este horario de subgrupos y todo su contenido?",
-        )
-      )
-        return;
-      try {
-        setSubgroupQuickBusyKey(busyKey);
-        await subgroupScheduleService.deleteSlot(
-          String(resolvedGroupId),
-          slotId,
-          accessToken,
-        );
-        await reloadDashboard();
-      } finally {
-        setSubgroupQuickBusyKey(null);
-      }
-    },
-    [
-      groupIdFromState,
-      groupId,
-      currentGroup?.id,
-      accessToken,
-      reloadDashboard,
-      subgroupQuickBusyKey,
-    ],
-  );
-
-  const lockProposalForActivity = useCallback(
-    (activity: DayActivity | null) => {
-      if (!socket || !activity?.proposalId) return;
-      socket.emit("item_lock", {
-        propuestaId: activity.proposalId,
-        tripId: groupId || currentGroup?.id,
-      });
-    },
-    [socket, groupId, currentGroup?.id],
-  );
-
-  const unlockProposalForActivity = useCallback(
-    (activity: DayActivity | null) => {
-      if (!socket || !activity?.proposalId) return;
-      socket.emit("item_unlock", {
-        propuestaId: activity.proposalId,
-        tripId: groupId || currentGroup?.id,
-      });
-    },
-    [socket, groupId, currentGroup?.id],
-  );
-
-  const handleAcceptActivity = useCallback(
-    async (activityId: string) => {
-      const resolvedGroupId =
-        groupIdFromState ||
-        groupId ||
-        (currentGroup?.id ? String(currentGroup.id) : null);
-
-      if (!resolvedGroupId || !accessToken) return;
-
-      if (!areRealtimeActionsEnabled) {
-        setAcceptErrorActivityIds((prev) => ({ ...prev, [activityId]: true }));
-        return;
-      }
-
-      const activity = days
-        .flatMap((day) => day.activities)
-        .find((item) => item.id === activityId);
-      const proposalId = activity?.proposalId;
-
-      if (!proposalId) {
-        setAcceptErrorActivityIds((prev) => ({ ...prev, [activityId]: true }));
-        return;
-      }
-
-      try {
-        setAcceptErrorActivityIds((prev) => ({ ...prev, [activityId]: false }));
-
-        await proposalsService.voteProposal(
-          String(resolvedGroupId),
-          proposalId,
-          { voto: "a_favor" },
-          accessToken,
-        );
-        await reloadDashboard();
-      } catch (error) {
-        const message = error instanceof Error ? error.message : "";
-        setAcceptErrorActivityIds((prev) => ({
-          ...prev,
-          [activityId]: !message.toLowerCase().includes("se mantiene igual"),
-        }));
-      }
-    },
-    [
-      groupIdFromState,
-      groupId,
-      currentGroup?.id,
-      accessToken,
-      days,
-      reloadDashboard,
-      areRealtimeActionsEnabled,
-    ],
-  );
-
-  const handleRejectActivity = useCallback(
-    async (activityId: string) => {
-      const resolvedGroupId =
-        groupIdFromState ||
-        groupId ||
-        (currentGroup?.id ? String(currentGroup.id) : null);
-
-      if (!resolvedGroupId || !accessToken) return;
-
-      if (!areRealtimeActionsEnabled) {
-        setAcceptErrorActivityIds((prev) => ({ ...prev, [activityId]: true }));
-        return;
-      }
-
-      const activity = days
-        .flatMap((day) => day.activities)
-        .find((item) => item.id === activityId);
-      const proposalId = activity?.proposalId;
-
-      if (!proposalId) {
-        setAcceptErrorActivityIds((prev) => ({ ...prev, [activityId]: true }));
-        return;
-      }
-
-      try {
-        setAcceptErrorActivityIds((prev) => ({ ...prev, [activityId]: false }));
-        await proposalsService.voteProposal(
-          String(resolvedGroupId),
-          proposalId,
-          { voto: "en_contra" },
-          accessToken,
-        );
-        await reloadDashboard();
-      } catch (error) {
-        const message = error instanceof Error ? error.message : "";
-        setAcceptErrorActivityIds((prev) => ({
-          ...prev,
-          [activityId]: !message.toLowerCase().includes("se mantiene igual"),
-        }));
-      }
-    },
-    [
-      groupIdFromState,
-      groupId,
-      currentGroup?.id,
-      accessToken,
-      days,
-      reloadDashboard,
-      areRealtimeActionsEnabled,
-    ],
-  );
-
-  const handleAdminDecision = useCallback(
-    async (proposalId: string, decision: "aprobar" | "rechazar") => {
-      const resolvedGroupId =
-        groupIdFromState ||
-        groupId ||
-        (currentGroup?.id ? String(currentGroup.id) : null);
-      if (
-        !resolvedGroupId ||
-        !accessToken ||
-        adminDecisionBusyProposalId ||
-        !areRealtimeActionsEnabled
-      )
-        return;
-      try {
-        setAdminDecisionBusyProposalId(proposalId);
-        setAdminDecisionBusyType(decision);
-        await proposalsService.applyAdminDecision(
-          String(resolvedGroupId),
-          proposalId,
-          { decision },
-          accessToken,
-        );
-        await reloadDashboard();
-      } finally {
-        setAdminDecisionBusyProposalId(null);
-        setAdminDecisionBusyType(null);
-      }
-    },
-    [
-      groupIdFromState,
-      groupId,
-      currentGroup?.id,
-      accessToken,
-      reloadDashboard,
-      adminDecisionBusyProposalId,
-      areRealtimeActionsEnabled,
-    ],
-  );
-
-  const openVoteHistoryModal = useCallback((activity: DayActivity) => {
-    setVoteHistoryActivity(activity);
-  }, []);
-
-  const openChatModal = useCallback(
-    async (activity: DayActivity) => {
-      if (!activity.proposalId || !accessToken || !resolvedGroupId) return;
-
-      setChatProposalActivity(activity);
-      setExpandedCommentsProposalId(activity.proposalId);
-      setVisibleCommentsCountByProposal((prev) => ({
-        ...prev,
-        [activity.proposalId!]: prev[activity.proposalId!] ?? 6,
-      }));
-
-      if (commentsByProposal[activity.proposalId]) return;
-
-      try {
-        setLoadingCommentsProposalId(activity.proposalId);
-        const response = await proposalsService.getComments(
-          String(resolvedGroupId),
-          activity.proposalId,
-          accessToken,
-        );
-        setCommentsByProposal((prev) => ({
-          ...prev,
-          [activity.proposalId!]: response.comments ?? [],
-        }));
-      } finally {
-        setLoadingCommentsProposalId(null);
-      }
-    },
-    [accessToken, resolvedGroupId, commentsByProposal],
-  );
-
-  const handleCreateComment = useCallback(
-    async (proposalId: string) => {
-      const content = commentDraftByProposal[proposalId]?.trim();
-      if (!content || !accessToken || !resolvedGroupId) return;
-
-      try {
-        setSendingCommentProposalId(proposalId);
-        const response = await proposalsService.addComment(
-          String(resolvedGroupId),
-          proposalId,
-          { contenido: content },
-          accessToken,
-        );
-        setCommentsByProposal((prev) => ({
-          ...prev,
-          [proposalId]: (prev[proposalId] ?? []).some(
-            (item) => item.id === response.comment.id,
-          )
-            ? (prev[proposalId] ?? [])
-            : [...(prev[proposalId] ?? []), response.comment],
-        }));
-        setCommentDraftByProposal((prev) => ({ ...prev, [proposalId]: "" }));
-      } finally {
-        setSendingCommentProposalId(null);
-      }
-    },
-    [commentDraftByProposal, accessToken, resolvedGroupId],
-  );
-
-  const handleStartEditComment = useCallback((comment: ProposalComment) => {
-    setEditingCommentId(comment.id);
-    setEditingCommentText(comment.contenido);
-  }, []);
-
-  const handleCancelEditComment = useCallback(() => {
-    setEditingCommentId(null);
-    setEditingCommentText("");
-  }, []);
-
-  const handleSaveEditComment = useCallback(
-    async (proposalId: string, commentId: string) => {
-      const content = editingCommentText.trim();
-      if (!content || !accessToken || !resolvedGroupId) return;
-
-      const response = await proposalsService.updateComment(
-        String(resolvedGroupId),
-        proposalId,
-        commentId,
-        { contenido: content },
-        accessToken,
-      );
-
-      setCommentsByProposal((prev) => ({
-        ...prev,
-        [proposalId]: (prev[proposalId] ?? []).map((item) =>
-          item.id === commentId ? response.comment : item,
-        ),
-      }));
-      setEditingCommentId(null);
-      setEditingCommentText("");
-    },
-    [editingCommentText, accessToken, resolvedGroupId],
-  );
-
-  const handleDeleteComment = useCallback(
-    async (proposalId: string, commentId: string) => {
-      if (!accessToken || !resolvedGroupId) return;
-
-      await proposalsService.deleteComment(
-        String(resolvedGroupId),
-        proposalId,
-        commentId,
-        accessToken,
-      );
-      setCommentsByProposal((prev) => ({
-        ...prev,
-        [proposalId]: (prev[proposalId] ?? []).filter(
-          (item) => item.id !== commentId,
-        ),
-      }));
-    },
-    [accessToken, resolvedGroupId],
-  );
 
   const handleExportConfirmedItineraryPdf = useCallback(() => {
     const escapeHtml = (value: string) =>
@@ -2960,7 +1434,7 @@ export function DashboardPage() {
 
     const tripName = escapeHtml(group?.nombre || "Itinerario");
     const tripDestination = escapeHtml(
-      group?.destino || group?.destino_formatted_address || "Destino pendiente",
+      group?.destino || "Destino pendiente",
     );
     const html = `
       <!doctype html>
@@ -3153,193 +1627,6 @@ export function DashboardPage() {
     }
   }, [days, group]);
 
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleItemLocked = (payload: { propuestaId?: string }) => {
-      if (!payload?.propuestaId) return;
-      setLockedProposalIds((prev) => ({
-        ...prev,
-        [payload.propuestaId!]: true,
-      }));
-    };
-
-    const handleItemUnlocked = (payload: { propuestaId?: string }) => {
-      if (!payload?.propuestaId) return;
-      setLockedProposalIds((prev) => ({
-        ...prev,
-        [payload.propuestaId!]: false,
-      }));
-      setLockErrorActivityIds({});
-    };
-
-    const handleLockError = (payload: { propuestaId?: string }) => {
-      const proposalId = payload?.propuestaId;
-      if (!proposalId) return;
-      const activity = days
-        .flatMap((day) => day.activities)
-        .find((item) => item.proposalId === proposalId);
-      if (!activity) return;
-      setLockErrorActivityIds((prev) => ({ ...prev, [activity.id]: true }));
-      setLockedProposalIds((prev) => ({ ...prev, [proposalId]: true }));
-    };
-
-    socket.on("item_locked", handleItemLocked);
-    socket.on("item_unlocked", handleItemUnlocked);
-    socket.on("lock_error", handleLockError);
-
-    return () => {
-      socket.off("item_locked", handleItemLocked);
-      socket.off("item_unlocked", handleItemUnlocked);
-      socket.off("lock_error", handleLockError);
-    };
-  }, [socket, days]);
-
-  const renderProposalQuickActions = (activity: DayActivity) => {
-    if (activity.kind === "subgroup-slot" && activity.subgroupSlot) {
-      const slotId = activity.subgroupSlot.slotId;
-      const targetSubgroupId = activity.subgroupSlot.targetSubgroupId ?? null;
-      const openBusy = subgroupQuickBusyKey === `slot-open:${slotId}`;
-      const editBusy = subgroupQuickBusyKey === `slot-edit:${slotId}`;
-      const deleteBusy = subgroupQuickBusyKey === `slot-delete:${slotId}`;
-      const subgroupActionsBusy = Boolean(subgroupQuickBusyKey);
-      return (
-        <>
-          <button
-            type="button"
-            disabled={subgroupActionsBusy}
-            aria-busy={openBusy}
-            onClick={(event) => {
-              event.stopPropagation();
-              setSubgroupQuickBusyKey(`slot-open:${slotId}`);
-              handleOpenSubgroupSlot(slotId, targetSubgroupId);
-              window.setTimeout(() => setSubgroupQuickBusyKey(null), 250);
-            }}
-            className="inline-flex h-10 min-w-[104px] items-center justify-center gap-1.5 rounded-xl bg-[#1E0A4E] px-3 font-body text-xs font-semibold text-white transition-colors hover:bg-[#2E1767] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {openBusy && <IconSpinner size={13} />}
-            {openBusy ? "Abriendo..." : "Subgrupos"}
-          </button>
-          {isCurrentUserAdmin && (
-            <>
-              <button
-                type="button"
-                disabled={subgroupActionsBusy || !areRealtimeActionsEnabled}
-                title={
-                  !areRealtimeActionsEnabled ? offlineActionMessage : undefined
-                }
-                aria-busy={editBusy}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setSubgroupQuickBusyKey(`slot-edit:${slotId}`);
-                  handleEditSubgroupSlot(slotId);
-                  window.setTimeout(() => setSubgroupQuickBusyKey(null), 250);
-                }}
-                className="inline-flex h-10 min-w-[84px] items-center justify-center gap-1.5 rounded-xl border border-[#D8C8FF] bg-white px-3 font-body text-xs font-semibold text-[#6D45C0] transition-colors hover:bg-[#F7F2FF] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {editBusy && <IconSpinner size={13} />}
-                {editBusy ? "Abriendo..." : "Editar"}
-              </button>
-              <button
-                type="button"
-                disabled={subgroupActionsBusy || !areRealtimeActionsEnabled}
-                title={
-                  !areRealtimeActionsEnabled ? offlineActionMessage : undefined
-                }
-                aria-busy={deleteBusy}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  void handleDeleteSubgroupSlot(slotId);
-                }}
-                className="inline-flex h-10 min-w-[84px] items-center justify-center gap-1.5 rounded-xl border border-[#FBC7C7] bg-[#FFF5F5] px-3 font-body text-xs font-semibold text-[#C03535] transition-colors hover:bg-[#FFEAEA] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {deleteBusy && <IconSpinner size={13} />}
-                {deleteBusy ? "Eliminando..." : "Eliminar"}
-              </button>
-            </>
-          )}
-        </>
-      );
-    }
-
-    const isAdminDecisionBusy =
-      adminDecisionBusyProposalId === activity.proposalId;
-    const isApproveBusy =
-      isAdminDecisionBusy && adminDecisionBusyType === "aprobar";
-    const isRejectBusy =
-      isAdminDecisionBusy && adminDecisionBusyType === "rechazar";
-    const disableRealtimeMutation = !areRealtimeActionsEnabled;
-
-    return activity.proposalId ? (
-      <>
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            openVoteHistoryModal(activity);
-          }}
-          className="inline-flex h-9 min-w-[86px] items-center justify-center rounded-xl border border-[#D9E2F2] bg-white px-3 font-body text-xs font-semibold text-[#1E0A4E] transition-colors hover:bg-[#F8FAFF]"
-        >
-          Resumen
-        </button>
-        {isCurrentUserAdmin && activity.status === "pendiente" && (
-          <>
-            <button
-              type="button"
-              disabled={isAdminDecisionBusy || disableRealtimeMutation}
-              title={disableRealtimeMutation ? offlineActionMessage : undefined}
-              aria-busy={isAdminDecisionBusy}
-              onClick={(event) => {
-                event.stopPropagation();
-                if (!disableRealtimeMutation)
-                  void handleAdminDecision(activity.proposalId!, "aprobar");
-              }}
-              className="inline-flex h-9 min-w-[112px] items-center justify-center gap-1.5 rounded-xl border border-[#A8E6BF] bg-[#EAFBF1] px-3 font-body text-xs font-semibold text-[#1E7A45] transition-colors hover:bg-[#DCFCE7] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isApproveBusy && <IconSpinner size={13} />}
-              {isApproveBusy ? "Aprobando..." : "Admin aprobar"}
-            </button>
-            <button
-              type="button"
-              disabled={isAdminDecisionBusy || disableRealtimeMutation}
-              title={disableRealtimeMutation ? offlineActionMessage : undefined}
-              aria-busy={isAdminDecisionBusy}
-              onClick={(event) => {
-                event.stopPropagation();
-                if (!disableRealtimeMutation)
-                  void handleAdminDecision(activity.proposalId!, "rechazar");
-              }}
-              className="inline-flex h-9 min-w-[112px] items-center justify-center gap-1.5 rounded-xl border border-[#FBC7C7] bg-[#FFF5F5] px-3 font-body text-xs font-semibold text-[#C03535] transition-colors hover:bg-[#FFEAEA] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isRejectBusy && <IconSpinner size={13} />}
-              {isRejectBusy ? "Rechazando..." : "Admin rechazar"}
-            </button>
-          </>
-        )}
-        <button
-          type="button"
-          disabled={loadingCommentsProposalId === activity.proposalId}
-          aria-busy={loadingCommentsProposalId === activity.proposalId}
-          onClick={(event) => {
-            event.stopPropagation();
-            void openChatModal(activity);
-          }}
-          className="inline-flex h-9 min-w-[120px] items-center justify-center gap-1.5 rounded-xl border border-[#CFE0FF] bg-white px-3 font-body text-xs font-semibold text-bluePrimary transition-colors hover:bg-[#EEF4FF] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {loadingCommentsProposalId === activity.proposalId && (
-            <IconSpinner size={13} />
-          )}
-          {loadingCommentsProposalId === activity.proposalId
-            ? "Abriendo..."
-            : "Comentarios"}
-          <span className="rounded-full bg-bluePrimary/10 px-1.5 py-0.5 text-[10px] font-bold text-bluePrimary">
-            {commentsByProposal[activity.proposalId]?.length ?? 0}
-          </span>
-        </button>
-      </>
-    ) : null;
-  };
-
   return (
     <AppLayout
       trip={{
@@ -3392,8 +1679,6 @@ export function DashboardPage() {
           }}
           chatUnreadCount={chatUnread}
           onOpenBudget={() => setActiveTab("pagar")}
-          onOpenMap={() => setActiveTab("mapas")}
-          isMapViewActive={activeTab === "mapas"}
           onOpenGroupPanel={() =>
             navigate(
               `/grouppanel?groupId=${encodeURIComponent(groupId || currentGroup?.id || "")}`,
@@ -3406,43 +1691,6 @@ export function DashboardPage() {
     >
       {isLoading ? (
         <DashboardSwitchLoading group={loadingGroupSnapshot} />
-      ) : requiresInitialBudget && activeTab !== "pagar" ? (
-        <div className="flex flex-1 items-center justify-center bg-surface px-6 py-8">
-          <div className="w-full max-w-2xl rounded-2xl border border-[#E2E8F0] bg-white p-6 text-center">
-            <h2 className="font-heading text-xl font-bold text-[#1E0A4E]">
-              Presupuesto requerido
-            </h2>
-            <p className="mt-2 font-body text-sm text-[#7A8799]">
-              Este viaje necesita un presupuesto inicial para continuar.
-            </p>
-            {isCurrentUserAdmin ? (
-              <button
-                type="button"
-                onClick={() => setActiveTab("pagar")}
-                className="mt-4 rounded-xl bg-[#1E6FD9] px-5 py-3 font-body text-sm font-semibold text-white hover:bg-[#2C8BE6]"
-              >
-                Definir presupuesto ahora
-              </button>
-            ) : (
-              <p className="mt-4 font-body text-sm text-[#7A8799]">
-                Solo un administrador puede definir el presupuesto inicial.
-              </p>
-            )}
-          </div>
-        </div>
-      ) : isEmpty &&
-        !(activeTab === "inicio" && dashboardView === "subgrupos") ? (
-        <EmptyState
-          onAdd={isReadOnly ? () => {} : () => setShowActivityModal(true)}
-        />
-      ) : activeTab === "comparar" ? (
-        <div className="flex-1 overflow-y-auto px-4 py-6">
-          <ComparisonPage onBack={() => setActiveTab("pagar")} />
-        </div>
-      ) : activeTab === "mapas" ? (
-        <div className="flex flex-col flex-1 overflow-hidden bg-[#F0EEF8]">
-          <MapsTabView days={days} group={group} />
-        </div>
       ) : activeTab === "pagar" ? (
         <div className="flex-1 overflow-y-auto bg-surface px-6 py-6">
           {isReadOnly && (
@@ -3483,14 +1731,7 @@ export function DashboardPage() {
             groupId={resolvedGroupId ?? null}
             onSummaryChange={setBudgetSummary}
             onOpenVault={() => setActiveTab("boveda")}
-            onOpenItinerary={() => {
-              setDashboardView("general");
-              setActiveTab("inicio");
-            }}
-            onOpenSubgroups={() => {
-              setDashboardView("subgrupos");
-              setActiveTab("inicio");
-            }}
+            onOpenItinerary={() => setActiveTab("inicio")}
             isReadOnly={isReadOnly}
           />
         </div>
@@ -3500,427 +1741,19 @@ export function DashboardPage() {
           members={members}
           currentUser={localUser ?? null}
           onOpenBudget={() => setActiveTab("pagar")}
-          onOpenItinerary={() => {
-            setDashboardView("general");
-            setActiveTab("inicio");
-          }}
-          onOpenSubgroups={() => {
-            setDashboardView("subgrupos");
-            setActiveTab("inicio");
-          }}
+          onOpenItinerary={() => setActiveTab("inicio")}
           isReadOnly={isReadOnly}
         />
-      ) : activeTab === "inicio" && dashboardView === "subgrupos" ? (
-        <div className="flex-1 overflow-y-auto bg-surface px-6 py-6">
-          <div className="mb-4 inline-flex rounded-lg border border-[#D7DEEA] bg-white p-1">
-            <button
-              type="button"
-              onClick={() => setDashboardView("general")}
-              className="rounded-md px-3 py-1.5 text-sm text-[#475569]"
-            >
-              Vista general
-            </button>
-            <button
-              type="button"
-              onClick={() => setDashboardView("subgrupos")}
-              className="rounded-md bg-[#1E6FD9] px-3 py-1.5 text-sm text-white"
-            >
-              Vista subgrupos
-            </button>
-          </div>
-          <SubgroupSchedulePanel
-            groupId={resolvedGroupId ?? null}
-            group={group}
-            members={members}
-            isAdmin={isCurrentUserAdmin}
-            tripStartDate={group?.fecha_inicio ?? null}
-            tripEndDate={group?.fecha_fin ?? null}
-            onOpenBudget={() => setActiveTab("pagar")}
-            onOpenVault={() => setActiveTab("boveda")}
-            onOpenGeneralChat={() => setChatOpen(true)}
-            socket={socket}
-            isSocketConnected={isSocketConnected}
-            currentUserId={
-              localUser?.id_usuario != null
-                ? String(localUser.id_usuario)
-                : null
-            }
-            currentUserName={userName}
-            editSlotRequest={editSubgroupSlotRequest}
-            focusRequest={focusSubgroupRequest}
-            onScheduleChanged={handleSubgroupScheduleChanged}
-          />
-        </div>
-      ) : activeTab === "buscar" ? (
-        <div className="flex flex-col flex-1 overflow-y-auto bg-[#F0EEF8] p-4 gap-3">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h2 className="font-heading text-xl font-extrabold text-[#1E0A4E] leading-tight">
-                Buscar
-              </h2>
-              {group?.destino ? (
-                <p
-                  className="mt-0.5 flex items-center gap-1.5 font-body text-sm font-semibold"
-                  style={{
-                    background: "linear-gradient(90deg, #7A4FD6, #1E6FD9)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                  }}
-                >
-                  <svg
-                    width="13"
-                    height="13"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    style={{
-                      flexShrink: 0,
-                      color: "#7A4FD6",
-                      WebkitTextFillColor: "initial",
-                    }}
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M12 22s7-5.2 7-12a7 7 0 10-14 0c0 6.8 7 12 7 12z"
-                      stroke="#7A4FD6"
-                      strokeWidth="2"
-                      strokeLinejoin="round"
-                    />
-                    <circle
-                      cx="12"
-                      cy="10"
-                      r="2.5"
-                      stroke="#7A4FD6"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                  {group.destino}
-                </p>
-              ) : (
-                <p className="font-body text-sm text-[#6B7280] mt-0.5">
-                  Encuentra opciones para tu viaje
-                </p>
-              )}
-            </div>
-            <HelpButton
-              title="Búsqueda y propuestas"
-              description="Busca vuelos, hospedajes o actividades para proponerlas al grupo. En días pasados o elementos vencidos, el sistema bloquea nuevas propuestas para conservar la lógica del itinerario."
-              placement="right"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 flex-1">
-            <button
-              type="button"
-              onClick={() =>
-                navigate("/search/flights-hotels", {
-                  state: { destino: group?.destino, group },
-                })
-              }
-              className="relative flex flex-col items-start justify-between rounded-3xl p-4 text-left overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-2xl active:scale-[0.98] shadow-[0_8px_24px_rgba(30,111,217,0.18)]"
-              style={{
-                background:
-                  "linear-gradient(145deg, #1251A3 0%, #1E6FD9 45%, #3B9AFF 100%)",
-              }}
-            >
-              <div className="absolute -right-6 -top-6 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
-              <div className="absolute -bottom-8 -left-4 h-28 w-28 rounded-full bg-white/[0.07] blur-xl" />
-              <div className="relative w-full">
-                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 shadow-lg backdrop-blur-sm">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M3 11l18-8-8 18-2-8-8-2z"
-                      stroke="white"
-                      strokeWidth="2"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <p className="font-heading text-xl font-extrabold leading-tight text-white">
-                  Vuelos y<br />
-                  Hoteles
-                </p>
-                <p className="mt-1.5 font-body text-sm font-medium leading-snug text-white/85">
-                  Busca y propone opciones al grupo
-                </p>
-              </div>
-              <div className="relative mt-2 flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1">
-                <span className="font-body text-xs font-bold text-white">
-                  Explorar
-                </span>
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M9 18l6-6-6-6"
-                    stroke="white"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() =>
-                navigate("/search/map-places", { state: { group } })
-              }
-              className="relative flex flex-col items-start justify-between rounded-3xl p-4 text-left overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-2xl active:scale-[0.98] shadow-[0_8px_24px_rgba(122,79,214,0.18)]"
-              style={{
-                background:
-                  "linear-gradient(145deg, #4A1E9E 0%, #7A4FD6 45%, #A67CF7 100%)",
-              }}
-            >
-              <div className="absolute -right-6 -top-6 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
-              <div className="absolute -bottom-8 -left-4 h-28 w-28 rounded-full bg-white/[0.07] blur-xl" />
-              <div className="relative w-full">
-                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 shadow-lg backdrop-blur-sm">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M12 22s7-5.2 7-12a7 7 0 10-14 0c0 6.8 7 12 7 12z"
-                      fill="white"
-                    />
-                    <circle cx="12" cy="10" r="2.5" fill="#7A4FD6" />
-                  </svg>
-                </div>
-                <p className="font-heading text-xl font-extrabold leading-tight text-white">
-                  Lugares de
-                  <br />
-                  interés
-                </p>
-                <p className="mt-1.5 font-body text-sm font-medium leading-snug text-white/85">
-                  Explora atracciones y actividades
-                </p>
-              </div>
-              <div className="relative mt-2 flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1">
-                <span className="font-body text-xs font-bold text-white">
-                  Explorar
-                </span>
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M9 18l6-6-6-6"
-                    stroke="white"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() =>
-                navigate("/search/routes-weather", {
-                  state: { destino: group?.destino, group },
-                })
-              }
-              className="relative flex flex-col items-start justify-between rounded-3xl p-4 text-left overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-2xl active:scale-[0.98] shadow-[0_8px_24px_rgba(53,197,106,0.18)]"
-              style={{
-                background:
-                  "linear-gradient(145deg, #0E7A3A 0%, #22A85A 45%, #35C56A 100%)",
-              }}
-            >
-              <div className="absolute -right-6 -top-6 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
-              <div className="absolute -bottom-8 -left-4 h-28 w-28 rounded-full bg-white/[0.07] blur-xl" />
-              <div className="relative w-full">
-                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 shadow-lg backdrop-blur-sm">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <polygon
-                      points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"
-                      stroke="white"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <line
-                      x1="8"
-                      y1="2"
-                      x2="8"
-                      y2="18"
-                      stroke="white"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <line
-                      x1="16"
-                      y1="6"
-                      x2="16"
-                      y2="22"
-                      stroke="white"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </div>
-                <p className="font-heading text-xl font-extrabold leading-tight text-white">
-                  Rutas y<br />
-                  Clima
-                </p>
-                <p className="mt-1.5 font-body text-sm font-medium leading-snug text-white/85">
-                  Cómo llegar y pronóstico del tiempo
-                </p>
-              </div>
-              <div className="relative mt-2 flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1">
-                <span className="font-body text-xs font-bold text-white">
-                  Explorar
-                </span>
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M9 18l6-6-6-6"
-                    stroke="white"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => navigate("/search/history", { state: { group } })}
-              className="relative flex flex-col items-start justify-between rounded-3xl p-4 text-left overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-2xl active:scale-[0.98] shadow-[0_8px_24px_rgba(245,158,11,0.18)]"
-              style={{
-                background:
-                  "linear-gradient(145deg, #92400E 0%, #D97706 45%, #F59E0B 100%)",
-              }}
-            >
-              <div className="absolute -right-6 -top-6 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
-              <div className="absolute -bottom-8 -left-4 h-28 w-28 rounded-full bg-white/[0.07] blur-xl" />
-              <div className="relative w-full">
-                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 shadow-lg backdrop-blur-sm">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.9 2.9L3 8"
-                      stroke="white"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M3 3v5h5"
-                      stroke="white"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M12 7v6l4 2"
-                      stroke="white"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <p className="font-heading text-xl font-extrabold leading-tight text-white">
-                  Propuestas
-                  <br />
-                  guardadas
-                </p>
-                <p className="mt-1.5 font-body text-sm font-medium leading-snug text-white/85">
-                  Historial de vuelos y hospedajes guardados
-                </p>
-              </div>
-              <div className="relative mt-2 flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1">
-                <span className="font-body text-xs font-bold text-white">
-                  Ver todo
-                </span>
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M9 18l6-6-6-6"
-                    stroke="white"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-            </button>
-          </div>
-        </div>
+      ) : isEmpty ? (
+        <EmptyState />
       ) : (
         <div className="flex-1 overflow-y-auto bg-surface px-6 py-6">
-          <div className="mb-4 inline-flex rounded-lg border border-[#D7DEEA] bg-white p-1">
-            <button
-              type="button"
-              onClick={() => setDashboardView("general")}
-              className={`rounded-md px-3 py-1.5 text-sm ${dashboardView === "general" ? "bg-[#1E6FD9] text-white" : "text-[#475569]"}`}
-            >
-              Vista general
-            </button>
-            <button
-              type="button"
-              onClick={() => setDashboardView("subgrupos")}
-              className={`rounded-md px-3 py-1.5 text-sm ${dashboardView === "subgrupos" ? "bg-[#1E6FD9] text-white" : "text-[#475569]"}`}
-            >
-              Vista subgrupos
-            </button>
-          </div>
           <HeroCard
             activeDay={activeDay}
             totalDays={daysWithContext.length}
             selectedDay={selectedDayWithContext}
             group={group}
-            onAdd={
-              isReadOnly
-                ? () => {}
-                : () =>
-                    openActivityModalForDay(
-                      activeDay ?? daysWithContext[0]?.dayNumber ?? 1,
-                    )
-            }
             onExportPdf={handleExportConfirmedItineraryPdf}
-            canManageSubgroups={isCurrentUserAdmin && !isReadOnly}
-            onOpenSubgroups={() => setDashboardView("subgrupos")}
           />
           {/* ── Banner modo solo lectura (ERR-211-002 / CU-2.10) ── */}
           {isReadOnly && (
@@ -3957,17 +1790,6 @@ export function DashboardPage() {
               </p>
             </div>
           )}
-          <div
-            className={`overflow-hidden transition-all duration-500 ease-in-out ${
-              daysWithContext.some((d) =>
-                d.activities.some((a) => a.status === "pendiente"),
-              )
-                ? "max-h-32 opacity-100"
-                : "max-h-0 opacity-0"
-            }`}
-          >
-            <InfoBanner memberCount={uniqueMemberCount} />
-          </div>
           {/* ── Day tabs + single active day ── */}
           {daysWithContext.length > 0 &&
             (() => {
@@ -4075,14 +1897,6 @@ export function DashboardPage() {
                     activeDay={activeDay}
                     date={selectedDayWithContext?.date}
                     activities={selectedDayWithContext?.activities}
-                    onAdd={
-                      isReadOnly
-                        ? undefined
-                        : () =>
-                            openActivityModalForDay(
-                              activeDay ?? daysWithContext[0]?.dayNumber ?? 1,
-                            )
-                    }
                   />
 
                   {/* Active day view */}
@@ -4103,65 +1917,14 @@ export function DashboardPage() {
                         setActiveDay(dn);
                         setExpandedDay(dn);
                       }}
-                      onAddActivity={
-                        isReadOnly ||
-                        isPastActiveDay ||
-                        !areRealtimeActionsEnabled
-                          ? undefined
-                          : openActivityModalForDay
-                      }
-                      onManageContext={
-                        isReadOnly ||
-                        isPastActiveDay ||
-                        !areRealtimeActionsEnabled
-                          ? undefined
-                          : openActivityEditor
-                      }
                       onOpenBudget={() => setActiveTab("pagar")}
                       onOpenVault={() => setActiveTab("boveda")}
-                      onAccept={
-                        isReadOnly ||
-                        isPastActiveDay ||
-                        !areRealtimeActionsEnabled
-                          ? undefined
-                          : handleAcceptActivity
-                      }
-                      onReject={
-                        isReadOnly ||
-                        isPastActiveDay ||
-                        !areRealtimeActionsEnabled
-                          ? undefined
-                          : handleRejectActivity
-                      }
                       onDelete={
                         isReadOnly ||
                         isPastActiveDay ||
                         !areRealtimeActionsEnabled
                           ? undefined
                           : handleDeleteActivity
-                      }
-                      onEdit={
-                        isReadOnly ||
-                        isPastActiveDay ||
-                        !areRealtimeActionsEnabled
-                          ? undefined
-                          : (id) => {
-                              const activity = days
-                                .flatMap((d) => d.activities)
-                                .find((a) => a.id === id);
-                              if (!activity) return;
-                              openActivityEditor(activity);
-                            }
-                      }
-                      renderConfirmedActions={
-                        isReadOnly || isPastActiveDay
-                          ? undefined
-                          : renderProposalQuickActions
-                      }
-                      renderPendingActions={
-                        isReadOnly || isPastActiveDay
-                          ? undefined
-                          : renderProposalQuickActions
                       }
                       isPastDay={isPastActiveDay}
                       actionsDisabled={!areRealtimeActionsEnabled}
@@ -4174,441 +1937,7 @@ export function DashboardPage() {
         </div>
       )}
 
-      <ActivityProposalModal
-        open={showActivityModal && !isReadOnly}
-        group={group}
-        token={accessToken}
-        selectedDayNumber={selectedActivityDay}
-        isCurrentUserAdmin={isCurrentUserAdmin}
-        currentUserId={
-          localUser?.id_usuario != null ? String(localUser.id_usuario) : null
-        }
-        members={safeMembers}
-        onClose={() => {
-          unlockProposalForActivity(editingActivity);
-          setEditingActivity(null);
-          setShowActivityModal(false);
-        }}
-        onCreated={async () => {
-          unlockProposalForActivity(editingActivity);
-          await reloadDashboard();
-        }}
-        editingActivity={editingActivity}
-      />
-
-      {voteHistoryActivity?.proposalId && (
-        <div
-          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm"
-          onClick={() => setVoteHistoryActivity(null)}
-        >
-          <div
-            className="w-full max-w-2xl rounded-[28px] bg-white p-6 shadow-[0_28px_80px_rgba(15,23,42,0.28)]"
-            onClick={(event) => event.stopPropagation()}
-          >
-            {(() => {
-              const voteResult =
-                voteResultByProposal[voteHistoryActivity.proposalId!];
-              const votesFor =
-                voteResult?.votos_a_favor ?? voteResult?.votos ?? 0;
-              const votesAgainst = voteResult?.votos_en_contra ?? 0;
-              const totalMembers = Math.max(uniqueMemberCount, 1);
-              const pendingVotes =
-                voteResult?.votos_pendientes ??
-                Math.max(totalMembers - (votesFor + votesAgainst), 0);
-              const requiresAdminTieBreak = Boolean(
-                voteResult?.requiere_desempate_admin,
-              );
-              const progressWidth = Math.min(
-                (votesFor / totalMembers) * 100,
-                100,
-              );
-
-              return (
-                <>
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="font-body text-[11px] font-semibold uppercase tracking-[0.18em] text-[#64748B]">
-                        Resumen de votacion
-                      </p>
-                      <h3 className="mt-2 font-heading text-2xl font-bold text-[#1E0A4E]">
-                        {voteHistoryActivity.title}
-                      </h3>
-                      <p className="mt-1 font-body text-sm text-[#64748B]">
-                        {voteHistoryActivity.time} ·{" "}
-                        {voteHistoryActivity.location || "Ubicación pendiente"}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setVoteHistoryActivity(null)}
-                      className="rounded-full border border-[#E2E8F0] px-3 py-2 font-body text-xs font-semibold text-[#475569] hover:bg-[#F8FAFC]"
-                    >
-                      Cerrar
-                    </button>
-                  </div>
-
-                  <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-2xl border border-[#BBF7D0] bg-[#F0FDF4] px-4 py-4">
-                      <p className="font-body text-xs font-semibold uppercase tracking-[0.14em] text-[#166534]">
-                        A favor
-                      </p>
-                      <p className="mt-2 font-heading text-3xl font-bold text-[#166534]">
-                        {votesFor}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-[#FECDD3] bg-[#FFF1F2] px-4 py-4">
-                      <p className="font-body text-xs font-semibold uppercase tracking-[0.14em] text-[#BE123C]">
-                        En contra
-                      </p>
-                      <p className="mt-2 font-heading text-3xl font-bold text-[#BE123C]">
-                        {votesAgainst}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-[#FDE68A] bg-[#FFFBEB] px-4 py-4">
-                      <p className="font-body text-xs font-semibold uppercase tracking-[0.14em] text-[#B45309]">
-                        Pendientes
-                      </p>
-                      <p className="mt-2 font-heading text-3xl font-bold text-[#B45309]">
-                        {pendingVotes}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-5 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFF] px-4 py-4">
-                    <div className="flex flex-col gap-4">
-                      <p className="font-body text-sm text-[#475569]">
-                        {requiresAdminTieBreak
-                          ? "La propuesta terminó empatada y necesita decisión administrativa."
-                          : "Aquí puedes revisar el resultado de la propuesta sin ensuciar la línea de tiempo."}
-                      </p>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-[#E8EEF8]">
-                        <div
-                          className="h-full bg-green-500"
-                          style={{ width: `${progressWidth}%` }}
-                        />
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        {voteResult?.mi_voto && (
-                          <span className="inline-flex min-w-[220px] items-center rounded-full bg-[#EEF2F7] px-4 py-2 font-body text-xs font-semibold text-[#475569]">
-                            Tu voto:{" "}
-                            {voteResult.mi_voto === "a_favor"
-                              ? "a favor"
-                              : voteResult.mi_voto === "en_contra"
-                                ? "en contra"
-                                : "abstencion"}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </>
-              );
-            })()}
-          </div>
-        </div>
-      )}
-
-      {chatProposalActivity?.proposalId && (
-        <>
-          <div
-            className="fixed inset-0 z-[75] bg-black/30 backdrop-blur-sm"
-            onClick={() => {
-              setChatProposalActivity(null);
-              setExpandedCommentsProposalId(null);
-            }}
-            aria-hidden="true"
-          />
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label={`Comentarios de ${chatProposalActivity.title}`}
-            className="fixed right-0 top-0 z-[80] flex h-full w-[420px] max-w-full flex-col bg-[#FAF9FD] shadow-2xl"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="flex shrink-0 items-center justify-between gap-3 bg-[linear-gradient(135deg,#1E0A4E,#7A4FD6)] px-5 py-4">
-              <div className="min-w-0">
-                <p className="font-body text-[11px] font-semibold uppercase tracking-[0.18em] text-[#64748B]">
-                  Comentarios
-                </p>
-                <h3 className="mt-1 truncate font-heading text-sm font-bold text-white">
-                  {chatProposalActivity.title}
-                </h3>
-                <p className="mt-0.5 font-body text-[11px] text-white/70">
-                  {isSocketConnected ? "Comentarios de la actividad" : "Reconectando..."}
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setChatProposalActivity(null);
-                    setExpandedCommentsProposalId(null);
-                  }}
-                  className="rounded-lg p-1.5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
-                  aria-label="Cerrar chat"
-                >
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M18 6L6 18M6 6l12 12"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            <div className="flex shrink-0 items-center gap-2.5 border-b border-[#E2E8F0] bg-white px-4 py-2.5">
-              <span className="rounded-full bg-[#EEF4FF] px-3 py-1 font-body text-[11px] font-semibold text-bluePrimary">
-                {commentsByProposal[chatProposalActivity.proposalId]?.length ??
-                  0}{" "}
-                comentarios
-              </span>
-              <span className="truncate font-body text-[11px] text-gray-500">
-                {chatProposalActivity.time} ·{" "}
-                {chatProposalActivity.location || "Ubicacion pendiente"}
-              </span>
-            </div>
-
-            <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4 py-3">
-              {loadingCommentsProposalId === chatProposalActivity.proposalId ? (
-                <p className="font-body text-sm text-[#64748B]">
-                  Cargando comentarios...
-                </p>
-              ) : (commentsByProposal[chatProposalActivity.proposalId] ?? [])
-                  .length === 0 ? (
-                <p className="font-body text-sm text-[#64748B]">
-                  Aún no hay comentarios en esta propuesta.
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {(commentsByProposal[chatProposalActivity.proposalId] ?? [])
-                    .slice(
-                      0,
-                      visibleCommentsCountByProposal[
-                        chatProposalActivity.proposalId
-                      ] ?? 6,
-                    )
-                    .map((comment) => (
-                      <div
-                        key={comment.id}
-                        className="rounded-2xl border border-[#E2E8F0] bg-white px-4 py-3"
-                      >
-                        <div className="mb-2 flex items-center justify-between gap-3">
-                          <p className="font-body text-xs font-semibold text-[#1E0A4E]">
-                            {comment.authorName ||
-                              `Usuario ${comment.usuarioId}`}
-                          </p>
-                          <p className="font-body text-[11px] text-[#64748B]">
-                            {new Date(comment.createdAt).toLocaleString(
-                              "es-MX",
-                              {
-                                day: "2-digit",
-                                month: "2-digit",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              },
-                            )}
-                          </p>
-                        </div>
-                        {editingCommentId === comment.id ? (
-                          <div className="space-y-2">
-                            <textarea
-                              value={editingCommentText}
-                              onChange={(e) =>
-                                setEditingCommentText(e.target.value)
-                              }
-                              rows={3}
-                              className="w-full resize-none rounded-2xl border border-[#D9E2F2] px-3 py-2 text-sm outline-none focus:border-bluePrimary"
-                            />
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() =>
-                                  void handleSaveEditComment(
-                                    chatProposalActivity.proposalId!,
-                                    comment.id,
-                                  )
-                                }
-                                className="rounded-full bg-bluePrimary px-3 py-2 font-body text-xs font-semibold text-white"
-                              >
-                                Guardar
-                              </button>
-                              <button
-                                onClick={handleCancelEditComment}
-                                className="rounded-full border border-[#E2E8F0] px-3 py-2 font-body text-xs font-semibold text-[#475569]"
-                              >
-                                Cancelar
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            <p className="font-body text-sm text-[#334155]">
-                              {comment.contenido}
-                            </p>
-                            {String(comment.usuarioId) ===
-                              String(localUser?.id_usuario) && (
-                              <div className="mt-2 flex gap-3">
-                                <button
-                                  onClick={() =>
-                                    handleStartEditComment(comment)
-                                  }
-                                  className="font-body text-xs font-semibold text-bluePrimary hover:underline"
-                                >
-                                  Editar
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    void handleDeleteComment(
-                                      chatProposalActivity.proposalId!,
-                                      comment.id,
-                                    )
-                                  }
-                                  className="font-body text-xs font-semibold text-red-500 hover:underline"
-                                >
-                                  Eliminar
-                                </button>
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    ))}
-                </div>
-              )}
-
-              {(commentsByProposal[chatProposalActivity.proposalId] ?? [])
-                .length >
-                (visibleCommentsCountByProposal[
-                  chatProposalActivity.proposalId
-                ] ?? 6) && (
-                <button
-                  onClick={() =>
-                    setVisibleCommentsCountByProposal((prev) => ({
-                      ...prev,
-                      [chatProposalActivity.proposalId!]:
-                        (prev[chatProposalActivity.proposalId!] ?? 6) + 6,
-                    }))
-                  }
-                  className="mt-3 font-body text-xs font-semibold text-bluePrimary hover:underline"
-                >
-                  Ver más comentarios
-                </button>
-              )}
-            </div>
-
-            <div className="shrink-0 border-t border-[#E2E8F0] bg-white px-4 py-3">
-              <div className="flex items-end gap-2">
-                <textarea
-                  value={
-                    commentDraftByProposal[chatProposalActivity.proposalId] ??
-                    ""
-                  }
-                  onChange={(e) =>
-                    setCommentDraftByProposal((prev) => ({
-                      ...prev,
-                      [chatProposalActivity.proposalId!]: e.target.value,
-                    }))
-                  }
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      void handleCreateComment(
-                        chatProposalActivity.proposalId!,
-                      );
-                    }
-                  }}
-                  placeholder="Escribe un comentario..."
-                  rows={1}
-                  className="max-h-24 flex-1 resize-none rounded-2xl border border-[#D9E2F2] bg-[#F8FAFC] px-4 py-3 font-body text-sm outline-none focus:border-bluePrimary"
-                />
-                <button
-                  type="button"
-                  onClick={() =>
-                    void handleCreateComment(chatProposalActivity.proposalId!)
-                  }
-                  disabled={
-                    sendingCommentProposalId === chatProposalActivity.proposalId
-                  }
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-bluePrimary text-white transition-colors hover:bg-[#145DC0] disabled:opacity-50"
-                  aria-label="Enviar comentario"
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <line
-                      x1="22"
-                      y1="2"
-                      x2="11"
-                      y2="13"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <polygon
-                      points="22 2 15 22 11 13 2 9 22 2"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      fill="currentColor"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-
-      <BottomNavbar
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        isReadOnly={isReadOnly}
-      />
-      {selectedProposal && (
-        <ProposalDetailModal
-          proposal={selectedProposal}
-          tripId={groupId || currentGroup?.id || ""}
-          onClose={() => setSelectedProposal(null)}
-          onAccept={() => {
-            if (areRealtimeActionsEnabled) setShowConfirm(true);
-          }}
-          socket={socket}
-          isOnline={areRealtimeActionsEnabled}
-        />
-      )}
-      {showConfirm && selectedProposal && (
-        <ConfirmProposalModal
-          proposal={selectedProposal}
-          isOnline={isBrowserOnline && isSocketConnected}
-          onClose={() => setShowConfirm(false)}
-          onConfirm={() => {
-            setDays((prev) =>
-              prev.map((day) => ({
-                ...day,
-                activities: day.activities.map((a) =>
-                  a.id === selectedProposal.id
-                    ? { ...a, status: "confirmada" as const }
-                    : a,
-                ),
-              })),
-            );
-            setShowConfirm(false);
-            setSelectedProposal(null);
-          }}
-        />
-      )}
-
+      <BottomNavbar activeTab={activeTab} onTabChange={setActiveTab} />
       <ConfirmDialog
         open={activityPendingDelete !== null}
         title="Eliminar propuesta"

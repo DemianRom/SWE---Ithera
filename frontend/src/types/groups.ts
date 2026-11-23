@@ -16,21 +16,6 @@ export interface Group {
   created_at?: string
   memberCount?: number
   myRole?: GroupRole
-  destino_latitud?: number | null
-  destino_longitud?: number | null
-  destino_place_id?: string | null
-  destino_formatted_address?: string | null
-  destino_photo_name?: string | null
-  destino_photo_url?: string | null
-  punto_partida_tipo?: TravelStartLocationSource | null
-  punto_partida_nombre?: string | null
-  punto_partida_direccion?: string | null
-  punto_partida_latitud?: number | null
-  punto_partida_longitud?: number | null
-  punto_partida_place_id?: string | null
-  punto_partida_hospedaje_id?: number | string | null
-  punto_partida_propuesta_id?: number | string | null
-  punto_partida_actualizado_at?: string | null
   presupuesto_total?: number | string | null
   modulo_itinerario_bloqueado?: boolean
   modulo_presupuesto_bloqueado?: boolean
@@ -59,12 +44,6 @@ export interface CreateGroupPayload {
   maximo_miembros?: number
   es_publico?: boolean
   presupuesto_total: number
-  destino_latitud?: number | null
-  destino_longitud?: number | null
-  destino_place_id?: string | null
-  destino_formatted_address?: string | null
-  destino_photo_name?: string | null
-  destino_photo_url?: string | null
   modulo_itinerario_bloqueado?: boolean
   modulo_presupuesto_bloqueado?: boolean
 }
@@ -77,12 +56,6 @@ export interface UpdateGroupPayload {
   fecha_fin?: string
   maximo_miembros?: number
   es_publico?: boolean
-  destino_latitud?: number | null
-  destino_longitud?: number | null
-  destino_place_id?: string | null
-  destino_formatted_address?: string | null
-  destino_photo_name?: string | null
-  destino_photo_url?: string | null
   modulo_itinerario_bloqueado?: boolean
   modulo_presupuesto_bloqueado?: boolean
 }
@@ -166,24 +139,4 @@ export interface GroupInvitation {
   codigo_invitacion: string
   estado: 'pendiente' | 'aceptada' | 'revocada' | 'expirada'
   created_at?: string
-}
-
-export type TravelStartLocationSource = 'hotel_reservado' | 'destino_viaje'
-
-export interface TravelStartLocation {
-  source: TravelStartLocationSource
-  label: string | null
-  formattedAddress: string | null
-  latitude: number | null
-  longitude: number | null
-  placeId: string | null
-  photoUrl: string | null
-  hotelId?: string | null
-  folioReserva?: string | null
-}
-
-export interface GroupTravelContext {
-  groupId: string
-  startLocation: TravelStartLocation
-  destinationLocation: TravelStartLocation
 }

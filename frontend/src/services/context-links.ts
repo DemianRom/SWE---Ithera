@@ -1,6 +1,6 @@
 import { apiClient } from './apiClient'
 
-export type ContextEntityType = 'expense' | 'document' | 'activity' | 'subgroup_activity'
+export type ContextEntityType = 'expense' | 'document' | 'activity'
 
 export interface ContextEntityRef {
   type: ContextEntityType
@@ -28,7 +28,6 @@ export interface ContextLinkOptions {
   expenses: ContextEntitySummary[]
   documents: ContextEntitySummary[]
   activities: ContextEntitySummary[]
-  subgroupActivities: ContextEntitySummary[]
 }
 
 export interface CreateContextLinkPayload {

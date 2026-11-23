@@ -9,7 +9,6 @@ import type {
   UpdateGroupPayload,
   GroupInvitation,
   GroupJoinRequest,
-  GroupTravelContext,
   AdminDelegationRequest,
 } from '../types/groups'
 import type { Activity } from '../components/ui/DayView/DayView'
@@ -44,13 +43,6 @@ export const groupsService = {
     )
   },
 
-
-  getTravelContext: async (groupId: string, token: string) => {
-    return apiClient.get<{ ok: boolean; data: GroupTravelContext }>(
-      `/groups/${groupId}/travel-context`,
-      token
-    )
-  },
 
   getMyHistory: async (token: string) => {
     return apiClient.get<{

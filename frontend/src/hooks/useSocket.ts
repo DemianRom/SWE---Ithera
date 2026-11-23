@@ -1,13 +1,5 @@
-import { useCallback, useEffect, useRef, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useSyncExternalStore } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { useSyncQueue } from './useSyncQueue';
-
-type QueueItem = Awaited<ReturnType<ReturnType<typeof useSyncQueue>['getQueue']>>[number];
-
-type QueueHandlers = {
-  getQueue: () => Promise<QueueItem[]>;
-  clearItem: (id: number) => Promise<void>;
-};
 
 type SocketSnapshot = {
   socket: Socket | null;
@@ -18,7 +10,6 @@ let sharedSocket: Socket | null = null;
 let sharedToken: string | null = null;
 let sharedConnected = false;
 let activeConsumers = 0;
-let queueHandlers: QueueHandlers | null = null;
 
 let snapshot: SocketSnapshot = {
   socket: null,
@@ -56,28 +47,6 @@ const getSocketUrl = () => {
   return apiUrl.replace(/\/api\/?$/, '');
 };
 
-const flushOfflineQueue = async (socket: Socket) => {
-  if (!queueHandlers) return;
-
-  const queue = await queueHandlers.getQueue();
-  if (queue.length === 0) return;
-
-  console.log(`[Sync] Vaciando ${queue.length} operaciones diferidas...`);
-
-  for (const item of queue) {
-    if (!item.id) continue;
-
-    socket.timeout(5000).emit(item.action, item.payload, async (err: unknown) => {
-      if (!err) {
-        await queueHandlers?.clearItem(item.id!);
-        return;
-      }
-
-      console.warn(`[Sync] Operación ${item.action} sin ack, se reintentará en el próximo connect`);
-    });
-  }
-};
-
 const disconnectSharedSocket = () => {
   if (!sharedSocket) return;
 
@@ -91,9 +60,7 @@ const disconnectSharedSocket = () => {
   updateSnapshot();
 };
 
-const ensureSharedSocket = (token: string, handlers: QueueHandlers): Socket => {
-  queueHandlers = handlers;
-
+const ensureSharedSocket = (token: string): Socket => {
   if (sharedSocket && sharedToken === token) {
     return sharedSocket;
   }
@@ -111,7 +78,6 @@ const ensureSharedSocket = (token: string, handlers: QueueHandlers): Socket => {
   socket.on('connect', () => {
     sharedConnected = true;
     updateSnapshot();
-    void flushOfflineQueue(socket);
   });
 
   socket.on('disconnect', () => {
@@ -135,7 +101,6 @@ const ensureSharedSocket = (token: string, handlers: QueueHandlers): Socket => {
 };
 
 export const useSocket = (token: string | null) => {
-  const { enqueue, getQueue, clearItem, queueSize } = useSyncQueue();
   const socketState = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const socketRef = useRef<Socket | null>(null);
 
@@ -147,7 +112,7 @@ export const useSocket = (token: string | null) => {
 
     activeConsumers += 1;
 
-    const nextSocket = ensureSharedSocket(token, { getQueue, clearItem });
+    const nextSocket = ensureSharedSocket(token);
     socketRef.current = nextSocket;
 
     return () => {
@@ -157,29 +122,14 @@ export const useSocket = (token: string | null) => {
         disconnectSharedSocket();
       }
     };
-  }, [token, getQueue, clearItem]);
+  }, [token]);
 
   useEffect(() => {
     socketRef.current = token ? socketState.socket : null;
   }, [token, socketState.socket]);
 
-  const emitCancellable = useCallback(
-    async (action: 'UPDATE_PROPOSAL' | 'CREATE_COMMENT' | 'VOTE_PROPOSAL', payload: unknown) => {
-      if (sharedConnected && socketRef.current) {
-        socketRef.current.emit(action, payload);
-        return;
-      }
-
-      console.warn(`[Offline] Difiriendo acción: ${action}`);
-      await enqueue(action, payload);
-    },
-    [enqueue],
-  );
-
   return {
     socket: token ? socketState.socket : null,
     isConnected: token ? socketState.isConnected : false,
-    emitCancellable,
-    missedEvents: queueSize,
   };
 };

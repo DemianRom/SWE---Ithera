@@ -15,11 +15,6 @@ import { MyTripsPage } from './pages/MyTrips/MyTripsPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { PublicRoute } from './components/auth/PublicRoute';
 import { JoinGroupPage } from './pages/JoinGroup'
-import FlightHotelSearchPage from './pages/Search/FlightHotelSearchPage'
-import MapPlacesPage from './pages/Search/MapPlacesPage'
-import RoutesTransportWeatherPage from './pages/Search/RoutesTransportWeatherPage'
-import SearchHistoryPage from './pages/Search/SearchHistoryPage'
-import { CheckoutPage } from './pages/Checkout'
 import { useNetworkMonitor } from './hooks'
 import { OfflineBanner } from './components/ui/OfflineBanner/OfflineBanner'
 import { SharedItineraryPage } from './pages/Shared/SharedItineraryPage'
@@ -89,50 +84,6 @@ function App() {
           }
         />
 
-        <Route
-          path="/search/flights-hotels"
-          element={
-            <ProtectedRoute>
-              <FlightHotelSearchPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/search/map-places"
-          element={
-            <ProtectedRoute>
-              <MapPlacesPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/search/routes-weather"
-          element={
-            <ProtectedRoute>
-              <RoutesTransportWeatherPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/search/history"
-          element={
-            <ProtectedRoute>
-              <SearchHistoryPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/checkout/:type/:proposalId"
-          element={
-            <ProtectedRoute>
-              <CheckoutPage />
-            </ProtectedRoute>
-          }
-        />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>

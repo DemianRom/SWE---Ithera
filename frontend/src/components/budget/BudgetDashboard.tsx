@@ -41,20 +41,13 @@ export interface Expense {
     category: TripDocumentCategory
     notes: string
   } | null
-  subgroupId?: string
 }
 
 interface Props {
   groupId: string | null
-  expenseSubgroupScope?: {
-    subgroupId: string
-    memberUserIds: string[]
-    label?: string | null
-  } | null
   onSummaryChange?: (summary: BudgetSummary | null) => void
   onOpenVault?: () => void
   onOpenItinerary?: () => void
-  onOpenSubgroups?: () => void
   /** Modo solo lectura: viaje cerrado/archivado/finalizado (CU-2.10) */
   isReadOnly?: boolean
 }
@@ -79,7 +72,6 @@ const EMPTY_LINK_OPTIONS: ContextLinkOptions = {
   expenses: [],
   documents: [],
   activities: [],
-  subgroupActivities: [],
 }
 
 const BUDGET_DASHBOARD_CACHE_PREFIX = 'budget-dashboard-cache:'
@@ -314,15 +306,13 @@ const otherEntityForExpense = (link: ContextLink, expenseId: string): ContextEnt
 }
 
 const isExpenseContextType = (type: ContextEntityRef['type']): boolean =>
-  type === 'activity' || type === 'subgroup_activity' || type === 'document'
+  type === 'activity' || type === 'document'
 
 export const BudgetDashboard: FC<Props> = ({
   groupId,
-  expenseSubgroupScope = null,
   onSummaryChange,
   onOpenVault,
   onOpenItinerary,
-  onOpenSubgroups,
   isReadOnly = false,
 }) => {
   const { accessToken, localUser } = useAuth()
@@ -500,7 +490,7 @@ export const BudgetDashboard: FC<Props> = ({
     return {
       ...expense,
       linkedActivities: linked
-        .filter((entity) => entity.type === 'activity' || entity.type === 'subgroup_activity')
+        .filter((entity) => entity.type === 'activity')
         .map((entity) => ({ type: entity.type, id: entity.id })),
       linkedDocuments: linked
         .filter((entity) => entity.type === 'document')
@@ -696,7 +686,6 @@ export const BudgetDashboard: FC<Props> = ({
         : undefined,
       split_amounts: expense.splitType === 'personalizada' ? expense.splitAmounts : undefined,
       expense_date: expense.fecha,
-      subgroup_id: expense.subgroupId ?? expenseSubgroupScope?.subgroupId ?? undefined,
     }
 
     try {
@@ -1464,7 +1453,7 @@ export const BudgetDashboard: FC<Props> = ({
               </div>
             ) : [...expenses].reverse().map((expense) => {
               const linkedEntities = getLinksForExpense(expense.id)
-              const linkedActivities = linkedEntities.filter((entity) => entity.type === 'activity' || entity.type === 'subgroup_activity')
+              const linkedActivities = linkedEntities.filter((entity) => entity.type === 'activity')
               const linkedDocuments = linkedEntities.filter((entity) => entity.type === 'document')
 
               return (
@@ -1484,14 +1473,11 @@ export const BudgetDashboard: FC<Props> = ({
                           <button
                             key={entityKey(entity)}
                             type="button"
-                            onClick={() => {
-                              if (entity.type === 'subgroup_activity') onOpenSubgroups?.()
-                              else onOpenItinerary?.()
-                            }}
+                            onClick={() => onOpenItinerary?.()}
                             className="max-w-full rounded-full border border-[#CFE0FF] bg-[#EEF4FF] px-2.5 py-1 font-body text-[11px] font-semibold text-[#1E6FD9] hover:bg-[#E2EDFF]"
                             title={entity.label}
                           >
-                            {entity.type === 'subgroup_activity' ? 'Subgrupo' : 'Actividad'}:{' '}
+                            Actividad:{' '}
                             <span className="font-medium">{entity.label}</span>
                           </button>
                         ))}
@@ -1542,9 +1528,8 @@ export const BudgetDashboard: FC<Props> = ({
       <RegisterExpenseModal
         open={showModal && !isReadOnly}
         members={members}
-        subgroupScope={expenseSubgroupScope}
         editingExpense={editingExpense}
-        activityOptions={[...linkOptions.activities, ...linkOptions.subgroupActivities]}
+        activityOptions={linkOptions.activities}
         documentOptions={linkOptions.documents}
         totalBudget={totalBudget}
         comprometido={comprometido}

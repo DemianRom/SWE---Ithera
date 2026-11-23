@@ -22,8 +22,8 @@ export interface RightPanelHelpProps {
 const DEFAULT_TIPS: HelpTip[] = [
   {
     icon: '01',
-    title: 'Agrega actividades',
-    description: 'Propone vuelos, hoteles y actividades para que el grupo vote.',
+    title: 'Registra los gastos',
+    description: 'Anota quién pagó y entre quiénes se reparte cada gasto del viaje.',
   },
   {
     icon: '02',

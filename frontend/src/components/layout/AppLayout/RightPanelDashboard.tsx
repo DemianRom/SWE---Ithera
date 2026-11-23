@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { Socket } from 'socket.io-client'
-import { GoogleMiniMap } from '../../GoogleMiniMap/GoogleMiniMap'
-import { useAuth } from '../../../context/useAuth'
-import { groupsService } from '../../../services/groups'
-import type { Group, TravelStartLocation } from '../../../types/groups'
+import type { Group } from '../../../types/groups'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -95,69 +92,6 @@ function SectionDivider({
   )
 }
 
-function formatLocationShort(label: string | null | undefined, formattedAddress: string | null | undefined): string {
-  const source = label || formattedAddress || ''
-  if (!source) return 'Ubicación no disponible'
-
-  const parts = source.split(', ').map((p) => p.trim()).filter(Boolean)
-  if (parts.length <= 2) return source
-
-  // Find the part that starts with a zip code (e.g., "77500 Cancún") and extract city from it
-  const zipIdx = parts.findIndex((p) => /^\d{4,6}\s+\S/.test(p))
-  if (zipIdx !== -1) {
-    const cityWithZip = parts[zipIdx] ?? ''
-    const city = cityWithZip.replace(/^\d+\s*/, '')
-    const rest = parts.slice(zipIdx + 1)
-    return [city, ...rest].filter(Boolean).join(', ')
-  }
-
-  // If no zip found but looks like a street address (starts with number or common street words),
-  // skip the first 2 parts and show the rest
-  const looksLikeStreet = /^\d|^(blvd|calle|av\.|ave|carretera|km\.)/i.test(parts[0] ?? '')
-  if (looksLikeStreet && parts.length > 3) {
-    return parts.slice(2).join(', ')
-  }
-
-  return source
-}
-
-function toNumberOrNull(value: unknown): number | null {
-  if (value === null || value === undefined || value === '') return null
-  const parsed = Number(value)
-  return Number.isFinite(parsed) ? parsed : null
-}
-
-function buildSidebarStartLocation(group?: Group | null): TravelStartLocation | null {
-  if (!group) return null
-
-  const persistedLat = toNumberOrNull(group.punto_partida_latitud)
-  const persistedLng = toNumberOrNull(group.punto_partida_longitud)
-  const hasReservedHotel = group.punto_partida_tipo === 'hotel_reservado' && persistedLat !== null && persistedLng !== null
-
-  if (hasReservedHotel) {
-    return {
-      source: 'hotel_reservado',
-      label: group.punto_partida_nombre || 'Hotel reservado',
-      formattedAddress: group.punto_partida_direccion || group.punto_partida_nombre || null,
-      latitude: persistedLat,
-      longitude: persistedLng,
-      placeId: group.punto_partida_place_id || null,
-      photoUrl: null,
-      hotelId: group.punto_partida_hospedaje_id ? String(group.punto_partida_hospedaje_id) : null,
-    }
-  }
-
-  return {
-    source: 'destino_viaje',
-    label: group.destino || group.destino_formatted_address || group.nombre || 'Destino',
-    formattedAddress: group.destino_formatted_address || group.destino || null,
-    latitude: toNumberOrNull(group.destino_latitud),
-    longitude: toNumberOrNull(group.destino_longitud),
-    placeId: group.destino_place_id || null,
-    photoUrl: group.destino_photo_url || null,
-  }
-}
-
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function RightPanelDashboard({
@@ -167,10 +101,8 @@ export function RightPanelDashboard({
   socket,
   onOpenBudget,
   onOpenGroupPanel,
-  onOpenMap,
   onOpenChat,
   chatUnreadCount = 0,
-  isMapViewActive = false,
   totalBudget,
   committedBudget,
 }: {
@@ -180,14 +112,11 @@ export function RightPanelDashboard({
   socket?: Socket | null
   onOpenBudget?: () => void
   onOpenGroupPanel?: () => void
-  onOpenMap?: () => void
   onOpenChat?: () => void
   chatUnreadCount?: number
-  isMapViewActive?: boolean
   totalBudget?: number
   committedBudget?: number
 }) {
-  const { accessToken } = useAuth()
   const [onlineUserIds, setOnlineUserIds] = useState<string[]>([])
   const [popoverOpen, setPopoverOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -196,37 +125,6 @@ export function RightPanelDashboard({
   const [popoverAnchorY, setPopoverAnchorY] = useState(0)
 
   const groupId = group?.id ? String(group.id) : null
-  const fallbackStartLocation = useMemo(() => buildSidebarStartLocation(group), [group])
-  const [startLocation, setStartLocation] = useState<TravelStartLocation | null>(fallbackStartLocation)
-
-  useEffect(() => {
-    setStartLocation(fallbackStartLocation)
-  }, [fallbackStartLocation])
-
-  useEffect(() => {
-    let isMounted = true
-
-    const loadStartLocation = async () => {
-      if (!accessToken || !groupId) return
-
-      try {
-        const response = await groupsService.getTravelContext(groupId, accessToken)
-        if (!isMounted) return
-        setStartLocation(response.data?.startLocation ?? fallbackStartLocation)
-      } catch {
-        if (!isMounted) return
-        setStartLocation(fallbackStartLocation)
-      }
-    }
-
-    void loadStartLocation()
-
-    return () => {
-      isMounted = false
-    }
-  }, [accessToken, fallbackStartLocation, groupId])
-
-
   const participants: Participant[] = useMemo(() => {
     const uniqueMembers: MemberFromBackend[] = []
     const seen = new Set<string>()
@@ -442,63 +340,30 @@ export function RightPanelDashboard({
         </div>
       </section>
 
-      {/* Mini map */}
-      <section className="shrink-0">
-        <SectionDivider label="Punto de partida" color="#7A4FD6" background="#F3EEFF" />
+      {/* Destino */}
+      {group?.destino && (
+        <section className="shrink-0">
+          <SectionDivider label="Destino" color="#7A4FD6" background="#F3EEFF" />
 
-        <div className="overflow-hidden rounded-2xl border border-[#DDD6FE] bg-gradient-to-br from-[#F5F3FF] to-[#EDE9FE]">
-          {/* Map */}
-          <div className="relative overflow-hidden">
-            <GoogleMiniMap
-              lat={startLocation?.latitude}
-              lng={startLocation?.longitude}
-              title={startLocation?.label || group?.nombre || 'Punto de partida'}
-            />
-            {startLocation?.source === 'hotel_reservado' && (
-              <span className="absolute right-2 top-2 rounded-full bg-white/90 px-2 py-0.5 font-body text-[11px] font-bold text-greenAccent shadow-sm">
-                Hotel
-              </span>
-            )}
-          </div>
-
-          {/* Location label */}
-          <div className="px-3 py-2.5">
-            <p
-              className="line-clamp-1 font-body text-sm font-semibold text-[#5B21B6] leading-snug"
-              title={startLocation?.formattedAddress || startLocation?.label || ''}
-            >
-              {formatLocationShort(startLocation?.label, startLocation?.formattedAddress)}
-            </p>
-          </div>
-
-          {startLocation?.latitude != null && startLocation?.longitude != null && (
-            <div className="flex gap-0 border-t border-[#DDD6FE] divide-x divide-[#DDD6FE]">
+          <div className="overflow-hidden rounded-2xl border border-[#DDD6FE] bg-gradient-to-br from-[#F5F3FF] to-[#EDE9FE]">
+            <div className="px-3 py-2.5">
+              <p className="line-clamp-2 font-body text-sm font-semibold text-[#5B21B6] leading-snug" title={group.destino}>
+                {group.destino}
+              </p>
+            </div>
+            <div className="border-t border-[#DDD6FE]">
               <a
-                href={`https://www.google.com/maps/search/?api=1&query=${startLocation.latitude},${startLocation.longitude}`}
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(group.destino)}`}
                 target="_blank"
                 rel="noreferrer"
-                className="flex-1 py-2 text-center font-body text-xs font-semibold text-[#6D28D9] hover:bg-[#EDE9FE] transition-colors"
+                className="block py-2 text-center font-body text-xs font-semibold text-[#6D28D9] transition-colors hover:bg-[#EDE9FE]"
               >
-                Abrir mapa
+                Abrir en Google Maps
               </a>
-              {onOpenMap && (
-                <button
-                  type="button"
-                  onClick={onOpenMap}
-                  aria-pressed={isMapViewActive}
-                  className={`flex-1 py-2 font-body text-xs font-semibold transition-colors ${
-                    isMapViewActive
-                      ? 'bg-[#EDE9FE] text-[#5B21B6]'
-                      : 'text-[#6D28D9] hover:bg-[#EDE9FE]'
-                  }`}
-                >
-                  {isMapViewActive ? 'Rutas activas' : 'Ver rutas'}
-                </button>
-              )}
             </div>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {/* Mini budget */}
       <section className="shrink-0">

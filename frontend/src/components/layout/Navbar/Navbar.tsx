@@ -379,16 +379,8 @@ function getNotificationAction(notification: NotificationItem): { label: string;
     return { label: 'Ver archivos', url: `${baseUrl}&tab=boveda` }
   }
 
-  if (tipo.includes('vuelo') || tipo.includes('hospedaje') || tipo.includes('hotel')) {
-    return { label: 'Ver propuesta', url: baseUrl }
-  }
-
   if (
     tipo.includes('actividad') ||
-    tipo.includes('propuesta') ||
-    tipo.includes('voto') ||
-    tipo.includes('comentario') ||
-    tipo.includes('subgrupo') ||
     tipo.includes('itinerario') ||
     tipo.includes('solicitud_union') ||
     tipo.includes('invitacion') ||
@@ -497,24 +489,6 @@ function formatTripRange(start?: string | null, end?: string | null): string {
 }
 
 function TripThumbnail({ group }: { group: Group }) {
-  const [imageFailed, setImageFailed] = useState(false)
-  const imageUrl = group.destino_photo_url
-  const label = group.destino || group.destino_formatted_address || group.nombre || 'Viaje'
-
-  if (imageUrl && !imageFailed) {
-    return (
-      <div className="h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-[#E2E8F0] bg-[#EEF4FF] shadow-sm">
-        <img
-          src={imageUrl}
-          alt={label}
-          className="h-full w-full object-cover"
-          loading="lazy"
-          onError={() => setImageFailed(true)}
-        />
-      </div>
-    )
-  }
-
   return (
     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#1E6FD9]/10 font-body text-xs font-bold text-[#1E6FD9]">
       {(group.nombre || 'V')[0]}
@@ -696,8 +670,6 @@ function DashboardNavContent({
           id: nextGroupId,
           nombre: selectedGroup.nombre,
           destino: selectedGroup.destino,
-          destino_formatted_address: selectedGroup.destino_formatted_address,
-          destino_photo_url: selectedGroup.destino_photo_url,
           fecha_inicio: selectedGroup.fecha_inicio,
           fecha_fin: selectedGroup.fecha_fin,
           myRole: item.rol,
@@ -772,7 +744,7 @@ function DashboardNavContent({
                           )}
                         </div>
                         <p className="mt-0.5 truncate font-body text-[11px] text-gray500">
-                          {option.destino || option.destino_formatted_address || 'Destino pendiente'}
+                          {option.destino || 'Destino pendiente'}
                         </p>
                         <p className="mt-0.5 font-body text-[10px] text-gray500/80">
                           {formatTripRange(option.fecha_inicio, option.fecha_fin)}

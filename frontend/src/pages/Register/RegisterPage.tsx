@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import logoWhite from "../../assets/logo-white.png";
 import googleIcon from "../../assets/google.png";
 import facebookIcon from "../../assets/facebook.png";
+import { isOAuthProviderEnabled, oauthProviderCount } from "../../lib/oauth";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
 import { ApiError, apiClient, isNetworkError } from "../../services/apiClient";
@@ -552,49 +553,57 @@ export function RegisterPage() {
               Crea tu cuenta
             </h2>
 
-            <div className="mb-8 grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={async () => {
-                  try {
-                    setServerMessage("");
-                    await loginWithGoogle();
-                  } catch (err) {
-                    const message = toSpanishSecurityCooldownMessage(err instanceof Error ? err.message : "No se pudo iniciar sesión con Google");
-                    setIsSuccessMessage(false);
-                    setServerMessage(message);
-                  }
-                }}
-                className="flex h-[54px] items-center justify-center gap-3 rounded-[14px] border border-[#D9DEE7] bg-white text-[16px] font-medium text-[#344054] transition hover:border-[#2C8BE6]"
-              >
-                <img src={googleIcon} alt="Google" className="h-5 w-5 object-contain" />
-                <span>Google</span>
-              </button>
+            {oauthProviderCount > 0 && (
+              <>
+                <div className={`mb-8 grid gap-4 ${oauthProviderCount > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
+                  {isOAuthProviderEnabled("google") && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          setServerMessage("");
+                          await loginWithGoogle();
+                        } catch (err) {
+                          const message = toSpanishSecurityCooldownMessage(err instanceof Error ? err.message : "No se pudo iniciar sesión con Google");
+                          setIsSuccessMessage(false);
+                          setServerMessage(message);
+                        }
+                      }}
+                      className="flex h-[54px] items-center justify-center gap-3 rounded-[14px] border border-[#D9DEE7] bg-white text-[16px] font-medium text-[#344054] transition hover:border-[#2C8BE6]"
+                    >
+                      <img src={googleIcon} alt="Google" className="h-5 w-5 object-contain" />
+                      <span>Google</span>
+                    </button>
+                  )}
 
-              <button
-                type="button"
-                onClick={async () => {
-                  try {
-                    setServerMessage("");
-                    await loginWithFacebook();
-                  } catch (err) {
-                    const message = toSpanishSecurityCooldownMessage(err instanceof Error ? err.message : "No se pudo iniciar sesión con Facebook");
-                    setIsSuccessMessage(false);
-                    setServerMessage(message);
-                  }
-                }}
-                className="flex h-[54px] items-center justify-center gap-3 rounded-[14px] border border-[#D9DEE7] bg-white text-[16px] font-medium text-[#344054] transition hover:border-[#2C8BE6]"
-              >
-                <img src={facebookIcon} alt="Facebook" className="h-5 w-5 object-contain" />
-                <span>Facebook</span>
-              </button>
-            </div>
+                  {isOAuthProviderEnabled("facebook") && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          setServerMessage("");
+                          await loginWithFacebook();
+                        } catch (err) {
+                          const message = toSpanishSecurityCooldownMessage(err instanceof Error ? err.message : "No se pudo iniciar sesión con Facebook");
+                          setIsSuccessMessage(false);
+                          setServerMessage(message);
+                        }
+                      }}
+                      className="flex h-[54px] items-center justify-center gap-3 rounded-[14px] border border-[#D9DEE7] bg-white text-[16px] font-medium text-[#344054] transition hover:border-[#2C8BE6]"
+                    >
+                      <img src={facebookIcon} alt="Facebook" className="h-5 w-5 object-contain" />
+                      <span>Facebook</span>
+                    </button>
+                  )}
+                </div>
 
-            <div className="mb-8 flex items-center gap-4">
-              <div className="h-px flex-1 bg-[#E4E7EC]" />
-              <span className="text-[14px] text-[#98A2B3]">o continúa con tu correo</span>
-              <div className="h-px flex-1 bg-[#E4E7EC]" />
-            </div>
+                <div className="mb-8 flex items-center gap-4">
+                  <div className="h-px flex-1 bg-[#E4E7EC]" />
+                  <span className="text-[14px] text-[#98A2B3]">o continúa con tu correo</span>
+                  <div className="h-px flex-1 bg-[#E4E7EC]" />
+                </div>
+              </>
+            )}
 
             {!isOnline && (
               <div className="mb-5 rounded-xl border border-[#FED7AA] bg-[#FFF7ED] px-4 py-3 text-[#B45309]">

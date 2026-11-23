@@ -4,8 +4,6 @@ import { AppLayout, SidebarCreateGroup } from "../../components/layout/AppLayout
 import { useAuth } from "../../context/useAuth";
 import { groupsService, saveCurrentGroup } from "../../services/groups";
 import { isNetworkError } from "../../services/apiClient";
-import { DestinationSearch } from "../../components/DestinationSearch/DestinationSearch";
-import type { GeocodingResult } from "../../services/maps";
 import { HelpButton } from "../../components/ui/HelpButton";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -595,7 +593,7 @@ const getValidationErrors = (form: FormData) => {
   else if (form.name.trim().length > 60)
     e.name = "Máximo 60 caracteres permitidos.";
 
-  if (!form.destination.trim()) e.destination = "Selecciona un destino.";
+  if (!form.destination.trim()) e.destination = "Escribe el destino del viaje.";
   if (form.description.trim().length > 300)
     e.description = "Máximo 300 caracteres permitidos.";
 
@@ -640,8 +638,6 @@ export function CreateGroupPage() {
   const { accessToken, localUser } = useAuth();
   const [serverError, setServerError] = useState("");
   const [createdGroupId, setCreatedGroupId] = useState("");
-  const [destinationData, setDestinationData] =
-    useState<GeocodingResult | null>(null);
   const navigate = useNavigate();
   const [form, setForm] = useState<FormData>({
     name: "",
@@ -750,11 +746,7 @@ export function CreateGroupPage() {
         {
           nombre: form.name.trim(),
           descripcion: form.description.trim() || undefined,
-          destino: form.destination || undefined,
-          destino_latitud: destinationData?.latitude ?? null,
-          destino_longitud: destinationData?.longitude ?? null,
-          destino_place_id: destinationData?.placeId ?? null,
-          destino_formatted_address: destinationData?.formattedAddress ?? null,
+          destino: form.destination.trim() || undefined,
           fecha_inicio: form.startDate || undefined,
           fecha_fin: form.endDate || undefined,
           maximo_miembros: Number(form.maxMembers),
@@ -1010,14 +1002,13 @@ export function CreateGroupPage() {
                   hint="Elige un nombre que identifique a tu grupo"
                   maxLength={60}
                 />
-                <DestinationSearch
+                <InputField
+                  label="Destino"
+                  placeholder="Ej: Oaxaca, México"
                   value={form.destination}
-                  onChange={(value, result) => {
-                    set("destination")(value);
-                    setDestinationData(result ?? null);
-                  }}
+                  onChange={set("destination") as (v: string) => void}
                   error={errors.destination}
-                  token={accessToken}
+                  maxLength={120}
                 />
                 <InputField
                   label="Descripción (opcional)"

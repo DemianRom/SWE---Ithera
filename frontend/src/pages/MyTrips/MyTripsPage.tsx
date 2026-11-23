@@ -370,19 +370,9 @@ function RolBadge({ rol, dark = false }: { rol: string; dark?: boolean }) {
 
 function FeaturedCard({ item, onClick }: { item: GroupHistoryItem; onClick: () => void }) {
   const g = item.grupos_viaje
-  const photoUrl = g.destino_photo_url ?? null
 
   return (
     <div className="relative overflow-hidden rounded-3xl shadow-[0_22px_46px_rgba(30,10,78,0.28)]">
-      {/* Destination photo */}
-      {photoUrl && (
-        <img
-          src={photoUrl}
-          alt={g.nombre}
-          className="absolute inset-0 h-full w-full object-cover"
-          loading="lazy"
-        />
-      )}
 
       {/* Purple gradient overlay — photo bleeds through */}
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(30,10,78,0.90)_0%,rgba(79,36,168,0.80)_50%,rgba(122,79,214,0.88)_100%)]" />
@@ -437,32 +427,16 @@ function FeaturedCard({ item, onClick }: { item: GroupHistoryItem; onClick: () =
 function TripCard({ item, onClick }: { item: GroupHistoryItem; onClick: () => void }) {
   const g = item.grupos_viaje
   const isAdmin = item.rol === 'admin'
-  const photoUrl = g.destino_photo_url ?? null
 
   return (
     <button
       onClick={onClick}
       className="relative w-full overflow-hidden rounded-3xl text-left shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
     >
-      {/* Destination photo layer */}
-      {photoUrl && (
-        <img
-          src={photoUrl}
-          alt={g.nombre}
-          className="absolute inset-0 h-full w-full object-cover"
-          loading="lazy"
-        />
-      )}
 
       {/* Gradient overlay */}
       <div className={`absolute inset-0 ${
-        isAdmin
-          ? photoUrl
-            ? 'bg-[linear-gradient(135deg,rgba(30,10,78,0.88)_0%,rgba(91,43,192,0.80)_55%,rgba(59,31,168,0.86)_100%)]'
-            : 'bg-[linear-gradient(135deg,#1E0A4E,#5B2BC0)]'
-          : photoUrl
-            ? 'bg-[linear-gradient(135deg,rgba(255,255,255,0.93)_0%,rgba(240,238,248,0.91)_100%)]'
-            : 'bg-white'
+        isAdmin ? 'bg-[linear-gradient(135deg,#1E0A4E,#5B2BC0)]' : 'bg-white'
       }`} />
 
       {/* Content */}
