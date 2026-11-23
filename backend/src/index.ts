@@ -24,6 +24,9 @@ import { startLockScheduler } from './infrastructure/sockets/lock.scheduler';
 const app = express();
 const httpServer = createServer(app);
 
+// Detrás del reverse proxy (Caddy): confiar en X-Forwarded-* del primer salto.
+app.set('trust proxy', 1);
+
 const allowedOrigins = [
   env.FRONTEND_URL,
   'http://localhost:5173',
@@ -35,9 +38,7 @@ app.use(cors({
       return callback(null, true);
     }
 
-    const isAllowed =
-      allowedOrigins.includes(origin) ||
-      origin.endsWith('.vercel.app');
+    const isAllowed = allowedOrigins.includes(origin);
 
     if (isAllowed) {
       return callback(null, true);

@@ -75,10 +75,10 @@ uploads/
 tmp/
 temp/
 
-# ─── Docker (si se agrega después) ──────────────────────────
-.dockerignore
-
 # ─── Misc ───────────────────────────────────────────────────
 *.pem
 *.key
 *.cert
+# ─── Despliegue (deploy.sh) ─────────────────────────────────
+.deploy.lock
+.deployed-sha

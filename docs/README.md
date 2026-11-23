@@ -10,7 +10,7 @@ Para incorporarse rapido al proyecto:
 2. Leer [../CONTRIBUTING.md](../CONTRIBUTING.md) antes de crear ramas, issues o PRs.
 3. Leer [../backend/README.md](../backend/README.md) si se trabajara en backend.
 4. Leer [../frontend/README.md](../frontend/README.md) si se trabajara en frontend.
-5. Revisar [workflows/README.md](workflows/README.md) si el cambio toca CI/CD, deploy o Vercel.
+5. Revisar [workflows/README.md](workflows/README.md) y [deploy/README.md](deploy/README.md) si el cambio toca CI/CD o el despliegue.
 
 ## Indice
 
@@ -33,7 +33,8 @@ Para incorporarse rapido al proyecto:
 | [diagramas/README.md](diagramas/README.md) | Analisis, arquitectura | Diagramas y modelos de soporte. |
 | [ADS/README.md](ADS/README.md) | Equipo academico | Entregables de Analisis y Diseno de Sistemas. |
 | [extracted/README.md](extracted/README.md) | Docs/analisis | Artefactos fuente o exportaciones crudas, no documentacion final. |
-| [vercel-frontend-deploy.md](vercel-frontend-deploy.md) | DevOps/frontend | Notas especificas de despliegue del frontend en Vercel. |
+| [deploy/README.md](deploy/README.md) | DevOps | Despliegue en el servidor propio con Docker Compose y Caddy. |
+| [plan-traveling.md](plan-traveling.md) | Todo el equipo | Plan de migracion de Ithera a Traveling por fases. |
 
 ## Documentacion oficial vs artefactos fuente
 

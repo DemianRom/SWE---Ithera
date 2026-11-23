@@ -32,7 +32,7 @@ la versión del Equipo 2: **cuentas compartidas del viaje**.
 | Dominio | Uno solo: `traveling.tonyquezada.com`. Frontend en `/`, backend en `/api`, `/socket.io` y `/health`. Sin CORS. |
 | DNS | Un CNAME `traveling` → `tonyquezada.com` en Cloudflare (proxied, como los demás subdominios). No requiere cambios en ddclient. |
 | Correo | SMTP de Gmail con contraseña de aplicación, tanto para Supabase Auth (OTP) como para el backend (invitaciones). Se reemplaza Resend por SMTP (nodemailer). |
-| Despliegue | Automático: `deploy.sh` (fast-forward de `main` + `docker compose up -d --build`) disparado por cron y, opcionalmente, por GitHub Actions vía SSH. |
+| Despliegue | Automático: GitHub Actions ejecuta `deploy.sh` por SSH (llave restringida) en cada push a `main`; el script hace fast-forward y `docker compose up -d --build` de lo que cambió. |
 | Funciones sin dueño | **Se quedan:** notificaciones (solo finanzas y base común), chat grupal y enlace público del itinerario. **Se va:** Google Maps (ubicaciones en texto libre). |
 | Repositorio | `origin` = fork del Equipo 2. `upstream` = `ITHERAADS/ITHERA` (solo lectura, para cherry-picks de la base común; el Equipo 1 integra en `upstream/develop`). |
 
@@ -100,36 +100,45 @@ el CNAME resuelve a Cloudflare.
 
 ## Fase 1 — Hosting
 
+Rama: `ci/self-hosting`.
+
 Archivos nuevos en el repo:
 
-- [ ] `compose.yaml` (`name: traveling`), servicios en la red `proxy` (externa, `docker_proxy`),
+- [x] `compose.yaml` (`name: traveling`), servicios en la red `proxy` (externa, `docker_proxy`),
       sin puertos publicados:
-  - `traveling-api`: `backend/Dockerfile` multi-stage sobre `node:24-slim` (`npm ci` → `tsc` →
-    runtime solo con dependencias de producción). `env_file: ./backend/.env`. Healthcheck a `/health`.
-  - `traveling-web`: `frontend/Dockerfile`; etapa de build con Vite y build args `VITE_API_URL=/api`,
-    `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`; etapa final `nginx:stable-alpine` con
-    `frontend/nginx.conf` (fallback SPA a `index.html`, caché larga en `/assets`).
-- [ ] Build args leídos del `.env` de la raíz (Compose lo usa para interpolar); se sube `.env.example`.
-- [ ] `.dockerignore` en `backend/` y `frontend/`.
-- [ ] `deploy.sh`: `flock`, `git fetch` + fast-forward de `main`, reconstruye `traveling-api`,
-      `traveling-web` o ambos según los paths cambiados; `--force`, `--ssh`; limpieza de imágenes.
-- [ ] `.github/workflows/deploy.yml` (opcional): en push a `main`, SSH con llave restringida a
-      `deploy.sh --ssh`.
-- [ ] Borrar `vercel-frontend-preview.yml`, `vercel-frontend-production.yml` y `frontend/vercel.json`.
+  - `traveling-api`: `backend/Dockerfile` multi-stage sobre `node:24-slim`, usuario `node`,
+    `env_file: ./backend/.env`, healthcheck a `/health`.
+  - `traveling-web`: `frontend/Dockerfile` (build de Vite con build args `VITE_API_URL=/api`,
+    `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) servido por `nginx:stable-alpine` con
+    `frontend/nginx.conf` (fallback SPA sin caché, `/assets` con caché inmutable).
+- [x] Build args leídos del `.env` de la raíz; plantilla `.env.example`.
+- [x] `.dockerignore` en `backend/` y `frontend/`.
+- [x] `deploy.sh`: `flock`, fast-forward de `main`, reconstruye solo lo que cambió desde el último
+      deploy exitoso (`.deployed-sha`, así un build fallido se reintenta); `--force`, `--ssh`.
+- [x] `.github/workflows/deploy.yml`: en push a `main`, SSH con llave restringida a
+      `deploy.sh --ssh`. Destino y huella del host en secrets (el repo es público).
+- [x] Borrados los workflows de Vercel, `frontend/vercel.json` y `docs/vercel-frontend-deploy.md`.
+- [x] Documentación: `docs/deploy/README.md` (nuevo), `docs/workflows/README.md`,
+      `.github/workflows/README.md`, `docs/README.md` y README.
 
 Código:
 
-- [ ] `backend/src/index.ts`: `app.set('trust proxy', 1)`; quitar el comodín `.vercel.app` del CORS.
-- [ ] `backend/src/services/email.service.ts`: Resend → SMTP con nodemailer
+- [x] `backend/src/index.ts`: `app.set('trust proxy', 1)`; sin comodín `.vercel.app` en CORS
+      (también en Socket.IO).
+- [x] `backend/src/services/email.service.ts`: Resend → SMTP con nodemailer
       (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`).
-- [ ] CI y README: Node 20 → 24 (Node 20 salió de soporte en abril de 2026).
+- [x] CI y README: Node 20 → 24.
+
+Verificado en local: `tsc`, build y tests del backend (falla solo `amadeus.integrity.test.ts`,
+que llama a la API real de Amadeus y se borra en la fase 3); ambas imágenes construyen; `/health`,
+el polling de Socket.IO, el healthcheck, el fallback SPA y la caché de `/assets` responden bien.
 
 Servidor:
 
-- [ ] Clon dedicado para producción en `~/traveling` (separado de la copia de desarrollo para que
-      `deploy.sh` no choque con trabajo en curso).
-- [ ] **[Tú]** Llenar los secretos en `~/traveling/backend/.env` y `~/traveling/.env` (Claude deja
-      los archivos listos con los valores no secretos).
+- [ ] Clon de producción en `~/traveling` con `.env` de la raíz (valores públicos) y
+      `backend/.env` (no secretos + `SHARE_LINK_SECRET` generado).
+- [ ] **[Tú]** Llenar en `~/traveling/backend/.env`: `SUPABASE_SECRET_KEY`, `SMTP_USER`,
+      `SMTP_PASS` y `MAIL_FROM`.
 - [ ] **[OK]** Agregar el bloque de `traveling.tonyquezada.com` al Caddyfile del servidor y recargar Caddy:
 
   ```
@@ -145,9 +154,13 @@ Servidor:
   }
   ```
 
-- [ ] **[OK]** Primer `docker compose up -d --build` e instalar el cron
-      `*/2 * * * * ~/traveling/deploy.sh >> ~/traveling/deploy.log 2>&1`.
-- [ ] **[Tú]** (opcional) Secrets del workflow de deploy en GitHub y la llave SSH restringida.
+- [ ] **[OK]** Primer `docker compose up -d --build` en `~/traveling`.
+- [ ] **[OK]** Autorizar la llave de deploy en `~/.ssh/authorized_keys` con
+      `restrict,command="/home/tony/traveling/deploy.sh --ssh"`.
+- [ ] **[Tú]** Secrets en GitHub (*Settings → Secrets and variables → Actions*): `DEPLOY_KEY`,
+      `DEPLOY_TARGET`, `DEPLOY_KNOWN_HOSTS`.
+- [ ] **[Tú]** PR `ci/self-hosting` → `develop` (revisión de otra persona) y luego `develop` → `main`.
+      Al llegar a `main`, la copia de `~/traveling` pasa a la rama `main` y el deploy queda automático.
 
 **Lista cuando:** `https://traveling.tonyquezada.com/health` responde; recargar `/my-trips` no da
 404; `/socket.io/?EIO=4&transport=polling` responde 200; un push a `main` se publica solo.

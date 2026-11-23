@@ -37,8 +37,7 @@ export const initSocketServer = (httpServer: HttpServer): SocketIOServer => {
 
         const isAllowed =
           origin === env.FRONTEND_URL ||
-          origin === 'http://localhost:5173' ||
-          origin.endsWith('.vercel.app');
+          origin === 'http://localhost:5173';
 
         if (isAllowed) {
           return callback(null, true);

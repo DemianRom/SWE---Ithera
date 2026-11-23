@@ -1,6 +1,6 @@
-# Workflows de GitHub Actions - Ithera
+# Workflows de GitHub Actions - Traveling
 
-Esta carpeta contiene los workflows que automatizan CI y despliegues del frontend. Esta es solo una referencia rapida junto a los archivos `.yml`; la guia completa vive en [../../docs/workflows/README.md](../../docs/workflows/README.md).
+Esta carpeta contiene los workflows de CI y el despliegue al servidor. Esta es solo una referencia rapida junto a los archivos `.yml`; la guia completa vive en [../../docs/workflows/README.md](../../docs/workflows/README.md).
 
 ## Resumen rapido
 
@@ -8,14 +8,13 @@ Esta carpeta contiene los workflows que automatizan CI y despliegues del fronten
 | --- | --- | --- |
 | `ci-backend.yml` | PR hacia `main` o `develop` con cambios relevantes | Valida backend: dependencias, lint, type check, build y tests. |
 | `ci-frontend.yml` | PR hacia `main` o `develop` con cambios relevantes | Valida frontend: dependencias, lint, type check y build. |
-| `vercel-frontend-preview.yml` | PR hacia `develop` con cambios en `frontend` | Genera preview deploy en Vercel y comenta la URL en el PR. |
-| `vercel-frontend-production.yml` | Push a `develop` con cambios en `frontend` o ejecucion manual | Despliega el frontend a produccion en Vercel. |
+| `deploy.yml` | Push a `main` o ejecucion manual | Despliega backend y frontend en el servidor via SSH (`deploy.sh`). |
 
-## Secrets usados por Vercel
+## Secrets usados por el deploy
 
-- `VERCEL_TOKEN`
-- `VERCEL_ORG_ID`
-- `VERCEL_PROJECT_ID_FRONTEND`
+- `DEPLOY_KEY`
+- `DEPLOY_TARGET`
+- `DEPLOY_KNOWN_HOSTS`
 
 ## Regla de mantenimiento
 

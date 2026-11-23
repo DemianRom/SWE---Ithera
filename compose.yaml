@@ -1,0 +1,49 @@
+# Traveling — backend (Express + Socket.IO) y frontend (React/Vite servido por nginx).
+#
+# El Caddy del servidor publica ambos en https://traveling.tonyquezada.com usando la
+# red externa docker_proxy:
+#   /api/*, /socket.io/*, /health  -> traveling-api:3001
+#   todo lo demás                  -> traveling-web:80
+# Base de datos, autenticación y archivos viven en Supabase (nube).
+#
+# Variables:
+#   ./.env          -> VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY (públicas; build del frontend)
+#   ./backend/.env  -> configuración y secretos del backend (PORT debe ser 3001)
+#
+# Despliegue: ./deploy.sh (lo dispara GitHub Actions al hacer push a main).
+# Guía completa: docs/deploy/README.md
+name: traveling
+
+services:
+
+  traveling-api:
+    build:
+      context: ./backend
+    container_name: traveling-api
+    restart: unless-stopped
+    env_file: ./backend/.env
+    networks:
+      - proxy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  traveling-web:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:?Falta VITE_SUPABASE_URL en .env}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:?Falta VITE_SUPABASE_ANON_KEY en .env}
+    container_name: traveling-web
+    restart: unless-stopped
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
+    name: docker_proxy

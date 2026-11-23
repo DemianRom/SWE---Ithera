@@ -1,27 +1,38 @@
-import { Resend } from 'resend';
+import nodemailer, { Transporter } from 'nodemailer';
 
-let resendClient: Resend | null = null;
+let transporter: Transporter | null = null;
 
-function getResendClient(): Resend {
-  const apiKey = process.env.RESEND_API_KEY?.trim();
+function requireMailEnv(key: string): string {
+  const value = process.env[key]?.trim();
 
-  if (!apiKey) {
-    throw new Error('RESEND_API_KEY no está configurada');
+  if (!value) {
+    throw new Error(`${key} no está configurada`);
   }
 
-  if (!resendClient) {
-    resendClient = new Resend(apiKey);
+  return value;
+}
+
+function getTransporter(): Transporter {
+  if (!transporter) {
+    const port = Number(process.env.SMTP_PORT ?? 587);
+
+    transporter = nodemailer.createTransport({
+      host: requireMailEnv('SMTP_HOST'),
+      port,
+      // 465 usa TLS directo; 587 negocia STARTTLS.
+      secure: port === 465,
+      auth: {
+        user: requireMailEnv('SMTP_USER'),
+        pass: requireMailEnv('SMTP_PASS'),
+      },
+    });
   }
 
-  return resendClient;
+  return transporter;
 }
 
 function getMailFrom(): string {
-  const mailFrom = process.env.MAIL_FROM?.trim();
-
-  if (!mailFrom) {
-    throw new Error('MAIL_FROM no está configurado');
-  }
+  const mailFrom = requireMailEnv('MAIL_FROM');
 
   // Acepta:
   // 1) email@dominio.com
@@ -47,18 +58,13 @@ export const sendEmail = async ({
   subject: string;
   html: string;
 }) => {
-  const resend = getResendClient();
-  const from = getMailFrom();
-
   try {
-    const response = await resend.emails.send({
-      from,
+    return await getTransporter().sendMail({
+      from: getMailFrom(),
       to,
       subject,
       html,
     });
-
-    return response;
   } catch (error) {
     console.error('Error enviando correo:', error);
     throw error;

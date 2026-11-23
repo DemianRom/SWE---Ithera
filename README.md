@@ -47,7 +47,8 @@ Organizar un viaje entre varias personas suele dispersarse entre chats, hojas de
 | Vuelos | Amadeus, Duffel |
 | Hoteles | LiteAPI |
 | Clima | Open-Meteo, WeatherAPI |
-| CI/CD | GitHub Actions, Vercel |
+| CI/CD | GitHub Actions |
+| Hosting | Docker Compose + Caddy en servidor propio |
 | Testing backend | Jest, ts-jest |
 | Build frontend | Vite |
 
@@ -80,8 +81,7 @@ ithera/
 |   |   |-- README.md               # Resumen rapido de workflows
 |   |   |-- ci-backend.yml          # CI de backend
 |   |   |-- ci-frontend.yml         # CI de frontend
-|   |   |-- vercel-frontend-preview.yml
-|   |   `-- vercel-frontend-production.yml
+|   |   `-- deploy.yml              # Deploy al servidor via SSH
 |   |-- CODEOWNERS                 # Revisores automaticos
 |   `-- PULL_REQUEST_TEMPLATE.md   # Template obligatorio de PR
 |
@@ -114,6 +114,7 @@ ithera/
 |   |   `-- index.ts                # Bootstrap HTTP + Socket.IO
 |   |-- tests/                      # Pruebas e informes
 |   |-- .env.example                # Variables requeridas por backend
+|   |-- Dockerfile                  # Build TypeScript + runtime Node 24
 |   |-- package.json                # Scripts y dependencias backend
 |   `-- README.md                   # Guia tecnica de backend
 |
@@ -134,7 +135,8 @@ ithera/
 |   |   |-- App.tsx                 # Definicion de rutas
 |   |   `-- main.tsx                # Bootstrap React
 |   |-- .env.example                # Variables publicas Vite
-|   |-- vercel.json                 # Rewrite SPA para Vercel
+|   |-- Dockerfile                  # Build de Vite + nginx
+|   |-- nginx.conf                  # Fallback SPA y cache de assets
 |   |-- package.json                # Scripts y dependencias frontend
 |   `-- README.md                   # Guia tecnica de frontend
 |
@@ -150,8 +152,11 @@ ithera/
 |   |-- issues/                     # Reglas para levantar issues
 |   |-- requerimientos/             # Requerimientos del sistema
 |   |-- workflows/                  # Guia completa de GitHub Actions
-|   `-- vercel-frontend-deploy.md   # Notas de despliegue frontend
+|   |-- deploy/                     # Despliegue con Docker Compose y Caddy
+|   `-- plan-traveling.md           # Plan de migracion a Traveling
 |
+|-- compose.yaml                    # Servicios Docker de produccion
+|-- deploy.sh                       # Script de despliegue en el servidor
 |-- CONTRIBUTING.md                 # Manual de trabajo del equipo
 |-- LICENSE
 |-- package.json                    # Archivo raiz del workspace
@@ -169,7 +174,8 @@ ithera/
 | [docs/Documentacion_oficial/](docs/Documentacion_oficial/) | Documentacion oficial del proyecto y material relevante para el curso. |
 | [docs/architecture/README.md](docs/architecture/README.md) | Vista de arquitectura actual del proyecto. |
 | [docs/api/endpoints.md](docs/api/endpoints.md) | Inventario de endpoints REST. |
-| [docs/workflows/README.md](docs/workflows/README.md) | Guia completa de CI/CD, Vercel y GitHub Actions. |
+| [docs/workflows/README.md](docs/workflows/README.md) | Guia completa de CI/CD y GitHub Actions. |
+| [docs/deploy/README.md](docs/deploy/README.md) | Despliegue en el servidor con Docker Compose y Caddy. |
 | [docs/env/README.md](docs/env/README.md) | Variables de entorno locales, GitHub Actions y Vercel. |
 | [docs/database/README.md](docs/database/README.md) | Supabase, migraciones, RLS y cambios de esquema. |
 | [docs/testing/README.md](docs/testing/README.md) | Estrategia de pruebas y comandos de verificacion. |
@@ -198,7 +204,7 @@ ithera/
 
 Requisitos:
 
-- Node.js 20.
+- Node.js 24.
 - npm.
 - Credenciales de Supabase y servicios externos si se probaran integraciones reales.
 
@@ -327,10 +333,9 @@ Todo PR normal debe apuntar a `develop`.
 | --- | --- | --- |
 | CI Backend | `.github/workflows/ci-backend.yml` | Valida backend con lint, type check, build y tests. |
 | CI Frontend | `.github/workflows/ci-frontend.yml` | Valida frontend con lint, type check y build. |
-| Preview Vercel | `.github/workflows/vercel-frontend-preview.yml` | Genera deploy preview en PRs hacia `develop`. |
-| Produccion Vercel | `.github/workflows/vercel-frontend-production.yml` | Despliega frontend desde `develop` o manualmente. |
+| Deploy | `.github/workflows/deploy.yml` | Despliega backend y frontend en el servidor al hacer push a `main`. |
 
-Guia completa: [docs/workflows/README.md](docs/workflows/README.md).
+Guia completa: [docs/workflows/README.md](docs/workflows/README.md). Despliegue: [docs/deploy/README.md](docs/deploy/README.md).
 
 ## Variables de entorno
 
