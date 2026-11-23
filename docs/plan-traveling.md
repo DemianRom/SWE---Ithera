@@ -1,6 +1,6 @@
 # Plan de migración: Ithera → Traveling (Equipo 2)
 
-> Estado: **Fase 3 en curso** (fases 1 y 2 aplicadas en producción, pendientes de merge) · Última actualización: 2026-11-23
+> Estado: **Fase 4 en curso** (fases 1 a 3 aplicadas en producción, pendientes de merge) · Última actualización: 2026-11-23
 
 ## Contexto
 
@@ -63,8 +63,8 @@ la versión del Equipo 2: **cuentas compartidas del viaje**.
 | 0 | Preparación: repo, DNS, Supabase, correo | S | Lista |
 | 1 | Hosting en el servidor | M | En curso |
 | 2 | Esquema base en Supabase | L | Lista |
-| 3 | Poda de módulos del Equipo 1 y fuera de alcance | L | En curso |
-| 4 | Itinerario básico | M | Pendiente |
+| 3 | Poda de módulos del Equipo 1 y fuera de alcance | L | Lista |
+| 4 | Itinerario básico | M | En curso |
 | 5 | Funciones de finanzas del Equipo 2 | L | Pendiente |
 | 6 | Renombre, documentación y CI | M | Pendiente |
 
@@ -297,17 +297,44 @@ de API, tiempo real, variables y arquitectura se actualiza en la fase 6.
 
 ## Fase 4 — Itinerario básico
 
-- [ ] Crear actividad inserta directo en `actividades` (confirmada), sin propuesta ni votación.
-      Edita/borra el creador o un admin; se respeta `modulo_itinerario_bloqueado`; se conservan las
-      validaciones de rango de fechas y traslapes.
-- [ ] `getGroupItinerary` sin join a `propuestas` ni conteo de votos.
-- [ ] Ubicación en texto libre con enlace "Abrir en Google Maps"
-      (`https://www.google.com/maps/search/?api=1&query=…`, sin API key).
-- [ ] `ActivityProposalModal` → `ActivityFormModal` (título, inicio/fin, ubicación, descripción);
-      `DayView` sin estados de votación.
-- [ ] Itinerario como contexto opcional: selector "Actividad relacionada (opcional)" en el
-      formulario de gasto (`trip_context_links`) y "Gastado aquí" en cada actividad.
-- [ ] Verificar que `/shared/:token` sigue mostrando el itinerario.
+Rama: `feature/basic-itinerary` (sale de `refactor/remove-team1-modules`).
+
+Backend:
+
+- [x] `itinerary.service.ts` reescrito: cualquier integrante agrega actividades (quedan
+      confirmadas, sin propuesta ni votación); edita o borra quien la creó o un admin; se
+      respetan el viaje cerrado y `modulo_itinerario_bloqueado`.
+- [x] Validaciones conservadas: dentro de las fechas del viaje, intervalos de 30 minutos, nada
+      en días pasados y sin traslapes (409). Título, notas y ubicación con límite de longitud.
+- [x] Borrar una actividad también quita sus enlaces con gastos y documentos.
+- [x] Respuesta del itinerario con quién agregó cada actividad (`createdByName`).
+- [x] Migración `20261123215241_simplify_activities.sql`: fuera `latitud`, `longitud`,
+      `referencia_externa`, `fuente`, `payload` y el estado `pendiente`.
+
+Frontend:
+
+- [x] `DayView` reescrito (de 2,023 a ~400 líneas): línea de tiempo del día, tarjeta con
+      horario, quién la agregó, notas, ubicación con enlace a Google Maps y gastos/documentos
+      ligados con **"Gastado aquí"**; editar/borrar según permisos.
+- [x] `ActivityFormModal` nuevo: título, día (dentro del viaje y desde hoy), inicio y fin en
+      intervalos de 30 minutos (hora de Ciudad de México), ubicación y notas; muestra los errores
+      del backend.
+- [x] Tablero: botones de agregar en la portada del itinerario, el resumen del día y cada día;
+      se ocultan si el viaje está cerrado o el itinerario bloqueado. Sin textos de votación;
+      exportar a PDF sin rutas.
+- [x] El enlace gasto↔actividad ya existía en el formulario de gastos ("Actividad relacionada").
+
+Verificación:
+
+- [x] Supabase local con las 4 migraciones: smoke test **34/34** (crear, consultar, editar,
+      permisos 403, traslape 409, ligar gasto, borrar con limpieza de enlaces). Backend 21/21 tests.
+- [x] Frontend: `tsc`, lint y build limpios. No hay navegador en el servidor: falta revisión visual.
+
+Pendiente:
+
+- [ ] **[OK]** Desplegar en producción y luego `npx supabase db push`.
+- [ ] **[Tú]** Revisar en el navegador: agregar, editar y borrar actividades; ligar un gasto a
+      una actividad y ver "Gastado aquí"; enlace público del itinerario.
 
 **Lista cuando:** se crean, editan y borran actividades sin votación y el smoke test pasa completo.
 

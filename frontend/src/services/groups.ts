@@ -21,10 +21,12 @@ export interface ItineraryDay {
   activities: Activity[]
 }
 
-interface CreatedActivityPayload {
-  id_actividad?: number | string
-  propuesta_id?: number | string | null
-  proposalId?: number | string | null
+export interface ActivityInput {
+  titulo: string
+  descripcion?: string | null
+  ubicacion?: string | null
+  fecha_inicio: string
+  fecha_fin?: string | null
 }
 
 export const groupsService = {
@@ -208,23 +210,8 @@ export const groupsService = {
     }>(`/groups/${groupId}/itinerary`, token)
   },
 
-  createActivity: async (
-    groupId: string,
-    payload: {
-      titulo: string
-      descripcion?: string | null
-      ubicacion?: string | null
-      latitud?: number | null
-      longitud?: number | null
-      fecha_inicio?: string | null
-      fecha_fin?: string | null
-      referencia_externa?: string | null
-      fuente?: string | null
-      payload?: Record<string, unknown> | null
-    },
-    token: string
-  ) => {
-    return apiClient.post<{ ok: boolean; message: string; activity: CreatedActivityPayload }>(
+  createActivity: async (groupId: string, payload: ActivityInput, token: string) => {
+    return apiClient.post<{ ok: boolean; message: string; activity: Activity }>(
       `/groups/${groupId}/itinerary/activities`,
       payload,
       token
@@ -234,21 +221,10 @@ export const groupsService = {
   updateActivity: async (
     groupId: string,
     activityId: string,
-    payload: {
-      titulo?: string
-      descripcion?: string | null
-      ubicacion?: string | null
-      latitud?: number | null
-      longitud?: number | null
-      fecha_inicio?: string | null
-      fecha_fin?: string | null
-      referencia_externa?: string | null
-      fuente?: string | null
-      payload?: Record<string, unknown> | null
-    },
+    payload: Partial<ActivityInput>,
     token: string
   ) => {
-    return apiClient.patch<{ ok: boolean; message: string; activity: unknown }>(
+    return apiClient.patch<{ ok: boolean; message: string; activity: Activity }>(
       `/groups/${groupId}/itinerary/activities/${activityId}`,
       payload,
       token

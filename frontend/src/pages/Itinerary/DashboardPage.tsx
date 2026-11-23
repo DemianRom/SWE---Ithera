@@ -29,6 +29,10 @@ import {
 } from "../../services/context-links";
 import { DocumentVaultPanel } from "../../components/documents/DocumentVaultPanel";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
+import {
+  ActivityFormModal,
+  type ActivityFormValues,
+} from "../../components/ActivityFormModal/ActivityFormModal";
 import { useSocket } from "../../hooks/useSocket";
 import { useNetworkMonitor } from "../../hooks/useNetworkMonitor";
 import type { Group } from "../../types/groups";
@@ -361,16 +365,6 @@ function EmptyState({ onAdd }: { onAdd?: () => void }) {
         <p className="mx-auto mb-5 max-w-md font-body text-sm leading-relaxed text-gray500">
           ¡Empieza añadiendo la primera!
         </p>
-        <div className="mb-6 grid gap-2 text-left sm:grid-cols-3">
-          {["Actividad", "Transporte", "Hospedaje"].map((label) => (
-            <span
-              key={label}
-              className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 text-center font-body text-xs font-semibold text-[#475569]"
-            >
-              {label}
-            </span>
-          ))}
-        </div>
         {onAdd && (
           <button
             onClick={onAdd}
@@ -542,8 +536,7 @@ function TimelineStrip({
               Selecciona un día para revisar el avance
             </p>
             <p className="font-body text-sm text-gray500">
-              También puedes empezar creando una propuesta para un día del
-              viaje.
+              O agrega directamente una actividad al itinerario.
             </p>
           </div>
         </div>
@@ -554,30 +547,14 @@ function TimelineStrip({
             className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-bluePrimary px-4 py-2 font-body text-sm font-semibold text-white hover:bg-[#1E5EEA]"
           >
             <IconPlus size={13} />
-            Proponer actividad
+            Agregar actividad
           </button>
         )}
       </div>
     );
   }
 
-  const confirmed = activities.filter(
-    (activity) => activity.status === "confirmada",
-  ).length;
-  const pending = activities.filter(
-    (activity) => activity.status === "pendiente",
-  ).length;
   const total = activities.length;
-  const pct = total > 0 ? Math.round((confirmed / total) * 100) : 0;
-  const transport = activities.filter(
-    (activity) => activity.category === "transporte",
-  ).length;
-  const lodging = activities.filter(
-    (activity) => activity.category === "hospedaje",
-  ).length;
-  const acts = activities.filter(
-    (activity) => activity.category === "actividad",
-  ).length;
   const sortedActivities = [...activities].sort((left, right) => {
     const leftTime = left.startsAt
       ? new Date(left.startsAt).getTime()
@@ -600,53 +577,18 @@ function TimelineStrip({
             {date ? ` · ${date.toUpperCase()}` : ""}
           </span>
           <p className="mt-2 font-heading text-base font-bold leading-none text-purpleNavbar">
-            Progreso del día
+            Resumen del día
           </p>
           <p className="mt-1 font-body text-sm leading-none text-gray500">
-            {confirmed} de {total} actividades confirmadas
+            {total === 0
+              ? "Sin actividades todavía"
+              : `${total} actividad${total !== 1 ? "es" : ""} planeada${total !== 1 ? "s" : ""}`}
           </p>
-        </div>
-
-        <div className="flex-1 pt-0.5">
-          <div className="h-3 overflow-hidden rounded-full bg-surface">
-            <div
-              className="h-full rounded-full transition-all duration-500"
-              style={{
-                width: `${pct}%`,
-                background: "linear-gradient(90deg, #1E6FD9, #35C56A)",
-              }}
-            />
-          </div>
-          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span className="flex items-center gap-1.5 font-body text-[13px] text-gray500">
-              <span className="h-2 w-2 shrink-0 rounded-full bg-greenAccent" />
-              Confirmadas · {confirmed}
-            </span>
-            <span className="flex items-center gap-1.5 font-body text-[13px] text-gray500">
-              <span className="h-2 w-2 shrink-0 rounded-full bg-purpleMedium" />
-              Por confirmar · {pending}
-            </span>
-          </div>
         </div>
       </div>
 
-      {(transport > 0 || lodging > 0 || acts > 0) && (
+      {total > 0 && (
         <div className="mt-3 flex flex-wrap gap-2">
-          {transport > 0 && (
-            <span className="rounded-full bg-[#EEF4FF] px-3 py-1 font-body text-[13px] leading-none text-bluePrimary">
-              {transport} traslado{transport !== 1 ? "s" : ""}
-            </span>
-          )}
-          {lodging > 0 && (
-            <span className="rounded-full bg-[#EEF4FF] px-3 py-1 font-body text-[13px] leading-none text-bluePrimary">
-              {lodging} hospedaje{lodging !== 1 ? "s" : ""}
-            </span>
-          )}
-          {acts > 0 && (
-            <span className="rounded-full bg-surface px-3 py-1 font-body text-[13px] leading-none text-purpleMedium">
-              {acts} actividad{acts !== 1 ? "es" : ""}
-            </span>
-          )}
           {firstActivity && (
             <span className="rounded-full bg-[#EEF4FF] px-3 py-1 font-body text-[13px] leading-none text-bluePrimary">
               Primera: {firstActivity.time}
@@ -1112,6 +1054,20 @@ export function DashboardPage() {
   const isReadOnly = ["cerrado", "archivado", "finalizado"].includes(
     String(group?.estado ?? currentGroup?.estado ?? "").toLowerCase(),
   );
+  const isItineraryLocked = Boolean(
+    group?.modulo_itinerario_bloqueado ?? currentGroup?.modulo_itinerario_bloqueado,
+  );
+  const canEditItinerary = !isReadOnly && !isItineraryLocked;
+  const tripStartKey = toDateKey(group?.fecha_inicio ?? currentGroup?.fecha_inicio ?? null);
+  const tripEndKey = toDateKey(group?.fecha_fin ?? currentGroup?.fecha_fin ?? null);
+  const todayKey = getTodayDateKey();
+  const activityMinDate =
+    tripStartKey && tripStartKey > todayKey ? tripStartKey : todayKey;
+  // Formulario de actividad: sin `activity` crea una nueva en `date`.
+  const [activityForm, setActivityForm] = useState<{
+    activity: DayActivity | null;
+    date: string | null;
+  } | null>(null);
 
   const chatParticipants = useMemo(() => {
     const colors = ["#1E6FD9", "#35C56A", "#7A4FD6", "#F59E0B"];
@@ -1319,6 +1275,44 @@ export function DashboardPage() {
     localUser?.id_usuario,
   ]);
 
+  const openActivityModalForDay = useCallback(
+    (dayNumber: number) => {
+      if (!canEditItinerary) return;
+      setActiveDay(dayNumber);
+      setExpandedDay(dayNumber);
+      setActivityForm({
+        activity: null,
+        date: tripStartKey ? addDaysToDateKey(tripStartKey, dayNumber - 1) : null,
+      });
+    },
+    [canEditItinerary, tripStartKey],
+  );
+
+  const openActivityEditor = useCallback((activity: DayActivity) => {
+    setActivityForm({ activity, date: null });
+  }, []);
+
+  const handleSubmitActivity = useCallback(
+    async (values: ActivityFormValues) => {
+      if (!resolvedGroupId || !accessToken) {
+        throw new Error("Tu sesión no está disponible. Vuelve a iniciar sesión.");
+      }
+      if (activityForm?.activity) {
+        await groupsService.updateActivity(
+          resolvedGroupId,
+          activityForm.activity.id,
+          values,
+          accessToken,
+        );
+      } else {
+        await groupsService.createActivity(resolvedGroupId, values, accessToken);
+      }
+      setActivityForm(null);
+      await reloadDashboard();
+    },
+    [accessToken, activityForm, reloadDashboard, resolvedGroupId],
+  );
+
   const handleDeleteActivity = useCallback(
     (activityId: string) => {
       const activityName =
@@ -1373,15 +1367,13 @@ export function DashboardPage() {
       .map((day) => ({
         dayNumber: day.dayNumber,
         date: day.date,
-        activities: day.activities.filter(
-          (activity) => activity.status === "confirmada",
-        ),
+        activities: day.activities,
       }))
       .filter((day) => day.activities.length > 0);
 
     if (confirmedByDay.length === 0) {
       window.alert(
-        "El itinerario no tiene elementos confirmados para exportar aún.",
+        "El itinerario todavía no tiene actividades para exportar.",
       );
       return;
     }
@@ -1398,11 +1390,6 @@ export function DashboardPage() {
       .map((day) => {
         const items = day.activities
           .map((activity, index) => {
-            const routeText =
-              activity.routeDistanceText && activity.routeDurationText
-                ? `${activity.routeDistanceText} · ${activity.routeDurationText}`
-                : "Ruta no disponible";
-
             return `
               <article class="activity-card">
                 <div class="activity-index">${index + 1}</div>
@@ -1412,7 +1399,6 @@ export function DashboardPage() {
                   <div class="chips">
                     <span>Hora: ${escapeHtml(activity.time || "Hora pendiente")}</span>
                     <span>${escapeHtml(activity.location || "Ubicación no disponible")}</span>
-                    <span>${escapeHtml(routeText)}</span>
                   </div>
                 </div>
               </article>
@@ -1442,7 +1428,7 @@ export function DashboardPage() {
         <head>
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width,initial-scale=1" />
-          <title>Itinerario Confirmado - ${tripName}</title>
+          <title>Itinerario - ${tripName}</title>
           <style>
             :root {
               --ink:#1E0A4E;
@@ -1567,11 +1553,11 @@ export function DashboardPage() {
         <body>
           <main class="sheet">
             <header class="hero">
-              <h1>Itinerario confirmado</h1>
+              <h1>Itinerario del viaje</h1>
               <p>${tripName} · ${tripDestination}</p>
               <div class="meta">
-                <span>${confirmedByDay.length} día(s) con actividades confirmadas</span>
-                <span>${confirmedByDay.reduce((acc, day) => acc + day.activities.length, 0)} actividad(es) confirmada(s)</span>
+                <span>${confirmedByDay.length} día(s) con actividades</span>
+                <span>${confirmedByDay.reduce((acc, day) => acc + day.activities.length, 0)} actividad(es)</span>
               </div>
             </header>
             <section class="content">${sectionsHtml}</section>
@@ -1745,7 +1731,9 @@ export function DashboardPage() {
           isReadOnly={isReadOnly}
         />
       ) : isEmpty ? (
-        <EmptyState />
+        <EmptyState
+          onAdd={canEditItinerary ? () => openActivityModalForDay(1) : undefined}
+        />
       ) : (
         <div className="flex-1 overflow-y-auto bg-surface px-6 py-6">
           <HeroCard
@@ -1753,6 +1741,14 @@ export function DashboardPage() {
             totalDays={daysWithContext.length}
             selectedDay={selectedDayWithContext}
             group={group}
+            onAdd={
+              canEditItinerary && areRealtimeActionsEnabled
+                ? () =>
+                    openActivityModalForDay(
+                      activeDay ?? daysWithContext[0]?.dayNumber ?? 1,
+                    )
+                : undefined
+            }
             onExportPdf={handleExportConfirmedItineraryPdf}
           />
           {/* ── Banner modo solo lectura (ERR-211-002 / CU-2.10) ── */}
@@ -1812,12 +1808,7 @@ export function DashboardPage() {
                     <div className="flex gap-2">
                       {daysWithContext.map((day) => {
                         const isActive = day.dayNumber === activeDayNumber;
-                        const confirmed = day.activities.filter(
-                          (a) => a.status === "confirmada",
-                        ).length;
-                        const pending = day.activities.filter(
-                          (a) => a.status === "pendiente",
-                        ).length;
+                        const count = day.activities.length;
                         const isEmpty = day.activities.length === 0;
                         return (
                           <button
@@ -1866,24 +1857,11 @@ export function DashboardPage() {
                                   Sin actividades
                                 </span>
                               ) : (
-                                <>
-                                  {confirmed > 0 && (
-                                    <span
-                                      className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 font-body text-xs font-semibold ${isActive ? "bg-[#D1FAE5] text-[#065F46]" : "bg-[#35C56A]/20 text-[#9AF0B8]"}`}
-                                    >
-                                      <span className="text-[10px]">✓</span>{" "}
-                                      {confirmed}
-                                    </span>
-                                  )}
-                                  {pending > 0 && (
-                                    <span
-                                      className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 font-body text-xs font-semibold ${isActive ? "bg-[#F3EEFF] text-[#7A4FD6]" : "bg-[#7A4FD6]/25 text-[#D8C8FF]"}`}
-                                    >
-                                      <span className="text-[10px]">●</span>{" "}
-                                      {pending}
-                                    </span>
-                                  )}
-                                </>
+                                <span
+                                  className={`inline-flex items-center rounded-full px-2 py-0.5 font-body text-xs font-semibold ${isActive ? "bg-[#D1FAE5] text-[#065F46]" : "bg-[#35C56A]/20 text-[#9AF0B8]"}`}
+                                >
+                                  {count} actividad{count !== 1 ? "es" : ""}
+                                </span>
                               )}
                             </div>
                           </button>
@@ -1897,6 +1875,14 @@ export function DashboardPage() {
                     activeDay={activeDay}
                     date={selectedDayWithContext?.date}
                     activities={selectedDayWithContext?.activities}
+                    onAdd={
+                      canEditItinerary && areRealtimeActionsEnabled
+                        ? () =>
+                            openActivityModalForDay(
+                              activeDay ?? daysWithContext[0]?.dayNumber ?? 1,
+                            )
+                        : undefined
+                    }
                   />
 
                   {/* Active day view */}
@@ -1919,12 +1905,20 @@ export function DashboardPage() {
                       }}
                       onOpenBudget={() => setActiveTab("pagar")}
                       onOpenVault={() => setActiveTab("boveda")}
+                      onAddActivity={
+                        canEditItinerary && !isPastActiveDay
+                          ? openActivityModalForDay
+                          : undefined
+                      }
+                      onEdit={
+                        canEditItinerary && !isPastActiveDay
+                          ? openActivityEditor
+                          : undefined
+                      }
                       onDelete={
-                        isReadOnly ||
-                        isPastActiveDay ||
-                        !areRealtimeActionsEnabled
-                          ? undefined
-                          : handleDeleteActivity
+                        canEditItinerary && !isPastActiveDay
+                          ? handleDeleteActivity
+                          : undefined
                       }
                       isPastDay={isPastActiveDay}
                       actionsDisabled={!areRealtimeActionsEnabled}
@@ -1938,12 +1932,21 @@ export function DashboardPage() {
       )}
 
       <BottomNavbar activeTab={activeTab} onTabChange={setActiveTab} />
+      <ActivityFormModal
+        open={activityForm !== null}
+        activity={activityForm?.activity ?? null}
+        defaultDate={activityForm?.date ?? null}
+        minDate={activityMinDate}
+        maxDate={tripEndKey}
+        onClose={() => setActivityForm(null)}
+        onSubmit={handleSubmitActivity}
+      />
       <ConfirmDialog
         open={activityPendingDelete !== null}
-        title="Eliminar propuesta"
-        description="Esta acción no se puede deshacer. La propuesta se quitará del itinerario cuando el backend confirme la eliminación."
+        title="Eliminar actividad"
+        description="Esta acción no se puede deshacer. También se quitan sus enlaces con gastos y documentos."
         details={activityPendingDelete?.title}
-        confirmLabel="Eliminar propuesta"
+        confirmLabel="Eliminar actividad"
         cancelLabel="Conservar"
         variant="danger"
         loading={
