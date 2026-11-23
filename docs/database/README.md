@@ -1,80 +1,119 @@
-# Base de datos y Supabase - ITHERA
+# Base de datos y Supabase - Traveling
 
-Esta guia documenta la parte de datos del proyecto: Supabase, clientes del backend, migraciones y reglas para cambios de esquema.
+Traveling usa un proyecto de Supabase en la nube para base de datos (Postgres), autenticacion
+y archivos (Storage). El esquema y la configuracion de Auth viven en este repo, en `supabase/`,
+y se aplican con la Supabase CLI.
 
-## Tecnologia
+## Estructura
 
-- Supabase como backend de datos y autenticacion.
-- Cliente anonimo para flujos de auth.
-- Cliente service role para operaciones internas del backend.
-- Migraciones SQL versionadas en el repositorio.
+```text
+supabase/
+|-- config.toml                    # Configuracion del proyecto (Auth, SMTP, plantillas, local)
+|-- migrations/
+|   `-- 20261123120000_traveling_baseline.sql   # Esquema base
+`-- templates/                     # Plantillas de correo de Auth (codigo OTP)
+```
+
+La CLI esta fijada como dependencia de desarrollo en el `package.json` de la raiz
+(`supabase@2.122.1`); usa siempre `npx supabase ...` desde la raiz del repo.
 
 ## Clientes backend
 
-Archivo:
-
-```text
-backend/src/infrastructure/db/supabase.client.ts
-```
+Archivo: `backend/src/infrastructure/db/supabase.client.ts`
 
 | Cliente | Llave | Uso |
 | --- | --- | --- |
-| `supabaseAuth` | `SUPABASE_ANON_KEY` | Flujos normales de autenticacion. |
-| `supabaseAdmin` | `SUPABASE_SECRET_KEY` | Operaciones privilegiadas desde backend. |
+| `supabaseAuth` | `SUPABASE_ANON_KEY` (publishable key) | Flujos normales de autenticacion. |
+| `supabaseAdmin` | `SUPABASE_SECRET_KEY` (secret key) | Todas las operaciones de datos y Storage. |
 | `supabase` | Alias de `supabaseAdmin` | Compatibilidad con servicios existentes. |
 
-## Migraciones
+## Seguridad (RLS)
 
-Ubicacion:
+- RLS esta activo en todas las tablas y **no hay politicas**. Con la publishable key no se puede
+  leer ni escribir ninguna tabla; el smoke test lo verifica.
+- El backend usa la secret key (ignora RLS), por eso **cada endpoint debe validar permisos**
+  (miembro del viaje, admin, autor) antes de consultar o modificar datos.
+- El frontend solo usa Supabase para autenticarse; nunca consulta tablas directo.
+- No exponer `SUPABASE_SECRET_KEY` al frontend.
 
-```text
-backend/src/infrastructure/db/migrations/
+## Tablas
+
+| Area | Tablas |
+| --- | --- |
+| Usuarios | `usuarios`, `usuario_preferencias_notificacion` |
+| Viajes e integrantes | `grupos_viaje`, `grupo_miembros`, `grupo_invitaciones`, `grupo_solicitudes_union`, `admin_delegation_requests` |
+| Itinerario | `itinerarios`, `actividades` |
+| Finanzas | `expenses`, `expense_splits`, `settlement_payments`, `settlement_payment_documents` |
+| Archivos y enlaces | `trip_documents`, `trip_context_links` |
+| Comunicacion | `notificaciones`, `chat_mensajes` |
+
+Buckets de Storage: `trip-documents` (10 MiB), `profile-avatars` (5 MiB), `public-assets`.
+
+Borrar un viaje (`grupos_viaje`) elimina en cascada todo lo que cuelga de el. Los archivos del
+bucket no se borran solos.
+
+## Flujo de trabajo
+
+Primera vez en una maquina (requiere acceso al proyecto en Supabase):
+
+```bash
+npx supabase login
+npx supabase link --project-ref <project-ref>   # pide la contrasena de la base de datos
 ```
 
-Migraciones actuales:
+Crear una migracion nueva:
 
-| Archivo | Proposito |
-| --- | --- |
-| `001_trip_documents.sql` | Crea soporte inicial de documentos de viaje. |
-| `002_trip_documents_metadata.sql` | Agrega metadata a documentos. |
-| `20260419_unique_vote_per_user_proposal.sql` | Restringe voto unico por usuario/propuesta. |
-| `20260421_add_lock_columns_propuestas.sql` | Agrega columnas de bloqueo a propuestas. |
-| `20260428_create_group_chat_messages.sql` | Crea mensajes de chat grupal. |
-| `20260429_add_vote_type_to_voto.sql` | Agrega tipo de voto. |
-| `20260505_create_budget_tables.sql` | Crea tablas de presupuesto. |
-| `20260505_add_settlement_payments.sql` | Agrega pagos de liquidaciones. |
-| `20260506_create_subgroup_schedule.sql` | Crea agenda de subgrupos. |
-| `20260506_enable_rls_policies.sql` | Habilita politicas RLS. |
-| `20260506_optimize_realtime_notifications_indexes.sql` | Agrega indices para realtime/notificaciones. |
-| `20260509_checkout_simulation.sql` | Agrega campos para checkout simulado. |
-| `20260509_checkout_simulation_guardrails.sql` | Agrega guardrails de checkout. |
-| `20260510_create_trip_context_links.sql` | Crea enlaces contextuales por viaje. |
-| `20260510_issue_92_private_groups_join_requests.sql` | Agrega solicitudes para grupos privados. |
-| `20260511_issue_94_group_text_length_guardrails.sql` | Agrega guardrails de longitud de texto. |
-| `20260512_hotel_travel_context_indexes.sql` | Agrega indices para contexto de hotel/viaje. |
-| `20260512_trigger_update_start_point_after_hotel_reservation.sql` | Actualiza punto de partida tras reserva hotelera. |
+```bash
+npx supabase migration new descripcion_corta    # crea supabase/migrations/<timestamp>_descripcion_corta.sql
+```
+
+Probarla en local antes de subirla (levanta Postgres, Auth, REST y Storage en Docker):
+
+```bash
+SMTP_USER=local@example.com SMTP_PASS=x npx supabase start \
+  -x realtime,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+npx supabase db reset          # recrea la base local aplicando todas las migraciones
+npx supabase stop --no-backup  # al terminar
+```
+
+`npx supabase status -o env` muestra las URLs y llaves locales para correr el backend y el smoke
+test contra la pila local.
+
+Aplicar al proyecto en la nube:
+
+```bash
+npx supabase db push           # aplica las migraciones pendientes
+```
+
+Cambios de Auth (URLs, SMTP, plantillas) se editan en `supabase/config.toml` y se aplican con:
+
+```bash
+set -a; . <ruta>/backend/.env; set +a     # SMTP_USER y SMTP_PASS
+npx supabase config push
+```
+
+`deploy.sh` no toca la base de datos: las migraciones se aplican a mano con la CLI.
+
+## Smoke test
+
+`backend/scripts/smoke.mjs` crea tres usuarios de prueba, recorre los flujos principales (viaje,
+integrantes, gastos, pagos, comprobantes, notificaciones, chat, enlace publico, RLS) y borra todo
+al final.
+
+```bash
+cd backend
+SMOKE_API_URL=https://traveling.tonyquezada.com/api npm run smoke   # usa SUPABASE_* de backend/.env
+```
+
+Los pasos marcados como "falla esperada hasta la fase N" dependen de codigo que todavia usa
+tablas del Equipo 1 (ver [../plan-traveling.md](../plan-traveling.md)).
 
 ## Reglas para nuevas migraciones
 
-- Usar prefijo de fecha `YYYYMMDD_descripcion.sql`.
-- Hacer cambios idempotentes cuando sea razonable: `IF NOT EXISTS`, `ADD COLUMN IF NOT EXISTS`.
+- Una migracion por cambio, creada con `npx supabase migration new`.
+- No editar migraciones ya aplicadas en la nube; crear una nueva.
 - Incluir constraints cuando el dato tenga estados cerrados.
-- Revisar impacto en RLS antes de cambiar tablas usadas por usuarios.
+- Toda tabla nueva lleva `enable row level security`.
 - Actualizar servicios backend y tipos frontend si cambia el contrato.
 - Actualizar [../api/endpoints.md](../api/endpoints.md) si cambia un payload visible.
-
-## RLS y seguridad
-
-- Las politicas RLS deben evitar acceso cruzado entre grupos.
-- El backend usa service role; por eso debe validar permisos antes de consultar o modificar datos sensibles.
-- Los endpoints protegidos deben usar `requireAuth`.
-- No exponer `SUPABASE_SECRET_KEY` al frontend.
-
-## Checklist de cambio de esquema
-
-1. Crear migracion SQL.
-2. Revisar permisos/RLS.
-3. Actualizar servicios de dominio.
-4. Actualizar tests si la regla de negocio cambia.
-5. Actualizar docs de API si cambia request/response.
-6. Probar localmente el flujo afectado.
+- Probar en local (`db reset` + smoke test) antes de `db push`.

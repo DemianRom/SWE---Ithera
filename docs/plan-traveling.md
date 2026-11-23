@@ -175,41 +175,49 @@ primer deploy automático, que ocurre al llegar esta rama a `main`.
 
 ## Fase 2 — Esquema base en Supabase
 
-Las 37 migraciones del repo asumen el estado de la base de Ithera (algunas migran datos
-legados). En lugar de repetirlas se crea una línea base nueva.
+Rama: `feature/traveling-schema` (sale de `ci/self-hosting`).
 
-- [ ] Inventario desde el código: por cada `.from('tabla')`, columnas usadas en
-      `select/insert/update/eq/order`, más entidades del backend, tipos del frontend y
-      constraints de las migraciones viejas.
-- [ ] Supabase CLI en el repo (`supabase/config.toml`, `supabase/migrations/`,
-      `supabase/templates/`) y una migración `…_traveling_baseline.sql`:
+Las 37 migraciones del repo asumían el estado de la base de Ithera (algunas migraban datos
+legados). En lugar de repetirlas se creó una línea base nueva.
+
+- [x] Inventario desde el código: por cada `.from('tabla')`, columnas usadas en
+      `select/insert/update/eq/order`, embeds de PostgREST (que exigen FKs), entidades del
+      backend y constraints de las migraciones viejas.
+- [x] Supabase CLI fijada en el repo (`supabase@2.122.1` como devDependency de la raíz) y
+      `supabase/` con `config.toml`, `templates/` y `migrations/20261123120000_traveling_baseline.sql`:
   - Base común: `usuarios`, `grupos_viaje`, `grupo_miembros`, `grupo_invitaciones`,
     `grupo_solicitudes_union`, `admin_delegation_requests`, `itinerarios`, `actividades`.
   - Finanzas: `expenses`, `expense_splits`, `settlement_payments`,
     `settlement_payment_documents`, `trip_documents`, `trip_context_links`.
   - Soporte: `notificaciones`, `usuario_preferencias_notificacion`, `chat_mensajes`.
   - **No se crean:** `propuestas`, `voto`, `comentario`, `vuelos`, `hospedajes`, `subgroup*`,
-    `subgroup_chat_mensajes`, `historial_busquedas`, `expense_documents`; ni las columnas
-    `actividades.propuesta_id`, `grupos_viaje.punto_partida_*` y los campos de Google del destino.
-  - Buckets: `trip-documents`, `profile-avatars`, `public-assets`.
-  - RLS activado en todas las tablas y sin políticas: el backend usa la secret key y el
-    frontend solo usa Supabase para autenticarse.
-- [ ] Configuración de Auth como código en `config.toml`: Site URL
-      `https://traveling.tonyquezada.com`; redirects `https://traveling.tonyquezada.com/**` y
-      `http://localhost:5173/**`; SMTP de Gmail; plantillas "Confirm signup" y "Magic Link" con
-      `{{ .Token }}` (la pantalla OTP pide un código, no un enlace).
-- [ ] **[Tú]** `npx supabase login` y `npx supabase link --project-ref <ref>` (pide la contraseña
-      de la base de datos).
-- [ ] **[OK]** `supabase db push` y `supabase config push` (o el dashboard si algo no se puede empujar).
-- [ ] Borrar las migraciones viejas de `backend/src/infrastructure/db/migrations/` (quedan en git).
-- [ ] `backend/scripts/smoke.ts` (`npm run smoke`): crea usuarios de prueba con la API de admin y
-      recorre sincronizar usuario → crear viaje → unirse por código → actividad → gasto → saldos →
-      pago y validación → comprobante → notificaciones → chat → enlace compartido. Se vuelve a
-      correr al cerrar cada fase.
+    `subgroup_chat_mensajes`, `historial_busquedas`, `expense_documents`; ni
+    `actividades.propuesta_id`.
+  - **Columnas temporales:** `grupos_viaje` conserva `destino_*` (Google) y `punto_partida_*`
+    porque el código actual las escribe al crear/editar un viaje; se eliminan en la fase 3.
+  - Buckets: `trip-documents` (10 MiB), `profile-avatars` (5 MiB), `public-assets`.
+  - RLS activado en todas las tablas y sin políticas.
+- [x] Auth como código en `config.toml`: Site URL y redirects, contraseña de 8 caracteres con
+      mayúscula/minúscula/número (igual que el frontend), confirmación por OTP de 6 dígitos,
+      SMTP de Gmail (credenciales por `env()`), plantillas con `{{ .Token }}`, 30 correos/hora.
+- [x] Borradas las migraciones viejas de `backend/src/infrastructure/db/migrations/`
+      (quedan en el historial de git). `docs/database/README.md` reescrito con el flujo nuevo.
+- [x] `backend/scripts/smoke.mjs` (`npm run smoke`): 3 usuarios de prueba, viaje, unión
+      pública y privada con aprobación, gastos (equitativo y personalizado), saldos, comprobante,
+      pago con validación, recibo PDF, notificaciones, chat, enlace público, verificación de RLS y
+      limpieza de todo lo creado.
+- [x] Validado en un Supabase local (`supabase start` + migración): **29/29 pasos sin errores
+      inesperados**. Fallas esperadas: crear/consultar actividad (fase 4), ligar comprobante a
+      gasto (fase 3: el servicio carga entidades de subgrupos) y notificación de pagos (fase 5:
+      Ithera nunca las guardaba, solo emitía el evento de socket).
+- [ ] **[Tú]** `npx supabase login` y `npx supabase link --project-ref mgbobudfoxfaxzwougys`
+      (desde la raíz del repo; pide la contraseña de la base de datos).
+- [ ] **[OK]** `npx supabase db push` y `npx supabase config push` al proyecto en la nube.
+- [ ] Smoke test contra producción (`https://traveling.tonyquezada.com/api`).
 - [ ] **[Tú]** Registrarte con un correo real y confirmar que llega el código OTP.
 
-**Lista cuando:** el smoke test pasa en base común y finanzas (el itinerario puede fallar hasta la
-fase 4 porque todavía consulta `propuestas`).
+**Lista cuando:** el smoke test pasa contra producción sin errores inesperados y el registro
+con OTP funciona.
 
 ## Fase 3 — Poda
 
@@ -234,8 +242,12 @@ Backend, se recorta:
 - [ ] `notifications.service.ts`: tipos y acciones de propuestas.
 - [ ] `env.ts` y `.env.example`: fuera `AMADEUS_*`, `DUFFEL_*`, `LITEAPI_*`, `GOOGLE_*`,
       `WEATHER_*`, `LOCK_TTL_MINUTES`; entra `SHARE_LINK_SECRET` propio (hoy cae a la secret key).
-- [ ] Tests: fuera `proposals.service.test.ts` y `amadeus.integrity.test.ts`; ajustar `budget` y
-      `context-links`.
+- [ ] Tests: fuera `proposals.service.test.ts` (y su `INTEGRITY_TEST_REPORT.md`); ajustar `budget`
+      y `context-links`.
+- [ ] Migración: quitar de `grupos_viaje` las columnas temporales (`destino_place_id`,
+      `destino_photo_*`, `destino_latitud/longitud`, `punto_partida_*`) y el tipo
+      `subgroup_activity` de `trip_context_links`.
+- [ ] Smoke test: los pasos "esperado hasta la fase 3" deben pasar.
 
 Frontend, se borra:
 
@@ -287,8 +299,13 @@ no hay 404 de la API.
 | Comprobantes | Documentos ligados a gastos/pagos (`trip_context_links`) | Adjuntar desde el formulario del gasto en un paso; bucket privado con URLs firmadas. |
 | Resúmenes | PDF de recibo de cobro | `GET /api/budget/:groupId/summary` (por categoría, por persona y por día) + exportar CSV y PDF. |
 
-- [ ] Notificaciones: gasto nuevo (a los involucrados), pago por validar (al acreedor), pago
-      confirmado/rechazado (al deudor), alertas de presupuesto, más las de invitaciones y solicitudes.
+- [ ] Notificaciones persistentes (hoy los gastos y pagos solo emiten `dashboard_updated` por
+      socket): gasto nuevo (a los involucrados), pago por validar (al acreedor), pago
+      confirmado/rechazado (al deudor), alertas de presupuesto.
+- [ ] `updateBudget` acepta 0 pero la BD exige `presupuesto_total > 0`: alinear al volver opcional
+      el presupuesto.
+- [ ] Definir qué pasa al borrar una cuenta con gastos en viajes compartidos (hoy las FKs de
+      `expenses` lo impiden y `deleteAccountByAuthId` ignora ese error).
 - [ ] Cada endpoint nuevo documentado en `docs/api/endpoints.md`.
 - [ ] **[Tú]** Validar con el equipo los detalles de interfaz (categorías, gráfica, formato del resumen).
 
