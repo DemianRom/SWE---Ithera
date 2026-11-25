@@ -371,9 +371,9 @@ Verificación:
 
 Pendiente:
 
-- [ ] **[OK]** Esta vez **primero** `npx supabase db push` y **después** desplegar: el backend
+- [x] **[OK]** Esta vez **primero** `npx supabase db push` y **después** desplegar: el backend
       nuevo necesita `budget_categories` y `file_url` opcional; el anterior funciona con el
-      esquema nuevo.
+      esquema nuevo. Smoke test en producción: 48/48; `trip-documents` quedó privado.
 - [ ] **[Tú]** Revisar en el navegador: crear viaje sin presupuesto, definirlo después, límites
       por categoría, alerta al excederlo, resumen y descargas, abrir un comprobante.
 
