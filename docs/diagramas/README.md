@@ -1,4 +1,4 @@
-# Diagramas - ITHERA
+# Diagramas - Traveling
 
 Esta carpeta contiene diagramas del sistema. Su objetivo es explicar visualmente flujos, arquitectura, clases, modulos y relaciones relevantes.
 
@@ -21,7 +21,7 @@ secuencia-login.png
 arquitectura-general.png
 clases/diagrama-clases-m1-auth.png
 clases/diagrama-clases-m2-grupos.png
-clases/diagrama-clases-m6-presupuesto.png
+clases/diagrama-clases-m4-gastos.png
 ```
 
 ## Reglas
@@ -33,4 +33,4 @@ clases/diagrama-clases-m6-presupuesto.png
 
 ## Artefactos relacionados
 
-Algunos diagramas fuente o extraidos pueden estar en [../extracted/README.md](../extracted/README.md). Esa carpeta no debe usarse como documentacion principal, solo como referencia cruda.
+Los diagramas de Ithera (por ejemplo `system_map.pdf`) estan en [../legacy-ithera/](../legacy-ithera/README.md) como referencia historica; no describen el alcance de Traveling.

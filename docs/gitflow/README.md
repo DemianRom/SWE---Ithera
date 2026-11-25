@@ -1,4 +1,4 @@
-# GitFlow - Ithera
+# GitFlow - Traveling
 
 Esta guia describe la estrategia de ramas del proyecto. Las reglas completas de contribucion viven en [../../CONTRIBUTING.md](../../CONTRIBUTING.md).
 
@@ -90,7 +90,7 @@ feature/auth-registro-otp
 feature/frontend-dashboard-viaje
 fix/socket-disconnect
 docs/readmes-proyecto
-ci/vercel-preview
+ci/deploy-ssh
 release/v1.2-sprint3
 hotfix/token-expiry
 ```
@@ -108,6 +108,12 @@ Reglas:
 ## Relacion con CI/CD
 
 - PRs hacia `develop` o `main` disparan CI backend/frontend segun paths.
-- PRs de frontend hacia `develop` pueden crear preview en Vercel.
-- Push a `develop` con cambios de frontend despliega produccion segun el workflow actual.
-- Si el equipo decide que produccion salga desde `main`, debe actualizar el workflow y [../workflows/README.md](../workflows/README.md).
+- Cada push a `main` despliega produccion (`.github/workflows/deploy.yml`).
+- Las migraciones de base de datos no se aplican solas: se corren con la Supabase CLI antes o
+  despues del merge segun la compatibilidad del cambio (ver [../deploy/README.md](../deploy/README.md)).
+
+## Relacion con el repositorio original
+
+`upstream` apunta a `ITHERAADS/ITHERA` (solo lectura, push deshabilitado). Si el Equipo 1 publica
+un arreglo de la base comun (cuentas, viajes, integrantes, itinerario), se trae con
+`git cherry-pick` a una rama `fix/*` y entra por PR como cualquier otro cambio.

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import logoWhite from "../../assets/logo-white.png";
+import { Logo } from "../../components/ui/Logo";
 import { useAuth } from '../../context/useAuth';
 
 const EMAIL_REGEX = /^[A-Za-z0-9._%+-]+@[A-Za-z][A-Za-z0-9-]*(?:\.[A-Za-z][A-Za-z0-9-]*)*\.[A-Za-z]{2,24}$/;
@@ -81,11 +81,7 @@ export function ForgotPasswordPage() {
           <div className="relative z-10 flex h-full w-full flex-col px-16 py-12">
             <div>
               <Link to="/">
-                <img
-                  src={logoWhite}
-                  alt="Ithera"
-                  className="h-16 w-auto cursor-pointer object-contain"
-                />
+                <Logo variant="white" height={48} className="cursor-pointer" />
               </Link>
             </div>
 
@@ -101,7 +97,7 @@ export function ForgotPasswordPage() {
 
                 <p className="mt-8 max-w-[500px] text-[19px] leading-[1.65] text-white/80">
                   Te enviaremos un enlace para restablecer tu contraseña y volver
-                  a entrar a tu espacio de planificación en Ithera.
+                  a entrar a las cuentas de tus viajes en Traveling.
                 </p>
               </div>
             </div>

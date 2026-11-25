@@ -1,4 +1,4 @@
-# Workflows - Ithera
+# Workflows - Traveling
 
 Este documento explica los workflows de GitHub Actions del repositorio. Sirve para saber que se ejecuta, cuando se ejecuta, que secrets requiere y como actuar si algo falla.
 

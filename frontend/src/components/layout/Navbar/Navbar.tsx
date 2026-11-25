@@ -1002,7 +1002,7 @@ export function Navbar(props: NavbarProps) {
   return (
     <nav className={[navBase, navTheme, navShadow].join(' ')}>
       {/* Logo */}
-      <a href="/" className="shrink-0" aria-label="Ithera">
+      <a href="/" className="shrink-0" aria-label="Traveling">
         <Logo
           variant={isDashboard || !scrolled ? 'white' : 'color'}
           height={isDashboard ? 64 : scrolled ? 54 : 58}

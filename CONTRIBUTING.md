@@ -1,6 +1,6 @@
-# Guia de contribucion - ITHERA
+# Guia de contribucion - Traveling
 
-Este documento define las reglas oficiales para trabajar en ITHERA: issues, ramas, commits, pull requests, revisiones, CI/CD y documentacion obligatoria.
+Este documento define las reglas oficiales para trabajar en Traveling: issues, ramas, commits, pull requests, revisiones, CI/CD y documentacion obligatoria.
 
 ```text
 Proyecto academico: Analisis y Diseno de Sistemas
@@ -9,7 +9,7 @@ Escuela: Escuela Superior de Computo - IPN
 Ciclo: 2026/2
 Grupo: 5CM3
 Profesora: Idalia Maldonado
-Equipo: 3
+Equipo: 2 (Traveling)
 ```
 
 ## Indice
@@ -47,13 +47,15 @@ git config --global user.email "tu@correo.com"
 Clona el repositorio:
 
 ```bash
-git clone https://github.com/ximcaher20/repo-equipo3ads
-cd ithera
+git clone git@github.com:DemianRom/SWE---Ithera.git traveling
+cd traveling
 ```
 
-Instala dependencias:
+Instala dependencias (la raiz solo trae la Supabase CLI):
 
 ```bash
+npm install
+
 cd backend
 npm install
 
@@ -94,7 +96,7 @@ Todo trabajo relevante debe tener issue antes de abrir PR.
 | Feature | Nueva funcionalidad. | `feature/nombre` |
 | Task | Trabajo tecnico, deuda, configuracion o refactor controlado. | `feature/nombre` o `chore/nombre` |
 | Docs | Cambios exclusivos de documentacion. | `docs/nombre` |
-| CI | Workflows, Vercel, checks o automatizacion. | `ci/nombre` |
+| CI | Workflows, deploy, checks o automatizacion. | `ci/nombre` |
 | Hotfix | Correccion urgente sobre estable. | `hotfix/nombre` |
 
 ### Contenido minimo
@@ -149,7 +151,7 @@ feature/frontend-dashboard-viaje
 feature/backend-socket-heartbeat
 fix/socket-disconnect
 docs/readmes-proyecto
-ci/vercel-preview
+ci/deploy-ssh
 release/v1.2-sprint3
 hotfix/token-expiry
 ```
@@ -198,12 +200,12 @@ Tipos permitidos:
 Ejemplos correctos:
 
 ```text
-feat: agregar busqueda de hoteles
+feat: repartir gastos por porcentaje
 fix: corregir validacion de token expirado
 docs: actualizar endpoints de api
 refactor: separar servicio de presupuesto
-test: agregar pruebas de checkout
-ci: ajustar deploy preview de vercel
+test: agregar pruebas de saldos
+ci: correr smoke test despues del deploy
 chore: actualizar dependencias frontend
 ```
 
@@ -285,8 +287,7 @@ Workflows actuales:
 | --- | --- |
 | `ci-backend.yml` | Dependencias, lint, type check, build y tests backend. |
 | `ci-frontend.yml` | Dependencias, lint, type check y build frontend. |
-| `vercel-frontend-preview.yml` | Preview deploy del frontend en PRs hacia `develop`. |
-| `vercel-frontend-production.yml` | Deploy productivo del frontend desde `develop` o ejecucion manual. |
+| `deploy.yml` | En cada push a `main`, despliega backend y frontend en el servidor por SSH. |
 
 Guias:
 
@@ -312,6 +313,7 @@ Actualizar documentacion en el mismo PR cuando:
 | Nuevo endpoint o cambio de contrato API | [docs/api/endpoints.md](docs/api/endpoints.md) |
 | Nueva variable de entorno | [docs/env/README.md](docs/env/README.md) |
 | Nueva migracion o cambio de esquema | [docs/database/README.md](docs/database/README.md) |
+| Cambio de hosting o despliegue | [docs/deploy/README.md](docs/deploy/README.md) |
 | Nuevo evento Socket.IO o cambio realtime | [docs/realtime/README.md](docs/realtime/README.md) |
 | Cambio de pruebas o comandos de verificacion | [docs/testing/README.md](docs/testing/README.md) |
 | Cambio de seguridad, permisos o secrets | [docs/security/README.md](docs/security/README.md) |

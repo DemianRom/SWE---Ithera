@@ -1,18 +1,19 @@
-# Casos de Uso - ITHERA
+# Casos de Uso - Traveling
 
-Esta carpeta concentra la documentacion de casos de uso del sistema. Los casos de uso describen como interactuan los actores con ITHERA y sirven como puente entre requerimientos, diseno e implementacion.
+Esta carpeta concentra la documentacion de casos de uso del sistema. Los casos de uso describen como interactuan los actores con Traveling y sirven como puente entre requerimientos, diseno e implementacion.
 
 ## Modulos cubiertos
 
 | Modulo | Nombre | Ejemplos de casos |
 | --- | --- | --- |
-| M1 | Autenticacion y acceso | Registro, login, recuperacion de contrasena, perfil. |
-| M2 | Gestion de grupos y viajes | Crear grupo, invitar, unirse, administrar integrantes. |
-| M3 | Itinerario colaborativo | Ver itinerario, crear actividades, editar agenda. |
-| M4 | Busqueda y APIs externas | Buscar vuelos, hoteles, lugares, rutas y clima. |
-| M5 | Sincronizacion en tiempo real | Chat, actualizaciones colaborativas, eventos Socket.IO. |
-| M6 | Presupuesto y gastos | Registrar gastos, consultar saldos, liquidaciones. |
-| M7 | Documentos y notificaciones | Boveda, notificaciones y preferencias. |
+| M1 | Cuentas y acceso | Registro con codigo, login, Google, recuperacion de contrasena, perfil. |
+| M2 | Viajes, integrantes y permisos | Crear viaje, invitar, unirse, administrar roles, cerrar viaje. |
+| M3 | Itinerario basico | Ver itinerario, crear actividades con horario y ubicacion, compartir enlace publico. |
+| M4 | Gastos y repartos | Registrar gasto con quien pago, repartir igual o personalizado, editar o borrar. |
+| M5 | Presupuesto | Definir presupuesto total y por categoria, comparar planeado vs. gastado, alertas. |
+| M6 | Saldos y pagos | Consultar saldos, registrar un pago, confirmarlo o rechazarlo. |
+| M7 | Comprobantes y resumenes | Subir comprobantes, descargar resumen PDF y CSV. |
+| M8 | Notificaciones, chat y tiempo real | Chat grupal, notificaciones y preferencias, refresco en vivo. |
 
 ## Formato recomendado
 
@@ -35,13 +36,14 @@ Cada caso de uso debe incluir:
 ```text
 CU-1.1 Iniciar sesion
 CU-1.2 Registrar cuenta
-CU-2.1 Crear grupo de viaje
-CU-2.2 Unirse a grupo por invitacion
+CU-2.1 Crear viaje
+CU-2.2 Unirse a un viaje por invitacion
 CU-3.1 Consultar itinerario
-CU-4.1 Buscar vuelos
-CU-5.1 Enviar mensaje en chat
-CU-6.1 Registrar gasto
-CU-7.1 Consultar notificaciones
+CU-4.1 Registrar gasto
+CU-5.1 Definir presupuesto por categoria
+CU-6.1 Registrar pago a un companero
+CU-7.1 Descargar resumen del viaje
+CU-8.1 Enviar mensaje en chat
 ```
 
 ## Relacion con otros documentos

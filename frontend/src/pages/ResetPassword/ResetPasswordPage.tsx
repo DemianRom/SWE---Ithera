@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import logoWhite from "../../assets/logo-white.png";
+import { Logo } from "../../components/ui/Logo";
 import { supabase } from "../../lib/supabase";
 
 type PasswordStrength = {
@@ -287,11 +287,7 @@ export function ResetPasswordPage() {
           <div className="relative z-10 flex h-full w-full flex-col px-16 py-12">
             <div>
               <Link to="/">
-                <img
-                  src={logoWhite}
-                  alt="Ithera"
-                  className="h-16 w-auto cursor-pointer object-contain"
-                />
+                <Logo variant="white" height={48} className="cursor-pointer" />
               </Link>
             </div>
 
@@ -307,7 +303,7 @@ export function ResetPasswordPage() {
 
                 <p className="mt-8 max-w-[500px] text-[19px] leading-[1.65] text-white/80">
                   Elige una contraseña segura para proteger tu cuenta y seguir
-                  organizando tus planes en grupo dentro de Ithera.
+                  organizando tus planes en grupo dentro de Traveling.
                 </p>
               </div>
             </div>

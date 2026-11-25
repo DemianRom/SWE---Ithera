@@ -1,4 +1,4 @@
-# Frontend UI - ITHERA
+# Frontend UI - Traveling
 
 Esta guia resume convenciones visuales y de organizacion para la interfaz.
 

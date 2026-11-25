@@ -6,7 +6,7 @@ Esta carpeta agrupa entregables academicos relacionados con la unidad de aprendi
 
 | Campo | Valor |
 | --- | --- |
-| Proyecto | ITHERA |
+| Proyecto | Traveling (derivado de Ithera) |
 | Institucion | Instituto Politecnico Nacional |
 | Escuela | Escuela Superior de Computo |
 | Carrera | Ingenieria en Sistemas Computacionales |
@@ -14,7 +14,7 @@ Esta carpeta agrupa entregables academicos relacionados con la unidad de aprendi
 | Ciclo | 2026/2 |
 | Grupo | 5CM3 |
 | Profesora | Idalia Maldonado |
-| Equipo | 3 |
+| Equipo | 2 |
 
 ## Que debe ir aqui
 
@@ -33,9 +33,12 @@ Esta carpeta agrupa entregables academicos relacionados con la unidad de aprendi
 ## Convencion sugerida
 
 ```text
-ITHERA_ADS_Entrega_Final.pdf
-ITHERA_ADS_Reporte_Sprint_9.docx
-ITHERA_ADS_Anexos.pdf
+TRAVELING_ADS_Entrega_Final.pdf
+TRAVELING_ADS_Reporte_Sprint_N.docx
+TRAVELING_ADS_Anexos.pdf
 ```
 
 Si se agrega un documento oficial, actualizar este README con una breve descripcion.
+
+Los entregables de Ithera (incluido el reporte del sprint 9) estan en
+[../legacy-ithera/](../legacy-ithera/README.md).

@@ -1562,7 +1562,7 @@ export function DashboardPage() {
             </header>
             <section class="content">${sectionsHtml}</section>
             <footer class="footer">
-              <span><i class="dot"></i>Generado por ITHERA</span>
+              <span><i class="dot"></i>Generado por Traveling</span>
               <span>${escapeHtml(generatedAt)}</span>
             </footer>
           </main>

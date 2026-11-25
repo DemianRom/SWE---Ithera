@@ -1,4 +1,4 @@
-# Issues - Ithera
+# Issues - Traveling
 
 Esta guia define que issues debe levantar el equipo y que informacion minima deben incluir. Las reglas operativas completas viven en [../../CONTRIBUTING.md](../../CONTRIBUTING.md).
 
@@ -22,11 +22,11 @@ No hace falta issue para cambios minimos como typo pequeño o ajuste trivial apr
 | Tipo | Uso | Ejemplo |
 | --- | --- | --- |
 | Bug | Algo existente falla. | Login no redirige despues de OTP. |
-| Feature | Nueva capacidad funcional. | Agregar boveda de documentos por grupo. |
-| Task | Trabajo tecnico o deuda controlada. | Separar servicio de checkout. |
+| Feature | Nueva capacidad funcional. | Repartir un gasto por porcentajes. |
+| Task | Trabajo tecnico o deuda controlada. | Separar el calculo de saldos del servicio de presupuesto. |
 | Docs | Documentacion. | Actualizar README de frontend. |
-| CI | Workflows, deploy o automatizacion. | Agregar preview deploy en Vercel. |
-| Refactor | Reorganizacion sin cambio funcional esperado. | Unificar servicios de mapas. |
+| CI | Workflows, deploy o automatizacion. | Correr el smoke test en el workflow de deploy. |
+| Refactor | Reorganizacion sin cambio funcional esperado. | Dividir `DashboardPage` por pestana. |
 
 ## Campos minimos
 

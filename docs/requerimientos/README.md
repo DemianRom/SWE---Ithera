@@ -1,4 +1,4 @@
-# Requerimientos - ITHERA
+# Requerimientos - Traveling
 
 Esta carpeta documenta los requerimientos funcionales, no funcionales y reglas de negocio del sistema.
 
@@ -15,13 +15,18 @@ Esta carpeta documenta los requerimientos funcionales, no funcionales y reglas d
 
 | ID | Modulo |
 | --- | --- |
-| M1 | Autenticacion y acceso |
-| M2 | Gestion de grupos y viajes |
-| M3 | Itinerario colaborativo |
-| M4 | Busqueda y APIs externas |
-| M5 | Sincronizacion en tiempo real |
-| M6 | Presupuesto y gastos |
-| M7 | Documentos, notificaciones e historial |
+| M1 | Cuentas y acceso |
+| M2 | Viajes, integrantes y permisos |
+| M3 | Itinerario basico |
+| M4 | Gastos y repartos |
+| M5 | Presupuesto (total y por categoria) |
+| M6 | Saldos y pagos entre companeros |
+| M7 | Comprobantes y resumenes |
+| M8 | Notificaciones, chat y tiempo real |
+
+M1 a M3 son la base comun con el Equipo 1; M4 a M7 son el alcance del Equipo 2. Los
+requerimientos originales de Ithera (incluida la busqueda de vuelos y hospedajes) estan en
+[../legacy-ithera/](../legacy-ithera/README.md) como referencia historica.
 
 ## Criterios para mantener requerimientos
 

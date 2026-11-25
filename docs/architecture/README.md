@@ -1,21 +1,31 @@
-# Arquitectura - Ithera
+# Arquitectura - Traveling
 
 Esta guia resume la organizacion tecnica actual del proyecto. Para pasos de instalacion y scripts, consulta tambien [../../README.md](../../README.md), [../../backend/README.md](../../backend/README.md) y [../../frontend/README.md](../../frontend/README.md).
 
 ## Vista general
 
 ```text
+Navegador
+  -> Caddy (TLS, traveling.tonyquezada.com)
+       /api, /socket.io, /health -> traveling-api (Express + Socket.IO, puerto 3001)
+       todo lo demas            -> traveling-web (nginx con el build de Vite)
+
 Frontend React/Vite
   -> services/apiClient
   -> Backend Express /api
   -> Domain services
-  -> Supabase o APIs externas
+  -> Supabase (Postgres, Storage) con la llave secreta
+
+Frontend -> Supabase Auth (llave publicable): registro, login, OTP y Google
 
 Socket.IO
   -> Backend HTTP server
-  -> socket handlers
+  -> socket handlers / gateway
   -> Hooks frontend de realtime
 ```
+
+No hay APIs externas: las ubicaciones del itinerario son texto libre con enlace de busqueda a
+Google Maps. Hosting y despliegue: [../deploy/README.md](../deploy/README.md).
 
 ## Principios de organizacion
 
@@ -37,8 +47,8 @@ Capas:
 | Rutas | `backend/src/routes` | Definir endpoints Express y delegar. |
 | Middlewares | `backend/src/middlewares` | Auth, errores y protecciones transversales. |
 | Dominio | `backend/src/domain` | Reglas de negocio por modulo. |
-| Infraestructura | `backend/src/infrastructure` | Supabase, sockets, APIs externas y email. |
-| Servicios compartidos | `backend/src/services` | Funciones transversales que no pertenecen a un dominio unico. |
+| Infraestructura | `backend/src/infrastructure` | Cliente de Supabase, sockets y plantillas de correo. |
+| Servicios compartidos | `backend/src/services` | Envio de correo por SMTP (`email.service.ts`). |
 
 Regla de dependencia recomendada:
 
@@ -61,9 +71,9 @@ Capas:
 | UI primitives | `frontend/src/components/ui` | Componentes genericos de bajo nivel. |
 | Services | `frontend/src/services` | Consumo de API por modulo. |
 | Hooks | `frontend/src/hooks` | Reutilizacion de estado, sockets, red y sincronizacion. |
-| Context | `frontend/src/context` | Estado global de auth y viaje. |
+| Context | `frontend/src/context` | Estado global de auth y del viaje actual. |
 | Types | `frontend/src/types` | Tipos compartidos. |
-| Lib | `frontend/src/lib` | Clientes base como Supabase. |
+| Lib | `frontend/src/lib` | Cliente de Supabase y proveedores OAuth habilitados. |
 
 Regla recomendada:
 
@@ -77,21 +87,26 @@ Las paginas pueden orquestar datos y estado. Los componentes reutilizables deben
 
 | Modulo | Backend | Frontend |
 | --- | --- | --- |
-| Auth | `domain/auth`, `routes/auth.router.ts` | `pages/Login`, `pages/Register`, `pages/OTP`, `components/auth` |
-| Grupos | `domain/groups`, `routes/trips.router.ts` | `pages/MyTrips`, `pages/CreateGroup`, `pages/JoinGroup`, `pages/GroupPanel` |
-| Itinerario | `domain/itinerary` | `pages/Itinerary` |
-| Propuestas | `domain/proposals`, `domain/votes-comments` | `components/ProposalCard`, modales de propuestas |
-| Busqueda | `domain/flights`, `domain/hotels`, `domain/maps` | `pages/Search` |
-| Presupuesto | `domain/budget` | `components/budget` |
-| Checkout | `domain/checkout` | `pages/Checkout`, `components/checkout` |
-| Documentos | `domain/documents` | `components/documents` |
-| Notificaciones | `domain/notifications` | `hooks/useNotifications.ts` |
+| Cuentas | `domain/auth`, `routes/auth.router.ts` | `pages/Login`, `pages/Register`, `pages/OTP`, `pages/ForgotPassword`, `pages/ResetPassword`, `pages/Profile`, `components/auth` |
+| Viajes e integrantes | `domain/groups`, `routes/trips.router.ts` | `pages/MyTrips`, `pages/CreateGroup`, `pages/JoinGroup`, `pages/GroupPanel`, `pages/GroupSettings`, `components/InviteModal`, `components/GroupConfigModal` |
+| Itinerario basico | `domain/itinerary`, `routes/itinerary.router.ts` | Pestana Itinerario de `pages/Itinerary/DashboardPage.tsx`, `components/ui/DayView`, `components/ActivityFormModal` |
+| Enlace publico | `routes/export.router.ts` | `pages/Shared` |
+| Gastos, saldos y pagos | `domain/budget`, `routes/budget.router.ts` | Pestana Finanzas: `components/budget` (`BudgetDashboard`, `RegisterExpenseModal`, `MyWalletView`) |
+| Presupuesto y resumenes | `domain/budget` (`getBudgetSummary`, CSV, `pdf.service.ts`) | `CategoryBudgetPanel`, `BudgetSummaryPanel` |
+| Comprobantes | `domain/documents`, `domain/context-links` | Pestana Archivos: `components/documents/DocumentVaultPanel` |
+| Chat | `routes/chat.router.ts`, `infrastructure/sockets` | `components/chat/ChatDrawer` |
+| Notificaciones | `domain/notifications`, `routes/notifications.router.ts` | `hooks/useNotifications.ts`, `components/layout/Navbar` |
 | Tiempo real | `infrastructure/sockets` | `hooks/useSocket.ts`, `hooks/useGroupRealtimeRefresh.ts` |
+
+La pantalla principal de un viaje es `DashboardPage`, con tres pestanas: Finanzas (por defecto),
+Itinerario y Archivos. Los gastos no requieren actividades; una actividad puede mostrar lo
+"gastado aqui" cuando un gasto la referencia.
 
 ## Reglas para cambios estructurales
 
 - Si se agrega un modulo backend, crear `domain`, `route` y documentar endpoint.
 - Si se agrega una pagina frontend, registrarla en `App.tsx` y ubicarla en `pages/<Nombre>`.
-- Si se agrega un servicio externo, documentar variable de entorno y adaptador.
+- Si se agrega un servicio externo, documentar variable de entorno y adaptador en `infrastructure`.
+- Si se cambia el esquema, crear una migracion en `supabase/migrations` (ver [../database/README.md](../database/README.md)).
 - Si se agrega un evento Socket.IO, documentar que lo emite y que hook lo consume.
 - Si se cambia un workflow, actualizar `docs/workflows/README.md`.

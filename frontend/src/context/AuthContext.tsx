@@ -16,7 +16,7 @@ import {
   type SessionUser,
 } from './auth-context';
 
-const STORAGE_KEY = 'ithera_auth';
+const STORAGE_KEY = 'traveling_auth';
 
 function readStoredAuth() {
   const raw = localStorage.getItem(STORAGE_KEY) ?? sessionStorage.getItem(STORAGE_KEY);

@@ -1,88 +1,85 @@
-# Variables de entorno - ITHERA
+# Variables de entorno - Traveling
 
-Esta guia centraliza las variables usadas por backend, frontend, GitHub Actions y Vercel.
+Esta guia centraliza las variables del backend, el frontend, Docker Compose, la Supabase CLI y
+GitHub Actions.
 
-## Reglas generales
+## Reglas
 
-- Nunca subir `.env` al repositorio.
-- Mantener `.env.example` actualizado cuando se agregue una variable.
-- Las variables del frontend deben empezar con `VITE_`.
-- No colocar secrets privados en variables `VITE_`, porque quedan disponibles en el navegador.
-- Los secrets de CI/CD se configuran en GitHub Actions o Vercel, no en archivos del repo.
+- No subir archivos `.env` (estan en `.gitignore`).
+- Las variables `VITE_*` son publicas: terminan dentro del bundle del navegador.
+- La `SUPABASE_SECRET_KEY` solo vive en el backend.
+- Los secretos de CI/CD se guardan en GitHub (Settings -> Secrets and variables -> Actions).
+- Toda variable nueva se documenta aqui y en el `.env.example` que corresponda.
 
-## Backend
+## Backend (`backend/.env`)
 
-Archivo local:
+Plantilla: `backend/.env.example`. En produccion el archivo vive en el servidor
+(`~/traveling/backend/.env`) y Docker Compose lo pasa al contenedor `traveling-api`.
 
-```text
-backend/.env
-```
-
-Base:
-
-| Variable | Obligatoria | Uso |
+| Variable | Requerida | Descripcion |
 | --- | --- | --- |
-| `SUPABASE_URL` | Si | URL del proyecto Supabase. |
-| `SUPABASE_ANON_KEY` | Si | Llave anonima para flujos auth. |
-| `SUPABASE_SECRET_KEY` | Si | Service role para operaciones internas del backend. |
-| `PORT` | No | Puerto HTTP. Default `3001`. |
-| `NODE_ENV` | No | Ambiente. Default `development`. |
-| `FRONTEND_URL` | No | Origen permitido por CORS. Default `http://localhost:5173`. |
-| `LOCK_TTL_MINUTES` | No | TTL para locks de propuestas. Default `10`. |
+| `SUPABASE_URL` | Si | URL del proyecto de Supabase. |
+| `SUPABASE_ANON_KEY` | Si | Llave publicable (`sb_publishable_...`); se usa para validar sesiones. |
+| `SUPABASE_SECRET_KEY` | Si | Llave secreta (`sb_secret_...`); acceso completo a la base y a Storage. |
+| `PORT` | No | Puerto HTTP y de Socket.IO. Default `3001`. |
+| `NODE_ENV` | No | `development` o `production`. |
+| `FRONTEND_URL` | No | Origen permitido por CORS y base de los enlaces en correos. Default `http://localhost:5173`. |
+| `SHARE_LINK_SECRET` | En produccion | Firma los enlaces publicos del itinerario (`openssl rand -hex 32`). |
+| `SMTP_HOST` | Para correo | Servidor SMTP, por ejemplo `smtp.gmail.com`. |
+| `SMTP_PORT` | No | Default `587`. |
+| `SMTP_USER` | Para correo | Cuenta SMTP. |
+| `SMTP_PASS` | Para correo | Contrasena de aplicacion. |
+| `MAIL_FROM` | Para correo | `Nombre <cuenta@dominio>`; en Gmail debe ser la misma cuenta que `SMTP_USER`. |
 
-Integraciones:
+Sin las variables `SMTP_*` el backend arranca, pero los correos de invitacion fallan.
 
-| Variable | Uso |
-| --- | --- |
-| `DUFFEL_ACCESS_TOKEN` | Credencial Duffel para vuelos. |
-| `DUFFEL_BASE_URL` | URL base Duffel. |
-| `DUFFEL_API_VERSION` | Version API Duffel. |
-| `LITEAPI_BASE_URL` | URL base LiteAPI. |
-| `LITEAPI_API_KEY` | Credencial LiteAPI para hoteles. |
-| `AMADEUS_BASE_URL` | URL base Amadeus. |
-| `AMADEUS_AUTH_URL` | URL auth Amadeus. |
-| `AMADEUS_CLIENT_ID` | Client ID Amadeus. |
-| `AMADEUS_CLIENT_SECRET` | Client secret Amadeus. |
-| `GOOGLE_MAPS_API_KEY` | Llave servidor Google Maps. |
-| `GOOGLE_MAPS_BASE_URL` | URL base Maps. |
-| `GOOGLE_ROUTES_BASE_URL` | URL base Routes. |
-| `GOOGLE_PLACES_BASE_URL` | URL base Places. |
-| `OPEN_METEO_BASE_URL` | URL base Open-Meteo. |
-| `WEATHER_API_KEY` | Llave WeatherAPI. |
-| `WEATHER_CACHE_TTL_MS` | TTL cache clima. |
-| `WEATHER_API_BASE_URL` | URL base WeatherAPI. |
-| `RESEND_API_KEY` | Llave Resend. |
-| `MAIL_FROM` | Remitente de correos. |
+## Frontend (`frontend/.env`)
 
-## Frontend
+Plantilla: `frontend/.env.example`. Solo para desarrollo con `npm run dev`.
 
-Archivo local:
-
-```text
-frontend/.env
-```
-
-| Variable | Obligatoria | Uso |
+| Variable | Requerida | Descripcion |
 | --- | --- | --- |
-| `VITE_API_URL` | Si | URL base API. Local: `http://localhost:3001/api`. |
-| `VITE_SUPABASE_URL` | Si | URL publica de Supabase. |
-| `VITE_SUPABASE_ANON_KEY` | Si | Llave anonima publica de Supabase. |
-| `VITE_GOOGLE_MAPS_BROWSER_KEY` | Segun modulo | Llave de Google Maps para navegador. |
+| `VITE_API_URL` | Si | Base de la API, por ejemplo `http://localhost:3001/api`. |
+| `VITE_SUPABASE_URL` | Si | URL del proyecto de Supabase. |
+| `VITE_SUPABASE_ANON_KEY` | Si | Llave publicable de Supabase. |
+| `VITE_OAUTH_PROVIDERS` | No | Proveedores sociales habilitados, separados por coma (por ejemplo `google`). Vacio = solo correo. |
 
-## GitHub Actions y Vercel
+## Docker Compose (`.env` en la raiz)
 
-Secrets usados por workflows de Vercel:
+Plantilla: `.env.example`. Compose pasa estos valores como build args al construir
+`traveling-web`; `VITE_API_URL` queda fijo en `/api` porque Caddy enruta por ruta en el mismo
+dominio.
 
-| Secret | Uso |
+| Variable | Descripcion |
 | --- | --- |
-| `VERCEL_TOKEN` | Autentica Vercel CLI. |
-| `VERCEL_ORG_ID` | Identifica equipo/organizacion. |
-| `VERCEL_PROJECT_ID_FRONTEND` | Identifica proyecto frontend. |
+| `VITE_SUPABASE_URL` | URL del proyecto de Supabase. |
+| `VITE_SUPABASE_ANON_KEY` | Llave publicable. |
+| `VITE_OAUTH_PROVIDERS` | Igual que en el frontend. |
 
-## Checklist al agregar variable
+## Supabase CLI (`supabase/config.toml`)
 
-1. Agregarla a `.env.example` del paquete correspondiente.
-2. Documentarla aqui.
-3. Si afecta deploy, agregarla en Vercel/GitHub.
-4. Si es backend, leerla desde `backend/src/config/env.ts`.
-5. Si es frontend, verificar que sea seguro exponerla como `VITE_`.
+`npx supabase config push` lee estos secretos del entorno; no se guardan en el repo.
+
+| Variable | Descripcion |
+| --- | --- |
+| `SMTP_USER`, `SMTP_PASS` | SMTP de los correos de Auth (codigos OTP y recuperacion). |
+| `GOOGLE_CLIENT_SECRET` | Secreto del cliente OAuth de Google. Se guarda en `supabase/.env` (ignorado por git). |
+
+## GitHub Actions
+
+Secrets usados por `.github/workflows/deploy.yml`:
+
+| Secret | Descripcion |
+| --- | --- |
+| `DEPLOY_KEY` | Llave privada SSH restringida a ejecutar `deploy.sh` en el servidor. |
+| `DEPLOY_TARGET` | Destino SSH, por ejemplo `ssh://usuario@host:puerto`. |
+| `DEPLOY_KNOWN_HOSTS` | Huella del servidor para `known_hosts`. |
+
+Los workflows de CI (`ci-backend.yml`, `ci-frontend.yml`) no usan secretos.
+
+## Cambios de variables
+
+1. Agregar la variable al `.env.example` correspondiente sin valores reales.
+2. Documentarla en esta guia.
+3. Si afecta produccion, agregarla en el servidor (o en GitHub si la usa un workflow).
+4. Avisar en el PR si requiere accion manual.

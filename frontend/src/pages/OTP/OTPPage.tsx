@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import logoWhite from "../../assets/logo-white.png";
+import { Logo } from "../../components/ui/Logo";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../context/useAuth";
 
@@ -299,11 +299,7 @@ export function OTPPage() {
           <div className="relative z-10 flex h-full w-full flex-col px-16 py-12">
             <div>
               <Link to="/">
-                <img
-                  src={logoWhite}
-                  alt="Ithera"
-                  className="h-16 w-auto cursor-pointer object-contain"
-                />
+                <Logo variant="white" height={48} className="cursor-pointer" />
               </Link>
             </div>
             <div className="flex flex-1 items-center">
@@ -474,7 +470,7 @@ export function OTPPage() {
                 >
                   <p className="font-semibold text-[#344054]">Revisa estas opciones:</p>
                   <ol className="mt-2 list-decimal space-y-1 pl-5">
-                    <li>Busca un correo de ITHERA en tu bandeja de entrada.</li>
+                    <li>Busca un correo de Traveling en tu bandeja de entrada.</li>
                     <li>Revisa la carpeta de spam, correo no deseado o promociones.</li>
                     <li>Verifica que el correo mostrado arriba esté escrito correctamente.</li>
                     <li>Si no aparece, espera a que termine el contador y solicita un nuevo código.</li>

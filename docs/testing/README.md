@@ -1,45 +1,50 @@
-# Testing - ITHERA
+# Testing - Traveling
 
-Esta guia define como ejecutar y mantener pruebas del proyecto.
+Esta guia define como ejecutar y mantener las pruebas del proyecto.
 
 ## Estado actual
 
-El backend tiene pruebas con Jest en:
+| Tipo | Donde | Que cubre |
+| --- | --- | --- |
+| Unitarias (Jest) | `backend/tests/budget.service.test.ts` | Repartos, saldos, liquidaciones, presupuesto por categoria, viaje cerrado, alertas de presupuesto y CSV. |
+| Unitarias (Jest) | `backend/tests/context-links.service.test.ts` | Enlaces contextuales por viaje. |
+| Smoke de punta a punta | `backend/scripts/smoke.mjs` | Registro, viaje, integrantes, itinerario, gastos, saldos, pagos, presupuesto, resumen, CSV, PDF, archivos, chat, notificaciones y enlace publico, contra un backend real. Limpia lo que crea. |
+| Auxiliares | `backend/tests/forgot-password-timing.mjs`, `backend/tests/db_stress.k6.js` | Tiempo de respuesta de recuperacion de contrasena y estres de base de datos (manuales). |
 
-```text
-backend/tests/
-```
-
-Archivos relevantes:
-
-| Archivo | Proposito |
-| --- | --- |
-| `budget.service.test.ts` | Reglas de presupuesto, gastos y liquidaciones. |
-| `context-links.service.test.ts` | Enlaces contextuales por grupo. |
-| `proposals.service.test.ts` | Propuestas, votos y comentarios. |
-| `amadeus.integrity.test.ts` | Integridad de integracion Amadeus. |
-| `test_sockets.mjs` | Pruebas manuales/auxiliares de sockets. |
-| `setup.ts` | Setup Jest. |
-| `INTEGRITY_TEST_REPORT.md` | Evidencia historica de pruebas. |
+`backend/tests/setup.ts` prepara las variables de entorno de Jest.
 
 ## Comandos backend
 
 ```bash
 cd backend
-npm test
 npm test -- --runInBand
-npm run build
 npx tsc --noEmit
+npm run build
 ```
+
+## Smoke test
+
+Requiere un backend en ejecucion y un proyecto de Supabase (la pila local de la CLI sirve; ver
+[../database/README.md](../database/README.md)):
+
+```bash
+cd backend
+SMOKE_API_URL=http://localhost:3001 \
+SUPABASE_URL=... SUPABASE_ANON_KEY=... SUPABASE_SECRET_KEY=... \
+npm run smoke
+```
+
+Se corre en local antes de cada despliegue con cambios de backend o de esquema, y en produccion
+despues de desplegar.
 
 ## Comandos frontend
 
-El frontend no tiene suite de tests automatizada en este momento. La verificacion minima es:
+El frontend no tiene suite automatizada. La verificacion minima es:
 
 ```bash
 cd frontend
 npm run lint
-npx tsc --noEmit
+npx tsc -b
 npm run build
 ```
 
@@ -47,23 +52,20 @@ npm run build
 
 Agregar o actualizar pruebas cuando cambie:
 
-- Logica de negocio en `backend/src/domain`.
-- Validaciones de permisos.
-- Calculos de presupuesto o liquidaciones.
-- Votos, comentarios, propuestas o locks.
-- Transformaciones de datos que afecten API.
-- Mocks de clientes externos.
+- Logica de negocio en `backend/src/domain` (en especial repartos, saldos y presupuesto).
+- Validaciones de permisos (admin, creador del gasto, acreedor del pago, viaje cerrado).
+- Transformaciones de datos que afecten la API, el CSV o el PDF.
+- Un flujo de punta a punta: agregarlo tambien al smoke test.
 
 ## Convenciones
 
-- Tests unitarios cerca de `backend/tests`.
-- Usar mocks para Supabase cuando se pruebe logica de dominio.
-- Evitar tests que dependan de credenciales reales salvo que sean pruebas de integridad documentadas.
-- Los tests deben ser deterministas.
+- Tests unitarios en `backend/tests`, con mocks de Supabase.
+- Sin credenciales reales en tests unitarios.
+- Tests deterministas.
 
 ## Checklist antes de PR
 
-- Backend: correr `npm test -- --runInBand`.
-- Backend: correr `npx tsc --noEmit`.
-- Frontend: correr `npm run build`.
+- Backend: `npm test -- --runInBand` y `npx tsc --noEmit`.
+- Frontend: `npm run lint` y `npm run build`.
+- Cambios de API o esquema: smoke test local.
 - Si no se puede correr algo, explicar el motivo en el PR.

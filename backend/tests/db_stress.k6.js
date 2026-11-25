@@ -3,7 +3,7 @@ import { check, sleep } from 'k6';
 
 /**
  * ====================================================================
- * PRUEBA DE ESTRÉS PARA ENDPOINTS DE BASE DE DATOS (ITHERA BACKEND)
+ * PRUEBA DE ESTRÉS PARA ENDPOINTS DE BASE DE DATOS (TRAVELING BACKEND)
  * ====================================================================
  * 
  * Este script de k6 está diseñado específicamente para estresar y evaluar

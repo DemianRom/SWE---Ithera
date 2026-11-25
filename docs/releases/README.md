@@ -1,4 +1,4 @@
-# Releases y entregas - ITHERA
+# Releases y entregas - Traveling
 
 Esta guia define como cerrar sprints o entregas usando GitFlow.
 

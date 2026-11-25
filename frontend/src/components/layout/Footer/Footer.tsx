@@ -9,7 +9,7 @@ export const Footer = () => {
         <div className="col-span-1">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-[#1E6FD9] text-2xl">✈️</span>
-            <span className="font-bold text-xl text-white tracking-wide">ITHERA</span>
+            <span className="font-bold text-xl text-white tracking-wide">Traveling</span>
           </div>
           <p className="text-sm text-gray-400 mb-6 pr-4">
             Planifica tu viaje grupal sin el caos. La mejor forma de organizar tu próxima aventura.
@@ -53,7 +53,7 @@ export const Footer = () => {
       </div>
 
       <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-white/10 text-center text-xs text-gray-500">
-        © {new Date().getFullYear()} Ithera. Todos los derechos reservados.
+        © {new Date().getFullYear()} Traveling. Todos los derechos reservados.
       </div>
     </footer>
   );

@@ -46,7 +46,7 @@ app.use(express.json());
 app.get('/health', (_req: any, res: any) => {
   res.status(200).json({
     ok: true,
-    message: 'ITHERA backend funcionando',
+    message: 'Traveling backend funcionando',
     env: env.NODE_ENV
   });
 });
@@ -67,7 +67,7 @@ initSocketServer(httpServer);
 
 // ── Arranque ──────────────────────────────────────────────────────
 httpServer.listen(env.PORT, () => {
-  console.log(`ITHERA backend corriendo en http://localhost:${env.PORT}`);
+  console.log(`Traveling backend corriendo en http://localhost:${env.PORT}`);
   console.log(`Entorno: ${env.NODE_ENV}`);
   console.log(`Socket.IO corriendo en el mismo puerto (${env.PORT})`);
 });

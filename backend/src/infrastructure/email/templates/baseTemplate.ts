@@ -1,6 +1,3 @@
-export const EMAIL_LOGO_URL =
-  'https://bkbsxmrrjwvmefazbtra.supabase.co/storage/v1/object/public/public-assets/ITHERA-logo-com.png';
-
 export const baseTemplate = ({
   title,
   content,
@@ -23,12 +20,8 @@ export const baseTemplate = ({
           box-shadow:0 4px 14px rgba(0,0,0,0.06);
         "
       >
-        <div style="margin-bottom:24px;">
-          <img
-            src="${EMAIL_LOGO_URL}"
-            alt="ITHERA"
-            style="width:140px; height:auto; display:block; margin:0 auto 24px auto;"
-          />
+        <div style="margin-bottom:24px; font-size:26px; font-weight:800; letter-spacing:-0.02em; color:#1E0A4E;">
+          Traveling
         </div>
 
         <h2
@@ -63,7 +56,7 @@ export const baseTemplate = ({
             color:#9ca3af;
           "
         >
-          ITHERA • Planifica tu viaje en equipo
+          Traveling • Las cuentas compartidas de tu viaje
         </div>
       </div>
     </div>

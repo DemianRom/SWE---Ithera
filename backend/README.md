@@ -1,28 +1,31 @@
-# Backend - Ithera
+# Backend - Traveling
 
-Backend de Ithera construido con Node.js, TypeScript, Express, Supabase y Socket.IO. Expone la API REST, integra servicios externos y mantiene la sincronizacion en tiempo real para grupos, propuestas, presupuesto, documentos y notificaciones.
+API de Traveling construida con Node.js, TypeScript, Express, Supabase y Socket.IO. Expone la API
+REST de cuentas, viajes, itinerario, gastos, saldos, presupuesto y comprobantes, y mantiene la
+sincronizacion en tiempo real del chat, las notificaciones y el panel del viaje.
 
 ## Responsabilidades
 
-- Exponer endpoints REST bajo `/api`.
-- Validar autenticacion y permisos.
-- Orquestar logica de negocio por dominio.
-- Integrar Supabase como backend de datos/autenticacion.
-- Integrar proveedores externos de vuelos, hoteles, mapas, clima y correo.
-- Publicar eventos en tiempo real mediante Socket.IO.
-- Centralizar manejo de errores y configuracion de ambiente.
+- Exponer endpoints REST bajo `/api` y el healthcheck en `/health`.
+- Validar autenticacion (tokens de Supabase) y permisos por viaje.
+- Orquestar la logica de negocio por dominio: repartos, saldos, liquidaciones y presupuesto.
+- Leer y escribir en Supabase con la llave secreta (las tablas no son accesibles desde el navegador).
+- Generar el resumen del viaje en PDF y CSV, y recibos de pago en PDF.
+- Enviar correos de invitacion por SMTP.
+- Publicar eventos en tiempo real con Socket.IO.
 
 ## Stack
 
 | Area | Tecnologia |
 | --- | --- |
-| Runtime | Node.js |
+| Runtime | Node.js 24 |
 | Lenguaje | TypeScript |
 | HTTP API | Express |
-| Base de datos/auth | Supabase |
+| Base de datos, auth y archivos | Supabase (Postgres, Auth, Storage) |
 | Tiempo real | Socket.IO |
-| Email | Resend |
-| Testing | Jest, ts-jest |
+| Correo | Nodemailer (SMTP) |
+| PDF | Generador propio sin dependencias (`domain/budget/pdf.service.ts`) |
+| Testing | Jest, ts-jest y smoke test (`scripts/smoke.mjs`) |
 | Desarrollo | ts-node-dev |
 
 ## Estructura
@@ -30,41 +33,26 @@ Backend de Ithera construido con Node.js, TypeScript, Express, Supabase y Socket
 ```text
 backend/
 |-- src/
-|   |-- config/
-|   |   |-- db.ts                  # Configuracion relacionada con base de datos
-|   |   |-- env.ts                 # Lectura centralizada de variables de entorno
-|   |   `-- redis.ts               # Configuracion heredada o preparada para Redis
+|   |-- index.ts                  # Express, CORS, routers, Socket.IO y arranque
+|   |-- config/env.ts             # Variables de entorno requeridas
 |   |-- domain/
-|   |   |-- auth/                  # Registro, login, perfil y recuperacion
-|   |   |-- budget/                # Gastos, saldos y presupuesto
-|   |   |-- checkout/              # Checkout, PDF y simulacion de pagos
-|   |   |-- context-links/         # Enlaces contextuales por grupo
-|   |   |-- documents/             # Boveda y documentos
-|   |   |-- flights/               # Busqueda de vuelos y aeropuertos
-|   |   |-- groups/                # Grupos, chat e integrantes
-|   |   |-- hotels/                # Busqueda de hoteles
-|   |   |-- itinerary/             # Itinerario y agenda de subgrupos
-|   |   |-- maps/                  # Mapas, rutas y lugares
-|   |   |-- notifications/         # Notificaciones
-|   |   |-- proposals/             # Propuestas y bloqueos
-|   |   `-- votes-comments/        # Votos y comentarios
+|   |   |-- auth/                 # Usuarios, perfil, avatar y borrado de cuenta
+|   |   |-- budget/               # Gastos, repartos, saldos, pagos, presupuesto, resumen, CSV y PDF
+|   |   |-- context-links/        # Enlaces entre gastos, actividades y comprobantes
+|   |   |-- documents/            # Comprobantes del viaje (bucket privado)
+|   |   |-- groups/               # Viajes, integrantes, roles, invitaciones y chat
+|   |   |-- itinerary/            # Itinerario basico y actividades
+|   |   `-- notifications/        # Notificaciones, preferencias y alertas
 |   |-- infrastructure/
-|   |   |-- db/                    # Cliente Supabase y migraciones
-|   |   |-- email/                 # Templates y adaptadores de email
-|   |   |-- external-apis/         # Amadeus, Duffel, Google, LiteAPI, clima
-|   |   |-- redis/                 # Cliente Redis si se habilita
-|   |   `-- sockets/               # Gateway, handlers, server y scheduler
-|   |-- middlewares/
-|   |   |-- auth.middleware.ts
-|   |   |-- errorHandler.middleware.ts
-|   |   `-- rateLimit.middleware.ts
-|   |-- routes/                    # Routers Express por modulo
-|   |-- services/                  # Servicios transversales
-|   `-- index.ts                   # Bootstrap HTTP, CORS, rutas y Socket.IO
-|-- tests/
-|-- package.json
-|-- tsconfig.json
-`-- jest.config.ts
+|   |   |-- db/supabase.client.ts # Clientes de Supabase (publicable y secreto)
+|   |   |-- email/templates/      # Plantilla HTML de correos
+|   |   `-- sockets/              # Servidor, handlers y gateway de Socket.IO
+|   |-- middlewares/              # requireAuth, manejo de errores, rate limit (sin montar)
+|   |-- routes/                   # Routers Express
+|   `-- services/email.service.ts # Envio de correo por SMTP
+|-- scripts/smoke.mjs             # Smoke test de punta a punta
+|-- tests/                        # Pruebas Jest y auxiliares
+`-- Dockerfile                    # Imagen de produccion
 ```
 
 ## Flujo de una peticion
@@ -72,70 +60,38 @@ backend/
 ```text
 Cliente frontend
   -> Express route en src/routes
-  -> Middleware de auth/validacion si aplica
+  -> requireAuth (si aplica)
   -> Servicio de dominio en src/domain/<modulo>
-  -> Cliente Supabase o adaptador externo
-  -> Respuesta JSON o evento Socket.IO
+  -> Cliente Supabase (llave secreta)
+  -> Respuesta JSON, archivo (CSV/PDF) o evento Socket.IO
 ```
 
-Regla practica: las rutas deben ser delgadas. La logica de negocio vive en `src/domain/<modulo>`, y las dependencias externas viven en `src/infrastructure`.
+Regla practica: las rutas deben ser delgadas. La logica de negocio vive en `src/domain/<modulo>` y
+las dependencias externas en `src/infrastructure`.
 
 ## Endpoints base
 
-El servidor registra estas rutas principales desde `src/index.ts`:
-
-| Base path | Modulo |
+| Base | Modulo |
 | --- | --- |
 | `/health` | Healthcheck |
-| `/api/auth` | Autenticacion |
-| `/api/groups` | Grupos/viajes |
+| `/api/auth` | Cuentas y perfil |
+| `/api/groups` | Viajes, integrantes, invitaciones |
+| `/api/groups/:groupId/itinerary` | Itinerario |
+| `/api/groups/:groupId/chat` | Chat grupal |
 | `/api/groups/:groupId/context-links` | Enlaces contextuales |
-| `/api/groups/:groupId/documents` | Documentos por grupo |
-| `/api/groups/:groupId/vault` | Boveda por grupo |
-| `/api/flights` | Vuelos |
-| `/api/hotels` | Hoteles |
-| `/api/maps` | Mapas, lugares, rutas y clima |
-| `/api/proposals` | Propuestas, votos y comentarios |
-| `/api/budget` | Presupuesto |
+| `/api/groups/:groupId/documents` (alias `/vault`) | Comprobantes |
+| `/api/budget` | Gastos, saldos, pagos, presupuesto y resumenes |
 | `/api/notifications` | Notificaciones |
-| `/api/documents` | Documentos generales |
-| `/api/checkout` | Checkout |
+| `/api/export` | Enlace publico del itinerario |
 
-La documentacion funcional de endpoints vive en [../docs/api/endpoints.md](../docs/api/endpoints.md).
+Detalle completo en [../docs/api/endpoints.md](../docs/api/endpoints.md).
 
 ## Variables de entorno
 
-Crear `backend/.env` a partir de `backend/.env.example`.
-
-| Variable | Uso |
-| --- | --- |
-| `SUPABASE_URL` | URL del proyecto Supabase. |
-| `SUPABASE_ANON_KEY` | Llave anonima de Supabase. |
-| `SUPABASE_SECRET_KEY` | Llave service role para operaciones backend. |
-| `PORT` | Puerto HTTP del backend. Por defecto `3001`. |
-| `NODE_ENV` | Ambiente de ejecucion. |
-| `FRONTEND_URL` | Origen permitido para CORS local. |
-| `DUFFEL_ACCESS_TOKEN` | Credencial para Duffel. |
-| `DUFFEL_BASE_URL` | URL base de Duffel. |
-| `DUFFEL_API_VERSION` | Version de API Duffel. |
-| `LITEAPI_BASE_URL` | URL base de LiteAPI. |
-| `LITEAPI_API_KEY` | Llave de LiteAPI. |
-| `AMADEUS_BASE_URL` | URL base de Amadeus. |
-| `AMADEUS_AUTH_URL` | URL de autenticacion Amadeus. |
-| `AMADEUS_CLIENT_ID` | Client ID de Amadeus. |
-| `AMADEUS_CLIENT_SECRET` | Client secret de Amadeus. |
-| `GOOGLE_MAPS_API_KEY` | Llave servidor para Google Maps. |
-| `GOOGLE_MAPS_BASE_URL` | URL base Maps. |
-| `GOOGLE_ROUTES_BASE_URL` | URL base Routes. |
-| `GOOGLE_PLACES_BASE_URL` | URL base Places. |
-| `OPEN_METEO_BASE_URL` | URL base de Open-Meteo. |
-| `WEATHER_API_KEY` | Llave de WeatherAPI. |
-| `WEATHER_CACHE_TTL_MS` | TTL de cache para clima. |
-| `WEATHER_API_BASE_URL` | URL base de WeatherAPI. |
-| `RESEND_API_KEY` | Llave de Resend. |
-| `MAIL_FROM` | Remitente de correos transaccionales. |
-
-Nunca subir `.env` al repositorio.
+Plantilla: `.env.example`. Las requeridas son `SUPABASE_URL`, `SUPABASE_ANON_KEY` y
+`SUPABASE_SECRET_KEY`; en produccion tambien `SHARE_LINK_SECRET`. Las `SMTP_*` y `MAIL_FROM` son
+necesarias para enviar invitaciones por correo. Tabla completa en
+[../docs/env/README.md](../docs/env/README.md).
 
 ## Instalacion y ejecucion
 
@@ -146,54 +102,38 @@ cp .env.example .env
 npm run dev
 ```
 
-Healthcheck:
-
-```bash
-curl http://localhost:3001/health
-```
+Servidor local: `http://localhost:3001` (`/health` y `/api`). Para una base local con la Supabase
+CLI, ver [../docs/database/README.md](../docs/database/README.md).
 
 ## Scripts
 
 | Script | Uso |
 | --- | --- |
-| `npm run dev` | Levanta el servidor con recarga usando `ts-node-dev`. |
-| `npm run build` | Compila TypeScript a `dist`. |
-| `npm run start` | Ejecuta `dist/index.js`. |
-| `npm run test` | Corre Jest. Usa `--passWithNoTests`. |
-| `npm run lint` | Actualmente es placeholder: `echo "No lint configured"`. |
+| `npm run dev` | Desarrollo con recarga. |
+| `npm run build` | Compila TypeScript a `dist/`. |
+| `npm start` | Ejecuta `dist/index.js`. |
+| `npm test` | Pruebas Jest. |
+| `npm run smoke` | Smoke test contra un backend en ejecucion (`SMOKE_API_URL`, `SUPABASE_*`). |
 
 ## Convenciones para agregar un modulo
 
-1. Crear carpeta en `src/domain/<modulo>`.
-2. Separar entidades/tipos del servicio cuando aplique: `<modulo>.entity.ts` y `<modulo>.service.ts`.
-3. Crear router en `src/routes/<modulo>.router.ts`.
-4. Registrar el router en `src/index.ts` bajo `/api/<modulo>`.
-5. Si consume servicios externos, crear el adaptador en `src/infrastructure/external-apis`.
-6. Si emite eventos en tiempo real, coordinar con `src/infrastructure/sockets`.
-7. Documentar endpoints nuevos en [../docs/api/endpoints.md](../docs/api/endpoints.md).
-8. Agregar o actualizar pruebas cuando el cambio tenga reglas de negocio o riesgo de regresion.
+1. Crear carpeta en `src/domain/<modulo>` con `<modulo>.entity.ts` y `<modulo>.service.ts`.
+2. Crear router en `src/routes/<modulo>.router.ts` y registrarlo en `src/index.ts`.
+3. Validar membresia y rol en el servicio, y respetar viaje cerrado y presupuesto bloqueado.
+4. Si cambia el esquema, agregar una migracion en `../supabase/migrations`.
+5. Si emite eventos en tiempo real, usar `src/infrastructure/sockets/socket.gateway.ts`.
+6. Documentar endpoints nuevos en [../docs/api/endpoints.md](../docs/api/endpoints.md).
+7. Agregar pruebas cuando el cambio tenga reglas de negocio o riesgo de regresion.
 
 ## Socket.IO
 
-Socket.IO se inicializa en `src/index.ts` con `initSocketServer(httpServer)`. La implementacion vive en:
-
-- `src/infrastructure/sockets/socket.server.ts`
-- `src/infrastructure/sockets/socket.gateway.ts`
-- `src/infrastructure/sockets/socket.handlers.ts`
-- `src/infrastructure/sockets/lock.scheduler.ts`
-
-El scheduler de locks se arranca junto con el servidor HTTP. Cualquier cambio de eventos debe revisarse tambien en los hooks del frontend, especialmente `frontend/src/hooks/useSocket.ts` y `frontend/src/hooks/useGroupRealtimeRefresh.ts`.
+Se inicializa en `src/index.ts` con `initSocketServer(httpServer)` y comparte puerto con la API.
+Eventos y salas: [../docs/realtime/README.md](../docs/realtime/README.md). Cualquier cambio de
+eventos debe revisarse tambien en `frontend/src/hooks/useSocket.ts` y
+`frontend/src/hooks/useGroupRealtimeRefresh.ts`.
 
 ## CI
 
-El workflow `ci-backend.yml` corre en PRs hacia `main` o `develop` cuando cambian backend, docs, workflows o archivos raiz relevantes.
-
-Valida:
-
-- `npm ci`
-- `npm run lint`
-- `npx tsc --noEmit`
-- `npm run build`
-- `npm test -- --runInBand`
-
-Mas detalle en [../docs/workflows/README.md](../docs/workflows/README.md).
+`ci-backend.yml` corre en PRs hacia `main` o `develop` y valida `npm ci`, `npm run lint`,
+`npx tsc --noEmit`, `npm run build` y `npm test -- --runInBand`. Mas detalle en
+[../docs/workflows/README.md](../docs/workflows/README.md).

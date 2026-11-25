@@ -84,7 +84,7 @@ export function JoinGroupPage() {
   const handleJoin = async () => {
     if (!accessToken) {
       const redirectTo = `/join-group?code=${encodeURIComponent(code)}${invitationToken ? `&token=${encodeURIComponent(invitationToken)}` : ""}`;
-      sessionStorage.setItem("ithera_post_login_redirect", redirectTo);
+      sessionStorage.setItem("traveling_post_login_redirect", redirectTo);
       navigate(`/login?redirect=${encodeURIComponent(redirectTo)}`);
       return;
     }

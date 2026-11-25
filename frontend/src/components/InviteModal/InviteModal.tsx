@@ -157,7 +157,7 @@ export function InviteModal({
       setDownloadingQr(true)
       const link = document.createElement('a')
       link.href = qrBase64
-      link.download = `ithera-invitacion-${groupId}.png`
+      link.download = `traveling-invitacion-${groupId}.png`
       document.body.appendChild(link)
       link.click()
       link.remove()

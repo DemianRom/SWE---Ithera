@@ -152,9 +152,9 @@ function HeroProductPreview() {
             <div className="mb-5 h-10 rounded-2xl bg-white/10" />
             <div className="space-y-2">
               {[
-                ['Día 1', '#1E6FD9'],
-                ['Votos', '#7A4FD6'],
                 ['Gastos', '#35C56A'],
+                ['Saldos', '#7A4FD6'],
+                ['Itinerario', '#1E6FD9'],
               ].map(([label, color]) => (
                 <div key={label} className="rounded-2xl border border-white/10 bg-white/10 px-3 py-3">
                   <div className="mb-2 h-2 w-16 rounded-full bg-white/25" />
@@ -181,9 +181,9 @@ function HeroProductPreview() {
             <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_150px]">
               <div className="space-y-3">
                 {[
-                  ['10:00', 'Llegada al hotel', 'Confirmado', '#35C56A'],
-                  ['14:30', 'Comida frente al mar', 'En votacion', '#F59E0B'],
-                  ['20:00', 'Actividad nocturna', 'Propuesta', '#7A4FD6'],
+                  ['$4,800', 'Hotel en Cancún', 'Pagó Ana', '#35C56A'],
+                  ['$1,200', 'Cena frente al mar', 'Pagó Beto', '#1E6FD9'],
+                  ['$350', 'Taxi al aeropuerto', 'Por validar', '#F59E0B'],
                 ].map(([time, title, status, color]) => (
                   <div key={title} className="rounded-2xl border border-[#E2E8F0] bg-white p-3 shadow-sm">
                     <div className="mb-2 flex items-center justify-between gap-2">
@@ -228,8 +228,8 @@ function HeroProductPreview() {
       </div>
 
       <div className="landing-float-delayed absolute -bottom-5 -left-3 hidden rounded-2xl border border-white/20 bg-white px-4 py-3 shadow-[0_18px_44px_rgba(9,5,28,0.28)] sm:block">
-        <p className="font-body text-[11px] font-bold uppercase tracking-wide text-[#7A4FD6]">Votacion cerrada</p>
-        <p className="font-heading text-sm font-bold text-[#1E0A4E]">7 de 8 aprobaron el plan</p>
+        <p className="font-body text-[11px] font-bold uppercase tracking-wide text-[#7A4FD6]">Saldos al día</p>
+        <p className="font-heading text-sm font-bold text-[#1E0A4E]">Beto le paga $350 a Ana</p>
       </div>
       <div className="landing-float absolute -right-3 top-12 hidden rounded-2xl border border-white/20 bg-white px-4 py-3 shadow-[0_18px_44px_rgba(9,5,28,0.28)] md:block">
         <p className="font-body text-[11px] font-bold uppercase tracking-wide text-[#35C56A]">Sincronizado</p>
@@ -371,11 +371,11 @@ function HeroSection({ isOnline }: { isOnline: boolean }) {
           </div>
 
           <h1 className="max-w-3xl font-heading text-5xl font-bold leading-[1.02] text-white md:text-6xl">
-            Planea viajes grupales con decisiones claras.
+            Viajen en grupo con las cuentas claras.
           </h1>
           <p className="mt-5 max-w-xl font-body text-base leading-8 text-white/70">
-            ITHERA une itinerarios, propuestas, votos, presupuesto y documentos
-            en una sola experiencia para que el grupo avance sin perder contexto.
+            Traveling reúne gastos, repartos, saldos, presupuesto y comprobantes del
+            viaje en un solo lugar, para que nadie termine haciendo cuentas en el chat.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -476,10 +476,10 @@ function HeroSection({ isOnline }: { isOnline: boolean }) {
 // ── Stats ─────────────────────────────────────────────────────────────────────
 
 const stats = [
-  { value: '1,200+', label: 'grupos creados', color: '#1E6FD9', icon: 'calendar' as const },
-  { value: '8,400+', label: 'propuestas votadas', color: '#7A4FD6', icon: 'vote' as const },
-  { value: '$2M+', label: 'gastos sincronizados', color: '#35C56A', icon: 'budget' as const },
-  { value: '98%', label: 'satisfaccion', color: '#F59E0B', icon: 'spark' as const },
+  { value: 'Repartos', label: 'iguales o personalizados', color: '#1E6FD9', icon: 'budget' as const },
+  { value: 'Saldos', label: 'con el mínimo de transferencias', color: '#7A4FD6', icon: 'vote' as const },
+  { value: 'Presupuesto', label: 'planeado vs. gastado', color: '#35C56A', icon: 'calendar' as const },
+  { value: 'PDF y CSV', label: 'resumen del viaje', color: '#F59E0B', icon: 'vault' as const },
 ]
 
 function StatsSection() {
@@ -507,24 +507,24 @@ function StatsSection() {
 
 const features = [
   {
-    icon: 'vote' as const,
-    color: '#1E6FD9',
-    title: 'Decidan sin discusiones eternas',
-    description: 'Cada propuesta muestra votos, estado y responsables para que el grupo avance con claridad.',
-    preview: 'votes',
-  },
-  {
     icon: 'budget' as const,
     color: '#35C56A',
-    title: 'Controlen gastos sin hojas sueltas',
-    description: 'Presupuesto, comprometido y disponible se actualizan mientras el grupo propone y confirma.',
+    title: 'Cuentas claras desde el primer gasto',
+    description: 'Cada gasto guarda quién pagó y entre quiénes se divide, por partes iguales o con montos personalizados.',
     preview: 'budget',
+  },
+  {
+    icon: 'vote' as const,
+    color: '#1E6FD9',
+    title: 'Saldos sin perseguir a nadie',
+    description: 'Traveling calcula quién le debe a quién con el mínimo de transferencias y cada pago se confirma con su comprobante.',
+    preview: 'votes',
   },
   {
     icon: 'vault' as const,
     color: '#7A4FD6',
-    title: 'Guarden lo importante en contexto',
-    description: 'Documentos, reservas y notas quedan conectados al viaje, no perdidos en chats separados.',
+    title: 'Comprobantes y resumen en un solo lugar',
+    description: 'Guarden tickets y transferencias en privado y descarguen el resumen del viaje en PDF o CSV.',
     preview: 'vault',
   },
 ]
@@ -550,7 +550,7 @@ function FeaturePreview({ type, color }: { type: string; color: string }) {
   if (type === 'vault') {
     return (
       <div className="mt-5 grid gap-2">
-        {['Reserva hotel', 'PDF itinerario', 'Seguro viaje'].map((item) => (
+        {['Ticket de la cena', 'Transferencia del hotel', 'Resumen del viaje.pdf'].map((item) => (
           <div key={item} className="flex items-center gap-3 rounded-2xl border border-[#E2E8F0] bg-[#FAFCFF] px-3 py-2">
             <span className="flex h-8 w-8 items-center justify-center rounded-xl" style={{ color, backgroundColor: `${color}18` }}>
               <Icon type="vault" />
@@ -562,18 +562,17 @@ function FeaturePreview({ type, color }: { type: string; color: string }) {
     )
   }
   return (
-    <div className="mt-5 rounded-2xl border border-[#E2E8F0] bg-[#FAFCFF] p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <span className="rounded-full bg-[#EEF4FF] px-3 py-1 font-body text-[11px] font-bold text-[#1E6FD9]">Comida frente al mar</span>
-        <span className="font-body text-xs font-bold text-[#64748B]">5/7</span>
-      </div>
-      <div className="flex -space-x-2">
-        {['#1E6FD9', '#35C56A', '#7A4FD6', '#F59E0B', '#E11D48'].map((avatarColor) => (
-          <span key={avatarColor} className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white text-[10px] font-bold text-white" style={{ backgroundColor: avatarColor }}>
-            ✓
-          </span>
-        ))}
-      </div>
+    <div className="mt-5 grid gap-2">
+      {[
+        ['Beto → Ana', '$350', 'Por validar', '#B45309'],
+        ['Caro → Ana', '$120', 'Confirmado', '#047857'],
+      ].map(([pair, amount, status, statusColor]) => (
+        <div key={pair} className="flex items-center justify-between gap-3 rounded-2xl border border-[#E2E8F0] bg-[#FAFCFF] px-3 py-2">
+          <span className="font-body text-xs font-bold text-[#1E0A4E]">{pair}</span>
+          <span className="font-body text-xs font-bold text-[#1E0A4E]">{amount}</span>
+          <span className="font-body text-[11px] font-bold" style={{ color: statusColor }}>{status}</span>
+        </div>
+      ))}
     </div>
   )
 }
@@ -586,7 +585,7 @@ function FeaturesSection() {
         <div className="mb-12 text-center">
           <SectionEyebrow>Producto</SectionEyebrow>
           <h2 className="mx-auto max-w-3xl font-heading text-3xl font-bold text-primary-dark md:text-4xl">
-            Una app pensada para decisiones compartidas, no solo listas bonitas.
+            Una app pensada para cuentas compartidas, no para hojas de cálculo sueltas.
           </h2>
         </div>
 
@@ -610,9 +609,9 @@ function FeaturesSection() {
 // ── Demo / In Action ──────────────────────────────────────────────────────────
 
 const demoPoints = [
-  'Sidebar con días del itinerario',
-  'Tarjetas confirmadas y pendientes',
-  'Chat del grupo en tiempo real',
+  'Gastos con quién pagó y cómo se reparte',
+  'Pagos por validar y saldos al día',
+  'Itinerario como contexto de cada gasto',
   'Presupuesto actualizado al instante',
 ]
 
@@ -628,11 +627,11 @@ function DemoSection() {
             En accion
           </p>
           <h2 className="mb-5 font-heading text-3xl font-bold text-white md:text-4xl">
-            Del primer voto al itinerario confirmado.
+            Del primer gasto al último pago.
           </h2>
           <p className="mb-8 font-body text-sm leading-7 text-white/65">
-            La landing debe vender el producto mostrando lo que el usuario va a
-            usar: dias, propuestas, chat, gastos y documentos en una misma vista.
+            Gastos, saldos, itinerario, chat y comprobantes del viaje en una misma
+            vista, actualizados en tiempo real para todo el grupo.
           </p>
           <ul className="space-y-3">
             {demoPoints.map((point) => (
@@ -699,13 +698,13 @@ function DemoSection() {
                     <div className="absolute left-[38px] top-1.5 w-3 h-3 rounded-full bg-green border-2 border-white ring-2 ring-green/20" />
                     <div className="bg-white border border-[#E2E8F0] rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex justify-between items-start mb-2.5">
-                        <span className="text-[10px] font-bold text-green uppercase tracking-wider bg-green/10 px-2 py-1 rounded-md">Confirmado</span>
+                        <span className="text-[10px] font-bold text-green uppercase tracking-wider bg-green/10 px-2 py-1 rounded-md">Pagó Ana</span>
                         <span className="text-xs font-bold text-[#1E0A4E] bg-gray-100 px-2 py-1 rounded-md">$4,500 MXN</span>
                       </div>
                       <h4 className="text-sm font-bold text-[#1E0A4E]">Vuelo a Cancún</h4>
                       <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        Aeroméxico - AM 500
+                        Dividido entre 3 · $1,500 c/u
                       </p>
                     </div>
                   </div>
@@ -719,7 +718,7 @@ function DemoSection() {
                       <div className="flex justify-between items-start mb-2.5">
                         <span className="text-[10px] font-bold text-[#F59E0B] uppercase tracking-wider bg-[#F59E0B]/10 px-2 py-1 rounded-md flex items-center gap-1">
                           <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                          En votación
+                          Por validar
                         </span>
                       </div>
                       <h4 className="text-sm font-bold text-[#1E0A4E]">Cena en Rosa Negra</h4>
@@ -729,7 +728,7 @@ function DemoSection() {
                           <span className="w-5 h-5 bg-[#35C56A] rounded-full text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white">✓</span>
                           <span className="w-5 h-5 bg-gray-200 rounded-full text-gray-500 text-[9px] font-bold flex items-center justify-center ring-2 ring-white">?</span>
                         </div>
-                        <button className="text-[10px] font-bold text-white bg-[#1E6FD9] px-3 py-1.5 rounded-lg">Votar</button>
+                        <button className="text-[10px] font-bold text-white bg-[#1E6FD9] px-3 py-1.5 rounded-lg">Confirmar pago</button>
                       </div>
                     </div>
                   </div>
@@ -748,7 +747,7 @@ function DemoSection() {
                     <div className="flex gap-2 items-end">
                       <div className="w-5 h-5 rounded-full bg-[#35C56A] shrink-0 flex items-center justify-center text-white text-[9px] font-bold mb-0.5">M</div>
                       <div className="bg-white border border-[#E2E8F0] px-2.5 py-1.5 rounded-xl rounded-bl-sm shadow-sm text-gray-600">
-                        ¿Quien falta de votar la actividad de la tarde?
+                        ¿Ya registraron el taxi del aeropuerto?
                       </div>
                     </div>
                   </div>
@@ -851,80 +850,6 @@ function DestinationsSection() {
   )
 }
 
-// ── Testimonials ──────────────────────────────────────────────────────────────
-
-const testimonials = [
-  {
-    quote: 'Organizamos el viaje de generación de 12 personas en 3 días. Sin Ithera nos habría tomado semanas de coordinación.',
-    name: 'Ana Martínez',
-    role: 'Estudiante · UNAM',
-    color: '#1E6FD9',
-  },
-  {
-    quote: 'El presupuesto compartido fue un game changer. Todos sabíamos exactamente cuánto llevábamos gastado en tiempo real.',
-    name: 'Carlos Herrera',
-    role: 'Ingeniero · Monterrey',
-    color: '#7A4FD6',
-  },
-  {
-    quote: 'Invité a mis amigos con un link, votamos destinos y en 20 minutos teníamos el itinerario completo listo.',
-    name: 'Sofía Ramírez',
-    role: 'Diseñadora · CDMX',
-    color: '#35C56A',
-  },
-]
-
-function TestimonialsSection() {
-  const ref = useFadeIn()
-  return (
-    <section ref={ref} className="bg-[#F4F6F8] py-24 px-4">
-      <div className="max-w-5xl mx-auto">
-        <p className="font-body text-xs text-[#7A8799] uppercase tracking-widest text-center mb-3">
-          Lo que dicen los viajeros
-        </p>
-        <h2 className="font-heading font-bold text-[#1E0A4E] text-3xl md:text-4xl text-center mb-14">
-          Miles de grupos ya planean con Ithera
-        </h2>
-
-        <div className="grid md:grid-cols-3 gap-6">
-          {testimonials.map((t) => (
-            <div
-              key={t.name}
-              className="bg-white rounded-2xl p-6 border border-[#E2E8F0] shadow-sm flex flex-col gap-4 hover:shadow-md transition-shadow duration-300"
-            >
-              {/* Stars */}
-              <div className="flex gap-1">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <svg key={i} width="14" height="14" viewBox="0 0 24 24" fill="#F59E0B">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                  </svg>
-                ))}
-              </div>
-
-              <p className="font-body text-[#3D4A5C] text-sm leading-relaxed flex-1">
-                "{t.quote}"
-              </p>
-
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-white font-heading font-bold text-sm shrink-0"
-                  style={{ backgroundColor: t.color }}
-                >
-                  {t.name[0]}
-                </div>
-                <div>
-                  <p className="font-heading font-semibold text-[#1E0A4E] text-sm">{t.name}</p>
-                  <p className="font-body text-[#7A8799] text-xs">{t.role}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
 // ── How it works ──────────────────────────────────────────────────────────────
 
 const steps = [
@@ -962,8 +887,8 @@ const steps = [
         <path d="M12 8v4l3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
       </svg>
     ),
-    title: 'Planeen juntos',
-    description: 'Propuestas, votos y presupuesto en tiempo real',
+    title: 'Registren y liquiden',
+    description: 'Gastos, saldos y presupuesto en tiempo real',
   },
 ]
 
@@ -1026,7 +951,7 @@ function CTASection() {
           </h2>
           <p className="mt-4 max-w-xl font-body text-sm leading-7 text-white/65">
             En menos de dos minutos puedes abrir un espacio compartido para
-            proponer, votar y ordenar el viaje.
+            registrar gastos, repartirlos y cerrar cuentas sin pendientes.
           </p>
           <button onClick={() => navigate('/create-group')} className="mt-8 inline-flex items-center gap-2 rounded-xl bg-green px-7 py-3 font-body text-sm font-bold text-white shadow-[0_16px_34px_rgba(53,197,106,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_42px_rgba(53,197,106,0.34)]">
             Empezar ahora
@@ -1060,7 +985,7 @@ function CTASection() {
 // ── Footer ────────────────────────────────────────────────────────────────────
 
 const footerLinks = {
-  Producto:  ['Explorar', 'Cómo funciona', 'Precios', 'Testimonios'],
+  Producto:  ['Explorar', 'Cómo funciona'],
   Compañía:  ['Acerca de', 'Blog', 'Carreras', 'Contacto'],
   Legal:     ['Privacidad', 'Términos', 'Cookies', 'Soporte'],
 }
@@ -1111,7 +1036,7 @@ function Footer() {
 
         <div className="border-t border-white/10 pt-6">
           <p className="font-body text-white/25 text-xs text-center">
-            © 2026 Ithera. Todos los derechos reservados.
+            © 2026 Traveling. Todos los derechos reservados.
           </p>
         </div>
       </div>
@@ -1132,7 +1057,6 @@ export function LandingPage() {
       <FeaturesSection />
       <DemoSection />
       <DestinationsSection />
-      <TestimonialsSection />
       <HowItWorksSection />
       <CTASection />
       <Footer />

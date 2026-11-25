@@ -156,7 +156,7 @@ function buildReceiptPdfDocument(data: {
     '72 770 Td',
     '(RECIBO DE COBRO) Tj',
     '/F1 13 Tf',
-    '0 -24 Td (ITHERA - Comprobante financiero) Tj',
+    '0 -24 Td (Traveling - Comprobante financiero) Tj',
     // Body labels/values
     '/F1 12 Tf',
     '0.16 0.22 0.36 rg',
@@ -1188,7 +1188,7 @@ export const BudgetDashboard: FC<Props> = ({
                         <main class="sheet">
                           <header class="hero">
                             <h1>Resumen Grupal de Liquidacion</h1>
-                            <p>Panel de Finanzas · ITHERA</p>
+                            <p>Panel de Finanzas · Traveling</p>
                             <div class="metrics">
                               <div class="metric"><span>Total viaje</span><b>${formatMXN(totalBudget)}</b></div>
                               <div class="metric"><span>Comprometido</span><b>${formatMXN(comprometido)}</b></div>
@@ -1220,7 +1220,7 @@ export const BudgetDashboard: FC<Props> = ({
                             </div>
                           </section>
                           <footer class="footer">
-                            <span>Generado por ITHERA</span>
+                            <span>Generado por Traveling</span>
                             <span>${generatedAt}</span>
                           </footer>
                         </main>

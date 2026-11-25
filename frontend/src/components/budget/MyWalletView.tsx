@@ -246,7 +246,7 @@ export const MyWalletView: FC<Props> = ({
           <main class="sheet">
             <header class="hero">
               <h1>Resumen de liquidacion</h1>
-              <p>Mi Cartera · ITHERA</p>
+              <p>Mi Cartera · Traveling</p>
               <div class="metrics">
                 <div class="metric"><span>Te deben</span><b>${escapeHtml(formatMXN(totalOweMe))}</b></div>
                 <div class="metric"><span>Tu debes</span><b>${escapeHtml(formatMXN(totalIOwe))}</b></div>
@@ -260,7 +260,7 @@ export const MyWalletView: FC<Props> = ({
               </div>
             </section>
             <footer class="footer">
-              <span>Generado por ITHERA</span>
+              <span>Generado por Traveling</span>
               <span>${escapeHtml(generatedAt)}</span>
             </footer>
           </main>

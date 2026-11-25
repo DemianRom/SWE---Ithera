@@ -13,7 +13,7 @@ import type {
 } from '../types/groups'
 import type { Activity } from '../components/ui/DayView/DayView'
 
-const CURRENT_GROUP_STORAGE_KEY = 'ithera_current_group'
+const CURRENT_GROUP_STORAGE_KEY = 'traveling_current_group'
 
 export interface ItineraryDay {
   dayNumber: number

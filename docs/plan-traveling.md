@@ -66,7 +66,7 @@ la versión del Equipo 2: **cuentas compartidas del viaje**.
 | 3 | Poda de módulos del Equipo 1 y fuera de alcance | L | Lista |
 | 4 | Itinerario básico | M | Lista |
 | 5 | Funciones de finanzas del Equipo 2 | L | En curso |
-| 6 | Renombre, documentación y CI | M | Pendiente |
+| 6 | Renombre, documentación y CI | M | En curso |
 
 El hosting va antes que el esquema porque los Dockerfiles no dependen de los cambios
 de código, y con la URL lista se puede configurar Supabase Auth y probar cada fase en el
@@ -381,18 +381,46 @@ Pendiente:
 
 ## Fase 6 — Renombre, documentación y CI
 
-- [ ] Ithera/ITHERA → Traveling: textos de UI, `<title>`, `package.json`
-      (`traveling-backend`, `traveling-frontend`), mensaje de `/health`, plantilla de correo y PDF
-      (hoy cargan el logo del bucket de Ithera), claves `ithera_*` de localStorage/sessionStorage.
-- [ ] **[Tú]** Logo del equipo; mientras tanto, un wordmark de texto (reemplaza
-      `ithera-transparente.png`, `logo-*` y favicon).
-- [ ] Docs: README, `docs/api`, `docs/database` (flujo con Supabase CLI), `docs/env`,
-      `docs/workflows` (sin Vercel, con deploy), `docs/realtime` (sin locks), `docs/architecture`.
-      `docs/Documentacion_oficial/` → `docs/legacy-ithera/`.
-- [ ] **[Tú]** Integrantes del Equipo 2 para `CODEOWNERS` y la tabla del README; opcional, renombrar
-      el repo en GitHub (las URLs viejas redirigen).
+Rama `chore/rename-traveling` (sobre `feature/finance-team2`).
 
-**Lista cuando:** `grep -ri ithera` solo encuentra `docs/legacy-ithera/` y este plan.
+- [x] Ithera/ITHERA → Traveling: textos de UI, `<title>` (y `lang="es"`), `package.json` y
+      lockfiles (`traveling-backend`, `traveling-frontend`), mensaje de `/health` y logs,
+      plantilla de correo y PDF (ya no cargan el logo del bucket de Ithera; encabezado de texto),
+      claves `traveling_*` de localStorage/sessionStorage, nombre del PNG de invitación.
+- [x] Logotipo temporal en SVG (`components/ui/Logo`: ruta entre dos puntos + "Traveling") y
+      favicon nuevo. Se borraron `ithera-transparente.png`, `logo-*` y `hero.png` (sin uso).
+- [x] Landing, login y registro: textos del Equipo 2 (gastos, repartos, saldos, comprobantes) en
+      lugar de propuestas y votos; se quitaron las cifras y testimonios inventados.
+- [x] Docs reescritas o al día: README, `CONTRIBUTING.md`, README de backend y frontend,
+      `docs/README.md`, `docs/api/endpoints.md` (sin vuelos, hoteles, mapas, propuestas, subgrupos
+      ni checkout), `docs/realtime` (sin locks), `docs/env` (sin Vercel ni APIs externas),
+      `docs/security`, `docs/testing`, `docs/architecture`, `docs/gitflow`, `docs/issues`,
+      requerimientos, casos de uso (módulos M1–M8 de Traveling), diagramas, ADS.
+- [x] `docs/Documentacion_oficial/`, `docs/extracted/`, el reporte del sprint 9 y el reporte de
+      estrés → `docs/legacy-ithera/`, con un README que explica qué es y da créditos.
+- [ ] **[Tú]** Logo del equipo (se cambia en `Logo.tsx` y `public/favicon.svg`).
+- [ ] **[Tú]** Integrantes del Equipo 2 para `CODEOWNERS` (hoy conserva los de Ithera) y la
+      sección "Equipo" del README; confirmar los datos académicos del encabezado (grupo,
+      profesora, número de equipo) que se heredaron de Ithera. Opcional: renombrar el repo en
+      GitHub (las URLs viejas redirigen).
+
+Verificación:
+
+- [x] Backend: `tsc`, build y 27/27 tests. Recibo PDF generado desde el build: válido, con
+      "TRAVELING" y sin rastro de Ithera; la plantilla de correo ya no apunta a Supabase de Ithera.
+- [x] Frontend: `tsc`, lint y build limpios. 0 enlaces rotos en los `.md`.
+- [x] `grep -ri ithera` fuera de `docs/legacy-ithera/` y este plan: solo menciones deliberadas
+      del origen (sección "Origen" del README, remoto `upstream` `ITHERAADS/ITHERA`, URL del
+      repo `SWE---Ithera`) y dos migraciones ya aplicadas, que no se renombran.
+
+Pendiente:
+
+- [ ] **[OK]** Desplegar (solo contenedores, sin migraciones). Efecto: al cambiar la clave
+      `ithera_auth` → `traveling_auth`, cada usuario inicia sesión de nuevo una vez.
+- [ ] **[Tú]** Revisión visual de landing, login/registro (logotipo nuevo) y un correo de
+      invitación.
+
+**Lista cuando:** está en producción y no queda marca de Ithera visible para el usuario.
 
 ---
 

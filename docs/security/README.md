@@ -1,72 +1,75 @@
-# Seguridad - ITHERA
+# Seguridad - Traveling
 
 Esta guia resume reglas de seguridad para desarrollo, revision y despliegue.
 
-## Secrets
+## Secretos
 
-- No subir `.env`.
-- No subir tokens ni credenciales.
-- No exponer `SUPABASE_SECRET_KEY` en frontend.
-- Las variables `VITE_` son publicas para el navegador.
-- Secrets de deploy deben vivir en GitHub Actions o Vercel.
+- No subir `.env` ni `supabase/.env`.
+- No subir tokens, llaves ni credenciales.
+- No exponer `SUPABASE_SECRET_KEY` en el frontend; las variables `VITE_*` son publicas.
+- Los secretos de deploy viven en GitHub Actions y en el servidor. La llave de deploy solo puede
+  ejecutar `deploy.sh` (`command=` y `restrict` en `authorized_keys`).
+
+## Base de datos
+
+- Todas las tablas tienen RLS activo y sin politicas: `anon` y `authenticated` no pueden leer ni
+  escribir directamente.
+- Solo `service_role` (el backend, con la llave secreta) tiene privilegios. Ver
+  [../database/README.md](../database/README.md).
+- El navegador solo usa Supabase para Auth (registro, login, OTP y Google).
 
 ## Autenticacion
 
-- El backend valida tokens Supabase con `requireAuth`.
+- El backend valida tokens de Supabase con `requireAuth`.
 - Los endpoints protegidos deben declarar `requireAuth`.
-- Socket.IO valida token en handshake antes de registrar handlers.
-- El backend debe mapear usuario Supabase a usuario local antes de operar datos internos.
+- Socket.IO valida el token en el handshake antes de registrar handlers.
+- El backend mapea el usuario de Supabase al usuario local antes de operar datos internos.
+- Contrasenas de al menos 8 caracteres con mayusculas, minusculas y digitos; confirmacion por
+  codigo OTP de 6 digitos.
 
 ## Autorizacion
 
-Antes de modificar datos de grupo se debe validar:
+Antes de modificar datos de un viaje se valida:
 
-- El usuario pertenece al grupo.
-- El usuario tiene rol suficiente cuando el flujo lo requiere.
-- El recurso pertenece al grupo indicado.
+- Que el usuario pertenece al viaje.
+- Que tiene el rol necesario cuando el flujo lo requiere (admin).
+- Que el recurso pertenece al viaje indicado.
+- Que el viaje no esta cerrado (`409`) y que el presupuesto no esta bloqueado (`423`).
 
 Casos sensibles:
 
-- Cambiar roles.
-- Eliminar integrantes.
-- Aprobar/rechazar solicitudes.
-- Editar presupuesto.
-- Votar o comentar propuestas.
-- Subir/eliminar documentos.
+- Cambiar roles, delegar admin o eliminar integrantes.
+- Aprobar o rechazar solicitudes de union.
+- Editar presupuesto total o por categoria.
+- Editar o borrar gastos (solo quien lo registro o un admin).
+- Confirmar o rechazar pagos (solo quien los recibe).
+- Subir o eliminar comprobantes.
+- Borrar la cuenta (bloqueado con `409` si tiene gastos compartidos en viajes activos).
+
+## Archivos
+
+- Bucket `trip-documents` privado: el backend entrega URLs firmadas de 1 hora.
+- Tipos permitidos: PDF, texto, JPEG, PNG y WebP; maximo 10 MB.
+- Cada archivo queda asociado a usuario y viaje; el borrado valida ambos.
+- El enlace publico del itinerario esta firmado con `SHARE_LINK_SECRET` y no expone gastos.
 
 ## CORS
 
-El backend permite:
+El backend permite `FRONTEND_URL` y `http://localhost:5173`. Si se agrega otro dominio, actualizar
+`backend/src/index.ts`, `socket.server.ts` y esta guia.
 
-- `FRONTEND_URL`
-- `http://localhost:5173`
-- dominios `.vercel.app`
+## Rate limit
 
-Si se agrega un dominio productivo nuevo, actualizar configuracion y documentacion.
-
-## Uploads
-
-Los uploads deben:
-
-- Validar tipo MIME.
-- Validar tamano maximo.
-- Asociar archivo a usuario y grupo.
-- Evitar exposicion publica no intencionada.
-
-## Rate limit y abuso
-
-El repo incluye `rateLimit.middleware.ts`. Si se activa o modifica:
-
-- Documentar endpoints afectados.
-- Definir limites por usuario/IP.
-- Probar errores `429`.
+`backend/src/middlewares/rateLimit.middleware.ts` existe pero no esta montado. Si se activa:
+documentar endpoints afectados, definir limites por usuario o IP y probar respuestas `429`.
+Supabase Auth limita por su cuenta los correos enviados (`email_sent` en `supabase/config.toml`).
 
 ## Checklist de revision
 
-- [ ] No hay secrets en codigo o docs.
+- [ ] No hay secretos en codigo ni docs.
 - [ ] Los endpoints sensibles usan `requireAuth`.
-- [ ] Se valida pertenencia al grupo.
-- [ ] Se valida rol cuando aplica.
-- [ ] Los archivos subidos tienen limites.
-- [ ] Las variables publicas del frontend no contienen secrets.
+- [ ] Se valida pertenencia al viaje y rol cuando aplica.
+- [ ] Se respeta viaje cerrado y presupuesto bloqueado.
+- [ ] Los archivos subidos tienen limites y no quedan publicos.
+- [ ] Las migraciones nuevas no otorgan privilegios a `anon` ni `authenticated`.
 - [ ] Los errores no exponen informacion sensible.

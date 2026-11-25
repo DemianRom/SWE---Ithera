@@ -7,7 +7,7 @@ export function NotFoundPage() {
   return (
     <div className="min-h-screen bg-[#F0EEF8] flex flex-col items-center justify-center px-6 text-center">
       {/* Logo */}
-      <a href="/" className="mb-10 shrink-0" aria-label="Ithera">
+      <a href="/" className="mb-10 shrink-0" aria-label="Traveling">
         <Logo variant="color" height={52} />
       </a>
 

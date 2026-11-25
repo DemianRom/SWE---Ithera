@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logoWhite from "../../assets/logo-white.png";
+import { Logo } from "../../components/ui/Logo";
 import googleIcon from "../../assets/google.png";
 import facebookIcon from "../../assets/facebook.png";
 import { isOAuthProviderEnabled, oauthProviderCount } from "../../lib/oauth";
@@ -7,8 +7,8 @@ import { useNavigate, Link, useSearchParams, useLocation } from "react-router-do
 import { useAuth } from "../../context/useAuth";
 import { ApiError, apiClient } from "../../services/apiClient";
 
-const REDIRECT_STORAGE_KEY = "ithera_post_login_redirect";
-const LOGIN_LOCK_STORAGE_KEY = "ithera_login_lockout";
+const REDIRECT_STORAGE_KEY = "traveling_post_login_redirect";
+const LOGIN_LOCK_STORAGE_KEY = "traveling_login_lockout";
 const EMAIL_REGEX = /^[A-Za-z0-9._%+-]+@[A-Za-z][A-Za-z0-9-]*(?:\.[A-Za-z][A-Za-z0-9-]*)*\.[A-Za-z]{2,24}$/;
 
 type StoredLoginLock = {
@@ -367,11 +367,7 @@ export function LoginPage() {
 
           <div className="relative z-10 flex h-full w-full flex-col px-16 py-12">
             <Link to="/" className="inline-flex w-fit">
-              <img
-                src={logoWhite}
-                alt="Ithera"
-                className="h-16 w-auto cursor-pointer object-contain"
-              />
+              <Logo variant="white" height={48} className="cursor-pointer" />
             </Link>
 
             <div className="flex flex-1 items-center">
@@ -381,7 +377,7 @@ export function LoginPage() {
                   Plataforma colaborativa
                 </div>
                 <h1 className="text-[68px] font-extrabold leading-[0.96] tracking-[-0.04em] text-white">
-                  Planea, vota y organiza viajes sin perder el control.
+                  Registra gastos, repártelos y cierra las cuentas del viaje sin pendientes.
                 </h1>
 
                 <p className="mt-8 max-w-[540px] text-[19px] leading-[1.65] text-white/75">
@@ -391,7 +387,7 @@ export function LoginPage() {
 
                 <div className="mt-10 grid max-w-[520px] grid-cols-3 gap-3">
                   {[
-                    ["Votos", "Decisiones claras"],
+                    ["Saldos", "Cuentas claras"],
                     ["Gastos", "Balance visible"],
                     ["Bóveda", "Todo a mano"],
                   ].map(([title, subtitle]) => (

@@ -35,7 +35,6 @@ type PdfDocumentData = {
   footer?: string;
 };
 
-const ITHERA_LOGO_URL = 'https://bkbsxmrrjwvmefazbtra.supabase.co/storage/v1/object/public/public-assets/ITHERA-logo-com.png';
 
 const toPdfSafeText = (value: string): string =>
   String(value ?? '')
@@ -241,24 +240,18 @@ const buildImageObjects = (images: Record<string, PdfImage>, startId: number) =>
 
 const buildElegantPdf = async (data: PdfDocumentData): Promise<Buffer> => {
   const commands: string[] = [];
-  const logo = await fetchPdfImage(ITHERA_LOGO_URL);
   const heroImage = await fetchPdfImage(data.heroImageUrl);
   const images: Record<string, PdfImage> = {};
-  if (logo) images.ImLogo = logo;
   if (heroImage) images.ImHero = heroImage;
 
   addRect(commands, 0, 720, 612, 72, '0.118 0.039 0.306');
   addRect(commands, 390, 720, 222, 72, '1 1 1');
   addRect(commands, 390, 720, 1, 72, '0.875 0.906 0.953');
-  addText(commands, 'ITHERA', 48, 758, 18, 'F2', '1 1 1');
+  addText(commands, 'TRAVELING', 48, 758, 18, 'F2', '1 1 1');
   addText(commands, data.title, 48, 735, 15, 'F2', '1 1 1');
 
-  if (logo) {
-    const fitted = fitImage(logo, 154, 50);
-    addImage(commands, 'ImLogo', 424 + (154 - fitted.width) / 2, 731 + (50 - fitted.height) / 2, fitted.width, fitted.height);
-  } else {
-    addText(commands, data.subtitle, 408, 744, 9, 'F1', '0.118 0.039 0.306');
-  }
+  // Encabezado de texto: sin logo en imagen hasta que el equipo defina el suyo.
+  addText(commands, data.subtitle, 408, 744, 9, 'F1', '0.118 0.039 0.306');
 
   addRect(commands, 48, 654, 516, 46, '0.948 0.965 0.996');
   addText(commands, data.labels?.folio ?? 'Folio', 64, 681, 8, 'F2', '0.392 0.455 0.545');
@@ -316,7 +309,7 @@ const buildElegantPdf = async (data: PdfDocumentData): Promise<Buffer> => {
   });
 
   addRect(commands, 48, 54, 516, 40, '0.948 0.965 0.996');
-  addText(commands, data.footer ?? 'Documento generado por ITHERA. Conserva este comprobante en la boveda del viaje.', 64, 77, 9, 'F1', '0.118 0.039 0.306');
+  addText(commands, data.footer ?? 'Documento generado por Traveling. Conserva este comprobante en los archivos del viaje.', 64, 77, 9, 'F1', '0.118 0.039 0.306');
   if (data.recipientEmail) addText(commands, `PDF enviado a: ${data.recipientEmail}`, 64, 63, 8, 'F1', '0.392 0.455 0.545');
 
   const imageData = buildImageObjects(images, 7);
@@ -362,7 +355,7 @@ export const generateCollectionReceiptPdf = async (data: {
 }): Promise<Buffer> => {
   return buildElegantPdf({
     title: 'Comprobante de liquidacion',
-    subtitle: 'Movimiento financiero validado en ITHERA',
+    subtitle: 'Movimiento validado en Traveling',
     folio: data.folio,
     total: data.amount,
     sections: [
@@ -385,7 +378,7 @@ export const generateCollectionReceiptPdf = async (data: {
       {
         title: 'Nota de validacion',
         lines: [
-          { value: 'Comprobante emitido por ITHERA con el estado de deuda registrado al momento de la emision.' },
+          { value: 'Comprobante emitido por Traveling con el estado de deuda registrado al momento de la emision.' },
         ],
       },
     ],

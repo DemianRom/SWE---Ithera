@@ -1,4 +1,4 @@
-# ITHERA - Endpoints REST API
+# Traveling - Endpoints REST API
 
 Este documento registra los endpoints expuestos por el backend actual. Debe actualizarse en el mismo PR donde se agregue, cambie o elimine un endpoint.
 
@@ -23,7 +23,8 @@ Codigos comunes:
 | `401 Unauthorized` | Token ausente o invalido. |
 | `403 Forbidden` | Usuario sin permisos suficientes. |
 | `404 Not Found` | Recurso inexistente. |
-| `409 Conflict` | Conflicto de negocio, por ejemplo correo ya registrado. |
+| `409 Conflict` | Conflicto de negocio, por ejemplo correo ya registrado o viaje cerrado. |
+| `423 Locked` | El presupuesto del viaje esta bloqueado. |
 | `429 Too Many Requests` | Rate limit o bloqueo temporal. |
 | `500 Internal Server Error` | Error no controlado. |
 
@@ -38,16 +39,10 @@ Codigos comunes:
 | `/api/groups/:groupId/context-links` | Enlaces contextuales | `backend/src/routes/context-links.router.ts` |
 | `/api/groups/:groupId/documents` | Documentos por grupo | `backend/src/routes/documents.router.ts` |
 | `/api/groups/:groupId/vault` | Alias de boveda documental | `backend/src/routes/documents.router.ts` |
-| `/api/flights` | Vuelos | `backend/src/routes/flights.router.ts` |
-| `/api/hotels` | Hoteles | `backend/src/routes/hotels.router.ts` |
-| `/api/maps` | Mapas, lugares, rutas y clima | `backend/src/routes/maps.router.ts` |
-| `/api/proposals` | Propuestas, votos y comentarios | `backend/src/routes/proposals.router.ts`, `votesComments.router.ts` |
-| `/api/search-history` | Historial de busquedas M4 | `backend/src/routes/search-history.router.ts` |
 | `/api/export` | Enlaces compartibles de itinerario | `backend/src/routes/export.router.ts` |
-| `/api/budget` | Alias directo de presupuesto | `backend/src/routes/budget.router.ts` |
+| `/api/budget` | Presupuesto, gastos, saldos y pagos | `backend/src/routes/budget.router.ts` |
 | `/api/notifications` | Notificaciones | `backend/src/routes/notifications.router.ts` |
 | `/api/documents` | Alias directo de documentos | `backend/src/routes/documents.router.ts` |
-| `/api/checkout` | Checkout simulado | `backend/src/routes/checkout.router.ts` |
 
 ## Auth
 
@@ -76,9 +71,9 @@ Base: `/api/groups`
 | `POST` | `/join` | Si | Solicita unirse o se une a un grupo mediante codigo. |
 | `GET` | `/my-history` | Si | Lista historial de viajes del usuario. |
 | `GET` | `/invite-preview/:code` | No | Obtiene vista previa publica de una invitacion. |
-| `GET` | `/:groupId/travel-context` | Si | Obtiene contexto de viaje y punto de partida. |
 | `GET` | `/:groupId` | Si | Obtiene detalle del grupo. |
 | `PATCH` | `/:groupId` | Si | Actualiza datos del grupo. |
+| `PATCH` | `/:groupId/close` | Si | Cierra el viaje (solo admin). Un viaje cerrado no acepta gastos, pagos ni cambios de presupuesto. |
 | `DELETE` | `/:groupId` | Si | Elimina grupo. |
 | `GET` | `/:groupId/invite` | Si | Obtiene informacion de invitacion. |
 | `GET` | `/:groupId/invitations` | Si | Lista invitaciones generadas. |
@@ -89,6 +84,8 @@ Base: `/api/groups`
 | `GET` | `/:groupId/members` | Si | Lista integrantes del grupo. |
 | `PATCH` | `/members/:memberId/role` | Si | Actualiza rol de integrante. |
 | `DELETE` | `/:groupId/members/:memberId` | Si | Elimina integrante del grupo. |
+| `GET` | `/:groupId/admin-delegations` | Si | Lista solicitudes para delegar el rol de admin. |
+| `PATCH` | `/:groupId/admin-delegations/:requestId` | Si | Acepta o rechaza una delegacion. Body: `action=accept|reject`. |
 
 ## Itinerario
 
@@ -96,26 +93,10 @@ Base: `/api/groups/:groupId/itinerary`
 
 | Metodo | Endpoint | Auth | Descripcion |
 | --- | --- | --- | --- |
-| `GET` | `/` | Si | Obtiene itinerario del grupo. |
-| `POST` | `/activities` | Si | Crea actividad grupal. |
+| `GET` | `/` | Si | Obtiene el itinerario del viaje con sus actividades. |
+| `POST` | `/activities` | Si | Crea actividad (titulo, inicio/fin, ubicacion en texto, notas). |
 | `PATCH` | `/activities/:activityId` | Si | Actualiza actividad grupal. |
 | `DELETE` | `/activities/:activityId` | Si | Elimina actividad grupal. |
-
-### Agenda y subgrupos
-
-| Metodo | Endpoint | Auth | Descripcion |
-| --- | --- | --- | --- |
-| `GET` | `/subgroups/schedule` | Si | Obtiene agenda de subgrupos. |
-| `POST` | `/subgroups/slots` | Si | Crea bloque de agenda para subgrupos. |
-| `PATCH` | `/subgroups/slots/:slotId` | Si | Actualiza bloque de agenda. |
-| `DELETE` | `/subgroups/slots/:slotId` | Si | Elimina bloque de agenda. |
-| `POST` | `/subgroups/slots/:slotId/groups` | Si | Crea subgrupo dentro de un bloque. |
-| `PATCH` | `/subgroups/slots/:slotId/groups/:subgroupId` | Si | Actualiza subgrupo. |
-| `DELETE` | `/subgroups/slots/:slotId/groups/:subgroupId` | Si | Elimina subgrupo. |
-| `POST` | `/subgroups/slots/:slotId/join` | Si | Une al usuario a un subgrupo. |
-| `POST` | `/subgroups/slots/:slotId/groups/:subgroupId/activities` | Si | Crea actividad de subgrupo. |
-| `PATCH` | `/subgroups/slots/:slotId/activities/:activityId` | Si | Actualiza actividad de subgrupo. |
-| `DELETE` | `/subgroups/slots/:slotId/activities/:activityId` | Si | Elimina actividad de subgrupo. |
 
 ## Chat
 
@@ -125,15 +106,6 @@ Base: `/api/groups/:groupId/chat`
 | --- | --- | --- | --- |
 | `GET` | `/messages?limit=:limit` | Si | Lista mensajes del chat grupal. |
 | `POST` | `/messages` | Si | Crea mensaje grupal y emite evento Socket.IO `chat_message`. |
-
-Base de chat de subgrupo:
-
-`/api/groups/:groupId/itinerary/subgroups/slots/:slotId/groups/:subgroupId/chat`
-
-| Metodo | Endpoint | Auth | Descripcion |
-| --- | --- | --- | --- |
-| `GET` | `/messages?limit=:limit` | Si | Lista mensajes del chat de subgrupo. |
-| `POST` | `/messages` | Si | Crea mensaje de subgrupo. |
 
 ## Enlaces contextuales
 
@@ -169,66 +141,6 @@ Base: `/api/documents`
 | `POST` | `/:tripId` | Si | Sube documento por `tripId`. |
 | `DELETE` | `/:tripId/:docId` | Si | Elimina documento por `tripId`. |
 
-## Vuelos
-
-Base: `/api/flights`
-
-| Metodo | Endpoint | Auth | Descripcion |
-| --- | --- | --- | --- |
-| `GET` | `/airports/search` | Si | Busca aeropuertos por texto o coordenadas. |
-| `GET` | `/airports/resolve` | Si | Resuelve aeropuerto cercano a destino. |
-| `GET` | `/search` | Si | Busca vuelos. Requiere `origin`, `destination`, `departureDate`. |
-
-## Hoteles
-
-Base: `/api/hotels`
-
-| Metodo | Endpoint | Auth | Descripcion |
-| --- | --- | --- | --- |
-| `POST` | `/search` | Si | Busca hospedajes por destino, fechas, huespedes y filtros. |
-| `POST` | `/prebook` | Si | Crea prebook con `offerId`. |
-
-## Mapas, lugares, rutas y clima
-
-Base: `/api/maps`
-
-| Metodo | Endpoint | Auth | Descripcion |
-| --- | --- | --- | --- |
-| `GET` | `/geocoding/search?address=:address` | Si | Geocodifica direccion. |
-| `POST` | `/routes/compute` | Si | Calcula ruta entre origen y destino. |
-| `GET` | `/places/autocomplete?input=:input` | Si | Autocompleta lugares. |
-| `GET` | `/places/details/:placeId` | Si | Obtiene detalle de lugar. |
-| `POST` | `/places/text-search` | Si | Busca lugares por texto. |
-| `POST` | `/places/nearby` | Si | Busca lugares cercanos por tipos incluidos. |
-| `GET` | `/weather?latitude=:lat&longitude=:lng` | Si | Obtiene clima por coordenadas. |
-
-## Propuestas
-
-Base: `/api/proposals`
-
-| Metodo | Endpoint | Auth | Descripcion |
-| --- | --- | --- | --- |
-| `POST` | `/flights` | Si | Guarda propuesta de vuelo. |
-| `POST` | `/hotels` | Si | Guarda propuesta de hospedaje. |
-| `GET` | `/groups/:groupId` | Si | Lista propuestas de un grupo. |
-| `GET` | `/:proposalId` | Si | Obtiene detalle de propuesta. |
-| `PUT` | `/:proposalId` | Si | Actualiza propuesta. |
-| `DELETE` | `/:proposalId` | Si | Elimina propuesta. |
-| `POST` | `/groups/:tripId/:proposalId/vote` | Si | Registra voto con `a_favor`, `en_contra` o `abstencion`. |
-| `POST` | `/groups/:tripId/:proposalId/admin-decision` | Si | Aplica decision administrativa: `aprobar` o `rechazar`. |
-| `GET` | `/groups/:tripId/vote-results` | Si | Obtiene resultados de votacion del grupo. |
-| `POST` | `/groups/:tripId/:proposalId/comments` | Si | Crea comentario en propuesta. |
-| `GET` | `/groups/:tripId/:proposalId/comments` | Si | Lista comentarios de propuesta. |
-
-## Historial de busquedas M4
-
-Base: `/api/search-history`
-
-| Metodo | Endpoint | Auth | Descripcion |
-| --- | --- | --- | --- |
-| `GET` | `/?grupoId=:grupoId` | Si | Lista historial de resultados M4 guardados para un grupo. |
-| `POST` | `/` | Si | Registra en historial un resultado de busqueda M4 guardado (vuelo u hospedaje). |
-
 ## Export y enlace compartible
 
 Base: `/api/export`
@@ -236,22 +148,7 @@ Base: `/api/export`
 | Metodo | Endpoint | Auth | Descripcion |
 | --- | --- | --- | --- |
 | `GET` | `/share-link/:groupId` | Si | Genera URL compartible publica para el itinerario del grupo. |
-| `GET` | `/shared/:token` | No | Obtiene itinerario publico usando token compartido. |
-| `PATCH` | `/groups/:tripId/:proposalId/comments/:commentId` | Si | Actualiza comentario. |
-| `DELETE` | `/groups/:tripId/:proposalId/comments/:commentId` | Si | Elimina comentario. |
-
-### Alias de votos y comentarios por propuesta
-
-Base: `/api/proposals`
-
-| Metodo | Endpoint | Auth | Descripcion |
-| --- | --- | --- | --- |
-| `POST` | `/:proposalId/votes` | Si | Registra voto simple. |
-| `GET` | `/:proposalId/votes/summary` | Si | Obtiene resumen de votos. |
-| `GET` | `/:proposalId/comments` | Si | Lista comentarios. |
-| `POST` | `/:proposalId/comments` | Si | Crea comentario. |
-| `PUT` | `/:proposalId/comments/:commentId` | Si | Actualiza comentario. |
-| `DELETE` | `/:proposalId/comments/:commentId` | Si | Elimina comentario. |
+| `GET` | `/shared/:token` | No | Obtiene el itinerario publico (solo lectura, sin gastos) usando el token firmado. |
 
 ## Presupuesto y gastos
 
@@ -294,25 +191,18 @@ Base: `/api/notifications`
 | `GET` | `/preferences` | Si | Obtiene preferencias de notificacion. |
 | `PATCH` | `/preferences` | Si | Actualiza preferencias de notificacion. |
 
-## Checkout simulado
-
-Base: `/api/checkout`
-
-| Metodo | Endpoint | Auth | Descripcion |
-| --- | --- | --- | --- |
-| `POST` | `/flight/:proposalId/pay` | Si | Simula compra de vuelo asociado a propuesta. |
-| `POST` | `/hotel/:proposalId/reserve` | Si | Simula reserva de hospedaje asociado a propuesta. |
-
 ## Socket.IO
 
 Socket.IO corre sobre el mismo servidor HTTP del backend.
 
-Eventos observados en la implementacion:
+Los eventos, salas y payloads se documentan en [../realtime/README.md](../realtime/README.md).
+Los mas usados junto con la API REST:
 
 | Evento | Direccion | Descripcion |
 | --- | --- | --- |
 | `chat_message` | servidor a sala | Mensaje nuevo en chat grupal. |
-| Eventos de sockets de locks/propuestas | servidor a sala | Ver `backend/src/infrastructure/sockets`. |
+| `dashboard_updated` | servidor a sala | Cambio en gastos, pagos, presupuesto, itinerario o archivos. |
+| `notification_created` | servidor a usuario | Notificacion nueva. |
 
 Cuando se agregue o cambie un evento realtime, documentar:
 

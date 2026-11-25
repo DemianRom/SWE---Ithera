@@ -60,7 +60,7 @@ type GroupPanelRealtimePayload = {
 
 const GROUP_PANEL_CACHE_TTL_MS = 10 * 60 * 1000;
 const getGroupPanelCacheKey = (groupId: string) =>
-  `ithera:group-panel:${groupId}`;
+  `traveling:group-panel:${groupId}`;
 
 function readGroupPanelCache(groupId: string): GroupPanelCache | null {
   if (!groupId || typeof window === "undefined") return null;

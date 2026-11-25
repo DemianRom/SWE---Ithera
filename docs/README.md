@@ -1,4 +1,4 @@
-# Documentacion - ITHERA
+# Documentacion - Traveling
 
 Este directorio concentra la documentacion funcional, tecnica y academica del proyecto. El objetivo es que una persona nueva pueda entender que existe, donde esta y que documento debe consultar segun su necesidad.
 
@@ -18,11 +18,11 @@ Para incorporarse rapido al proyecto:
 | --- | --- | --- |
 | [api/endpoints.md](api/endpoints.md) | Backend, frontend, QA | Inventario funcional de endpoints REST. |
 | [architecture/README.md](architecture/README.md) | Devs nuevos, lideres tecnicos | Vista tecnica de carpetas, capas y convenciones. |
-| [workflows/README.md](workflows/README.md) | Todo el equipo | CI, checks, preview deploys, production deploys y secrets. |
-| [env/README.md](env/README.md) | Backend, frontend, DevOps | Variables de entorno locales, Vercel y GitHub Actions. |
-| [database/README.md](database/README.md) | Backend, datos | Supabase, clientes, migraciones y reglas de esquema. |
+| [workflows/README.md](workflows/README.md) | Todo el equipo | CI, deploy y secrets de GitHub Actions. |
+| [env/README.md](env/README.md) | Backend, frontend, DevOps | Variables de entorno locales, Docker Compose, Supabase CLI y GitHub Actions. |
+| [database/README.md](database/README.md) | Backend, datos | Supabase, migraciones, RLS y configuracion de Auth como codigo. |
 | [testing/README.md](testing/README.md) | Devs, QA | Estrategia de pruebas y comandos de verificacion. |
-| [realtime/README.md](realtime/README.md) | Backend, frontend | Socket.IO, eventos, salas, locks y hooks consumidores. |
+| [realtime/README.md](realtime/README.md) | Backend, frontend | Socket.IO, eventos, salas y hooks consumidores. |
 | [security/README.md](security/README.md) | Todo el equipo | Secrets, auth, permisos, CORS, uploads y revision segura. |
 | [releases/README.md](releases/README.md) | Lideres, equipo | Cierre de sprint, releases, hotfixes y checklist de entrega. |
 | [frontend-ui/README.md](frontend-ui/README.md) | Frontend | Convenciones de paginas, componentes, servicios y UI. |
@@ -32,9 +32,9 @@ Para incorporarse rapido al proyecto:
 | [casos-de-uso/README.md](casos-de-uso/README.md) | Analisis, devs, QA | Casos de uso del producto. |
 | [diagramas/README.md](diagramas/README.md) | Analisis, arquitectura | Diagramas y modelos de soporte. |
 | [ADS/README.md](ADS/README.md) | Equipo academico | Entregables de Analisis y Diseno de Sistemas. |
-| [extracted/README.md](extracted/README.md) | Docs/analisis | Artefactos fuente o exportaciones crudas, no documentacion final. |
+| [legacy-ithera/README.md](legacy-ithera/README.md) | Referencia | Entregables originales de Ithera (historicos, no vigentes). |
 | [deploy/README.md](deploy/README.md) | DevOps | Despliegue en el servidor propio con Docker Compose y Caddy. |
-| [plan-traveling.md](plan-traveling.md) | Todo el equipo | Plan de migracion de Ithera a Traveling por fases. |
+| [plan-traveling.md](plan-traveling.md) | Todo el equipo | Plan y bitacora de la conversion de Ithera a Traveling. |
 
 ## Documentacion oficial vs artefactos fuente
 
@@ -54,7 +54,7 @@ Usa como documentacion oficial:
 - `issues/README.md`.
 - `gitflow/README.md`.
 
-Usa `extracted/` solo como referencia cruda. No debe ser la primera fuente para entender el proyecto porque puede contener archivos exportados automaticamente desde PDF u otras herramientas.
+Usa `legacy-ithera/` solo como referencia historica: describe el alcance original de Ithera, que incluia modulos que Traveling ya no tiene.
 
 ## Como mantener esta documentacion
 
@@ -62,6 +62,7 @@ Usa `extracted/` solo como referencia cruda. No debe ser la primera fuente para 
 - Cada cambio de workflow debe actualizar [workflows/README.md](workflows/README.md).
 - Cada cambio de variable de entorno debe actualizar [env/README.md](env/README.md).
 - Cada cambio de migracion o esquema debe actualizar [database/README.md](database/README.md).
+- Cada cambio de hosting o despliegue debe actualizar [deploy/README.md](deploy/README.md).
 - Cada cambio de evento Socket.IO debe actualizar [realtime/README.md](realtime/README.md).
 - Cada cambio de pruebas o comandos de verificacion debe actualizar [testing/README.md](testing/README.md).
 - Cada cambio de reglas de entrega debe actualizar [releases/README.md](releases/README.md).
