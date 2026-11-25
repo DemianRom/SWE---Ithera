@@ -61,12 +61,12 @@ la versión del Equipo 2: **cuentas compartidas del viaje**.
 | Fase | Qué | Esfuerzo | Estado |
 | --- | --- | --- | --- |
 | 0 | Preparación: repo, DNS, Supabase, correo | S | Lista |
-| 1 | Hosting en el servidor | M | En curso |
+| 1 | Hosting en el servidor | M | Lista |
 | 2 | Esquema base en Supabase | L | Lista |
 | 3 | Poda de módulos del Equipo 1 y fuera de alcance | L | Lista |
 | 4 | Itinerario básico | M | Lista |
 | 5 | Funciones de finanzas del Equipo 2 | L | En curso |
-| 6 | Renombre, documentación y CI | M | En curso |
+| 6 | Renombre, documentación y CI | M | Lista |
 
 El hosting va antes que el esquema porque los Dockerfiles no dependen de los cambios
 de código, y con la URL lista se puede configurar Supabase Auth y probar cada fase en el
@@ -162,8 +162,9 @@ Servidor:
       `restrict,command="/home/tony/traveling/deploy.sh --ssh"`.
 - [x] **[Tú]** Secrets en GitHub (*Settings → Secrets and variables → Actions*): `DEPLOY_KEY`,
       `DEPLOY_TARGET`, `DEPLOY_KNOWN_HOSTS`.
-- [ ] **[Tú]** PR `ci/self-hosting` → `develop` (revisión de otra persona) y luego `develop` → `main`.
-      Al llegar a `main`, la copia de `~/traveling` pasa a la rama `main` y el deploy queda automático.
+- [x] **[OK]** Integración a `main` (2026-11-24, por decisión del usuario y sin PRs): `develop` y
+      `main` avanzaron por fast-forward hasta el final de la fase 6 (`daba600`). `~/traveling` pasó
+      a la rama `main` (sigue a `origin/main`) y el deploy quedó automático.
 
 **Lista cuando:** `https://traveling.tonyquezada.com/health` responde; recargar `/my-trips` no da
 404; `/socket.io/?EIO=4&transport=polling` responde 200; un push a `main` se publica solo.
@@ -172,6 +173,10 @@ Verificado en producción (2026-11-23): certificado de Let's Encrypt emitido por
 `/`, `/my-trips` y el polling de Socket.IO responden 200; el upgrade a WebSocket responde 101; la
 API sin token responde 401; la llave de deploy solo puede ejecutar `deploy.sh`. Falta solo el
 primer deploy automático, que ocurre al llegar esta rama a `main`.
+
+Primer deploy automático (2026-11-24): el push a `main` disparó el workflow *Deploy*
+(run 45535238774, verde en ~2 min), que entró por SSH con la llave restringida y ejecutó
+`deploy.sh --ssh`: fast-forward, build de ambos servicios y `.deployed-sha` = `daba600`.
 
 ## Fase 2 — Esquema base en Supabase
 
@@ -220,7 +225,7 @@ legados). En lugar de repetirlas se creó una línea base nueva.
       la pila local. Se otorgan solo a `service_role` y se revocan a `anon`/`authenticated`.
 - [x] Smoke test contra producción (`https://traveling.tonyquezada.com/api`): **29/29 sin errores
       inesperados**, y la base quedó vacía después de la limpieza.
-- [ ] **[Tú]** Registrarte con un correo real y confirmar que llega el código OTP.
+- [x] **[Tú]** Registrarte con un correo real y confirmar que llega el código OTP.
 
 **Lista cuando:** el smoke test pasa contra producción sin errores inesperados y el registro
 con OTP funciona.
@@ -283,9 +288,9 @@ Pendiente:
       secreto vive en `supabase/.env`, ignorado por git), `config push` aplicado y
       `VITE_OAUTH_PROVIDERS=google` en producción. Verificado: Supabase redirige a Google con el
       cliente y callback correctos y Google no reporta errores de cliente.
-- [ ] **[Tú]** Probar el login con Google de punta a punta en el navegador.
+- [x] **[Tú]** Probar el login con Google de punta a punta en el navegador.
 - [ ] **[Tú]** Revisar en el navegador que Finanzas, Archivos, chat, crear viaje y perfil se ven bien.
-- [ ] **[Tú]** Revisión y merge del PR por otra persona del equipo.
+- [x] ~~Revisión y merge del PR por otra persona del equipo~~: integrado a `main` por fast-forward.
 
 Mientras llega la fase 4, la pestaña Itinerario muestra el estado vacío y no hay botón para
 agregar actividades (el backend del itinerario todavía depende de `propuestas`). La documentación
@@ -415,8 +420,10 @@ Verificación:
 
 Pendiente:
 
-- [ ] **[OK]** Desplegar (solo contenedores, sin migraciones). Efecto: al cambiar la clave
-      `ithera_auth` → `traveling_auth`, cada usuario inicia sesión de nuevo una vez.
+- [x] **[OK]** Desplegado desde `main` con el workflow automático (sin migraciones). Bundle
+      publicado sin rastro de Ithera; `/health` responde "Traveling backend funcionando"; smoke
+      test en producción **48/48**; datos reales intactos. Al cambiar la clave `ithera_auth` →
+      `traveling_auth`, cada usuario inicia sesión de nuevo una vez.
 - [ ] **[Tú]** Revisión visual de landing, login/registro (logotipo nuevo) y un correo de
       invitación.
 

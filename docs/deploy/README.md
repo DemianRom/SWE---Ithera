@@ -64,7 +64,10 @@ contenedores no publican puertos en el host.
 
 ## Desplegar
 
-Automatico: cada push a `main` dispara `.github/workflows/deploy.yml`.
+Automatico: cada push a `main` dispara `.github/workflows/deploy.yml`. Si solo cambian docs u
+otros archivos fuera de `backend/` y `frontend/`, el job termina sin reconstruir nada. Para
+relanzarlo sin un commit nuevo: *Actions -> Deploy -> Run workflow* (rama `main`). El commit
+desplegado queda en `.deployed-sha` dentro de la copia de produccion.
 
 A mano, desde la copia de produccion:
 
