@@ -489,6 +489,7 @@ export function ProfilePage() {
   const [notifEmail, setNotifEmail] = useState(true)
   const [notifGroup, setNotifGroup] = useState(true)
   const [notifFinance, setNotifFinance] = useState(true)
+  const [notifAlerts, setNotifAlerts] = useState(true)
 
   useEffect(() => {
     if (accessToken) {
@@ -498,6 +499,7 @@ export function ProfilePage() {
             setNotifEmail(res.preferences.notificaciones_correo)
             setNotifGroup(res.preferences.notificaciones_grupo)
             setNotifFinance(res.preferences.notificaciones_finanzas ?? true)
+            setNotifAlerts(res.preferences.notificaciones_alertas ?? true)
           }
         })
         .catch(console.error)
@@ -508,17 +510,20 @@ export function ProfilePage() {
     | 'notificaciones_correo'
     | 'notificaciones_grupo'
     | 'notificaciones_finanzas'
+    | 'notificaciones_alertas'
 
   const preferenceSetters: Record<NotificationPreferenceKey, Dispatch<SetStateAction<boolean>>> = {
     notificaciones_correo: setNotifEmail,
     notificaciones_grupo: setNotifGroup,
     notificaciones_finanzas: setNotifFinance,
+    notificaciones_alertas: setNotifAlerts,
   }
 
   const preferenceValues: Record<NotificationPreferenceKey, boolean> = {
     notificaciones_correo: notifEmail,
     notificaciones_grupo: notifGroup,
     notificaciones_finanzas: notifFinance,
+    notificaciones_alertas: notifAlerts,
   }
 
   const handleTogglePref = async (key: NotificationPreferenceKey, val: boolean) => {
@@ -960,6 +965,12 @@ export function ProfilePage() {
                 description="Avisos cuando registran gastos, pagos o ajustes de presupuesto."
                 checked={notifFinance}
                 onChange={(val) => handleTogglePref('notificaciones_finanzas', val)}
+              />
+              <Toggle
+                label="Alertas de presupuesto"
+                description="Avisos cuando el viaje llega al 80 % del presupuesto o lo excede."
+                checked={notifAlerts}
+                onChange={(val) => handleTogglePref('notificaciones_alertas', val)}
               />
             </div>
           </section>

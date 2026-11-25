@@ -1670,7 +1670,7 @@ export function DashboardPage() {
               `/grouppanel?groupId=${encodeURIComponent(groupId || currentGroup?.id || "")}`,
             )
           }
-          totalBudget={budgetSummary?.totalBudget}
+          totalBudget={budgetSummary?.totalBudget ?? undefined}
           committedBudget={budgetSummary?.committed}
         />
       }

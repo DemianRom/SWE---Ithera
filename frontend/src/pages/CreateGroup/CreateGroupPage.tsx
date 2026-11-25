@@ -621,8 +621,9 @@ const getValidationErrors = (form: FormData) => {
     }
   }
 
+  // El presupuesto es opcional: se puede definir después en Finanzas.
   if (!form.totalBudget.trim()) {
-    e.totalBudget = "El presupuesto base es obligatorio.";
+    // sin presupuesto
   } else if (!Number.isFinite(totalBudget) || totalBudget <= 0) {
     e.totalBudget =
       "El monto del presupuesto debe ser un número positivo mayor a cero.";
@@ -708,7 +709,7 @@ export function CreateGroupPage() {
   const isFormValid = Object.keys(validationErrors).length === 0;
   const sidebarStep: 1 | 2 | 3 =
     form.name.trim() && form.destination.trim()
-      ? form.startDate && form.endDate && form.totalBudget.trim()
+      ? form.startDate && form.endDate
         ? 3
         : 2
       : 1;
@@ -751,7 +752,7 @@ export function CreateGroupPage() {
           fecha_fin: form.endDate || undefined,
           maximo_miembros: Number(form.maxMembers),
           es_publico: form.isPublic,
-          presupuesto_total: Number(form.totalBudget),
+          presupuesto_total: form.totalBudget.trim() ? Number(form.totalBudget) : null,
         },
         accessToken,
       );
@@ -1131,14 +1132,14 @@ export function CreateGroupPage() {
               </div>
               <div className="mt-4">
                 <InputField
-                  label="Presupuesto total (MXN)"
+                  label="Presupuesto total (MXN, opcional)"
                   type="text"
-                  placeholder="Ej: 25000"
+                  placeholder="Ej: 25000 · puedes definirlo después"
                   value={form.totalBudget}
                   maxLength={TOTAL_BUDGET_INTEGER_DIGITS + TOTAL_BUDGET_DECIMAL_DIGITS + 1}
                   onChange={set("totalBudget") as (v: string) => void}
                   error={errors.totalBudget}
-                  hint={`Máximo ${TOTAL_BUDGET_INTEGER_DIGITS} dígitos enteros y ${TOTAL_BUDGET_DECIMAL_DIGITS} decimales. Debe ser mayor a cero.`}
+                  hint={`Opcional. Si lo defines: mayor a cero, máximo ${TOTAL_BUDGET_INTEGER_DIGITS} dígitos enteros y ${TOTAL_BUDGET_DECIMAL_DIGITS} decimales.`}
                 />
               </div>
             </div>
@@ -1230,8 +1231,8 @@ export function CreateGroupPage() {
             {!isFormValid && (
               <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
                 <p className="font-body text-base font-semibold leading-relaxed text-amber-800">
-                  Completa nombre, destino, fechas válidas y presupuesto base
-                  mayor a cero para habilitar la creación del grupo. La fecha de
+                  Completa nombre, destino y fechas válidas para habilitar la
+                  creación del grupo (el presupuesto es opcional). La fecha de
                   regreso debe ser posterior a la salida y el viaje no puede
                   exceder {MAX_TRIP_DURATION_DAYS} días.
                 </p>

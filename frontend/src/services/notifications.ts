@@ -45,6 +45,7 @@ export interface NotificationPreferences {
   notificaciones_grupo: boolean;
   notificaciones_invitaciones: boolean;
   notificaciones_finanzas: boolean;
+  notificaciones_alertas: boolean;
   created_at: string;
   updated_at: string;
 }

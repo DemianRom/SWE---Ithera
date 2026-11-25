@@ -4,12 +4,16 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { RegisterExpenseModal } from './RegisterExpenseModal'
 import { HelpButton } from '../ui/HelpButton'
 import { MyWalletView } from './MyWalletView'
+import { CategoryBudgetPanel } from './CategoryBudgetPanel'
+import { BudgetSummaryPanel } from './BudgetSummaryPanel'
 import { useAuth } from '../../context/useAuth'
 import { useSocket } from '../../hooks/useSocket'
 import { useGroupRealtimeRefresh } from '../../hooks/useGroupRealtimeRefresh'
 import { getCurrentGroup } from '../../services/groups'
 import {
   budgetService,
+  BUDGET_CATEGORIES,
+  type BudgetCategory,
   type BudgetDashboardResponse,
   type BudgetMember,
   type BudgetSummary,
@@ -34,6 +38,7 @@ export interface Expense {
   fecha: string
   splitAmounts?: Record<string, number>
   participantIds?: string[]
+  creadoPorId?: string | null
   linkedActivities?: ContextEntityRef[]
   linkedDocuments?: string[]
   draftDocument?: {
@@ -105,8 +110,9 @@ function formatMXN(n: number): string {
   }).format(n)
 }
 
-const EXPENSE_WINDOW_MONTHS_BEFORE_TRIP = 2
-const EXPENSE_WINDOW_DAYS_AFTER_TRIP = 3
+// Igual que el backend: gastos hasta 12 meses antes del viaje y 30 días después.
+const EXPENSE_WINDOW_MONTHS_BEFORE_TRIP = 12
+const EXPENSE_WINDOW_DAYS_AFTER_TRIP = 30
 
 const toDateKey = (value?: string | null): string | null => {
   if (!value) return null
@@ -294,6 +300,7 @@ function normalizeExpense(expense: BudgetDashboardResponse['expenses'][number]):
     fecha: dateSource.split('T')[0],
     splitAmounts: expense.splitAmounts,
     participantIds: Object.keys(expense.splitAmounts ?? {}),
+    creadoPorId: expense.createdByUserId,
   }
 }
 
@@ -614,9 +621,17 @@ export const BudgetDashboard: FC<Props> = ({
   const barLabel = totalBudget === 0
     ? 'Define un presupuesto para activar seguimiento'
     : pct < 70 ? 'Presupuesto saludable' : pct < 90 ? 'Atencion: presupuesto al limite' : 'Presupuesto excedido'
-  const canModifyExpenses = dashboard?.myRole === 'admin' && !isReadOnly && !isOffline
+  const canModifyExpense = (expense: Expense) =>
+    !isReadOnly &&
+    !isOffline &&
+    (dashboard?.myRole === 'admin' ||
+      (localUser?.id_usuario != null && expense.creadoPorId === String(localUser.id_usuario)))
   const canAdjustBudget = dashboard?.myRole === 'admin' && !isReadOnly && !isOffline
-  const requiresBudgetSetup = totalBudget <= 0
+  const hasBudget = totalBudget > 0
+  const emptyCategoryBudgets = useMemo(
+    () => Object.fromEntries(BUDGET_CATEGORIES.map((category) => [category, null])) as Record<BudgetCategory, number | null>,
+    [],
+  )
   const groupSettlementSummary = dashboard?.groupSettlementSummary ?? { totalTransfers: 0, totalAmount: 0 }
   const groupStartDate =
     currentGroup && String(currentGroup.id) === String(groupId)
@@ -654,22 +669,14 @@ export const BudgetDashboard: FC<Props> = ({
       : adjustValueHasMoreThanTwoDecimals
         ? 'Solo se permiten hasta dos decimales.'
         : null
-  const canSaveAdjustBudget = !isSaving && normalizedAdjustValue !== '' && Number.isFinite(parsedAdjustValue) && !adjustValueIsNegative && !adjustValueHasMoreThanTwoDecimals
+  const canSaveAdjustBudget =
+    !isSaving &&
+    (normalizedAdjustValue === ''
+      ? hasBudget
+      : Number.isFinite(parsedAdjustValue) && !adjustValueIsNegative && !adjustValueHasMoreThanTwoDecimals)
 
   const handleSaveExpense = async (expense: Expense) => {
     if (!groupId || !accessToken) return
-
-    const editingPreviousAmount = editingExpense ? Number(editingExpense.monto) : 0
-    const nextCommitted = comprometido - editingPreviousAmount + Number(expense.monto)
-    if (totalBudget > 0 && nextCommitted - totalBudget > 0.01) {
-      setError('Este gasto excede el presupuesto total del viaje. Ajusta el presupuesto o reduce el monto.')
-      return
-    }
-
-    if (requiresBudgetSetup) {
-      setError('Primero define el presupuesto total del viaje para registrar gastos.')
-      return
-    }
 
     setIsSaving(true)
     setError(null)
@@ -738,7 +745,7 @@ export const BudgetDashboard: FC<Props> = ({
 
   const handleAdjustBudget = async () => {
     if (!groupId || !accessToken) return
-    const value = Number(normalizedAdjustValue)
+    const value = normalizedAdjustValue === '' ? 0 : Number(normalizedAdjustValue)
     if (!Number.isFinite(value)) {
       setError('Ingresa un monto válido para ajustar el presupuesto.')
       return
@@ -751,15 +758,10 @@ export const BudgetDashboard: FC<Props> = ({
       setError('Solo se permiten hasta dos decimales en el monto.')
       return
     }
-    if (value + 0.01 < comprometido) {
-      setError(`No puedes ajustar por debajo del comprometido actual (${formatMXN(comprometido)}).`)
-      return
-    }
-
     setIsSaving(true)
     setError(null)
     try {
-      applyDashboard(await budgetService.updateBudget(groupId, value, accessToken))
+      applyDashboard(await budgetService.updateBudget(groupId, value > 0 ? value : null, accessToken))
       setShowAdjustModal(false)
       setAdjustValue('')
     } catch (err) {
@@ -1100,7 +1102,7 @@ export const BudgetDashboard: FC<Props> = ({
           {!isReadOnly && (
             <button
               onClick={() => { setEditingExpense(null); setShowModal(true) }}
-              disabled={!groupId || members.length === 0 || isSaving || requiresBudgetSetup}
+              disabled={!groupId || members.length === 0 || isSaving}
               className="flex items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#1E0A4E,#7A4FD6)] py-4 font-body text-base font-extrabold text-white shadow-[0_14px_28px_rgba(30,10,78,0.18)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               + Registrar gasto
@@ -1108,7 +1110,6 @@ export const BudgetDashboard: FC<Props> = ({
           )}
           <button
             onClick={() => setView('wallet')}
-            disabled={requiresBudgetSetup}
             className="flex items-center justify-center gap-2 rounded-2xl border border-[#D8C8FF] bg-white py-4 font-body text-base font-extrabold text-[#5B2BC0] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#F7F2FF] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Mi Cartera
@@ -1258,23 +1259,19 @@ export const BudgetDashboard: FC<Props> = ({
           </div>
         </div>
 
-        {requiresBudgetSetup && (
-          <div className="rounded-xl border border-[#FDE68A] bg-[#FFFBEB] px-4 py-3">
-	            <p className="font-body text-base font-semibold text-[#92400E]">
-              Debes definir un presupuesto total para habilitar gastos y cartera.
+        {!hasBudget && (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#BFDBFE] bg-[#EFF6FF] px-4 py-3">
+            <p className="font-body text-sm text-[#1E3A8A]">
+              Este viaje aún no tiene presupuesto. Puedes registrar gastos igual; define uno para comparar lo planeado con lo gastado.
             </p>
-            {canAdjustBudget ? (
+            {canAdjustBudget && (
               <button
                 type="button"
                 onClick={() => { setAdjustValue(''); setShowAdjustModal(true) }}
-	                className="mt-3 rounded-xl bg-[#1E6FD9] px-4 py-2.5 font-body text-sm font-bold text-white hover:bg-[#2C8BE6]"
+                className="rounded-xl bg-[#1E6FD9] px-4 py-2 font-body text-sm font-semibold text-white hover:bg-[#2C8BE6]"
               >
-                Definir presupuesto inicial
+                Definir presupuesto
               </button>
-            ) : (
-	              <p className="mt-2 font-body text-sm font-semibold text-[#92400E]">
-                Solo un administrador puede configurarlo.
-              </p>
             )}
           </div>
         )}
@@ -1415,25 +1412,15 @@ export const BudgetDashboard: FC<Props> = ({
           </div>
 
           <div>
-            <h3 className="mb-3 font-heading text-sm font-bold text-[#3D4A5C]">Presupuesto Grupal</h3>
-            <div className="flex flex-col gap-2.5">
-              {(Object.keys(CATEGORY_LABELS) as Expense['categoria'][]).map((categoria) => (
-                <div key={categoria} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="flex h-7 w-7 items-center justify-center rounded-lg"
-                      style={{ backgroundColor: `${categoryColor(categoria)}18`, color: categoryColor(categoria) }}
-                    >
-                      <CategoryIcon categoria={categoria} />
-                    </span>
-                    <span className="font-body text-xs text-[#7A8799]">{CATEGORY_LABELS[categoria]}</span>
-                  </div>
-                  <span className="font-body text-xs font-semibold text-[#3D4A5C]">
-                    {formatMXN(categoryTotals[categoria] ?? 0)}
-                  </span>
-                </div>
-              ))}
-            </div>
+            <CategoryBudgetPanel
+              spent={categoryTotals}
+              planned={dashboard?.summary.categoryBudgets ?? emptyCategoryBudgets}
+              canEdit={canAdjustBudget}
+              onSave={async (categories) => {
+                if (!groupId || !accessToken) throw new Error('Tu sesión no está disponible.')
+                applyDashboard(await budgetService.updateCategoryBudgets(groupId, categories, accessToken))
+              }}
+            />
           </div>
         </div>
 
@@ -1500,7 +1487,7 @@ export const BudgetDashboard: FC<Props> = ({
                     )}
                   </div>
                   <span className="shrink-0 font-heading text-sm font-bold text-[#3D4A5C]">{formatMXN(expense.monto)}</span>
-                  {canModifyExpenses && (
+                  {canModifyExpense(expense) && (
                     <button
                       onClick={() => openEdit(expense)}
                       aria-label="Editar gasto"
@@ -1509,7 +1496,7 @@ export const BudgetDashboard: FC<Props> = ({
                       Editar/asociar
                     </button>
                   )}
-                  {canModifyExpenses && (
+                  {canModifyExpense(expense) && (
                     <button
                       onClick={() => setExpenseToDelete(expense)}
                       aria-label="Eliminar gasto"
@@ -1523,6 +1510,13 @@ export const BudgetDashboard: FC<Props> = ({
             })}
           </div>
         </div>
+
+        <BudgetSummaryPanel
+          groupId={groupId}
+          token={accessToken ?? null}
+          refreshKey={dashboard}
+          disabled={isOffline}
+        />
       </div>
 
       <RegisterExpenseModal
@@ -1557,11 +1551,14 @@ export const BudgetDashboard: FC<Props> = ({
                 step="0.01"
                 value={adjustValue}
                 onChange={(e) => setAdjustValue(e.target.value)}
-                placeholder="0.00"
+                placeholder="Sin presupuesto"
                 autoFocus
                 className="w-full rounded-xl border border-[#E2E8F0] bg-[#F4F6F8] py-3 pl-7 pr-4 font-body text-sm text-[#3D4A5C] outline-none transition-colors focus:border-[#1E6FD9]"
               />
             </div>
+            <p className="-mt-2 mb-4 font-body text-xs text-[#7A8799]">
+              Déjalo vacío para quitar el presupuesto. Pasarse del presupuesto está permitido; Finanzas lo marcará.
+            </p>
             {adjustValueWarning && (
               <div className="mb-4 rounded-xl border border-[#FBC7C7] bg-[#FFF5F5] px-4 py-3 font-body text-sm text-[#C03535]">
                 {adjustValueWarning}

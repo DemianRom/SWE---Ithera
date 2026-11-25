@@ -1,6 +1,6 @@
 # Plan de migración: Ithera → Traveling (Equipo 2)
 
-> Estado: **Fase 4 en curso** (fases 1 a 3 aplicadas en producción, pendientes de merge) · Última actualización: 2026-11-23
+> Estado: **Fase 5 en curso** (fases 1 a 4 aplicadas en producción, pendientes de merge) · Última actualización: 2026-11-23
 
 ## Contexto
 
@@ -64,8 +64,8 @@ la versión del Equipo 2: **cuentas compartidas del viaje**.
 | 1 | Hosting en el servidor | M | En curso |
 | 2 | Esquema base en Supabase | L | Lista |
 | 3 | Poda de módulos del Equipo 1 y fuera de alcance | L | Lista |
-| 4 | Itinerario básico | M | En curso |
-| 5 | Funciones de finanzas del Equipo 2 | L | Pendiente |
+| 4 | Itinerario básico | M | Lista |
+| 5 | Funciones de finanzas del Equipo 2 | L | En curso |
 | 6 | Renombre, documentación y CI | M | Pendiente |
 
 El hosting va antes que el esquema porque los Dockerfiles no dependen de los cambios
@@ -340,27 +340,44 @@ Pendiente:
 
 ## Fase 5 — Finanzas del Equipo 2
 
-| Requisito | Hoy | Trabajo |
+Rama: `feature/finance-team2` (sale de `feature/basic-itinerary`).
+
+| Requisito | Antes | Ahora |
 | --- | --- | --- |
-| Registrar gastos y quién pagó | `expenses.paid_by_user_id` | Aceptar gastos con fecha anterior al viaje (hoy `assertExpenseDateWithinTripWindow` los rechaza). |
-| Repartir entre involucrados | Equitativo / personalizado por integrante | Validar que la suma del reparto = monto; opcional: reparto por porcentaje. |
-| Presupuesto: planeado vs gastado | `presupuesto_total` obligatorio al crear el viaje | Presupuesto opcional y editable después; tabla `budget_categories` (planeado por categoría); gráfica con recharts; avisos al 80 % y 100 %. |
-| Saldos y pagos entre compañeros | Saldos, liquidaciones y validación de pagos | Pulir la interfaz; confirmar que un viaje cerrado bloquea gastos nuevos pero deja liquidar. |
-| Comprobantes | Documentos ligados a gastos/pagos (`trip_context_links`) | Adjuntar desde el formulario del gasto en un paso; bucket privado con URLs firmadas. |
-| Resúmenes | PDF de recibo de cobro | `GET /api/budget/:groupId/summary` (por categoría, por persona y por día) + exportar CSV y PDF. |
+| Registrar gastos y quién pagó | Fechas de 2 meses antes a 3 días después del viaje | Hasta 12 meses antes y 30 días después (vuelos y hoteles se pagan con anticipación). |
+| Repartir entre involucrados | Equitativo / personalizado (la suma ya se validaba) | Sin cambios de reglas; editar o borrar un gasto lo puede quien lo registró o un admin (antes la interfaz solo dejaba al admin). |
+| Presupuesto: planeado vs gastado | Total obligatorio; no se podía registrar gastos sin él ni pasarse | Presupuesto **opcional** (al crear y después); **presupuesto por categoría** (`budget_categories`) con medidores planeado/gastado; pasarse se permite y se marca; alertas al 80 % y 100 %. |
+| Saldos y pagos | Existía; el viaje cerrado solo se respetaba en la interfaz | El backend bloquea gastos y presupuesto con el viaje cerrado (409) o bloqueado (423) y **sí** permite liquidar. |
+| Comprobantes | Bucket público; el comprobante ya se podía adjuntar desde el gasto | Bucket **privado** con URLs firmadas de una hora; `file_url` ya no se guarda. |
+| Resúmenes | Recibo de cobro en PDF | `GET /summary` (por categoría, integrante y día), **CSV** (UTF-8 con BOM, protegido contra fórmulas) y **PDF** de una página; panel "Resumen por integrante" con descargas. |
 
-- [ ] Notificaciones persistentes (hoy los gastos y pagos solo emiten `dashboard_updated` por
-      socket): gasto nuevo (a los involucrados), pago por validar (al acreedor), pago
-      confirmado/rechazado (al deudor), alertas de presupuesto.
-- [ ] `updateBudget` acepta 0 pero la BD exige `presupuesto_total > 0`: alinear al volver opcional
-      el presupuesto.
-- [ ] Definir qué pasa al borrar una cuenta con gastos en viajes compartidos (hoy las FKs de
-      `expenses` lo impiden y `deleteAccountByAuthId` ignora ese error).
-- [ ] Cada endpoint nuevo documentado en `docs/api/endpoints.md`.
-- [ ] **[Tú]** Validar con el equipo los detalles de interfaz (categorías, gráfica, formato del resumen).
+- [x] Notificaciones persistentes: gasto nuevo (a los involucrados), pago por validar (al
+      acreedor), pago confirmado/rechazado (al deudor), presupuesto al 80 %/excedido (a todos).
+      Pagos van a la preferencia "Finanzas"; alertas a "Alertas" (nuevo interruptor en el perfil).
+- [x] Borrar una cuenta con gastos o pagos en viajes compartidos responde 409 con un mensaje
+      claro (antes fallaba en silencio). Los enlaces de contexto sobreviven sin autor.
+- [x] Migración `20261125015921_finance_team2.sql`.
+- [x] El servicio de presupuesto del frontend usa solo `/api/budget/:groupId` (antes probaba una
+      ruta inexistente y reintentaba: dos peticiones por operación).
+- [x] `docs/api/endpoints.md`: sección de presupuesto reescrita con los endpoints nuevos.
 
-**Lista cuando:** los cinco requisitos se demuestran de punta a punta en producción con tres
-usuarios de prueba.
+Verificación:
+
+- [x] Supabase local con las 5 migraciones: smoke test **48/48** tres veces seguidas (incluye
+      viaje sin presupuesto, gasto previo al viaje, URL firmada vs pública, notificaciones,
+      presupuesto por categoría y permisos, alerta, resumen, CSV con BOM, PDF, viaje cerrado y
+      borrado de cuenta bloqueado). Backend 27/27 tests (6 nuevos).
+- [x] Frontend: `tsc`, lint y build limpios. Falta revisión visual.
+
+Pendiente:
+
+- [ ] **[OK]** Esta vez **primero** `npx supabase db push` y **después** desplegar: el backend
+      nuevo necesita `budget_categories` y `file_url` opcional; el anterior funciona con el
+      esquema nuevo.
+- [ ] **[Tú]** Revisar en el navegador: crear viaje sin presupuesto, definirlo después, límites
+      por categoría, alerta al excederlo, resumen y descargas, abrir un comprobante.
+
+**Lista cuando:** los cinco requisitos se demuestran de punta a punta en producción.
 
 ## Fase 6 — Renombre, documentación y CI
 

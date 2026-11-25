@@ -203,12 +203,12 @@ export const RegisterExpenseModal: FC<Props> = ({
 
   const editingPreviousAmount = editingExpense ? Number(editingExpense.monto) : 0
   const nextCommitted = comprometido - editingPreviousAmount + totalAmount
-  const budgetError =
+  const budgetWarning =
     totalBudget > 0 && nextCommitted - totalBudget > 0.01
-      ? 'Este gasto excede el presupuesto total del viaje. Ajusta el presupuesto o reduce el monto.'
+      ? 'Con este gasto el viaje se pasa del presupuesto total. Puedes guardarlo; Finanzas lo marcará como excedido.'
       : null
 
-  const isValid = totalAmount > 0 && description.trim().length > 0 && selectedMemberIds.length > 0 && splitError === null && budgetError === null
+  const isValid = totalAmount > 0 && description.trim().length > 0 && selectedMemberIds.length > 0 && splitError === null
   const isDateOutOfRange =
     (Boolean(minExpenseDate) && date < String(minExpenseDate)) ||
     (Boolean(maxExpenseDate) && date > String(maxExpenseDate))
@@ -326,9 +326,9 @@ export const RegisterExpenseModal: FC<Props> = ({
         {/* Cuerpo scrolleable */}
         <div className="flex-1 overflow-y-auto px-6">
           <div className="flex flex-col gap-4 pb-2">
-            {budgetError && (
-              <div className="rounded-xl border border-[#FBC7C7] bg-[#FFF5F5] px-4 py-3 font-body text-sm text-[#C03535]">
-                {budgetError}
+            {budgetWarning && (
+              <div role="status" className="rounded-xl border border-[#FCD34D] bg-[#FFFBEB] px-4 py-3 font-body text-sm text-[#92400E]">
+                {budgetWarning}
               </div>
             )}
 

@@ -840,7 +840,7 @@ export const DocumentVaultPanel: FC<Props> = ({
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div className="min-w-0 flex-1">
                       <a
-                        href={item.file_url}
+                        href={item.file_url ?? undefined}
                         target="_blank"
                         rel="noreferrer"
                         className="truncate font-body text-base font-semibold text-[#1E6FD9] hover:underline"

@@ -371,7 +371,7 @@ function getNotificationAction(notification: NotificationItem): { label: string;
   const tipo = String(notification.tipo ?? '').toLowerCase()
   const entidadTipo = String(notification.entidad_tipo ?? '').toLowerCase()
 
-  if (tipo.includes('gasto') || tipo.includes('finanza') || tipo.includes('presupuesto') || entidadTipo === 'expense') {
+  if (tipo.includes('gasto') || tipo.includes('finanza') || tipo.includes('presupuesto') || tipo.includes('pago') || entidadTipo === 'expense' || entidadTipo === 'settlement_payment') {
     return { label: 'Ver finanzas', url: `${baseUrl}&tab=pagar` }
   }
 
