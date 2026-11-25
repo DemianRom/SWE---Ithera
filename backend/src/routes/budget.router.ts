@@ -11,9 +11,12 @@ import {
   updatePendingSettlementPayment,
   deletePendingSettlementPayment,
   updateBudget,
+  updateCategoryBudgets,
   updateExpense,
+  getBudgetSummary,
+  buildExpensesCsv,
 } from '../domain/budget/budget.service';
-import { generateCollectionReceiptPdf } from '../domain/budget/pdf.service';
+import { generateBudgetSummaryPdf, generateCollectionReceiptPdf } from '../domain/budget/pdf.service';
 
 const router = Router({ mergeParams: true });
 
@@ -198,6 +201,64 @@ const postReceiptPdf = async (req: Request, res: Response) => {
   }
 };
 
+// Nombre de archivo seguro a partir del nombre del viaje.
+const fileSlug = (value: string): string =>
+  value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 40) || 'viaje';
+
+const putCategoryBudgets = async (req: Request, res: Response) => {
+  try {
+    const groupId = requireGroupId(req, res);
+    if (!groupId) return;
+    const dashboard = await updateCategoryBudgets(req.user!.id, groupId, req.body?.categories ?? req.body ?? {});
+    res.status(200).json(dashboard);
+  } catch (err) {
+    handleError(res, err, 'Error al actualizar el presupuesto por categoría');
+  }
+};
+
+const getSummary = async (req: Request, res: Response) => {
+  try {
+    const groupId = requireGroupId(req, res);
+    if (!groupId) return;
+    res.status(200).json(await getBudgetSummary(req.user!.id, groupId));
+  } catch (err) {
+    handleError(res, err, 'Error al generar el resumen de gastos');
+  }
+};
+
+const getExpensesCsv = async (req: Request, res: Response) => {
+  try {
+    const groupId = requireGroupId(req, res);
+    if (!groupId) return;
+    const summary = await getBudgetSummary(req.user!.id, groupId);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="gastos-${fileSlug(summary.group.nombre)}.csv"`);
+    res.status(200).send(buildExpensesCsv(summary));
+  } catch (err) {
+    handleError(res, err, 'Error al exportar los gastos');
+  }
+};
+
+const getSummaryPdf = async (req: Request, res: Response) => {
+  try {
+    const groupId = requireGroupId(req, res);
+    if (!groupId) return;
+    const summary = await getBudgetSummary(req.user!.id, groupId);
+    const pdf = await generateBudgetSummaryPdf(summary);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="resumen-${fileSlug(summary.group.nombre)}.pdf"`);
+    res.status(200).send(pdf);
+  } catch (err) {
+    handleError(res, err, 'Error al generar el resumen en PDF');
+  }
+};
+
 router.get('/budget', requireAuth, getDashboard);
 router.patch('/budget', requireAuth, patchBudget);
 router.get('/expenses', requireAuth, getDashboard);
@@ -223,5 +284,9 @@ router.delete('/:groupId/settlements/payments/:paymentId', requireAuth, removePe
 router.get('/:groupId/balances', requireAuth, getGroupBalances);
 router.get('/:groupId/settlements', requireAuth, getGroupSettlements);
 router.post('/:groupId/settlements/receipt-pdf', requireAuth, postReceiptPdf);
+router.put('/:groupId/categories', requireAuth, putCategoryBudgets);
+router.get('/:groupId/summary', requireAuth, getSummary);
+router.get('/:groupId/export.csv', requireAuth, getExpensesCsv);
+router.get('/:groupId/summary.pdf', requireAuth, getSummaryPdf);
 
 export default router;

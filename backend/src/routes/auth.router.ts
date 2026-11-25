@@ -619,9 +619,10 @@ router.delete(
       const { data, error } = await AuthService.deleteAccountByAuthId(req.user!.id);
 
       if (error) {
-        res.status(400).json({
+        const statusCode = (error as { statusCode?: number }).statusCode;
+        res.status(statusCode === 409 ? 409 : 400).json({
           ok: false,
-          error: 'No se pudo eliminar la cuenta',
+          error: statusCode === 409 ? error.message : 'No se pudo eliminar la cuenta',
           details: error.message,
         });
         return;

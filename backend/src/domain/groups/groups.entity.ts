@@ -35,7 +35,8 @@ export interface CreateGroupPayload {
   fecha_fin?: string;
   maximo_miembros?: number;
   es_publico?: boolean;
-  presupuesto_total: number;
+  /** Opcional: sin presupuesto se guarda NULL y se puede definir después. */
+  presupuesto_total?: number | null;
   modulo_itinerario_bloqueado?: boolean;
   modulo_presupuesto_bloqueado?: boolean;
 }

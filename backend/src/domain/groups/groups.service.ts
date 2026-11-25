@@ -616,16 +616,18 @@ export const createGroup = async (authUserId: string, payload: CreateGroupPayloa
     GROUP_DESCRIPTION_MAX_LENGTH
   );
   const maximoMiembros = normalizeMaxMembers(payload.maximo_miembros);
-  const presupuestoTotal = Number(payload.presupuesto_total);
+  const hasBudget =
+    payload.presupuesto_total !== undefined && payload.presupuesto_total !== null;
+  const presupuestoTotal = hasBudget ? Number(payload.presupuesto_total) : null;
 
-  if (!Number.isFinite(presupuestoTotal) || presupuestoTotal <= 0) {
+  if (presupuestoTotal !== null && (!Number.isFinite(presupuestoTotal) || presupuestoTotal <= 0)) {
     throw Object.assign(
       new Error('ERR-23-004: El monto del presupuesto debe ser un número positivo mayor a cero'),
       { statusCode: 400 }
     );
   }
 
-  if (presupuestoTotal > MAX_TOTAL_BUDGET) {
+  if (presupuestoTotal !== null && presupuestoTotal > MAX_TOTAL_BUDGET) {
     throw Object.assign(
       new Error('ERR-23-004: El presupuesto máximo permitido es 9,999,999,999.99 MXN'),
       { statusCode: 400 }

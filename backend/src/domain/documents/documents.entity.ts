@@ -4,7 +4,8 @@ export interface TripDocument {
   user_id: string;
   file_name: string;
   file_path: string;
-  file_url: string;
+  /** URL firmada temporal (el bucket es privado); no se guarda en la base. */
+  file_url: string | null;
   mime_type?: string;
   file_size?: number;
   category: string;

@@ -470,3 +470,100 @@ describe('BudgetService', () => {
       .rejects.toMatchObject({ statusCode: 403 });
   });
 });
+
+describe('BudgetService · fase 5 (Traveling)', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockDb = initialDb();
+    (getLocalUserId as jest.Mock).mockResolvedValue('1');
+    (supabaseAdmin.from as jest.Mock).mockImplementation((table: string) => mockFrom(table));
+  });
+
+  const hotel = {
+    paid_by_user_id: '1',
+    amount: 900,
+    description: 'Hotel',
+    category: 'hospedaje' as const,
+    split_type: 'equitativa' as const,
+    member_ids: ['1', '2', '3'],
+  };
+
+  it('createExpense: un viaje cerrado no acepta gastos (409)', async () => {
+    mockDb.grupos_viaje[0].estado = 'cerrado';
+    await expect(BudgetService.createExpense('auth-user', '7', hotel)).rejects.toMatchObject({ statusCode: 409 });
+  });
+
+  it('createExpense: con finanzas bloqueadas por el organizador responde 423', async () => {
+    mockDb.grupos_viaje[0].modulo_presupuesto_bloqueado = true;
+    await expect(BudgetService.createExpense('auth-user', '7', hotel)).rejects.toMatchObject({ statusCode: 423 });
+  });
+
+  it('markSettlementPaid: con el viaje cerrado todavía se puede liquidar', async () => {
+    await BudgetService.createExpense('auth-user', '7', hotel);
+    mockDb.grupos_viaje[0].estado = 'cerrado';
+    (getLocalUserId as jest.Mock).mockResolvedValue('2');
+
+    const dashboard = await BudgetService.markSettlementPaid('auth-user', '7', {
+      from_user_id: '2',
+      to_user_id: '1',
+      amount: 300,
+      payment_method: 'efectivo_presencial',
+    });
+    expect(dashboard.paymentHistory[0].status).toBe('pendiente_validacion');
+  });
+
+  it('updateBudget: vacío quita el presupuesto y los gastos siguen permitidos', async () => {
+    const dashboard = await BudgetService.updateBudget('auth-user', '7', null);
+    expect(dashboard.summary.totalBudget).toBeNull();
+    expect(dashboard.summary.available).toBeNull();
+
+    const withExpense = await BudgetService.createExpense('auth-user', '7', hotel);
+    expect(withExpense.summary.committed).toBe(900);
+  });
+
+  it('getBudgetSummary: saldos por integrante suman cero', async () => {
+    await BudgetService.createExpense('auth-user', '7', hotel);
+    await BudgetService.createExpense('auth-user', '7', {
+      ...hotel,
+      paid_by_user_id: '2',
+      amount: 100,
+      description: 'Taxi',
+      category: 'transporte',
+      split_type: 'personalizada',
+      member_ids: undefined,
+      split_amounts: { '1': 20, '2': 30, '3': 50 },
+    });
+
+    const summary = await BudgetService.getBudgetSummary('auth-user', '7');
+    expect(summary.totals.committed).toBe(1000);
+    const total = summary.byMember.reduce((sum, member) => sum + member.balance, 0);
+    expect(Math.abs(total)).toBeLessThan(0.01);
+    const admin = summary.byMember.find((member) => member.usuarioId === '1');
+    expect(admin).toMatchObject({ paid: 900, share: 320, balance: 580 });
+  });
+
+  it('buildExpensesCsv: BOM, comillas escapadas y sin fórmulas', () => {
+    const csv = BudgetService.buildExpensesCsv({
+      expenses: [
+        {
+          id: '1',
+          date: '2026-12-01',
+          description: '=HYPERLINK("http://x")',
+          category: 'comida',
+          amount: 120.5,
+          paidBy: 'Ana "La Jefa"',
+          createdBy: null,
+          splitType: 'equitativa',
+          participants: [{ nombre: 'Ana', share: 60.25 }, { nombre: 'Beto', share: 60.25 }],
+        },
+      ],
+    } as unknown as BudgetService.BudgetSummary);
+
+    expect(csv.startsWith('﻿')).toBe(true);
+    const [, row] = csv.slice(1).trim().split('\r\n');
+    expect(row).toContain(`"'=HYPERLINK(""http://x"")"`);
+    expect(row).toContain('"Ana ""La Jefa"""');
+    expect(row).toContain('"120.50"');
+    expect(row).toContain('"Ana: 60.25; Beto: 60.25"');
+  });
+});

@@ -91,6 +91,17 @@ async function expectStatus(token, method, route, body, status) {
   }
 }
 
+// Las notificaciones se guardan en segundo plano: se reintenta unos segundos.
+async function waitForNotification(token, text, timeoutMs = 5000) {
+  const deadline = Date.now() + timeoutMs;
+  while (true) {
+    const list = await api(token, 'GET', '/notifications');
+    if (JSON.stringify(list).includes(text)) return true;
+    if (Date.now() > deadline) return false;
+    await new Promise((resolve) => setTimeout(resolve, 300));
+  }
+}
+
 function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
@@ -179,6 +190,33 @@ async function main() {
   if (!members) return;
   const idOf = (u) => String(members.find((m) => m.email === u.email)?.usuario_id);
   const [ua, ub, uc] = [idOf(a), idOf(b), idOf(c)];
+
+  await step('Viaje sin presupuesto y gasto con fecha anterior al viaje', async () => {
+    const created = await api(c.token, 'POST', '/groups', {
+      nombre: `Smoke sin presupuesto ${run}`,
+      destino: 'Puebla',
+      fecha_inicio: day(20),
+      fecha_fin: day(22),
+    });
+    const g2 = created.group?.id;
+    assert(g2, 'no se creó el viaje sin presupuesto');
+    try {
+      assert(created.group.presupuesto_total === null, `presupuesto esperado null, llegó ${created.group.presupuesto_total}`);
+      const dash = await api(c.token, 'POST', `/budget/${g2}/expenses`, {
+        paid_by_user_id: uc,
+        amount: 50,
+        description: 'Reserva anticipada',
+        category: 'hospedaje',
+        split_type: 'equitativa',
+        member_ids: [uc],
+        expense_date: day(-5),
+      });
+      assert(dash.summary?.totalBudget === null, 'el tablero debería indicar que no hay presupuesto');
+      assert(Number(dash.summary?.committed) === 50, 'no se registró el gasto previo al viaje');
+    } finally {
+      await api(c.token, 'DELETE', `/groups/${g2}`);
+    }
+  });
 
   await step('Detalle del viaje (GET /groups/:id)', async () => {
     await api(a.token, 'GET', `/groups/${gid}`);
@@ -275,6 +313,17 @@ async function main() {
     assert(res.documents?.length >= 1, 'no aparece el documento');
   });
 
+  await step('Comprobantes privados: la URL firmada abre y la pública no', async () => {
+    const res = await api(a.token, 'GET', `/groups/${gid}/documents`);
+    const item = res.documents.find((d) => String(d.id) === String(doc?.id));
+    assert(item?.file_url?.includes('/object/sign/'), 'el documento no trae URL firmada');
+    const signed = await fetch(item.file_url);
+    assert(signed.ok, `la URL firmada respondió HTTP ${signed.status}`);
+    const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/trip-documents/${item.file_path}`;
+    const open = await fetch(publicUrl);
+    assert(!open.ok, 'el comprobante es accesible sin firma');
+  });
+
   await step('Ligar comprobante a un gasto (trip_context_links)', async () => {
     assert(doc && expenseB, 'faltan el documento o el gasto de pasos anteriores');
     await api(b.token, 'POST', `/groups/${gid}/context-links`, {
@@ -325,17 +374,82 @@ async function main() {
   });
 
   await step('Notificaciones y preferencias', async () => {
-    const list = await api(a.token, 'GET', '/notifications');
-    assert(JSON.stringify(list).includes('solicitud_union'), 'no llegó la notificación de la solicitud de unión');
+    assert(await waitForNotification(a.token, 'solicitud_union'), 'no llegó la notificación de la solicitud de unión');
     await api(a.token, 'GET', '/notifications/unread-count');
     await api(a.token, 'PATCH', '/notifications/preferences', { notificaciones_finanzas: true });
     await api(a.token, 'PATCH', '/notifications/read-all');
   });
 
   await step('Notificación del pago por validar al acreedor', async () => {
-    const list = await api(a.token, 'GET', '/notifications');
-    assert(/pago|liquidaci/i.test(JSON.stringify(list)), 'los gastos y pagos aún no generan notificaciones');
-  }, { expectedUntil: 5 });
+    assert(await waitForNotification(a.token, 'pago_por_validar'), 'no llegó el aviso de pago por validar');
+  });
+
+  await step('Notificación de gasto nuevo a los involucrados', async () => {
+    assert(await waitForNotification(b.token, 'gasto_creado'), 'no llegó el aviso de gasto nuevo');
+  });
+
+  await step('Notificación de pago confirmado al deudor', async () => {
+    assert(await waitForNotification(c.token, 'pago_confirmado'), 'no llegó el aviso de pago confirmado');
+  });
+
+  await step('Presupuesto por categoría', async () => {
+    const dash = await api(a.token, 'PUT', `/budget/${gid}/categories`, {
+      categories: { comida: 800, transporte: 200, otro: null },
+    });
+    assert(Number(dash.summary?.categoryBudgets?.comida) === 800, 'no se guardó el presupuesto de comida');
+    assert(dash.summary?.categoryBudgets?.otro === null, 'la categoría vacía debería quedar sin límite');
+  });
+
+  await step('Permisos: solo un admin cambia el presupuesto', async () => {
+    await expectStatus(b.token, 'PUT', `/budget/${gid}/categories`, { categories: { comida: 1 } }, 403);
+  });
+
+  await step('Alerta al exceder el presupuesto total', async () => {
+    await api(a.token, 'PATCH', `/budget/${gid}`, { totalBudget: 1500 });
+    await api(a.token, 'POST', `/budget/${gid}/expenses`, {
+      paid_by_user_id: ua,
+      amount: 400,
+      description: 'Museo',
+      category: 'actividad',
+      split_type: 'equitativa',
+      member_ids: [ua, ub, uc],
+      expense_date: day(9),
+    });
+    assert(await waitForNotification(b.token, 'Presupuesto excedido'), 'no llegó la alerta de presupuesto');
+  });
+
+  await step('Resumen de gastos (por categoría, integrante y día)', async () => {
+    const summary = await api(b.token, 'GET', `/budget/${gid}/summary`);
+    assert(summary.totals?.committed === 1600, `total esperado 1600, llegó ${summary.totals?.committed}`);
+    assert(summary.byMember?.length === 3, 'faltan integrantes en el resumen');
+    const comida = summary.byCategory?.find((item) => item.category === 'comida');
+    assert(comida?.planned === 800 && comida?.spent === 900, 'comida: planeado/gastado incorrecto');
+    const balanceSum = summary.byMember.reduce((sum, member) => sum + member.balance, 0);
+    assert(Math.abs(balanceSum) < 0.05, `los saldos no suman cero (${balanceSum})`);
+  });
+
+  await step('Exportar gastos a CSV', async () => {
+    const res = await api(c.token, 'GET', `/budget/${gid}/export.csv`, undefined, { raw: true });
+    assert(res.ok, `HTTP ${res.status}`);
+    assert((res.headers.get('content-type') ?? '').includes('text/csv'), 'no es CSV');
+    const bytes = new Uint8Array(await res.arrayBuffer());
+    const hasBom = bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf;
+    const text = new TextDecoder().decode(bytes);
+    assert(hasBom, 'el CSV no trae BOM UTF-8 (Excel mostraría mal los acentos)');
+    assert(text.includes('Descripción') && text.includes('Museo'), 'CSV incompleto');
+  });
+
+  await step('Resumen de gastos en PDF', async () => {
+    const res = await api(c.token, 'GET', `/budget/${gid}/summary.pdf`, undefined, { raw: true });
+    assert(res.ok, `HTTP ${res.status}`);
+    const bytes = new Uint8Array(await res.arrayBuffer());
+    assert(new TextDecoder().decode(bytes.slice(0, 5)) === '%PDF-', 'no es un PDF');
+  });
+
+  await step('Quitar el presupuesto total', async () => {
+    const dash = await api(a.token, 'PATCH', `/budget/${gid}`, { totalBudget: null });
+    assert(dash.summary?.totalBudget === null, 'el presupuesto no se quitó');
+  });
 
   await step('Chat grupal', async () => {
     await api(b.token, 'POST', `/groups/${gid}/chat/messages`, { contenido: 'Hola desde el smoke test' });
@@ -368,6 +482,32 @@ async function main() {
     await api(a.token, 'DELETE', `/groups/${gid}/itinerary/activities/${activity.id}`);
     const res = await api(a.token, 'GET', `/groups/${gid}/context-links`);
     assert(!JSON.stringify(res).includes(`"activity","id":"${activity.id}"`), 'quedó un enlace a la actividad borrada');
+  });
+
+  await step('Viaje cerrado: no se registran gastos', async () => {
+    await api(a.token, 'PATCH', `/groups/${gid}/close`);
+    await expectStatus(b.token, 'POST', `/budget/${gid}/expenses`, {
+      paid_by_user_id: ub,
+      amount: 10,
+      description: 'Después del cierre',
+      category: 'otro',
+      split_type: 'equitativa',
+      member_ids: [ub],
+      expense_date: day(9),
+    }, 409);
+  });
+
+  await step('Viaje cerrado: sí se pueden liquidar pagos pendientes', async () => {
+    await api(c.token, 'POST', `/budget/${gid}/settlements/payments`, {
+      from_user_id: uc,
+      to_user_id: ua,
+      amount: 10,
+      payment_method: 'efectivo_presencial',
+    });
+  });
+
+  await step('No se borra una cuenta con gastos compartidos', async () => {
+    await expectStatus(c.token, 'DELETE', '/auth/me', undefined, 409);
   });
 
   await step('Eliminar viaje (DELETE /groups/:id)', async () => {

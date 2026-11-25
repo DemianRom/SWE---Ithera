@@ -158,7 +158,15 @@ const shouldNotifyByPreferences = (
   preferences: typeof DEFAULT_PREFERENCES
 ): boolean => {
   if (tipo.includes('invitacion')) return preferences.notificaciones_invitaciones;
-  if (tipo.includes('finanzas') || tipo.includes('gasto') || tipo.includes('presupuesto')) return preferences.notificaciones_finanzas ?? true;
+  if (tipo.includes('alerta')) return preferences.notificaciones_alertas ?? true;
+  if (
+    tipo.includes('finanzas') ||
+    tipo.includes('gasto') ||
+    tipo.includes('presupuesto') ||
+    tipo.includes('pago')
+  ) {
+    return preferences.notificaciones_finanzas ?? true;
+  }
   if (
     tipo.includes('grupo') ||
     tipo.includes('miembro') ||
@@ -218,7 +226,7 @@ const buildNotificationAction = (
   const base = `/dashboard?groupId=${encodeURIComponent(String(payload.grupoId))}`;
   const tipo = payload.tipo ?? '';
 
-  if (tipo.includes('gasto') || tipo.includes('finanza') || tipo.includes('presupuesto')) {
+  if (tipo.includes('gasto') || tipo.includes('finanza') || tipo.includes('presupuesto') || tipo.includes('pago')) {
     return { actionUrl: `${base}&tab=pagar`, actionLabel: 'Ver finanzas' };
   }
   if (tipo.includes('documento')) {

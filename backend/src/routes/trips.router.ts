@@ -76,7 +76,7 @@ router.post('/', requireAuth, async (req: Request, res: Response): Promise<void>
       fecha_fin?: string;
       maximo_miembros?: number;
       es_publico?: boolean;
-      presupuesto_total?: number;
+      presupuesto_total?: number | string | null;
     };
 
     if (!nombre || !nombre.trim()) {
@@ -128,13 +128,15 @@ router.post('/', requireAuth, async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    const parsedBudget = Number(presupuesto_total);
-    if (!Number.isFinite(parsedBudget) || parsedBudget <= 0) {
+    // El presupuesto es opcional: se puede definir después desde Finanzas.
+    const hasBudget = presupuesto_total !== undefined && presupuesto_total !== null && presupuesto_total !== '';
+    const parsedBudget = hasBudget ? Number(presupuesto_total) : null;
+    if (parsedBudget !== null && (!Number.isFinite(parsedBudget) || parsedBudget <= 0)) {
       res.status(400).json({ ok: false, error: 'ERR-23-004: El monto del presupuesto debe ser un número positivo mayor a cero' });
       return;
     }
 
-    if (parsedBudget > MAX_TOTAL_BUDGET) {
+    if (parsedBudget !== null && parsedBudget > MAX_TOTAL_BUDGET) {
       res.status(400).json({ ok: false, error: 'ERR-23-004: El presupuesto máximo permitido es 9,999,999,999.99 MXN' });
       return;
     }

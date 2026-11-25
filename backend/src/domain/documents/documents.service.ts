@@ -3,6 +3,19 @@ import * as NotificationsService from '../notifications/notifications.service';
 import { TripDocument } from './documents.entity';
 
 const BUCKET = 'trip-documents';
+// El bucket es privado: cada respuesta lleva una URL firmada temporal.
+const SIGNED_URL_TTL_SECONDS = 60 * 60;
+
+/** Agrega `file_url` firmada (válida una hora) a cada documento. */
+async function withSignedUrls<T extends { file_path: string }>(docs: T[]): Promise<(T & { file_url: string | null })[]> {
+  if (docs.length === 0) return [];
+  const { data, error } = await supabaseAdmin.storage
+    .from(BUCKET)
+    .createSignedUrls(docs.map((doc) => doc.file_path), SIGNED_URL_TTL_SECONDS);
+  if (error) throw new Error(`Error en Storage: ${error.message}`);
+  const urlByPath = new Map((data ?? []).map((item) => [item.path, item.signedUrl]));
+  return docs.map((doc) => ({ ...doc, file_url: urlByPath.get(doc.file_path) ?? null }));
+}
 
 /** Verifica si un usuario pertenece al grupo antes de cualquier operación */
 async function assertUserIsMember(tripId: string | number, userId: string): Promise<void> {
@@ -42,10 +55,6 @@ export const uploadDocument = async (data: {
 
   if (uploadError) throw new Error(`Error en Storage: ${uploadError.message}`);
 
-  const { data: publicUrlData } = supabaseAdmin.storage
-    .from(BUCKET)
-    .getPublicUrl(storagePath);
-
   const { data: doc, error: dbError } = await supabaseAdmin
     .from('trip_documents')
     .insert({
@@ -53,7 +62,6 @@ export const uploadDocument = async (data: {
       user_id: data.userId,
       file_name: data.fileName,
       file_path: storagePath,
-      file_url: publicUrlData.publicUrl,
       mime_type: data.mimeType,
       file_size: data.fileSize,
       category: data.category,
@@ -80,7 +88,8 @@ export const uploadDocument = async (data: {
     },
   });
 
-  return doc as TripDocument;
+  const [signed] = await withSignedUrls([doc as TripDocument]);
+  return signed;
 };
 
 export const getDocumentsByTrip = async (
@@ -96,7 +105,7 @@ export const getDocumentsByTrip = async (
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return (data ?? []) as TripDocument[];
+  return withSignedUrls((data ?? []) as TripDocument[]);
 };
 
 export const deleteDocument = async (
@@ -110,6 +119,7 @@ export const deleteDocument = async (
     .from('trip_documents')
     .select('*')
     .eq('id', docId)
+    .eq('trip_id', tripId)
     .single();
 
   if (fetchError || !doc) throw new Error('Documento no encontrado');

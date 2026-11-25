@@ -38,7 +38,6 @@ Codigos comunes:
 | `/api/groups/:groupId/context-links` | Enlaces contextuales | `backend/src/routes/context-links.router.ts` |
 | `/api/groups/:groupId/documents` | Documentos por grupo | `backend/src/routes/documents.router.ts` |
 | `/api/groups/:groupId/vault` | Alias de boveda documental | `backend/src/routes/documents.router.ts` |
-| `/api/groups/:groupId/budget` | Presupuesto dentro de grupo | `backend/src/routes/budget.router.ts` |
 | `/api/flights` | Vuelos | `backend/src/routes/flights.router.ts` |
 | `/api/hotels` | Hoteles | `backend/src/routes/hotels.router.ts` |
 | `/api/maps` | Mapas, lugares, rutas y clima | `backend/src/routes/maps.router.ts` |
@@ -254,34 +253,33 @@ Base: `/api/proposals`
 | `PUT` | `/:proposalId/comments/:commentId` | Si | Actualiza comentario. |
 | `DELETE` | `/:proposalId/comments/:commentId` | Si | Elimina comentario. |
 
-## Presupuesto
+## Presupuesto y gastos
 
-Base preferida dentro de grupo: `/api/groups/:groupId`
+Base: `/api/budget/:groupId` (cualquier integrante puede consultar; los cambios de presupuesto
+son solo del admin; editar o borrar un gasto, quien lo registró o el admin).
 
-| Metodo | Endpoint | Auth | Descripcion |
-| --- | --- | --- | --- |
-| `GET` | `/budget` | Si | Obtiene dashboard financiero. |
-| `PATCH` | `/budget` | Si | Actualiza presupuesto total. |
-| `GET` | `/expenses` | Si | Obtiene dashboard con gastos. |
-| `POST` | `/expenses` | Si | Registra gasto. |
-| `PUT` | `/expenses/:expenseId` | Si | Actualiza gasto. |
-| `DELETE` | `/expenses/:expenseId` | Si | Elimina gasto. |
-| `POST` | `/settlements/payments` | Si | Marca pago de liquidacion. |
-
-Alias directo: `/api/budget`
+Con el viaje cerrado (`estado` cerrado/archivado/finalizado) los gastos y el presupuesto
+responden **409**; con `modulo_presupuesto_bloqueado` responden **423**. Las liquidaciones
+(pagos entre integrantes) siguen permitidas para poder cerrar cuentas.
 
 | Metodo | Endpoint | Auth | Descripcion |
 | --- | --- | --- | --- |
-| `GET` | `/:groupId` | Si | Obtiene dashboard financiero. |
-| `PATCH` | `/:groupId` | Si | Actualiza presupuesto total. |
-| `GET` | `/:groupId/dashboard` | Si | Obtiene dashboard financiero. |
-| `GET` | `/:groupId/expenses` | Si | Obtiene dashboard con gastos. |
-| `POST` | `/:groupId/expenses` | Si | Registra gasto. |
+| `GET` | `/:groupId` (alias `/:groupId/dashboard`) | Si | Tablero: resumen, integrantes, gastos, saldos, liquidaciones y pagos. `summary.totalBudget` es `null` si no hay presupuesto; `summary.categoryBudgets` trae lo planeado por categoria. |
+| `PATCH` | `/:groupId` | Si (admin) | Presupuesto total: `{ totalBudget: number \| null }`; `null` o `0` lo quita. |
+| `PUT` | `/:groupId/categories` | Si (admin) | Presupuesto por categoria: `{ categories: { comida: 800, otro: null } }`; `null` o `0` quita el limite. |
+| `POST` | `/:groupId/expenses` | Si | Registra gasto. Fecha permitida: hasta 12 meses antes del viaje y 30 dias despues. Avisa a los involucrados y, si cruza el 80 % o 100 % del presupuesto, a todo el viaje. |
 | `PUT` | `/:groupId/expenses/:expenseId` | Si | Actualiza gasto. |
 | `DELETE` | `/:groupId/expenses/:expenseId` | Si | Elimina gasto. |
-| `POST` | `/:groupId/settlements/payments` | Si | Marca pago de liquidacion. |
-| `GET` | `/:groupId/balances` | Si | Obtiene saldos por integrante. |
-| `GET` | `/:groupId/settlements` | Si | Calcula liquidaciones minimas. |
+| `GET` | `/:groupId/balances` | Si | Saldos por integrante. |
+| `GET` | `/:groupId/settlements` | Si | Liquidaciones minimas. |
+| `POST` | `/:groupId/settlements/payments` | Si | Registra pago (queda `pendiente_validacion`) y avisa al acreedor. Transferencia requiere `proof_document_id`. |
+| `PATCH` | `/:groupId/settlements/payments/:paymentId/review` | Si (acreedor) | `{ status: 'confirmado' \| 'rechazado', rejection_reason? }`; avisa al deudor. |
+| `PATCH` | `/:groupId/settlements/payments/:paymentId` | Si | Edita un pago pendiente propio. |
+| `DELETE` | `/:groupId/settlements/payments/:paymentId` | Si | Borra un pago pendiente propio. |
+| `POST` | `/:groupId/settlements/receipt-pdf` | Si | Recibo de cobro en PDF. |
+| `GET` | `/:groupId/summary` | Si | Resumen: totales, por categoria (planeado/gastado), por integrante (pago, le toca, saldo) y por dia. |
+| `GET` | `/:groupId/export.csv` | Si | Gastos en CSV (UTF-8 con BOM para Excel). |
+| `GET` | `/:groupId/summary.pdf` | Si | Resumen de gastos en PDF de una pagina. |
 
 ## Notificaciones
 

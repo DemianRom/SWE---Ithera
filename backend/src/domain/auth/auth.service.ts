@@ -215,9 +215,51 @@ export const deleteUserAvatarByAuthId = async (authUserId: string) => {
     .single();
 };
 
+/**
+ * Las cuentas con gastos, repartos o pagos en viajes compartidos no se pueden borrar:
+ * desaparecerían de los saldos de los demás integrantes.
+ */
+const findFinanceParticipation = async (usuarioId: string | number): Promise<boolean> => {
+  const checks = await Promise.all([
+    supabaseAdmin
+      .from('expenses')
+      .select('id', { count: 'exact', head: true })
+      .or(`paid_by_user_id.eq.${usuarioId},created_by_user_id.eq.${usuarioId}`),
+    supabaseAdmin
+      .from('expense_splits')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', usuarioId),
+    supabaseAdmin
+      .from('settlement_payments')
+      .select('id', { count: 'exact', head: true })
+      .or(`from_user_id.eq.${usuarioId},to_user_id.eq.${usuarioId},created_by_user_id.eq.${usuarioId},reviewed_by_user_id.eq.${usuarioId}`),
+  ]);
+  for (const { count, error } of checks) {
+    if (error) throw error;
+    if ((count ?? 0) > 0) return true;
+  }
+  return false;
+};
+
 export const deleteAccountByAuthId = async (authUserId: string) => {
-  // 1. Eliminar avatar del storage si existe
   const { data: currentUser } = await getUserByAuthId(authUserId);
+
+  if (currentUser?.id_usuario != null && /^\d+$/.test(String(currentUser.id_usuario))) {
+    if (await findFinanceParticipation(currentUser.id_usuario)) {
+      return {
+        data: null,
+        error: Object.assign(
+          new Error(
+            'No puedes eliminar tu cuenta mientras aparezcas en gastos o pagos de un viaje compartido. ' +
+              'Pide al organizador que elimine esos gastos o el viaje, y vuelve a intentarlo.',
+          ),
+          { statusCode: 409 },
+        ),
+      };
+    }
+  }
+
+  // 1. Eliminar avatar del storage si existe
   const avatarPath = currentUser?.avatar_url
     ? getStoragePathFromPublicUrl(currentUser.avatar_url)
     : null;
@@ -227,7 +269,8 @@ export const deleteAccountByAuthId = async (authUserId: string) => {
   }
 
   // 2. Eliminar registro en tabla usuarios
-  await supabaseAdmin.from('usuarios').delete().eq('auth_user_id', authUserId);
+  const { error: localDeleteError } = await supabaseAdmin.from('usuarios').delete().eq('auth_user_id', authUserId);
+  if (localDeleteError) return { data: null, error: localDeleteError };
 
   // 3. Eliminar usuario de Supabase Auth (operación irreversible)
   const { error } = await supabaseAdmin.auth.admin.deleteUser(authUserId);

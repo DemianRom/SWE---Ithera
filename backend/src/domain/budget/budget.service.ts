@@ -92,8 +92,8 @@ const toDateKey = (value?: string | null): string | null => {
   return `${year}-${month}-${day}`;
 };
 
-const EXPENSE_WINDOW_MONTHS_BEFORE_TRIP = 2;
-const EXPENSE_WINDOW_DAYS_AFTER_TRIP = 3;
+const EXPENSE_WINDOW_MONTHS_BEFORE_TRIP = 12;
+const EXPENSE_WINDOW_DAYS_AFTER_TRIP = 30;
 
 const addMonthsToDateKey = (dateKey: string, months: number): string => {
   const [year, month, day] = dateKey.split('-').map(Number);
@@ -224,13 +224,132 @@ const assertUserInGroup = (members: BudgetMember[], userId: string, message: str
 const getGroupBudgetRecord = async (groupId: string) => {
   const { data, error } = await supabaseAdmin
     .from('grupos_viaje')
-    .select('id, presupuesto_total')
+    .select('id, nombre, presupuesto_total, fecha_inicio, fecha_fin, destino')
     .eq('id', groupId)
     .single();
 
   if (error || !data) throw createError('Grupo no encontrado', 404);
-  return data;
+  return data as {
+    id: string | number;
+    nombre: string;
+    presupuesto_total: number | string | null;
+    fecha_inicio: string | null;
+    fecha_fin: string | null;
+    destino: string | null;
+  };
 };
+
+const READ_ONLY_GROUP_STATES = new Set(['cerrado', 'archivado', 'finalizado']);
+const MAX_BUDGET = 9999999999.99;
+export const BUDGET_CATEGORIES: BudgetCategory[] = ['transporte', 'hospedaje', 'actividad', 'comida', 'otro'];
+
+const toBudgetOrNull = (value: unknown): number | null => {
+  if (value === null || value === undefined || value === '') return null;
+  const amount = Number(value);
+  return Number.isFinite(amount) && amount > 0 ? amount : null;
+};
+
+/**
+ * Gastos y presupuesto solo se modifican con el viaje abierto y sin bloqueo del organizador.
+ * Las liquidaciones (pagos entre integrantes) se permiten siempre, para poder cerrar cuentas.
+ */
+const assertBudgetEditable = async (groupId: string): Promise<void> => {
+  const { data, error } = await supabaseAdmin
+    .from('grupos_viaje')
+    .select('estado, modulo_presupuesto_bloqueado')
+    .eq('id', groupId)
+    .maybeSingle();
+  if (error) throw createError(error.message, 500);
+  if (!data) throw createError('Grupo no encontrado', 404);
+  if (READ_ONLY_GROUP_STATES.has(String((data as any).estado ?? '').toLowerCase())) {
+    throw createError(
+      'El viaje está cerrado: ya no se pueden registrar ni modificar gastos, pero sí liquidar pagos pendientes.',
+      409,
+    );
+  }
+  if ((data as any).modulo_presupuesto_bloqueado) {
+    throw createError('El organizador bloqueó cambios en los gastos y el presupuesto.', 423);
+  }
+};
+
+const getCategoryBudgets = async (groupId: string): Promise<Record<BudgetCategory, number | null>> => {
+  const { data, error } = await supabaseAdmin
+    .from('budget_categories')
+    .select('category, planned_amount')
+    .eq('group_id', groupId);
+  if (error) throw createError(error.message, 500);
+
+  const budgets = Object.fromEntries(BUDGET_CATEGORIES.map((category) => [category, null])) as Record<
+    BudgetCategory,
+    number | null
+  >;
+  for (const row of data ?? []) {
+    const category = normalizeCategory((row as any).category);
+    budgets[category] = Number((row as any).planned_amount);
+  }
+  return budgets;
+};
+
+const formatMoney = (value: number): string =>
+  new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(value);
+
+type FinanceNotification = {
+  groupId: string;
+  tipo: string;
+  titulo: string;
+  mensaje: string;
+  entidadTipo: string;
+  entidadId?: string | number | null;
+  metadata?: Record<string, unknown>;
+};
+
+/** Notificaciones persistentes (campana) a varios integrantes; los errores no frenan la operación. */
+const notifyUsers = (userIds: Iterable<string>, notification: FinanceNotification): void => {
+  for (const userId of new Set(userIds)) {
+    const entidadId = Number(notification.entidadId);
+    void NotificationsService.createNotification({
+      usuarioId: Number(userId),
+      grupoId: Number(notification.groupId),
+      tipo: notification.tipo,
+      titulo: notification.titulo,
+      mensaje: notification.mensaje,
+      entidadTipo: notification.entidadTipo,
+      entidadId: Number.isFinite(entidadId) ? entidadId : undefined,
+      metadata: notification.metadata,
+    });
+  }
+};
+
+/** Avisa a todo el viaje cuando lo comprometido cruza el 80 % o el 100 % del presupuesto. */
+const notifyBudgetThreshold = (
+  groupId: string,
+  groupName: string,
+  totalBudget: number | null,
+  committedBefore: number,
+  committedAfter: number,
+  members: BudgetMember[],
+): void => {
+  if (!totalBudget || totalBudget <= 0) return;
+  const crossed = [1, 0.8].find(
+    (ratio) => committedBefore < totalBudget * ratio && committedAfter >= totalBudget * ratio,
+  );
+  if (!crossed) return;
+
+  notifyUsers(
+    members.map((member) => String(member.usuario_id)),
+    {
+      groupId,
+      tipo: 'presupuesto_alerta',
+      titulo: crossed === 1 ? 'Presupuesto excedido' : 'Presupuesto al 80 %',
+      mensaje: `${groupName}: llevan ${formatMoney(committedAfter)} de ${formatMoney(totalBudget)}.`,
+      entidadTipo: 'presupuesto',
+      metadata: { committed: committedAfter, totalBudget, threshold: crossed },
+    },
+  );
+};
+
+const sumExpenses = (expenses: RawExpenseRow[]): number =>
+  roundMoney(expenses.reduce((sum, expense) => sum + Number(expense.amount), 0));
 
 const assertExpenseDateWithinTripWindow = async (
   groupId: string,
@@ -478,21 +597,23 @@ const mapExpense = (expense: RawExpenseRow, membersById: Map<string, BudgetMembe
     splitAmounts,
     expenseDate: expense.expense_date ?? expense.created_at ?? null,
     createdAt: expense.created_at ?? null,
+    createdByUserId: expense.created_by_user_id != null ? String(expense.created_by_user_id) : null,
   };
 };
 
 export const getBudgetDashboard = async (authUserId: string, groupId: string) => {
   const { membership, usuarioId } = await ensureGroupMember(authUserId, groupId);
-  const [group, members, expenses, payments] = await Promise.all([
+  const [group, members, expenses, payments, categoryBudgets] = await Promise.all([
     getGroupBudgetRecord(groupId),
     getMembers(groupId),
     getExpenses(groupId),
     getSettlementPayments(groupId),
+    getCategoryBudgets(groupId),
   ]);
 
   const membersById = new Map(members.map((member) => [String(member.usuario_id), member]));
-  const totalBudget = Number(group.presupuesto_total ?? 0);
-  const committed = roundMoney(expenses.reduce((sum, expense) => sum + Number(expense.amount), 0));
+  const totalBudget = toBudgetOrNull(group.presupuesto_total);
+  const committed = sumExpenses(expenses);
   const balances = applyConfirmedPaymentsToBalances(calculateBalances(expenses), payments);
   const settlements = calculateMinimumSettlements(balances);
   const groupSettlementSummary = {
@@ -511,11 +632,13 @@ export const getBudgetDashboard = async (authUserId: string, groupId: string) =>
     groupId: String(groupId),
     myRole: membership.rol,
     summary: {
+      // null = el viaje no tiene presupuesto definido (se pueden registrar gastos igual).
       totalBudget,
       committed,
-      available: roundMoney(totalBudget - committed),
-      percentCommitted: totalBudget > 0 ? Math.min(roundMoney((committed / totalBudget) * 100), 100) : 0,
+      available: totalBudget !== null ? roundMoney(totalBudget - committed) : null,
+      percentCommitted: totalBudget ? roundMoney((committed / totalBudget) * 100) : 0,
       categoryTotals: categoryTotalsFromExpenses(expenses),
+      categoryBudgets,
     },
     members,
     expenses: expenses.map((expense) => mapExpense(expense, membersById)),
@@ -528,30 +651,80 @@ export const getBudgetDashboard = async (authUserId: string, groupId: string) =>
 
 export const updateBudget = async (authUserId: string, groupId: string, amount: unknown) => {
   await ensureGroupAdmin(authUserId, groupId);
-  const totalBudget = Number(amount);
-  if (!Number.isFinite(totalBudget) || totalBudget < 0) {
-    throw createError('El presupuesto debe ser mayor o igual a cero', 400);
-  }
+  await assertBudgetEditable(groupId);
 
-  const expenses = await getExpenses(groupId);
-  const committed = roundMoney(expenses.reduce((sum, expense) => sum + Number(expense.amount), 0));
-  if (roundMoney(totalBudget) + 0.01 < committed) {
-    throw createError(
-      `No puedes definir un presupuesto menor al comprometido actual (${committed}).`,
-      400
-    );
+  // Vacío o 0 quita el presupuesto; si no, debe ser positivo y razonable.
+  let totalBudget: number | null = null;
+  if (amount !== null && amount !== undefined && amount !== '' && Number(amount) !== 0) {
+    const parsed = Number(amount);
+    if (!Number.isFinite(parsed) || parsed < 0 || parsed > MAX_BUDGET) {
+      throw createError('El presupuesto debe ser un monto positivo (máximo 9,999,999,999.99).', 400);
+    }
+    totalBudget = roundMoney(parsed);
   }
 
   const { error } = await supabaseAdmin
     .from('grupos_viaje')
-    .update({ presupuesto_total: roundMoney(totalBudget) })
+    .update({ presupuesto_total: totalBudget })
     .eq('id', groupId);
 
   if (error) throw createError(error.message, 500);
 
   const actor = await ensureGroupMember(authUserId, groupId);
   emitBudgetDashboardUpdated(groupId, 'presupuesto_actualizado', 'presupuesto', groupId, actor.usuarioId, {
-    amount: roundMoney(totalBudget),
+    amount: totalBudget,
+  });
+
+  return getBudgetDashboard(authUserId, groupId);
+};
+
+/** Presupuesto planeado por categoría; un valor vacío o 0 quita el límite de esa categoría. */
+export const updateCategoryBudgets = async (
+  authUserId: string,
+  groupId: string,
+  payload: Record<string, unknown>,
+) => {
+  const actor = await ensureGroupAdmin(authUserId, groupId);
+  await assertBudgetEditable(groupId);
+
+  const upserts: Array<{ group_id: number; category: BudgetCategory; planned_amount: number; updated_at: string }> = [];
+  const removals: BudgetCategory[] = [];
+  for (const [rawCategory, rawAmount] of Object.entries(payload ?? {})) {
+    if (!BUDGET_CATEGORIES.includes(rawCategory as BudgetCategory)) {
+      throw createError(`Categoría inválida: ${rawCategory}`, 400);
+    }
+    const category = rawCategory as BudgetCategory;
+    if (rawAmount === null || rawAmount === undefined || rawAmount === '' || Number(rawAmount) === 0) {
+      removals.push(category);
+      continue;
+    }
+    const amount = Number(rawAmount);
+    if (!Number.isFinite(amount) || amount < 0 || amount > MAX_BUDGET) {
+      throw createError(`El presupuesto de ${category} debe ser un monto positivo.`, 400);
+    }
+    upserts.push({
+      group_id: Number(groupId),
+      category,
+      planned_amount: roundMoney(amount),
+      updated_at: new Date().toISOString(),
+    });
+  }
+
+  if (upserts.length > 0) {
+    const { error } = await supabaseAdmin.from('budget_categories').upsert(upserts, { onConflict: 'group_id,category' });
+    if (error) throw createError(error.message, 500);
+  }
+  if (removals.length > 0) {
+    const { error } = await supabaseAdmin
+      .from('budget_categories')
+      .delete()
+      .eq('group_id', groupId)
+      .in('category', removals);
+    if (error) throw createError(error.message, 500);
+  }
+
+  emitBudgetDashboardUpdated(groupId, 'presupuesto_actualizado', 'presupuesto', groupId, actor.usuarioId, {
+    categories: Object.keys(payload ?? {}),
   });
 
   return getBudgetDashboard(authUserId, groupId);
@@ -563,7 +736,12 @@ export const createExpense = async (
   payload: BudgetExpensePayload,
 ) => {
   const actor = await ensureGroupMember(authUserId, groupId);
-  const members = await getMembers(groupId);
+  await assertBudgetEditable(groupId);
+  const [members, group, existingExpenses] = await Promise.all([
+    getMembers(groupId),
+    getGroupBudgetRecord(groupId),
+    getExpenses(groupId),
+  ]);
   const amount = assertPositiveAmount(payload.amount);
   const category = normalizeCategory(payload.category);
   const splitType = normalizeSplitType(payload.split_type);
@@ -599,6 +777,31 @@ export const createExpense = async (
     itemTitle: String(payload.description ?? '').trim() || 'Gasto',
   });
 
+  const description = String(payload.description ?? '').trim() || 'Gasto';
+  const actorName = members.find((member) => String(member.usuario_id) === String(actor.usuarioId))?.nombre ?? 'Alguien';
+  const payerName = members.find((member) => String(member.usuario_id) === paidByUserId)?.nombre ?? 'alguien';
+  for (const split of splits) {
+    if (String(split.user_id) === String(actor.usuarioId)) continue;
+    notifyUsers([String(split.user_id)], {
+      groupId,
+      tipo: 'gasto_creado',
+      titulo: `Nuevo gasto: ${description}`,
+      mensaje: `${actorName} registró ${formatMoney(amount)} (pagó ${payerName}). Tu parte: ${formatMoney(Number(split.share))}.`,
+      entidadTipo: 'expense',
+      entidadId: expense.id,
+      metadata: { amount, share: Number(split.share), category },
+    });
+  }
+  const committedBefore = sumExpenses(existingExpenses);
+  notifyBudgetThreshold(
+    groupId,
+    group.nombre,
+    toBudgetOrNull(group.presupuesto_total),
+    committedBefore,
+    roundMoney(committedBefore + amount),
+    members,
+  );
+
   return getBudgetDashboard(authUserId, groupId);
 };
 
@@ -609,6 +812,7 @@ export const updateExpense = async (
   payload: BudgetExpensePayload,
 ) => {
   const actor = await ensureGroupMember(authUserId, groupId);
+  await assertBudgetEditable(groupId);
   const isAdmin = String(actor.membership.rol).toLowerCase() === 'admin';
   const { data: existingExpense, error: expenseError } = await supabaseAdmin
     .from('expenses')
@@ -623,7 +827,11 @@ export const updateExpense = async (
     throw createError('Solo el creador del gasto o un admin pueden modificarlo', 403);
   }
 
-  const members = await getMembers(groupId);
+  const [members, group, existingExpenses] = await Promise.all([
+    getMembers(groupId),
+    getGroupBudgetRecord(groupId),
+    getExpenses(groupId),
+  ]);
   const amount = assertPositiveAmount(payload.amount);
   const category = normalizeCategory(payload.category);
   const splitType = normalizeSplitType(payload.split_type);
@@ -664,11 +872,23 @@ export const updateExpense = async (
     itemTitle: String(payload.description ?? '').trim() || 'Gasto',
   });
 
+  const committedBefore = sumExpenses(existingExpenses);
+  const previousAmount = Number(existingExpenses.find((item) => String(item.id) === String(expenseId))?.amount ?? 0);
+  notifyBudgetThreshold(
+    groupId,
+    group.nombre,
+    toBudgetOrNull(group.presupuesto_total),
+    committedBefore,
+    roundMoney(committedBefore - previousAmount + amount),
+    members,
+  );
+
   return getBudgetDashboard(authUserId, groupId);
 };
 
 export const deleteExpense = async (authUserId: string, groupId: string, expenseId: string) => {
   const actor = await ensureGroupMember(authUserId, groupId);
+  await assertBudgetEditable(groupId);
   const isAdmin = String(actor.membership.rol).toLowerCase() === 'admin';
   const { data: existingExpense, error: expenseError } = await supabaseAdmin
     .from('expenses')
@@ -805,6 +1025,19 @@ export const markSettlementPaid = async (
     amount,
     status: 'pendiente_validacion',
   });
+
+  if (toUserId !== String(usuarioId)) {
+    const debtorName = members.find((member) => String(member.usuario_id) === fromUserId)?.nombre ?? 'Un integrante';
+    notifyUsers([toUserId], {
+      groupId,
+      tipo: 'pago_por_validar',
+      titulo: 'Pago por validar',
+      mensaje: `${debtorName} registró un pago de ${formatMoney(amount)} a tu favor. Confírmalo o recházalo en Finanzas.`,
+      entidadTipo: 'settlement_payment',
+      entidadId: inserted.id,
+      metadata: { amount, paymentMethod },
+    });
+  }
 
   return getBudgetDashboard(authUserId, groupId);
 };
@@ -952,6 +1185,173 @@ export const reviewSettlementPayment = async (
     status,
   });
 
+  const members = await getMembers(groupId);
+  const creditorName = members.find((member) => String(member.usuario_id) === String(usuarioId))?.nombre ?? 'El acreedor';
+  const reason = String(payload.rejection_reason ?? '').trim();
+  notifyUsers([String(payment.from_user_id)], {
+    groupId,
+    tipo: status === 'confirmado' ? 'pago_confirmado' : 'pago_rechazado',
+    titulo: status === 'confirmado' ? 'Pago confirmado' : 'Pago rechazado',
+    mensaje:
+      status === 'confirmado'
+        ? `${creditorName} confirmó tu pago.`
+        : `${creditorName} rechazó tu pago. Motivo: ${reason}`,
+    entidadTipo: 'settlement_payment',
+    entidadId: paymentId,
+    metadata: { status },
+  });
+
   return getBudgetDashboard(authUserId, groupId);
 };
 
+
+// ── Resumen de gastos (pantalla, CSV y PDF) ──────────────────────────────────
+
+export const CATEGORY_LABELS: Record<BudgetCategory, string> = {
+  transporte: 'Transporte',
+  hospedaje: 'Hospedaje',
+  actividad: 'Actividades',
+  comida: 'Comida',
+  otro: 'Otros',
+};
+
+export type BudgetSummary = Awaited<ReturnType<typeof getBudgetSummary>>;
+
+export const getBudgetSummary = async (authUserId: string, groupId: string) => {
+  await ensureGroupMember(authUserId, groupId);
+  const [group, members, expenses, payments, categoryBudgets] = await Promise.all([
+    getGroupBudgetRecord(groupId),
+    getMembers(groupId),
+    getExpenses(groupId),
+    getSettlementPayments(groupId),
+    getCategoryBudgets(groupId),
+  ]);
+
+  const nameOf = (userId: string | number) =>
+    members.find((member) => String(member.usuario_id) === String(userId))?.nombre ?? `Usuario ${userId}`;
+
+  const totalBudget = toBudgetOrNull(group.presupuesto_total);
+  const committed = sumExpenses(expenses);
+  const categoryTotals = categoryTotalsFromExpenses(expenses);
+  const confirmedPayments = payments.filter((payment) => normalizePaymentStatus(payment.status) === 'confirmado');
+
+  const byCategory = BUDGET_CATEGORIES.map((category) => ({
+    category,
+    label: CATEGORY_LABELS[category],
+    planned: categoryBudgets[category],
+    spent: categoryTotals[category],
+  }));
+
+  // Saldo positivo = le deben; negativo = debe. Incluye pagos ya confirmados.
+  const uniqueMemberIds = Array.from(new Set(members.map((member) => String(member.usuario_id))));
+  const byMember = uniqueMemberIds.map((userId) => {
+    const paid = roundMoney(
+      expenses
+        .filter((expense) => String(expense.paid_by_user_id) === userId)
+        .reduce((sum, expense) => sum + Number(expense.amount), 0),
+    );
+    const share = roundMoney(
+      expenses.reduce(
+        (sum, expense) =>
+          sum +
+          (expense.expense_splits ?? [])
+            .filter((split) => String(split.user_id) === userId)
+            .reduce((splitSum, split) => splitSum + Number(split.share), 0),
+        0,
+      ),
+    );
+    const sent = roundMoney(
+      confirmedPayments
+        .filter((payment) => String(payment.from_user_id) === userId)
+        .reduce((sum, payment) => sum + Number(payment.amount), 0),
+    );
+    const received = roundMoney(
+      confirmedPayments
+        .filter((payment) => String(payment.to_user_id) === userId)
+        .reduce((sum, payment) => sum + Number(payment.amount), 0),
+    );
+    return {
+      usuarioId: userId,
+      nombre: nameOf(userId),
+      paid,
+      share,
+      paymentsSent: sent,
+      paymentsReceived: received,
+      balance: roundMoney(paid - share + sent - received),
+    };
+  });
+
+  const dayTotals = new Map<string, number>();
+  for (const expense of expenses) {
+    const day = toDateKey(expense.expense_date ?? expense.created_at ?? null) ?? 'sin fecha';
+    dayTotals.set(day, roundMoney((dayTotals.get(day) ?? 0) + Number(expense.amount)));
+  }
+  const byDay = Array.from(dayTotals.entries())
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([date, total]) => ({ date, total }));
+
+  const expenseRows = [...expenses]
+    .sort((left, right) =>
+      String(left.expense_date ?? left.created_at ?? '').localeCompare(String(right.expense_date ?? right.created_at ?? '')),
+    )
+    .map((expense) => ({
+      id: String(expense.id),
+      date: toDateKey(expense.expense_date ?? expense.created_at ?? null),
+      description: expense.description,
+      category: normalizeCategory(expense.category ?? 'otro'),
+      amount: Number(expense.amount),
+      paidBy: nameOf(expense.paid_by_user_id),
+      createdBy: expense.created_by_user_id != null ? nameOf(expense.created_by_user_id) : null,
+      splitType: normalizeSplitType(expense.split_type),
+      participants: (expense.expense_splits ?? []).map((split) => ({
+        nombre: nameOf(split.user_id),
+        share: Number(split.share),
+      })),
+    }));
+
+  return {
+    ok: true as const,
+    generatedAt: new Date().toISOString(),
+    group: {
+      id: String(group.id),
+      nombre: group.nombre,
+      destino: group.destino,
+      fechaInicio: group.fecha_inicio,
+      fechaFin: group.fecha_fin,
+    },
+    totals: {
+      budget: totalBudget,
+      committed,
+      available: totalBudget !== null ? roundMoney(totalBudget - committed) : null,
+      percentCommitted: totalBudget ? roundMoney((committed / totalBudget) * 100) : null,
+      expenseCount: expenses.length,
+      confirmedPaymentsTotal: roundMoney(confirmedPayments.reduce((sum, payment) => sum + Number(payment.amount), 0)),
+    },
+    byCategory,
+    byMember,
+    byDay,
+    expenses: expenseRows,
+  };
+};
+
+/** CSV para Excel/Sheets: BOM UTF-8, comas, montos con punto decimal. */
+export const buildExpensesCsv = (summary: BudgetSummary): string => {
+  const cell = (value: unknown): string => {
+    let text = String(value ?? '');
+    // Evita que una hoja de cálculo interprete el texto como fórmula.
+    if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
+    return `"${text.replace(/"/g, '""')}"`;
+  };
+  const header = ['Fecha', 'Descripción', 'Categoría', 'Monto (MXN)', 'Pagó', 'Registró', 'Reparto', 'Participantes'];
+  const rows = summary.expenses.map((expense) => [
+    expense.date ?? '',
+    expense.description,
+    CATEGORY_LABELS[expense.category],
+    expense.amount.toFixed(2),
+    expense.paidBy,
+    expense.createdBy ?? '',
+    expense.splitType === 'personalizada' ? 'Personalizado' : 'Equitativo',
+    expense.participants.map((participant) => `${participant.nombre}: ${participant.share.toFixed(2)}`).join('; '),
+  ]);
+  return `﻿${[header, ...rows].map((row) => row.map(cell).join(',')).join('\r\n')}\r\n`;
+};

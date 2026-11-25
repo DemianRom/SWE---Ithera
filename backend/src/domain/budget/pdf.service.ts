@@ -1,4 +1,5 @@
 import { inflateSync, deflateSync } from 'zlib';
+import type { BudgetSummary } from './budget.service';
 
 type PdfLine = {
   label?: string;
@@ -29,6 +30,9 @@ type PdfDocumentData = {
   recipientEmail?: string | null;
   heroImageUrl?: string | null;
   sections: PdfSection[];
+  /** Etiquetas de los tres datos del encabezado (por defecto: Folio, Total, Autorizacion). */
+  labels?: { folio?: string; total?: string; auth?: string };
+  footer?: string;
 };
 
 const ITHERA_LOGO_URL = 'https://bkbsxmrrjwvmefazbtra.supabase.co/storage/v1/object/public/public-assets/ITHERA-logo-com.png';
@@ -257,11 +261,11 @@ const buildElegantPdf = async (data: PdfDocumentData): Promise<Buffer> => {
   }
 
   addRect(commands, 48, 654, 516, 46, '0.948 0.965 0.996');
-  addText(commands, 'Folio', 64, 681, 8, 'F2', '0.392 0.455 0.545');
+  addText(commands, data.labels?.folio ?? 'Folio', 64, 681, 8, 'F2', '0.392 0.455 0.545');
   addText(commands, data.folio, 64, 665, 13, 'F2', '0.118 0.039 0.306');
-  addText(commands, 'Total', 330, 681, 8, 'F2', '0.392 0.455 0.545');
+  addText(commands, data.labels?.total ?? 'Total', 330, 681, 8, 'F2', '0.392 0.455 0.545');
   addText(commands, moneyText(data.total), 330, 665, 13, 'F2', '0.118 0.039 0.306');
-  addText(commands, 'Autorizacion', 448, 681, 8, 'F2', '0.392 0.455 0.545');
+  addText(commands, data.labels?.auth ?? 'Autorizacion', 448, 681, 8, 'F2', '0.392 0.455 0.545');
   addText(commands, data.authCode ?? 'N/A', 448, 665, 13, 'F2', '0.118 0.039 0.306');
 
   let y = 622;
@@ -272,13 +276,32 @@ const buildElegantPdf = async (data: PdfDocumentData): Promise<Buffer> => {
     y = 466;
   }
 
+  // Una sola pagina: si el contenido no cabe, se corta con un aviso.
+  const PAGE_BOTTOM = 112;
+  let truncated = false;
+  const markTruncated = () => {
+    if (truncated) return;
+    truncated = true;
+    addText(commands, 'Contenido truncado: consulta la exportacion CSV para el detalle completo.', 64, y, 9, 'F2', '0.725 0.110 0.110');
+  };
+
   data.sections.forEach((section) => {
+    if (truncated) return;
+    if (y < PAGE_BOTTOM + 40) {
+      markTruncated();
+      return;
+    }
     addText(commands, section.title, 48, y, 12, 'F2', '0.118 0.039 0.306');
     y -= 14;
     addRect(commands, 48, y - 7, 516, 1, '0.875 0.906 0.953');
     y -= 22;
 
     section.lines.forEach((line) => {
+      if (truncated) return;
+      if (y < PAGE_BOTTOM) {
+        markTruncated();
+        return;
+      }
       const label = line.label ? `${line.label}:` : '';
       if (label) addText(commands, label, 64, y, 9, 'F2', '0.392 0.455 0.545');
       const valueX = label ? 180 : 64;
@@ -293,7 +316,7 @@ const buildElegantPdf = async (data: PdfDocumentData): Promise<Buffer> => {
   });
 
   addRect(commands, 48, 54, 516, 40, '0.948 0.965 0.996');
-  addText(commands, 'Documento generado por ITHERA. Conserva este comprobante en la boveda del viaje.', 64, 77, 9, 'F1', '0.118 0.039 0.306');
+  addText(commands, data.footer ?? 'Documento generado por ITHERA. Conserva este comprobante en la boveda del viaje.', 64, 77, 9, 'F1', '0.118 0.039 0.306');
   if (data.recipientEmail) addText(commands, `PDF enviado a: ${data.recipientEmail}`, 64, 63, 8, 'F1', '0.392 0.455 0.545');
 
   const imageData = buildImageObjects(images, 7);
@@ -364,6 +387,75 @@ export const generateCollectionReceiptPdf = async (data: {
         lines: [
           { value: 'Comprobante emitido por ITHERA con el estado de deuda registrado al momento de la emision.' },
         ],
+      },
+    ],
+  });
+};
+
+const formatPdfMoney = (value: number): string =>
+  `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN`;
+
+/** Resumen de gastos del viaje en una pagina (el detalle por gasto va en el CSV). */
+export const generateBudgetSummaryPdf = async (summary: BudgetSummary): Promise<Buffer> => {
+  const { group, totals } = summary;
+  const dates = [group.fechaInicio, group.fechaFin].filter(Boolean).join(' a ');
+  const generated = new Date(summary.generatedAt).toLocaleString('es-MX', { timeZone: 'America/Mexico_City' });
+  const dateKey = summary.generatedAt.slice(0, 10).split('-').join('');
+
+  const budgetLine =
+    totals.budget === null
+      ? 'Sin presupuesto definido'
+      : `${formatPdfMoney(totals.budget)} (${totals.percentCommitted?.toFixed(1)}% usado)`;
+  const availableLine =
+    totals.available === null
+      ? 'No aplica'
+      : totals.available >= 0
+        ? formatPdfMoney(totals.available)
+        : `Excedido por ${formatPdfMoney(Math.abs(totals.available))}`;
+
+  return buildElegantPdf({
+    title: 'Resumen de gastos',
+    subtitle: group.nombre,
+    folio: `RES-${group.id}-${dateKey}`,
+    total: formatPdfMoney(totals.committed),
+    authCode: String(totals.expenseCount),
+    labels: { folio: 'Resumen', total: 'Total gastado', auth: 'Gastos' },
+    footer: `Resumen generado el ${generated}. El detalle de cada gasto esta en la exportacion CSV.`,
+    sections: [
+      {
+        title: 'Viaje',
+        lines: [
+          { label: 'Nombre', value: group.nombre },
+          { label: 'Destino', value: group.destino || 'Sin destino' },
+          { label: 'Fechas', value: dates || 'Sin fechas' },
+        ],
+      },
+      {
+        title: 'Presupuesto',
+        lines: [
+          { label: 'Presupuesto', value: budgetLine },
+          { label: 'Disponible', value: availableLine },
+          { label: 'Pagos confirmados', value: formatPdfMoney(totals.confirmedPaymentsTotal) },
+        ],
+      },
+      {
+        title: 'Por categoria',
+        lines: summary.byCategory
+          .filter((item) => item.spent > 0 || item.planned !== null)
+          .map((item) => ({
+            label: item.label,
+            value:
+              item.planned !== null
+                ? `${formatPdfMoney(item.spent)} de ${formatPdfMoney(item.planned)} planeado`
+                : formatPdfMoney(item.spent),
+          })),
+      },
+      {
+        title: 'Por integrante (saldo positivo = le deben)',
+        lines: summary.byMember.map((member) => ({
+          label: member.nombre.length > 18 ? `${member.nombre.slice(0, 17)}.` : member.nombre,
+          value: `Pago ${formatPdfMoney(member.paid)} | Le toca ${formatPdfMoney(member.share)} | Saldo ${member.balance >= 0 ? '+' : '-'}${formatPdfMoney(Math.abs(member.balance))}`,
+        })),
       },
     ],
   });
