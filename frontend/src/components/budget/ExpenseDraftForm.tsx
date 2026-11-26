@@ -1,5 +1,7 @@
 import type { FC } from 'react'
 import type { BudgetCategory, BudgetSplitType } from '../../services/budget'
+import { PercentSplitEditor } from './PercentSplitEditor'
+import { SPLIT_TYPE_OPTIONS, checkPercentSplit } from './splitRules'
 
 export interface ExpenseDraftMemberOption {
   id: string
@@ -14,6 +16,7 @@ interface Props {
   paidBy: string
   splitType: BudgetSplitType
   splitAmounts: Record<string, string>
+  splitPercentages: Record<string, string>
   selectedMemberIds: string[]
   members: ExpenseDraftMemberOption[]
   onAmountChange: (value: string) => void
@@ -23,6 +26,8 @@ interface Props {
   onPaidByChange: (value: string) => void
   onSplitTypeChange: (value: BudgetSplitType) => void
   onSplitAmountChange: (memberId: string, value: string) => void
+  onSplitPercentageChange: (memberId: string, value: string) => void
+  onFillEqualPercentages: () => void
   onToggleMember: (memberId: string) => void
 }
 
@@ -42,6 +47,7 @@ export const ExpenseDraftForm: FC<Props> = ({
   paidBy,
   splitType,
   splitAmounts,
+  splitPercentages,
   selectedMemberIds,
   members,
   onAmountChange,
@@ -51,6 +57,8 @@ export const ExpenseDraftForm: FC<Props> = ({
   onPaidByChange,
   onSplitTypeChange,
   onSplitAmountChange,
+  onSplitPercentageChange,
+  onFillEqualPercentages,
   onToggleMember,
 }) => {
   const totalAmount = parseFloat(amount) || 0
@@ -62,7 +70,9 @@ export const ExpenseDraftForm: FC<Props> = ({
   const splitError =
     splitType === 'personalizada' && totalAmount > 0 && Math.abs(splitSum - totalAmount) > 0.01
       ? `La suma de los montos ($${Math.round(splitSum)}) no coincide con el total ($${Math.round(totalAmount)})`
-      : null
+      : splitType === 'porcentual'
+        ? checkPercentSplit(activeMembers.map((member) => member.id), splitPercentages, totalAmount).error
+        : null
 
   return (
     <div className="grid gap-4">
@@ -156,23 +166,33 @@ export const ExpenseDraftForm: FC<Props> = ({
       <div>
         <label className="mb-1.5 block font-body text-sm font-medium text-[#3D4A5C]">Tipo de Division</label>
         <div className="flex gap-2">
-          {(['equitativa', 'personalizada'] as const).map((value) => (
+          {SPLIT_TYPE_OPTIONS.map(({ value, label }) => (
             <button
               key={value}
               type="button"
               onClick={() => onSplitTypeChange(value)}
               className={[
-                'flex-1 rounded-xl border py-2.5 font-body text-sm font-medium transition-colors',
+                'flex-1 rounded-xl border px-2 py-2.5 font-body text-sm font-medium transition-colors',
                 splitType === value
                   ? 'border-[#1E6FD9] bg-[#1E6FD9] text-white'
                   : 'border-[#E2E8F0] bg-[#F4F6F8] text-[#7A8799]',
               ].join(' ')}
             >
-              {value === 'equitativa' ? 'Equitativa' : 'Personalizada'}
+              {label}
             </button>
           ))}
         </div>
       </div>
+
+      {splitType === 'porcentual' && (
+        <PercentSplitEditor
+          members={activeMembers}
+          values={splitPercentages}
+          amount={totalAmount}
+          onChange={onSplitPercentageChange}
+          onFillEqual={onFillEqualPercentages}
+        />
+      )}
 
       {splitType === 'personalizada' && (
         <div className="flex flex-col gap-2 rounded-xl border border-[#E2E8F0] bg-[#F4F6F8] px-4 py-3">

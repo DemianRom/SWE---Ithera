@@ -1,5 +1,6 @@
 export type BudgetCategory = 'transporte' | 'hospedaje' | 'actividad' | 'comida' | 'otro';
-export type BudgetSplitType = 'equitativa' | 'personalizada';
+/** equitativa = partes iguales; porcentual = % por integrante; personalizada = montos exactos. */
+export type BudgetSplitType = 'equitativa' | 'porcentual' | 'personalizada';
 export type MemberRole = 'admin' | 'viajero' | string;
 
 export interface Expense {
@@ -20,6 +21,8 @@ export interface ExpenseSplit {
   expense_id: string;
   user_id: string;
   share: number;
+  /** Solo en reparto porcentual. */
+  percentage?: number | null;
   settled: boolean;
 }
 
@@ -61,7 +64,10 @@ export interface BudgetExpensePayload {
   category: BudgetCategory;
   split_type?: BudgetSplitType;
   member_ids?: string[];
+  /** Reparto personalizada: monto exacto por integrante. */
   split_amounts?: Record<string, number>;
+  /** Reparto porcentual: porcentaje por integrante (deben sumar 100). */
+  split_percentages?: Record<string, number>;
   expense_date?: string | null;
 }
 

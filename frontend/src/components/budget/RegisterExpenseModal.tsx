@@ -4,6 +4,8 @@ import type { Expense } from './BudgetDashboard'
 import type { BudgetMember } from '../../services/budget'
 import type { ContextEntityRef, ContextEntitySummary } from '../../services/context-links'
 import type { TripDocumentCategory } from '../../services/documents'
+import { PercentSplitEditor } from './PercentSplitEditor'
+import { SPLIT_TYPE_OPTIONS, checkPercentSplit, equalPercentages, toInputValues } from './splitRules'
 
 interface Props {
   open: boolean
@@ -132,6 +134,7 @@ export const RegisterExpenseModal: FC<Props> = ({
   const [paidBy, setPaidBy] = useState(members[0]?.usuario_id ?? '')
   const [splitType, setSplitType] = useState<Expense['splitType']>('equitativa')
   const [splitAmounts, setSplitAmounts] = useState<Record<string, string>>({})
+  const [splitPercentages, setSplitPercentages] = useState<Record<string, string>>({})
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([])
   const [selectedActivityKeys, setSelectedActivityKeys] = useState<string[]>([])
   const [selectedDocumentIds, setSelectedDocumentIds] = useState<string[]>([])
@@ -163,6 +166,7 @@ export const RegisterExpenseModal: FC<Props> = ({
           Object.entries(editingExpense.splitAmounts ?? {}).map(([k, v]) => [k, String(v)])
         )
       )
+      setSplitPercentages(toInputValues(editingExpense.splitPercentages))
       setSelectedActivityKeys((editingExpense.linkedActivities ?? []).map(entityKey))
       setSelectedDocumentIds(editingExpense.linkedDocuments ?? [])
       setDraftDocumentFile(editingExpense.draftDocument?.file ?? null)
@@ -178,6 +182,7 @@ export const RegisterExpenseModal: FC<Props> = ({
       setSplitType('equitativa')
       setSelectedMemberIds(effectiveMembers.map((member) => member.usuario_id))
       setSplitAmounts({})
+      setSplitPercentages({})
       setSelectedActivityKeys([])
       setSelectedDocumentIds([])
       setDraftDocumentFile(null)
@@ -190,6 +195,10 @@ export const RegisterExpenseModal: FC<Props> = ({
   if (!open) return null
 
   const totalAmount = parseFloat(amount) || 0
+  const selectedMembers = effectiveMembers.filter((member) => selectedMemberIds.includes(member.usuario_id))
+  const percentCheck = splitType === 'porcentual'
+    ? checkPercentSplit(selectedMembers.map((member) => member.usuario_id), splitPercentages, totalAmount)
+    : null
   const splitSum =
     splitType === 'personalizada'
       ? effectiveMembers
@@ -199,7 +208,7 @@ export const RegisterExpenseModal: FC<Props> = ({
   const splitError =
     splitType === 'personalizada' && totalAmount > 0 && Math.abs(splitSum - totalAmount) > 0.01
       ? `La suma de los montos ($${Math.round(splitSum)}) no coincide con el total ($${Math.round(totalAmount)})`
-      : null
+      : (percentCheck?.error ?? null)
 
   const editingPreviousAmount = editingExpense ? Number(editingExpense.monto) : 0
   const nextCommitted = comprometido - editingPreviousAmount + totalAmount
@@ -226,6 +235,13 @@ export const RegisterExpenseModal: FC<Props> = ({
       if (!next.includes(paidBy)) setPaidBy(next[0] ?? '')
       return next
     })
+  }
+
+  const selectSplitType = (type: Expense['splitType']) => {
+    setSplitType(type)
+    if (type === 'porcentual' && Object.keys(splitPercentages).length === 0) {
+      setSplitPercentages(equalPercentages(selectedMemberIds))
+    }
   }
 
   const toggleActivity = (key: string) => {
@@ -258,6 +274,7 @@ export const RegisterExpenseModal: FC<Props> = ({
             .map((m) => [m.usuario_id, parseFloat(splitAmounts[m.usuario_id] ?? '0') || 0])
         )
         : undefined
+    const parsedSplitPercentages = percentCheck ? percentCheck.percentages : undefined
 
     const paidByMember = effectiveMembers.find((member) => member.usuario_id === paidBy)
     const expense: Expense = {
@@ -278,6 +295,7 @@ export const RegisterExpenseModal: FC<Props> = ({
         notes: draftDocumentNotes.trim(),
       } : null,
       ...(parsedSplitAmounts !== undefined && { splitAmounts: parsedSplitAmounts }),
+      ...(parsedSplitPercentages !== undefined && { splitPercentages: parsedSplitPercentages }),
     }
 
     if (editingExpense) {
@@ -431,19 +449,19 @@ export const RegisterExpenseModal: FC<Props> = ({
             <div>
               <label className="mb-1.5 block font-body text-sm font-medium text-[#3D4A5C]">¿Cómo dividir la cuenta?</label>
               <div className="flex gap-2">
-                {(['equitativa', 'personalizada'] as const).map((type) => (
+                {SPLIT_TYPE_OPTIONS.map(({ value: type, label }) => (
                   <button
                     key={type}
                     type="button"
-                    onClick={() => setSplitType(type)}
+                    onClick={() => selectSplitType(type)}
                     className={[
-                      'flex-1 rounded-xl border py-2.5 font-body text-sm font-medium transition-colors',
+                      'flex-1 rounded-xl border px-2 py-2.5 font-body text-sm font-medium transition-colors',
                       splitType === type
                         ? 'border-[#1E6FD9] bg-[#1E6FD9] text-white'
                         : 'border-[#E2E8F0] bg-[#F4F6F8] text-[#7A8799] hover:border-[#1E6FD9]/50',
                     ].join(' ')}
                   >
-                    {type === 'equitativa' ? 'Equitativa' : 'Personalizada'}
+                    {label}
                   </button>
                 ))}
               </div>
@@ -472,6 +490,16 @@ export const RegisterExpenseModal: FC<Props> = ({
                   <p className="mt-1 font-body text-xs text-[#EF4444]">{splitError}</p>
                 )}
               </div>
+            )}
+
+            {splitType === 'porcentual' && (
+              <PercentSplitEditor
+                members={selectedMembers.map((member) => ({ id: member.usuario_id, label: member.nombre || member.email }))}
+                values={splitPercentages}
+                amount={totalAmount}
+                onChange={(memberId, value) => setSplitPercentages((prev) => ({ ...prev, [memberId]: value }))}
+                onFillEqual={() => setSplitPercentages(equalPercentages(selectedMemberIds))}
+              />
             )}
 
             {(activityOptions.length > 0 || documentOptions.length > 0) && (

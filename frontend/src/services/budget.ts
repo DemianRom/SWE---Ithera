@@ -3,7 +3,8 @@ import { apiClient } from './apiClient'
 const API_URL = String(import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '')
 
 export type BudgetCategory = 'transporte' | 'hospedaje' | 'actividad' | 'comida' | 'otro'
-export type BudgetSplitType = 'equitativa' | 'personalizada'
+/** equitativa = partes iguales; porcentual = % por integrante; personalizada = montos exactos. */
+export type BudgetSplitType = 'equitativa' | 'porcentual' | 'personalizada'
 
 export const BUDGET_CATEGORIES: BudgetCategory[] = ['transporte', 'hospedaje', 'actividad', 'comida', 'otro']
 
@@ -26,6 +27,8 @@ export interface BudgetExpense {
   category: BudgetCategory
   splitType: BudgetSplitType
   splitAmounts: Record<string, number>
+  /** Solo en reparto porcentual. */
+  splitPercentages?: Record<string, number> | null
   expenseDate: string | null
   createdAt: string | null
   createdByUserId: string | null
@@ -114,6 +117,7 @@ export interface SaveBudgetExpensePayload {
   split_type: BudgetSplitType
   member_ids?: string[]
   split_amounts?: Record<string, number>
+  split_percentages?: Record<string, number>
   expense_date?: string | null
 }
 

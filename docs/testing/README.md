@@ -6,7 +6,7 @@ Esta guia define como ejecutar y mantener las pruebas del proyecto.
 
 | Tipo | Donde | Que cubre |
 | --- | --- | --- |
-| Unitarias (Jest) | `backend/tests/budget.service.test.ts` | Repartos, saldos, liquidaciones, presupuesto por categoria, viaje cerrado, alertas de presupuesto y CSV. |
+| Unitarias (Jest) | `backend/tests/budget.service.test.ts` | Repartos (equitativo, porcentual con redondeo a centavos y montos exactos), saldos, liquidaciones, presupuesto por categoria, viaje cerrado, alertas de presupuesto y CSV. |
 | Unitarias (Jest) | `backend/tests/context-links.service.test.ts` | Enlaces contextuales por viaje. |
 | Smoke de punta a punta | `backend/scripts/smoke.mjs` | Registro, viaje, integrantes, itinerario, gastos, saldos, pagos, presupuesto, resumen, CSV, PDF, archivos, chat, notificaciones y enlace publico, contra un backend real. Limpia lo que crea. |
 | Auxiliares | `backend/tests/forgot-password-timing.mjs`, `backend/tests/db_stress.k6.js` | Tiempo de respuesta de recuperacion de contrasena y estres de base de datos (manuales). |

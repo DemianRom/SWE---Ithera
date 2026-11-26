@@ -567,3 +567,105 @@ describe('BudgetService · fase 5 (Traveling)', () => {
     expect(row).toContain('"Ana: 60.25; Beto: 60.25"');
   });
 });
+
+describe('BudgetService · reparto porcentual y filtros (COCOMO)', () => {
+  beforeEach(() => {
+    mockDb = initialDb();
+    (getLocalUserId as jest.Mock).mockResolvedValue('1');
+    (supabaseAdmin.from as jest.Mock).mockImplementation((table: string) => mockFrom(table));
+  });
+
+  it('createExpense: reparto porcentual guarda monto y porcentaje por integrante', async () => {
+    const dashboard = await BudgetService.createExpense('auth-user', '7', {
+      paid_by_user_id: '1',
+      amount: 1000,
+      description: 'Hotel',
+      category: 'hospedaje',
+      split_type: 'porcentual',
+      split_percentages: { '1': 50, '2': 30, '3': 20 },
+    });
+
+    expect(mockDb.expense_splits.map((split) => [split.share, split.percentage])).toEqual([
+      [500, 50],
+      [300, 30],
+      [200, 20],
+    ]);
+    const expense = dashboard.expenses[0];
+    expect(expense.splitType).toBe('porcentual');
+    expect(expense.splitPercentages).toEqual({ '1': 50, '2': 30, '3': 20 });
+  });
+
+  it('allocateByPercent: los centavos sobrantes van a las fracciones mayores y la suma es exacta', () => {
+    expect(BudgetService.allocateByPercent(10, [3333, 3333, 3334])).toEqual([3.33, 3.33, 3.34]);
+    expect(BudgetService.allocateByPercent(100, [3333, 3333, 3334])).toEqual([33.33, 33.33, 33.34]);
+    const shares = BudgetService.allocateByPercent(99.99, [2500, 2500, 5000]);
+    expect(Math.round(shares.reduce((sum, share) => sum + share, 0) * 100)).toBe(9999);
+  });
+
+  it('createExpense: rechaza porcentajes que no suman 100 o con más de dos decimales', async () => {
+    const base = {
+      paid_by_user_id: '1',
+      amount: 300,
+      description: 'Cena',
+      category: 'comida' as const,
+      split_type: 'porcentual' as const,
+    };
+    await expect(BudgetService.createExpense('auth-user', '7', { ...base, split_percentages: { '1': 50, '2': 40 } }))
+      .rejects.toMatchObject({ statusCode: 400, message: 'Los porcentajes deben sumar 100%' });
+    await expect(BudgetService.createExpense('auth-user', '7', { ...base, split_percentages: { '1': 33.333, '2': 66.667 } }))
+      .rejects.toMatchObject({ statusCode: 400 });
+    await expect(BudgetService.createExpense('auth-user', '7', { ...base, split_percentages: { '1': 120, '2': -20 } }))
+      .rejects.toMatchObject({ statusCode: 400 });
+    await expect(BudgetService.createExpense('auth-user', '7', { ...base, split_percentages: { '1': 50, '99': 50 } }))
+      .rejects.toMatchObject({ statusCode: 400 });
+    expect(mockDb.expenses).toHaveLength(0);
+  });
+
+  it('updateExpense: un reparto inválido no modifica el gasto ni sus partes', async () => {
+    const dashboard = await BudgetService.createExpense('auth-user', '7', {
+      paid_by_user_id: '1',
+      amount: 900,
+      description: 'Tour',
+      category: 'actividad',
+      split_type: 'equitativa',
+      member_ids: ['1', '2', '3'],
+    });
+    const expenseId = dashboard.expenses[0].id;
+
+    await expect(BudgetService.updateExpense('auth-user', '7', expenseId, {
+      paid_by_user_id: '1',
+      amount: 1200,
+      description: 'Tour editado',
+      category: 'actividad',
+      split_type: 'porcentual',
+      split_percentages: { '1': 60, '2': 30 },
+    })).rejects.toMatchObject({ statusCode: 400 });
+
+    expect(mockDb.expenses[0]).toMatchObject({ amount: 900, description: 'Tour', split_type: 'equitativa' });
+    expect(mockDb.expense_splits).toHaveLength(3);
+  });
+
+  it('buildExpensesCsv: etiqueta el reparto y muestra el porcentaje de cada integrante', () => {
+    const csv = BudgetService.buildExpensesCsv({
+      expenses: [
+        {
+          id: '1',
+          date: '2026-12-01',
+          description: 'Hotel',
+          category: 'hospedaje',
+          amount: 1000,
+          paidBy: 'Ana',
+          createdBy: 'Ana',
+          splitType: 'porcentual',
+          participants: [
+            { nombre: 'Ana', share: 600, percentage: 60 },
+            { nombre: 'Beto', share: 400, percentage: 40 },
+          ],
+        },
+      ],
+    } as unknown as BudgetService.BudgetSummary);
+
+    expect(csv).toContain('"Porcentual"');
+    expect(csv).toContain('"Ana: 600.00 (60%); Beto: 400.00 (40%)"');
+  });
+});

@@ -30,6 +30,7 @@ type RawExpenseRow = {
     id?: string | number;
     user_id: string | number;
     share: number | string;
+    percentage?: number | string | null;
     settled?: boolean | null;
   }>;
 };
@@ -126,7 +127,37 @@ const normalizeCategory = (category: unknown): BudgetCategory => {
 };
 
 const normalizeSplitType = (splitType: unknown): BudgetSplitType =>
-  splitType === 'personalizada' ? 'personalizada' : 'equitativa';
+  splitType === 'personalizada' || splitType === 'porcentual' ? splitType : 'equitativa';
+
+export const SPLIT_TYPE_LABELS: Record<BudgetSplitType, string> = {
+  equitativa: 'Equitativo',
+  porcentual: 'Porcentual',
+  personalizada: 'Montos exactos',
+};
+
+const hasAtMostTwoDecimals = (value: number): boolean =>
+  Math.abs(Math.round(value * 100) - value * 100) < 1e-6;
+
+/**
+ * Reparte `amount` según porcentajes expresados en centésimas (10000 = 100%).
+ * Trabaja en centavos y asigna los centavos sobrantes a las fracciones más
+ * grandes, así la suma de las partes es exactamente el total.
+ */
+export const allocateByPercent = (amount: number, hundredths: number[]): number[] => {
+  const totalCents = Math.round(amount * 100);
+  const raw = hundredths.map((value) => (totalCents * value) / 10000);
+  const cents = raw.map((value) => Math.floor(value));
+  let leftover = totalCents - cents.reduce((sum, value) => sum + value, 0);
+  const byFraction = raw
+    .map((value, index) => ({ index, fraction: value - Math.floor(value) }))
+    .sort((left, right) => right.fraction - left.fraction || left.index - right.index);
+  for (const { index } of byFraction) {
+    if (leftover <= 0) break;
+    cents[index] += 1;
+    leftover -= 1;
+  }
+  return cents.map((value) => value / 100);
+};
 
 const normalizePaymentStatus = (
   status: unknown,
@@ -409,6 +440,33 @@ const buildSplits = (
 ) => {
   const splitType = normalizeSplitType(payload.split_type);
 
+  if (splitType === 'porcentual') {
+    const entries = Object.entries(payload.split_percentages ?? {})
+      .map(([userId, value]) => [String(userId), Number(value)] as const)
+      .filter(([, value]) => value !== 0);
+    if (entries.length === 0) {
+      throw createError('El gasto debe dividirse entre al menos un integrante', 400);
+    }
+    for (const [userId, value] of entries) {
+      assertUserInGroup(members, userId, 'Un integrante del split no pertenece al grupo');
+      if (!Number.isFinite(value) || value <= 0 || value > 100 || !hasAtMostTwoDecimals(value)) {
+        throw createError('Cada porcentaje debe ser mayor que 0, máximo 100 y con hasta dos decimales', 400);
+      }
+    }
+    const hundredths = entries.map(([, value]) => Math.round(value * 100));
+    if (hundredths.reduce((sum, value) => sum + value, 0) !== 10000) {
+      throw createError('Los porcentajes deben sumar 100%', 400);
+    }
+    const shares = allocateByPercent(amount, hundredths);
+    return entries.map(([userId], index) => ({
+      expense_id: expenseId,
+      user_id: userId,
+      share: shares[index],
+      percentage: hundredths[index] / 100,
+      settled: false,
+    }));
+  }
+
   if (splitType === 'personalizada') {
     const splitAmounts = payload.split_amounts ?? {};
     const splits = Object.entries(splitAmounts)
@@ -584,6 +642,14 @@ const mapExpense = (expense: RawExpenseRow, membersById: Map<string, BudgetMembe
     (expense.expense_splits ?? []).map((split) => [String(split.user_id), Number(split.share)])
   );
   const paidByUserId = String(expense.paid_by_user_id);
+  const splitType = normalizeSplitType(expense.split_type);
+  const splitPercentages = splitType === 'porcentual'
+    ? Object.fromEntries(
+      (expense.expense_splits ?? [])
+        .filter((split) => split.percentage !== null && split.percentage !== undefined)
+        .map((split) => [String(split.user_id), Number(split.percentage)]),
+    )
+    : null;
 
   return {
     id: String(expense.id),
@@ -593,8 +659,9 @@ const mapExpense = (expense: RawExpenseRow, membersById: Map<string, BudgetMembe
     amount: Number(expense.amount),
     description: expense.description,
     category: normalizeCategory(expense.category ?? 'otro'),
-    splitType: normalizeSplitType(expense.split_type),
+    splitType,
     splitAmounts,
+    splitPercentages,
     expenseDate: expense.expense_date ?? expense.created_at ?? null,
     createdAt: expense.created_at ?? null,
     createdByUserId: expense.created_by_user_id != null ? String(expense.created_by_user_id) : null,
@@ -749,6 +816,8 @@ export const createExpense = async (
   assertUserInGroup(members, paidByUserId, 'El pagador no pertenece al grupo');
   const expenseDate = payload.expense_date ?? new Date().toISOString().split('T')[0];
   await assertExpenseDateWithinTripWindow(groupId, expenseDate);
+  // El reparto se valida antes de escribir: un error no debe dejar un gasto sin partes.
+  const draftSplits = buildSplits('', payload, members, amount);
 
   const { data: expense, error } = await supabaseAdmin
     .from('expenses')
@@ -767,9 +836,12 @@ export const createExpense = async (
 
   if (error || !expense) throw createError(error?.message ?? 'Error al registrar el gasto', 500);
 
-  const splits = buildSplits(String(expense.id), payload, members, amount);
+  const splits = draftSplits.map((split) => ({ ...split, expense_id: String(expense.id) }));
   const { error: splitError } = await supabaseAdmin.from('expense_splits').insert(splits);
-  if (splitError) throw createError(splitError.message, 500);
+  if (splitError) {
+    await supabaseAdmin.from('expenses').delete().eq('id', expense.id);
+    throw createError(splitError.message, 500);
+  }
 
   emitBudgetDashboardUpdated(groupId, 'gasto_creado', 'gasto', expense.id, paidByUserId, {
     amount,
@@ -839,6 +911,8 @@ export const updateExpense = async (
   assertUserInGroup(members, paidByUserId, 'El pagador no pertenece al grupo');
   const expenseDate = payload.expense_date ?? new Date().toISOString().split('T')[0];
   await assertExpenseDateWithinTripWindow(groupId, expenseDate);
+  // Validar el reparto antes de tocar el gasto y sus partes.
+  const splits = buildSplits(expenseId, payload, members, amount);
 
   const { error } = await supabaseAdmin
     .from('expenses')
@@ -862,7 +936,6 @@ export const updateExpense = async (
     .eq('expense_id', expenseId);
   if (deleteSplitsError) throw createError(deleteSplitsError.message, 500);
 
-  const splits = buildSplits(expenseId, payload, members, amount);
   const { error: insertSplitsError } = await supabaseAdmin.from('expense_splits').insert(splits);
   if (insertSplitsError) throw createError(insertSplitsError.message, 500);
 
@@ -1306,6 +1379,7 @@ export const getBudgetSummary = async (authUserId: string, groupId: string) => {
       participants: (expense.expense_splits ?? []).map((split) => ({
         nombre: nameOf(split.user_id),
         share: Number(split.share),
+        percentage: split.percentage !== null && split.percentage !== undefined ? Number(split.percentage) : null,
       })),
     }));
 
@@ -1350,8 +1424,12 @@ export const buildExpensesCsv = (summary: BudgetSummary): string => {
     expense.amount.toFixed(2),
     expense.paidBy,
     expense.createdBy ?? '',
-    expense.splitType === 'personalizada' ? 'Personalizado' : 'Equitativo',
-    expense.participants.map((participant) => `${participant.nombre}: ${participant.share.toFixed(2)}`).join('; '),
+    SPLIT_TYPE_LABELS[expense.splitType],
+    expense.participants
+      .map((participant) =>
+        `${participant.nombre}: ${participant.share.toFixed(2)}${typeof participant.percentage === 'number' ? ` (${participant.percentage}%)` : ''}`,
+      )
+      .join('; '),
   ]);
   return `﻿${[header, ...rows].map((row) => row.map(cell).join(',')).join('\r\n')}\r\n`;
 };

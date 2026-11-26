@@ -165,7 +165,7 @@ responden **409**; con `modulo_presupuesto_bloqueado` responden **423**. Las liq
 | `PATCH` | `/:groupId` | Si (admin) | Presupuesto total: `{ totalBudget: number \| null }`; `null` o `0` lo quita. |
 | `PUT` | `/:groupId/categories` | Si (admin) | Presupuesto por categoria: `{ categories: { comida: 800, otro: null } }`; `null` o `0` quita el limite. |
 | `POST` | `/:groupId/expenses` | Si | Registra gasto. Fecha permitida: hasta 12 meses antes del viaje y 30 dias despues. Avisa a los involucrados y, si cruza el 80 % o 100 % del presupuesto, a todo el viaje. |
-| `PUT` | `/:groupId/expenses/:expenseId` | Si | Actualiza gasto. |
+| `PUT` | `/:groupId/expenses/:expenseId` | Si | Actualiza gasto (mismo payload que al registrar). Si el reparto es invalido no cambia nada. |
 | `DELETE` | `/:groupId/expenses/:expenseId` | Si | Elimina gasto. |
 | `GET` | `/:groupId/balances` | Si | Saldos por integrante. |
 | `GET` | `/:groupId/settlements` | Si | Liquidaciones minimas. |
@@ -177,6 +177,14 @@ responden **409**; con `modulo_presupuesto_bloqueado` responden **423**. Las liq
 | `GET` | `/:groupId/summary` | Si | Resumen: totales, por categoria (planeado/gastado), por integrante (pago, le toca, saldo) y por dia. |
 | `GET` | `/:groupId/export.csv` | Si | Gastos en CSV (UTF-8 con BOM para Excel). |
 | `GET` | `/:groupId/summary.pdf` | Si | Resumen de gastos en PDF de una pagina. |
+
+Reparto del gasto (`split_type`):
+
+| Valor | Campo | Regla |
+| --- | --- | --- |
+| `equitativa` | `member_ids` | Partes iguales entre los integrantes (todos si se omite). |
+| `porcentual` | `split_percentages: { usuarioId: porcentaje }` | Mayores que 0, maximo 100, hasta dos decimales y suman 100. El monto se reparte en centavos y los sobrantes van a las fracciones mayores, asi la suma es exacta. La respuesta trae `splitPercentages`. |
+| `personalizada` | `split_amounts: { usuarioId: monto }` | Montos exactos que suman el total. |
 
 ## Notificaciones
 

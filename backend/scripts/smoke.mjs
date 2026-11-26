@@ -317,6 +317,29 @@ async function main() {
     await api(a.token, 'GET', `/budget/${gid}/settlements`);
   });
 
+  await step('Reparto porcentual (un reparto inválido no deja gastos a medias)', async () => {
+    const before = await api(a.token, 'GET', `/budget/${gid}/dashboard`);
+    const base = { paid_by_user_id: ua, amount: 100, category: 'otro', split_type: 'porcentual', expense_date: day(8) };
+    await expectStatus(a.token, 'POST', `/budget/${gid}/expenses`, {
+      ...base,
+      description: 'Porcentaje incompleto',
+      split_percentages: { [ua]: 50, [ub]: 40 },
+    }, 400);
+    const res = await api(a.token, 'POST', `/budget/${gid}/expenses`, {
+      ...base,
+      description: 'Propinas',
+      split_percentages: { [ua]: 33.33, [ub]: 33.33, [uc]: 33.34 },
+    });
+    const expense = res.expenses?.find((e) => e.description === 'Propinas');
+    assert(expense?.splitType === 'porcentual', 'el gasto no quedó como porcentual');
+    const shares = [ua, ub, uc].map((id) => expense.splitAmounts[id]);
+    assert(shares.join() === '33.33,33.33,33.34', `partes inesperadas: ${shares}`);
+    assert(expense.splitPercentages?.[uc] === 33.34, 'no se guardó el porcentaje');
+    assert(res.expenses.length === before.expenses.length + 1, 'el intento inválido dejó un gasto a medias');
+    // Se borra para no alterar los totales que revisan los pasos siguientes.
+    await api(a.token, 'DELETE', `/budget/${gid}/expenses/${expense.id}`);
+  });
+
   const doc = await step('Subir comprobante (POST /groups/:id/documents)', async () => {
     const form = new FormData();
     const pdf = '%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n';

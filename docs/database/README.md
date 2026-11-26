@@ -62,6 +62,10 @@ sugerencias (`ubicacion` sigue siendo el texto visible). No se guardan coordenad
 de Google Maps Platform solo permiten conservar el Place ID; el mapa las consulta al dibujarse.
 Ver [../maps/README.md](../maps/README.md).
 
+`expenses.split_type` admite `equitativa`, `porcentual` y `personalizada` (montos exactos). En el
+reparto porcentual, `expense_splits.percentage` guarda el porcentaje de cada integrante y `share`
+el monto que le toca; en los otros tipos `percentage` es null.
+
 ## Flujo de trabajo
 
 Primera vez en una maquina (requiere acceso al proyecto en Supabase):

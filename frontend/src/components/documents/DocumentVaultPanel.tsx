@@ -18,6 +18,7 @@ import {
   type ContextLinkOptions,
 } from '../../services/context-links'
 import { ExpenseDraftForm } from '../budget/ExpenseDraftForm'
+import { checkPercentSplit, equalPercentages } from '../budget/splitRules'
 import { ConfirmDialog } from '../ui/ConfirmDialog'
 
 const ACCEPTED_FILES = '.pdf,.png,.jpg,.jpeg,.webp'
@@ -232,6 +233,7 @@ export const DocumentVaultPanel: FC<Props> = ({
   const [draftExpensePaidBy, setDraftExpensePaidBy] = useState('')
   const [draftExpenseSplitType, setDraftExpenseSplitType] = useState<BudgetSplitType>('equitativa')
   const [draftExpenseSplitAmounts, setDraftExpenseSplitAmounts] = useState<Record<string, string>>({})
+  const [draftExpenseSplitPercentages, setDraftExpenseSplitPercentages] = useState<Record<string, string>>({})
   const [draftExpenseMemberIds, setDraftExpenseMemberIds] = useState<string[]>([])
   const [expenseModalTab, setExpenseModalTab] = useState<VaultActionTab>('associate')
   const lastVaultCacheKeyRef = useRef<string | null>(null)
@@ -372,6 +374,7 @@ export const DocumentVaultPanel: FC<Props> = ({
     setDraftExpensePaidBy(defaultExpensePayer)
     setDraftExpenseSplitType('equitativa')
     setDraftExpenseSplitAmounts({})
+    setDraftExpenseSplitPercentages({})
     setDraftExpenseMemberIds(memberOptionsSafe.map((member) => member.id))
   }
 
@@ -397,8 +400,21 @@ export const DocumentVaultPanel: FC<Props> = ({
     }))
   }
 
+  const changeDraftExpenseSplitType = (type: BudgetSplitType) => {
+    setDraftExpenseSplitType(type)
+    if (type === 'porcentual' && Object.keys(draftExpenseSplitPercentages).length === 0) {
+      setDraftExpenseSplitPercentages(equalPercentages(draftExpenseMemberIds))
+    }
+  }
+
+  const draftExpensePercentCheck = useMemo(
+    () => checkPercentSplit(draftExpenseMemberIds, draftExpenseSplitPercentages, parseFloat(draftExpenseAmount) || 0),
+    [draftExpenseAmount, draftExpenseMemberIds, draftExpenseSplitPercentages],
+  )
+
   const draftExpenseSplitError = useMemo(() => {
     const totalAmount = parseFloat(draftExpenseAmount) || 0
+    if (draftExpenseSplitType === 'porcentual') return draftExpensePercentCheck.error
     if (draftExpenseSplitType !== 'personalizada' || totalAmount <= 0) return null
     const splitSum = memberOptionsSafe
       .filter((member) => draftExpenseMemberIds.includes(member.id))
@@ -406,7 +422,7 @@ export const DocumentVaultPanel: FC<Props> = ({
     return Math.abs(splitSum - totalAmount) > 0.01
       ? 'La division personalizada debe sumar el monto total.'
       : null
-  }, [draftExpenseAmount, draftExpenseMemberIds, draftExpenseSplitAmounts, draftExpenseSplitType, memberOptionsSafe])
+  }, [draftExpenseAmount, draftExpenseMemberIds, draftExpensePercentCheck, draftExpenseSplitAmounts, draftExpenseSplitType, memberOptionsSafe])
 
   const startEditLinks = (item: TripDocument) => {
     const linked = getLinksForDocument(item.id)
@@ -559,6 +575,7 @@ export const DocumentVaultPanel: FC<Props> = ({
           category: draftExpenseCategory,
           split_type: draftExpenseSplitType,
           member_ids: draftExpenseMemberIds,
+          split_percentages: draftExpenseSplitType === 'porcentual' ? draftExpensePercentCheck.percentages : undefined,
           split_amounts: draftExpenseSplitType === 'personalizada'
             ? Object.fromEntries(
               draftExpenseMemberIds.map((memberId) => [
@@ -683,6 +700,7 @@ export const DocumentVaultPanel: FC<Props> = ({
         category: draftExpenseCategory,
         split_type: draftExpenseSplitType,
         member_ids: draftExpenseMemberIds,
+        split_percentages: draftExpenseSplitType === 'porcentual' ? draftExpensePercentCheck.percentages : undefined,
         split_amounts: draftExpenseSplitType === 'personalizada'
           ? Object.fromEntries(
             draftExpenseMemberIds.map((memberId) => [
@@ -1157,6 +1175,7 @@ export const DocumentVaultPanel: FC<Props> = ({
             paidBy={draftExpensePaidBy}
             splitType={draftExpenseSplitType}
             splitAmounts={draftExpenseSplitAmounts}
+            splitPercentages={draftExpenseSplitPercentages}
             selectedMemberIds={draftExpenseMemberIds}
             members={memberOptionsSafe}
             onAmountChange={setDraftExpenseAmount}
@@ -1164,8 +1183,12 @@ export const DocumentVaultPanel: FC<Props> = ({
             onDateChange={setDraftExpenseDate}
             onCategoryChange={setDraftExpenseCategory}
             onPaidByChange={setDraftExpensePaidBy}
-            onSplitTypeChange={setDraftExpenseSplitType}
+            onSplitTypeChange={changeDraftExpenseSplitType}
             onSplitAmountChange={setDraftExpenseSplitAmount}
+            onSplitPercentageChange={(memberId, value) =>
+              setDraftExpenseSplitPercentages((prev) => ({ ...prev, [memberId]: value }))
+            }
+            onFillEqualPercentages={() => setDraftExpenseSplitPercentages(equalPercentages(draftExpenseMemberIds))}
             onToggleMember={toggleDraftExpenseMember}
           />
         )}

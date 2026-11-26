@@ -453,6 +453,25 @@ de lugares como Consulta Externa. Para cumplirlo se revierte en parte la decisi�
 
 ---
 
+## Extensión — Reparto porcentual y filtros del historial (estudio COCOMO)
+
+El estudio pide reglas de división "equitativa, porcentual o exacta" y la consulta del
+historial de gastos "por fecha, pagador o actividad". Rama `feature/split-percent-filters`.
+
+- [x] Migración `20261126190509_percentage_split.sql`: `split_type` admite `porcentual` y
+      `expense_splits.percentage` guarda el porcentaje de cada integrante.
+- [x] Backend: valida porcentajes (> 0, ≤ 100, dos decimales, suman 100) y reparte en centavos
+      con residuo mayor (la suma es exacta). CSV con la etiqueta del reparto y el % de cada uno.
+- [x] Corrección: un reparto inválido ya no deja un gasto sin partes (antes pasaba también con
+      montos exactos): se valida antes de escribir.
+- [x] Frontend: opción "Porcentual" con "Repartir igual" y vista previa del monto en el registro
+      de gastos y en el gasto creado desde un comprobante; "Personalizada" pasa a llamarse
+      "Montos exactos".
+- [x] Filtros del historial en Finanzas: texto, quién pagó, actividad ligada (o sin actividad) y
+      rango de fechas, con conteo y total de lo filtrado.
+
+---
+
 ## Riesgos
 
 - **Esquema reconstruido con huecos:** una columna faltante aparece como error de PostgREST

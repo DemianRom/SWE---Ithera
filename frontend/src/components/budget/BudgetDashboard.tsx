@@ -6,6 +6,9 @@ import { HelpButton } from '../ui/HelpButton'
 import { MyWalletView } from './MyWalletView'
 import { CategoryBudgetPanel } from './CategoryBudgetPanel'
 import { BudgetSummaryPanel } from './BudgetSummaryPanel'
+import { ExpenseFilters } from './ExpenseFilters'
+import { EMPTY_EXPENSE_FILTERS, filterExpenses, hasActiveExpenseFilters, type ExpenseFilterState } from './expenseFilterRules'
+import { SPLIT_TYPE_LABELS } from './splitRules'
 import { useAuth } from '../../context/useAuth'
 import { useSocket } from '../../hooks/useSocket'
 import { useGroupRealtimeRefresh } from '../../hooks/useGroupRealtimeRefresh'
@@ -34,9 +37,10 @@ export interface Expense {
   monto: number
   pagadoPor: string
   pagadoPorId: string
-  splitType: 'equitativa' | 'personalizada'
+  splitType: 'equitativa' | 'porcentual' | 'personalizada'
   fecha: string
   splitAmounts?: Record<string, number>
+  splitPercentages?: Record<string, number> | null
   participantIds?: string[]
   creadoPorId?: string | null
   linkedActivities?: ContextEntityRef[]
@@ -299,6 +303,7 @@ function normalizeExpense(expense: BudgetDashboardResponse['expenses'][number]):
     splitType: expense.splitType,
     fecha: dateSource.split('T')[0],
     splitAmounts: expense.splitAmounts,
+    splitPercentages: expense.splitPercentages ?? null,
     participantIds: Object.keys(expense.splitAmounts ?? {}),
     creadoPorId: expense.createdByUserId,
   }
@@ -350,6 +355,7 @@ export const BudgetDashboard: FC<Props> = ({
   const [error, setError] = useState<string | null>(null)
   const [contextLinks, setContextLinks] = useState<ContextLink[]>([])
   const [linkOptions, setLinkOptions] = useState<ContextLinkOptions>(EMPTY_LINK_OPTIONS)
+  const [expenseFilters, setExpenseFilters] = useState<ExpenseFilterState>(EMPTY_EXPENSE_FILTERS)
   const [isOffline, setIsOffline] = useState<boolean>(typeof navigator !== 'undefined' ? !navigator.onLine : false)
   const [copyGroupSummaryState, setCopyGroupSummaryState] = useState<'idle' | 'loading' | 'done'>('idle')
   const [exportingGroupSummary, setExportingGroupSummary] = useState(false)
@@ -628,6 +634,39 @@ export const BudgetDashboard: FC<Props> = ({
       (localUser?.id_usuario != null && expense.creadoPorId === String(localUser.id_usuario)))
   const canAdjustBudget = dashboard?.myRole === 'admin' && !isReadOnly && !isOffline
   const hasBudget = totalBudget > 0
+
+  // Historial de gastos: el más reciente primero, con filtros por texto, fecha,
+  // quién pagó o actividad ligada.
+  const activityIdsForExpense = useCallback(
+    (expenseId: string) =>
+      getLinksForExpense(expenseId)
+        .filter((entity) => entity.type === 'activity')
+        .map((entity) => entity.id),
+    [getLinksForExpense],
+  )
+  const filteredExpenses = useMemo(
+    () => filterExpenses([...expenses].reverse(), expenseFilters, activityIdsForExpense),
+    [expenses, expenseFilters, activityIdsForExpense],
+  )
+  const filteredExpensesTotal = useMemo(
+    () => filteredExpenses.reduce((sum, expense) => sum + expense.monto, 0),
+    [filteredExpenses],
+  )
+  const expensePayerOptions = useMemo(
+    () => members.map((member) => ({ id: member.usuario_id, label: member.nombre || member.email })),
+    [members],
+  )
+  const expenseActivityOptions = useMemo(() => {
+    const labels = new Map<string, string>()
+    for (const expense of expenses) {
+      for (const entity of getLinksForExpense(expense.id)) {
+        if (entity.type === 'activity') labels.set(entity.id, entity.label)
+      }
+    }
+    return [...labels]
+      .map(([id, label]) => ({ id, label }))
+      .sort((left, right) => left.label.localeCompare(right.label, 'es'))
+  }, [expenses, getLinksForExpense])
   const emptyCategoryBudgets = useMemo(
     () => Object.fromEntries(BUDGET_CATEGORIES.map((category) => [category, null])) as Record<BudgetCategory, number | null>,
     [],
@@ -692,6 +731,7 @@ export const BudgetDashboard: FC<Props> = ({
         ? (expense.participantIds?.length ? expense.participantIds : members.map((member) => member.usuario_id))
         : undefined,
       split_amounts: expense.splitType === 'personalizada' ? expense.splitAmounts : undefined,
+      split_percentages: expense.splitType === 'porcentual' ? (expense.splitPercentages ?? undefined) : undefined,
       expense_date: expense.fecha,
     }
 
@@ -1433,12 +1473,34 @@ export const BudgetDashboard: FC<Props> = ({
               placement="right"
             />
           </div>
+          {expenses.length > 0 && (
+            <ExpenseFilters
+              value={expenseFilters}
+              onChange={setExpenseFilters}
+              payers={expensePayerOptions}
+              activities={expenseActivityOptions}
+              resultCount={filteredExpenses.length}
+              totalCount={expenses.length}
+              filteredTotal={filteredExpensesTotal}
+            />
+          )}
           <div className="flex flex-col gap-2">
             {expenses.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-[#CBD5E1] bg-white px-4 py-8 text-center font-body text-sm text-[#7A8799]">
                 Aun no hay gastos registrados para este viaje.
               </div>
-            ) : [...expenses].reverse().map((expense) => {
+            ) : filteredExpenses.length === 0 && hasActiveExpenseFilters(expenseFilters) ? (
+              <div className="rounded-2xl border border-dashed border-[#CBD5E1] bg-white px-4 py-8 text-center font-body text-sm text-[#7A8799]">
+                Ningún gasto coincide con los filtros.{' '}
+                <button
+                  type="button"
+                  onClick={() => setExpenseFilters(EMPTY_EXPENSE_FILTERS)}
+                  className="font-semibold text-[#1E6FD9] hover:underline"
+                >
+                  Limpiar filtros
+                </button>
+              </div>
+            ) : filteredExpenses.map((expense) => {
               const linkedEntities = getLinksForExpense(expense.id)
               const linkedActivities = linkedEntities.filter((entity) => entity.type === 'activity')
               const linkedDocuments = linkedEntities.filter((entity) => entity.type === 'document')
@@ -1453,7 +1515,9 @@ export const BudgetDashboard: FC<Props> = ({
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-body text-sm font-semibold text-[#3D4A5C]">{expense.titulo}</p>
-                    <p className="font-body text-xs text-[#7A8799]">Pago {expense.pagadoPor} - {expense.fecha}</p>
+                    <p className="font-body text-xs text-[#7A8799]">
+                      Pagó {expense.pagadoPor} · {expense.fecha} · Reparto {SPLIT_TYPE_LABELS[expense.splitType].toLowerCase()}
+                    </p>
                     {(linkedActivities.length > 0 || linkedDocuments.length > 0) ? (
                       <div className="mt-2 flex flex-wrap gap-1.5">
                         {linkedActivities.map((entity) => (
