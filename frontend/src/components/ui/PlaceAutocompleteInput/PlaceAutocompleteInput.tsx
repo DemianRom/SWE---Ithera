@@ -222,42 +222,45 @@ export function PlaceAutocompleteInput({
             className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin rounded-full border-2 border-[#CBD5E1] border-t-[#1E6FD9]"
           />
         )}
-        {enabled && open && (
-          <ul
-            id={listId}
-            role="listbox"
-            aria-label="Lugares sugeridos"
-            className="absolute left-0 right-0 top-full z-30 mt-1 overflow-hidden rounded-xl border border-[#E2E8F0] bg-white py-1 shadow-xl shadow-[#1E0A4E]/10"
-          >
-            {suggestions.map((suggestion, index) => (
-              <li
-                key={suggestion.placeId}
-                id={optionId(index)}
-                role="option"
-                aria-selected={index === highlight}
-                onMouseDown={(event) => event.preventDefault()}
-                onMouseEnter={() => setHighlight(index)}
-                onClick={() => void selectSuggestion(suggestion)}
-                className={`cursor-pointer px-3 py-2 ${index === highlight ? "bg-[#EEF4FF]" : ""}`}
-              >
-                <span className="block truncate font-body text-sm font-semibold text-[#1E0A4E]">
-                  {suggestion.main}
-                </span>
-                {suggestion.secondary && (
-                  <span className="block truncate font-body text-xs text-[#64748B]">{suggestion.secondary}</span>
-                )}
-              </li>
-            ))}
-            <li
-              role="presentation"
-              className="border-t border-[#F1F5F9] px-3 pb-1 pt-1.5 text-right text-[11px] text-[#64748B]"
-              style={{ fontFamily: "Roboto, Arial, sans-serif" }}
-            >
-              Google Maps
-            </li>
-          </ul>
-        )}
       </div>
+
+      {/* En el flujo (no flotante): dentro de un modal con scroll, una lista
+          absoluta se recorta y esconde la atribución de Google. */}
+      {enabled && open && (
+        <ul
+          id={listId}
+          role="listbox"
+          aria-label="Lugares sugeridos"
+          className="mt-1 overflow-hidden rounded-xl border border-[#E2E8F0] bg-white py-1 shadow-lg shadow-[#1E0A4E]/10"
+        >
+          {suggestions.map((suggestion, index) => (
+            <li
+              key={suggestion.placeId}
+              id={optionId(index)}
+              role="option"
+              aria-selected={index === highlight}
+              onMouseDown={(event) => event.preventDefault()}
+              onMouseEnter={() => setHighlight(index)}
+              onClick={() => void selectSuggestion(suggestion)}
+              className={`cursor-pointer px-3 py-2 ${index === highlight ? "bg-[#EEF4FF]" : ""}`}
+            >
+              <span className="block truncate font-body text-sm font-semibold text-[#1E0A4E]">
+                {suggestion.main}
+              </span>
+              {suggestion.secondary && (
+                <span className="block truncate font-body text-xs text-[#64748B]">{suggestion.secondary}</span>
+              )}
+            </li>
+          ))}
+          <li
+            role="presentation"
+            className="border-t border-[#F1F5F9] px-3 pb-1 pt-1.5 text-right text-[11px] text-[#64748B]"
+            style={{ fontFamily: "Roboto, Arial, sans-serif" }}
+          >
+            Google Maps
+          </li>
+        </ul>
+      )}
 
       {enabled && placeId && (
         <div className="mt-1.5 flex items-center justify-between gap-3">

@@ -444,9 +444,12 @@ de lugares como Consulta Externa. Para cumplirlo se revierte en parte la decisi�
 - [x] Frontend: sugerencias de Google Places en el campo "Ubicación" (sesgadas al destino),
       mapa con pines numerados en el encabezado de la pestaña Itinerario y enlace al lugar
       exacto. Sin llave, todo queda como antes.
-- [ ] **[Tú]** Llave de Google Maps Platform (y opcionalmente un Map ID); ver `docs/maps/README.md`.
-- [ ] **[OK]** Con la llave: `npx supabase db push`, llave en `~/traveling/.env`, fusionar a
-      `main` (deploy automático) y revisar en producción.
+- [x] **[Tú]** Llave de Google Maps Platform restringida a `traveling.tonyquezada.com` y
+      `localhost:5173` (sin Map ID propio: se usa `DEMO_MAP_ID`; sin facturación).
+- [x] **[OK]** Migración aplicada en la nube, llave en `~/traveling/.env` y fusión a `main`
+      (deploy automático). Producción: smoke test 49/49 y prueba en navegador (Playwright) con un
+      usuario temporal: mapa con pines, sugerencias de Google Places, lugar guardado desde la UI
+      y limpieza de los datos de prueba.
 
 ---
 
