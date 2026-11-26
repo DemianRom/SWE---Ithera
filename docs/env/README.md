@@ -43,6 +43,8 @@ Plantilla: `frontend/.env.example`. Solo para desarrollo con `npm run dev`.
 | `VITE_SUPABASE_URL` | Si | URL del proyecto de Supabase. |
 | `VITE_SUPABASE_ANON_KEY` | Si | Llave publicable de Supabase. |
 | `VITE_OAUTH_PROVIDERS` | No | Proveedores sociales habilitados, separados por coma (por ejemplo `google`). Vacio = solo correo. |
+| `VITE_GOOGLE_MAPS_API_KEY` | No | Llave de navegador de Google Maps Platform (Maps JavaScript API + Places API (New)). Vacia = ubicacion en texto libre y sin mapa. |
+| `VITE_GOOGLE_MAPS_MAP_ID` | No | Map ID para los marcadores del mapa. Vacio = `DEMO_MAP_ID`. |
 
 ## Docker Compose (`.env` en la raiz)
 
@@ -55,6 +57,7 @@ dominio.
 | `VITE_SUPABASE_URL` | URL del proyecto de Supabase. |
 | `VITE_SUPABASE_ANON_KEY` | Llave publicable. |
 | `VITE_OAUTH_PROVIDERS` | Igual que en el frontend. |
+| `VITE_GOOGLE_MAPS_API_KEY`, `VITE_GOOGLE_MAPS_MAP_ID` | Igual que en el frontend. Si cambian, reconstruir con `./deploy.sh --force`. |
 
 ## Supabase CLI (`supabase/config.toml`)
 

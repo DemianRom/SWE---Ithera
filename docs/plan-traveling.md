@@ -431,6 +431,25 @@ Pendiente:
 
 ---
 
+## Extensión — Google Places (estudio COCOMO)
+
+El estudio COCOMO del equipo cuenta Google Places como Archivo de Interfaz Externa y la búsqueda
+de lugares como Consulta Externa. Para cumplirlo se revierte en parte la decisión de la fase 3
+("sin Google Maps"). Rama `feature/google-places`; guía en `docs/maps/README.md`.
+
+- [x] Migración `20261126160816_activity_place_id.sql`: `actividades.place_id` (solo el Place
+      ID; las coordenadas no se guardan por los términos de Google).
+- [x] Backend: valida y guarda `place_id`; lo suelta si cambia el texto de la ubicación.
+      Smoke test 49/49 en local (paso nuevo de `place_id`).
+- [x] Frontend: sugerencias de Google Places en el campo "Ubicación" (sesgadas al destino),
+      mapa con pines numerados en el encabezado de la pestaña Itinerario y enlace al lugar
+      exacto. Sin llave, todo queda como antes.
+- [ ] **[Tú]** Llave de Google Maps Platform (y opcionalmente un Map ID); ver `docs/maps/README.md`.
+- [ ] **[OK]** Con la llave: `npx supabase db push`, llave en `~/traveling/.env`, fusionar a
+      `main` (deploy automático) y revisar en producción.
+
+---
+
 ## Riesgos
 
 - **Esquema reconstruido con huecos:** una columna faltante aparece como error de PostgREST

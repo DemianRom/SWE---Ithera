@@ -57,6 +57,11 @@ Buckets de Storage: `trip-documents` (10 MiB), `profile-avatars` (5 MiB), `publi
 Borrar un viaje (`grupos_viaje`) elimina en cascada todo lo que cuelga de el. Los archivos del
 bucket no se borran solos.
 
+`actividades.place_id` guarda el Place ID de Google Places cuando la ubicacion se eligio de las
+sugerencias (`ubicacion` sigue siendo el texto visible). No se guardan coordenadas: los terminos
+de Google Maps Platform solo permiten conservar el Place ID; el mapa las consulta al dibujarse.
+Ver [../maps/README.md](../maps/README.md).
+
 ## Flujo de trabajo
 
 Primera vez en una maquina (requiere acceso al proyecto en Supabase):

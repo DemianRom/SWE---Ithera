@@ -5,6 +5,7 @@ import {
   useState,
 } from "react";
 import type { ContextEntitySummary } from "../../../services/context-links";
+import { googleMapsPlaceUrl } from "../../../lib/googleMaps";
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
@@ -13,6 +14,8 @@ export interface Activity {
   title: string;
   description: string;
   location?: string;
+  /** Place ID de Google Places (lugar elegido de las sugerencias). */
+  placeId?: string | null;
   /** Hora de inicio (HH:mm, Ciudad de México). */
   time: string;
   startsAt?: string | null;
@@ -88,10 +91,6 @@ function sortByStart(activities: Activity[]): Activity[] {
     const r = right.startsAt ? new Date(right.startsAt).getTime() : Number.MAX_SAFE_INTEGER;
     return l - r || left.title.localeCompare(right.title, "es");
   });
-}
-
-function mapsSearchUrl(location: string): string {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
 }
 
 // ── Íconos ────────────────────────────────────────────────────────────────────
@@ -274,7 +273,7 @@ function ActivityCard({
 
         {activity.location && (
           <a
-            href={mapsSearchUrl(activity.location)}
+            href={googleMapsPlaceUrl(activity.location, activity.placeId)}
             target="_blank"
             rel="noreferrer"
             title="Abrir en Google Maps"

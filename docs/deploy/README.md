@@ -69,6 +69,9 @@ otros archivos fuera de `backend/` y `frontend/`, el job termina sin reconstruir
 relanzarlo sin un commit nuevo: *Actions -> Deploy -> Run workflow* (rama `main`). El commit
 desplegado queda en `.deployed-sha` dentro de la copia de produccion.
 
+Las variables `VITE_*` de `.env` se incrustan al construir el frontend: si solo cambia `.env`
+(por ejemplo, la llave de Google Maps), hay que reconstruir a mano con `./deploy.sh --force`.
+
 A mano, desde la copia de produccion:
 
 ```bash

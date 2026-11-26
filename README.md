@@ -38,7 +38,7 @@ en [docs/legacy-ithera/](docs/legacy-ithera/README.md). El plan de la conversion
 | --- | --- | --- | --- |
 | M1 | Cuentas y acceso (OTP, Google, perfil) | `auth` | `Login`, `Register`, `OTP`, `Profile` |
 | M2 | Viajes, integrantes y permisos | `groups` (`trips.router`) | `MyTrips`, `CreateGroup`, `JoinGroup`, `GroupPanel`, `GroupSettings` |
-| M3 | Itinerario basico | `itinerary`, `export` | Pestana Itinerario (`DayView`, `ActivityFormModal`), `Shared` |
+| M3 | Itinerario basico | `itinerary`, `export` | Pestana Itinerario (`DayView`, `ActivityFormModal`, `TripMap`, `PlaceAutocompleteInput`), `Shared` |
 | M4 | Gastos y repartos | `budget` | Pestana Finanzas (`BudgetDashboard`, `RegisterExpenseModal`) |
 | M5 | Presupuesto (total y por categoria) | `budget` | `CategoryBudgetPanel` |
 | M6 | Saldos y pagos entre companeros | `budget` | `MyWalletView` |
@@ -57,7 +57,9 @@ en [docs/legacy-ithera/](docs/legacy-ithera/README.md). El plan de la conversion
 | CI/CD | GitHub Actions (CI y deploy por SSH) |
 | Pruebas | Jest (backend) y smoke test de punta a punta |
 
-No hay APIs externas de pago: las ubicaciones son texto libre con enlace a Google Maps.
+La unica API externa es Google Maps Platform (desde el navegador): sugerencias de lugares de
+Google Places al ubicar una actividad y mapa del itinerario. Es opcional; sin llave, la
+ubicacion es texto libre. Ver [docs/maps/README.md](docs/maps/README.md).
 
 ## Arquitectura en breve
 
@@ -144,6 +146,7 @@ base de datos se aplican aparte con la Supabase CLI. Guia completa:
 | [docs/deploy/README.md](docs/deploy/README.md) | Hosting y despliegue. |
 | [docs/env/README.md](docs/env/README.md) | Variables de entorno. |
 | [docs/realtime/README.md](docs/realtime/README.md) | Socket.IO. |
+| [docs/maps/README.md](docs/maps/README.md) | Google Places y mapa del itinerario. |
 | [docs/security/README.md](docs/security/README.md) | Seguridad. |
 | [docs/testing/README.md](docs/testing/README.md) | Pruebas. |
 | [docs/workflows/README.md](docs/workflows/README.md) | GitHub Actions. |

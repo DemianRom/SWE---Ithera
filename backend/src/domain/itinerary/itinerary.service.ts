@@ -18,9 +18,11 @@ const DEFAULT_ACTIVITY_IMAGE =
 const TITLE_MAX_LENGTH = 120;
 const DESCRIPTION_MAX_LENGTH = 500;
 const LOCATION_MAX_LENGTH = 200;
+const PLACE_ID_MAX_LENGTH = 512;
+const PLACE_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
 
 const ACTIVITY_COLUMNS =
-  "id_actividad, itinerario_id, titulo, descripcion, ubicacion, fecha_inicio, fecha_fin, estado, creado_por";
+  "id_actividad, itinerario_id, titulo, descripcion, ubicacion, place_id, fecha_inicio, fecha_fin, estado, creado_por";
 
 type ServiceError = Error & { statusCode?: number };
 
@@ -33,6 +35,7 @@ type ActivityRow = {
   titulo: string;
   descripcion: string | null;
   ubicacion: string | null;
+  place_id: string | null;
   fecha_inicio: string | null;
   fecha_fin: string | null;
   estado: string | null;
@@ -128,6 +131,17 @@ const normalizeText = (
     throw createError(`${label} permite máximo ${maxLength} caracteres.`, 400);
   }
   return text;
+};
+
+// Place ID de Google Places (Archivo de Interfaz Externa): solo se guarda el
+// identificador; nombre visible en `ubicacion`, coordenadas se consultan al dibujar.
+const normalizePlaceId = (value: unknown): string | null => {
+  if (value === null || value === undefined || value === "") return null;
+  const placeId = typeof value === "string" ? value.trim() : "";
+  if (!placeId || placeId.length > PLACE_ID_MAX_LENGTH || !PLACE_ID_PATTERN.test(placeId)) {
+    throw createError("El lugar de Google Maps no es válido.", 400);
+  }
+  return placeId;
 };
 
 const normalizeDateTime = (value: unknown, label: string, required: boolean): string | null => {
@@ -319,6 +333,7 @@ const mapActivity = (row: ActivityRow, names: Map<string, string>): ItineraryAct
     title: row.titulo,
     description: row.descripcion ?? "",
     location: row.ubicacion ?? undefined,
+    placeId: row.ubicacion ? (row.place_id ?? null) : null,
     time: formatTimeLabel(row.fecha_inicio),
     startsAt: row.fecha_inicio,
     endsAt: row.fecha_fin,
@@ -424,6 +439,8 @@ export const createGroupActivity = async (
   const titulo = normalizeText(payload.titulo, "El título", TITLE_MAX_LENGTH, true)!;
   const descripcion = normalizeText(payload.descripcion, "La descripción", DESCRIPTION_MAX_LENGTH, false);
   const ubicacion = normalizeText(payload.ubicacion, "La ubicación", LOCATION_MAX_LENGTH, false);
+  // Sin texto de ubicación no hay lugar que ligar.
+  const placeId = ubicacion ? normalizePlaceId(payload.place_id) : null;
   const startsAt = normalizeDateTime(payload.fecha_inicio, "La fecha de inicio", true)!;
   const endsAt = normalizeDateTime(payload.fecha_fin, "La fecha de fin", false);
   assertScheduleIsValid(startsAt, endsAt, ctx.group);
@@ -438,6 +455,7 @@ export const createGroupActivity = async (
       titulo,
       descripcion,
       ubicacion,
+      place_id: placeId,
       fecha_inicio: startsAt,
       fecha_fin: endsAt,
       estado: "confirmada",
@@ -477,6 +495,14 @@ export const updateGroupActivity = async (
   const ubicacion = has("ubicacion")
     ? normalizeText(payload.ubicacion, "La ubicación", LOCATION_MAX_LENGTH, false)
     : current.ubicacion;
+  // Si cambia el texto sin mandar place_id, el lugar anterior ya no corresponde.
+  const placeId = !ubicacion
+    ? null
+    : has("place_id")
+      ? normalizePlaceId(payload.place_id)
+      : ubicacion === current.ubicacion
+        ? current.place_id
+        : null;
   const startsAt = has("fecha_inicio")
     ? normalizeDateTime(payload.fecha_inicio, "La fecha de inicio", true)!
     : normalizeDateTime(current.fecha_inicio, "La fecha de inicio", true)!;
@@ -492,6 +518,7 @@ export const updateGroupActivity = async (
       titulo,
       descripcion,
       ubicacion,
+      place_id: placeId,
       fecha_inicio: startsAt,
       fecha_fin: endsAt,
       ultima_actualizacion: new Date().toISOString(),

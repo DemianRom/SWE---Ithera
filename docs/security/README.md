@@ -53,6 +53,13 @@ Casos sensibles:
 - Cada archivo queda asociado a usuario y viaje; el borrado valida ambos.
 - El enlace publico del itinerario esta firmado con `SHARE_LINK_SECRET` y no expone gastos.
 
+## Llave de Google Maps
+
+`VITE_GOOGLE_MAPS_API_KEY` es publica por diseno (queda en el bundle). Debe estar restringida en
+Google Cloud a sitios web (`https://traveling.tonyquezada.com/*` y `http://localhost:5173/*`) y a
+las APIs Maps JavaScript API y Places API (New). Conviene un tope de cuota diario para evitar
+cargos. Ver [../maps/README.md](../maps/README.md).
+
 ## CORS
 
 El backend permite `FRONTEND_URL` y `http://localhost:5173`. Si se agrega otro dominio, actualizar

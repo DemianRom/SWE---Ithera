@@ -7,8 +7,9 @@
 # Base de datos, autenticación y archivos viven en Supabase (nube).
 #
 # Variables:
-#   ./.env          -> VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY y VITE_OAUTH_PROVIDERS (públicas;
-#                      build del frontend)
+#   ./.env          -> VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_OAUTH_PROVIDERS y
+#                      VITE_GOOGLE_MAPS_* (públicas; build del frontend: si cambian, hay que
+#                      reconstruir traveling-web con ./deploy.sh --force)
 #   ./backend/.env  -> configuración y secretos del backend (PORT debe ser 3001)
 #
 # Despliegue: ./deploy.sh (lo dispara GitHub Actions al hacer push a main).
@@ -40,6 +41,8 @@ services:
         VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:?Falta VITE_SUPABASE_URL en .env}
         VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:?Falta VITE_SUPABASE_ANON_KEY en .env}
         VITE_OAUTH_PROVIDERS: ${VITE_OAUTH_PROVIDERS:-}
+        VITE_GOOGLE_MAPS_API_KEY: ${VITE_GOOGLE_MAPS_API_KEY:-}
+        VITE_GOOGLE_MAPS_MAP_ID: ${VITE_GOOGLE_MAPS_MAP_ID:-}
     container_name: traveling-web
     restart: unless-stopped
     networks:

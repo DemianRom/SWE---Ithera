@@ -24,8 +24,10 @@ Socket.IO
   -> Hooks frontend de realtime
 ```
 
-No hay APIs externas: las ubicaciones del itinerario son texto libre con enlace de busqueda a
-Google Maps. Hosting y despliegue: [../deploy/README.md](../deploy/README.md).
+Frontend -> Google Maps Platform (llave de navegador, opcional): sugerencias de Google Places al
+ubicar una actividad y mapa del itinerario. El backend no llama a Google; solo guarda el Place ID.
+Detalle en [../maps/README.md](../maps/README.md). Hosting y despliegue:
+[../deploy/README.md](../deploy/README.md).
 
 ## Principios de organizacion
 
@@ -90,6 +92,7 @@ Las paginas pueden orquestar datos y estado. Los componentes reutilizables deben
 | Cuentas | `domain/auth`, `routes/auth.router.ts` | `pages/Login`, `pages/Register`, `pages/OTP`, `pages/ForgotPassword`, `pages/ResetPassword`, `pages/Profile`, `components/auth` |
 | Viajes e integrantes | `domain/groups`, `routes/trips.router.ts` | `pages/MyTrips`, `pages/CreateGroup`, `pages/JoinGroup`, `pages/GroupPanel`, `pages/GroupSettings`, `components/InviteModal`, `components/GroupConfigModal` |
 | Itinerario basico | `domain/itinerary`, `routes/itinerary.router.ts` | Pestana Itinerario de `pages/Itinerary/DashboardPage.tsx`, `components/ui/DayView`, `components/ActivityFormModal` |
+| Lugares y mapa (Google) | `place_id` en `actividades` | `lib/googleMaps.ts`, `components/ui/PlaceAutocompleteInput`, `components/ui/TripMap` |
 | Enlace publico | `routes/export.router.ts` | `pages/Shared` |
 | Gastos, saldos y pagos | `domain/budget`, `routes/budget.router.ts` | Pestana Finanzas: `components/budget` (`BudgetDashboard`, `RegisterExpenseModal`, `MyWalletView`) |
 | Presupuesto y resumenes | `domain/budget` (`getBudgetSummary`, CSV, `pdf.service.ts`) | `CategoryBudgetPanel`, `BudgetSummaryPanel` |

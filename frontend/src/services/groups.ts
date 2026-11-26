@@ -25,6 +25,7 @@ export interface ActivityInput {
   titulo: string
   descripcion?: string | null
   ubicacion?: string | null
+  place_id?: string | null
   fecha_inicio: string
   fecha_fin?: string | null
 }

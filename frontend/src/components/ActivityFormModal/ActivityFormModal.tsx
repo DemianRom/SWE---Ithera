@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import type { Activity } from "../ui/DayView";
+import { PlaceAutocompleteInput } from "../ui/PlaceAutocompleteInput";
 
 // Ciudad de México usa UTC-6 todo el año (sin horario de verano desde 2022).
 const MEXICO_CITY_OFFSET = "-06:00";
@@ -15,6 +16,8 @@ export interface ActivityFormValues {
   titulo: string;
   descripcion: string | null;
   ubicacion: string | null;
+  /** Place ID de Google Places si se eligió un lugar sugerido. */
+  place_id: string | null;
   fecha_inicio: string;
   fecha_fin: string | null;
 }
@@ -28,6 +31,8 @@ interface ActivityFormModalProps {
   /** Rango permitido (YYYY-MM-DD). */
   minDate: string | null;
   maxDate: string | null;
+  /** Destino del viaje: sesga las sugerencias de lugares hacia esa zona. */
+  destination?: string | null;
   onClose: () => void;
   onSubmit: (values: ActivityFormValues) => Promise<void>;
 }
@@ -65,6 +70,7 @@ export function ActivityFormModal({
   defaultDate,
   minDate,
   maxDate,
+  destination,
   onClose,
   onSubmit,
 }: ActivityFormModalProps) {
@@ -74,6 +80,7 @@ export function ActivityFormModal({
   const [startTime, setStartTime] = useState("10:00");
   const [endTime, setEndTime] = useState("");
   const [location, setLocation] = useState("");
+  const [placeId, setPlaceId] = useState<string | null>(null);
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -88,6 +95,7 @@ export function ActivityFormModal({
     setStartTime(start?.time ?? "10:00");
     setEndTime(end?.time ?? "");
     setLocation(activity?.location ?? "");
+    setPlaceId(activity?.placeId ?? null);
     setDescription(activity?.description ?? "");
     setError("");
     setSaving(false);
@@ -113,6 +121,7 @@ export function ActivityFormModal({
         titulo: title.trim(),
         descripcion: description.trim() || null,
         ubicacion: location.trim() || null,
+        place_id: location.trim() ? placeId : null,
         fecha_inicio: toIso(date, startTime),
         fecha_fin: endTime ? toIso(date, endTime) : null,
       });
@@ -204,11 +213,16 @@ export function ActivityFormModal({
 
           <div>
             <label htmlFor="activity-location" className={labelClass}>Ubicación (opcional)</label>
-            <input
+            <PlaceAutocompleteInput
               id="activity-location"
               value={location}
+              placeId={placeId}
+              biasQuery={destination}
               maxLength={200}
-              onChange={(e) => setLocation(e.target.value)}
+              onChange={(next) => {
+                setLocation(next.label);
+                setPlaceId(next.placeId);
+              }}
               placeholder="Ej: Monte Albán, Oaxaca"
               className={inputClass}
             />

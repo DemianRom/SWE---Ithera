@@ -49,7 +49,7 @@ frontend/
 |   |-- constants/
 |   |-- context/                  # AuthContext, TripContext
 |   |-- hooks/                    # useSocket, useGroupRealtimeRefresh, useNotifications...
-|   |-- lib/                      # Cliente de Supabase y proveedores OAuth
+|   |-- lib/                      # Cliente de Supabase, proveedores OAuth y carga de Google Maps
 |   |-- pages/                    # Una carpeta por ruta
 |   |-- services/                 # Clientes HTTP por modulo
 |   `-- types/
@@ -89,6 +89,8 @@ Plantilla: `.env.example`.
 | `VITE_SUPABASE_URL` | URL del proyecto de Supabase. |
 | `VITE_SUPABASE_ANON_KEY` | Llave publicable de Supabase. |
 | `VITE_OAUTH_PROVIDERS` | Proveedores sociales habilitados (por ejemplo `google`). Vacio = solo correo. |
+| `VITE_GOOGLE_MAPS_API_KEY` | Llave de navegador de Google Maps (opcional). Activa las sugerencias de lugares y el mapa del itinerario. |
+| `VITE_GOOGLE_MAPS_MAP_ID` | Map ID de los marcadores (opcional; vacio = `DEMO_MAP_ID`). |
 
 Todas son publicas. Detalle en [../docs/env/README.md](../docs/env/README.md).
 

@@ -15,6 +15,8 @@ import {
 } from "../../components/layout/AppLayout";
 import { ChatDrawer } from "../../components/chat/ChatDrawer";
 import { DayView } from "../../components/ui/DayView";
+import { TripMap, type TripMapActivity } from "../../components/ui/TripMap";
+import { useGoogleMapsAvailable } from "../../lib/googleMaps";
 import type {
   Activity as DayActivity,
   DayViewHandle,
@@ -379,10 +381,44 @@ function EmptyState({ onAdd }: { onAdd?: () => void }) {
   );
 }
 
+// Mismo orden que la lista del día (DayView): por hora de inicio y luego por título.
+const sortByStartTime = (activities: DayActivity[]): DayActivity[] =>
+  [...activities].sort((left, right) => {
+    const l = left.startsAt ? Date.parse(left.startsAt) : Number.MAX_SAFE_INTEGER;
+    const r = right.startsAt ? Date.parse(right.startsAt) : Number.MAX_SAFE_INTEGER;
+    return l - r || left.title.localeCompare(right.title, "es");
+  });
+
+/** Pines del mapa: orden dentro del día seleccionado, o número de día en la vista general. */
+const buildMapActivities = (
+  activeDay: number | null,
+  selectedDay: ItineraryDay | undefined,
+  days: ItineraryDay[],
+): TripMapActivity[] => {
+  const toPin = (activity: DayActivity, glyph: string, dayNumber: number): TripMapActivity => ({
+    id: activity.id,
+    title: activity.title,
+    glyph,
+    caption: `Día ${dayNumber} · ${activity.time}`,
+    location: activity.location ?? null,
+    placeId: activity.placeId ?? null,
+  });
+
+  if (activeDay !== null) {
+    return sortByStartTime(selectedDay?.activities ?? []).map((activity, index) =>
+      toPin(activity, String(index + 1), activeDay),
+    );
+  }
+  return days.flatMap((day) =>
+    sortByStartTime(day.activities).map((activity) => toPin(activity, String(day.dayNumber), day.dayNumber)),
+  );
+};
+
 function HeroCard({
   activeDay,
   totalDays,
   selectedDay,
+  days,
   group,
   onAdd,
   onExportPdf,
@@ -390,16 +426,98 @@ function HeroCard({
   activeDay: number | null;
   totalDays: number;
   selectedDay?: ItineraryDay;
+  days: ItineraryDay[];
   group: ReturnType<typeof getCurrentGroup> | null;
   onAdd?: () => void;
   onExportPdf: () => void;
 }) {
-  const activities = selectedDay?.activities ?? [];
+  const mapsAvailable = useGoogleMapsAvailable();
+  const [mapFailed, setMapFailed] = useState(false);
+  const mapActivities = useMemo(
+    () => buildMapActivities(activeDay, selectedDay, days),
+    [activeDay, selectedDay, days],
+  );
+  const activities = mapActivities;
   const destination = group?.destino || "Destino pendiente";
   const heroTitle = group?.nombre || destination;
   const dateLabel = formatTripDateRange(group?.fecha_inicio, group?.fecha_fin);
   const heroImage =
     "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900&h=400&fit=crop";
+
+  const content = (
+    <div className="relative flex min-h-[280px] flex-col justify-between gap-6 p-5">
+      <div className="flex max-w-full flex-col items-start gap-2 sm:flex-row sm:flex-wrap">
+        <span className="inline-flex max-w-full items-center gap-2 rounded-xl border border-[#BFD7FF]/50 bg-[#1E6FD9]/45 px-3 py-2 font-body text-[13px] font-bold uppercase tracking-wide text-white shadow-sm backdrop-blur-md">
+          <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/20 text-[#D9E8FF]">
+            <IconMapPinSmall />
+          </span>
+          <span className="min-w-0 break-words [overflow-wrap:anywhere]">
+            {activeDay !== null
+              ? `DÍA ${activeDay} / ${totalDays}`
+              : `${destination.toUpperCase()}`}
+          </span>
+        </span>
+        <span className="inline-flex items-center gap-2 rounded-xl border border-[#FFD166]/60 bg-[#F59E0B]/80 px-3 py-2 font-body text-[13px] font-bold text-white shadow-md backdrop-blur-md">
+          <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/20 text-[#FFF4D6]">
+            <IconCalendarSmall />
+          </span>
+          {dateLabel}
+        </span>
+      </div>
+      <div>
+        <h1
+          className="mb-3 max-w-4xl break-words font-heading text-3xl font-bold leading-tight text-white [overflow-wrap:anywhere] md:text-[36px]"
+          style={{
+            textShadow:
+              "0 2px 16px rgba(0,0,0,0.85), 0 1px 4px rgba(0,0,0,0.6)",
+          }}
+        >
+          {heroTitle}
+        </h1>
+        <div className="mb-4 flex flex-wrap gap-2">
+          <span className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/20 px-3 py-2 font-body text-sm font-bold text-white shadow-sm backdrop-blur-md">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#35C56A]" />
+            {activities.length} actividad{activities.length !== 1 ? "es" : ""}{" "}
+            planeada
+            {activities.length !== 1 ? "s" : ""}
+          </span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {onAdd && (
+            <button
+              onClick={onAdd}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-greenAccent px-4 py-2.5 font-body text-base font-semibold text-white transition-opacity hover:opacity-90"
+            >
+              <IconPlus size={14} />
+              Agregar actividad
+            </button>
+          )}
+          <button
+            onClick={onExportPdf}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-white/45 bg-black/10 px-4 py-2.5 font-body text-base font-semibold text-white transition-colors hover:bg-white/10"
+          >
+            <IconDownload size={13} />
+            Exportar PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Con Google Maps: el viaje a la izquierda y el mapa de sus actividades a la derecha.
+  if (mapsAvailable && !mapFailed) {
+    return (
+      <div className="mb-4 grid shrink-0 overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#1E0A4E_0%,#2D1368_60%,#1E6FD9_160%)] xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+        {content}
+        <TripMap
+          activities={mapActivities}
+          destination={group?.destino}
+          onUnavailable={() => setMapFailed(true)}
+          className="min-h-[260px]"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="relative mb-4 min-h-[280px] shrink-0 overflow-hidden rounded-2xl">
@@ -409,63 +527,7 @@ function HeroCard({
         className="absolute inset-0 h-full w-full object-cover"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
-      <div className="relative flex min-h-[280px] flex-col justify-between p-5">
-        <div className="flex max-w-full flex-col items-start gap-2 sm:flex-row sm:flex-wrap">
-          <span className="inline-flex max-w-full items-center gap-2 rounded-xl border border-[#BFD7FF]/50 bg-[#1E6FD9]/45 px-3 py-2 font-body text-[13px] font-bold uppercase tracking-wide text-white shadow-sm backdrop-blur-md">
-            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/20 text-[#D9E8FF]">
-              <IconMapPinSmall />
-            </span>
-            <span className="min-w-0 break-words [overflow-wrap:anywhere]">
-              {activeDay !== null
-                ? `DÍA ${activeDay} / ${totalDays}`
-                : `${destination.toUpperCase()}`}
-            </span>
-          </span>
-          <span className="inline-flex items-center gap-2 rounded-xl border border-[#FFD166]/60 bg-[#F59E0B]/80 px-3 py-2 font-body text-[13px] font-bold text-white shadow-md backdrop-blur-md">
-            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/20 text-[#FFF4D6]">
-              <IconCalendarSmall />
-            </span>
-            {dateLabel}
-          </span>
-        </div>
-        <div>
-          <h1
-            className="mb-3 max-w-4xl break-words font-heading text-3xl font-bold leading-tight text-white [overflow-wrap:anywhere] md:text-[36px]"
-            style={{
-              textShadow:
-                "0 2px 16px rgba(0,0,0,0.85), 0 1px 4px rgba(0,0,0,0.6)",
-            }}
-          >
-            {heroTitle}
-          </h1>
-          <div className="mb-4 flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/20 px-3 py-2 font-body text-sm font-bold text-white shadow-sm backdrop-blur-md">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#35C56A]" />
-              {activities.length} actividad{activities.length !== 1 ? "es" : ""}{" "}
-              planeada
-              {activities.length !== 1 ? "s" : ""}
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {onAdd && (
-              <button
-                onClick={onAdd}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-greenAccent px-4 py-2.5 font-body text-base font-semibold text-white transition-opacity hover:opacity-90"
-              >
-                <IconPlus size={14} />
-                Agregar actividad
-              </button>
-            )}
-            <button
-              onClick={onExportPdf}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-white/45 bg-black/10 px-4 py-2.5 font-body text-base font-semibold text-white transition-colors hover:bg-white/10"
-            >
-              <IconDownload size={13} />
-              Exportar PDF
-            </button>
-          </div>
-        </div>
-      </div>
+      {content}
     </div>
   );
 }
@@ -1740,6 +1802,7 @@ export function DashboardPage() {
             activeDay={activeDay}
             totalDays={daysWithContext.length}
             selectedDay={selectedDayWithContext}
+            days={daysWithContext}
             group={group}
             onAdd={
               canEditItinerary && areRealtimeActionsEnabled
@@ -1938,6 +2001,7 @@ export function DashboardPage() {
         defaultDate={activityForm?.date ?? null}
         minDate={activityMinDate}
         maxDate={tripEndKey}
+        destination={group?.destino ?? null}
         onClose={() => setActivityForm(null)}
         onSubmit={handleSubmitActivity}
       />

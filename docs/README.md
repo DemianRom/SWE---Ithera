@@ -23,6 +23,7 @@ Para incorporarse rapido al proyecto:
 | [database/README.md](database/README.md) | Backend, datos | Supabase, migraciones, RLS y configuracion de Auth como codigo. |
 | [testing/README.md](testing/README.md) | Devs, QA | Estrategia de pruebas y comandos de verificacion. |
 | [realtime/README.md](realtime/README.md) | Backend, frontend | Socket.IO, eventos, salas y hooks consumidores. |
+| [maps/README.md](maps/README.md) | Frontend, DevOps | Google Places, mapa del itinerario y configuracion de la llave. |
 | [security/README.md](security/README.md) | Todo el equipo | Secrets, auth, permisos, CORS, uploads y revision segura. |
 | [releases/README.md](releases/README.md) | Lideres, equipo | Cierre de sprint, releases, hotfixes y checklist de entrega. |
 | [frontend-ui/README.md](frontend-ui/README.md) | Frontend | Convenciones de paginas, componentes, servicios y UI. |

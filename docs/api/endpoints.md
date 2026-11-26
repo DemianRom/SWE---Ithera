@@ -94,8 +94,8 @@ Base: `/api/groups/:groupId/itinerary`
 | Metodo | Endpoint | Auth | Descripcion |
 | --- | --- | --- | --- |
 | `GET` | `/` | Si | Obtiene el itinerario del viaje con sus actividades. |
-| `POST` | `/activities` | Si | Crea actividad (titulo, inicio/fin, ubicacion en texto, notas). |
-| `PATCH` | `/activities/:activityId` | Si | Actualiza actividad grupal. |
+| `POST` | `/activities` | Si | Crea actividad: `titulo`, `fecha_inicio`, `fecha_fin?`, `descripcion?`, `ubicacion?` (texto visible) y `place_id?` (Place ID de Google Places; se ignora sin `ubicacion`). |
+| `PATCH` | `/activities/:activityId` | Si | Actualiza actividad. Si cambia `ubicacion` sin mandar `place_id`, el lugar ligado se suelta; `place_id: null` lo quita conservando el texto. |
 | `DELETE` | `/activities/:activityId` | Si | Elimina actividad grupal. |
 
 ## Chat

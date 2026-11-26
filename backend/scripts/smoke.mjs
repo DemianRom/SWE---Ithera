@@ -253,6 +253,25 @@ async function main() {
     assert(res.activity?.title === 'Monte Albán y Atzompa', 'no se actualizó el título');
   });
 
+  await step('Lugar de Google Places en la actividad (place_id)', async () => {
+    const route = `/groups/${gid}/itinerary/activities/${activity.id}`;
+    // Identificador con el formato de Google; el backend no consulta a Google.
+    const placeId = 'ChIJ_smoke-Test_123';
+    let res = await api(b.token, 'PATCH', route, { ubicacion: 'Monte Albán', place_id: placeId });
+    assert(res.activity?.placeId === placeId, 'no se guardó el place_id');
+    res = await api(b.token, 'PATCH', route, { descripcion: 'Smoke test (lugar)' });
+    assert(res.activity?.placeId === placeId, 'se perdió el place_id al editar otro campo');
+    await expectStatus(b.token, 'PATCH', route, { place_id: 'no válido!' }, 400);
+    res = await api(b.token, 'PATCH', route, { ubicacion: 'Monte Albán, Oaxaca' });
+    assert(res.activity?.placeId === null, 'el place_id debe soltarse si cambia el texto sin lugar nuevo');
+    await api(b.token, 'PATCH', route, { ubicacion: 'Monte Albán', place_id: placeId });
+    res = await api(b.token, 'PATCH', route, { place_id: null });
+    assert(
+      res.activity?.placeId === null && res.activity?.location === 'Monte Albán',
+      'no se pudo quitar el lugar conservando el texto',
+    );
+  });
+
   await step('Permisos: otro integrante no edita una actividad ajena', async () => {
     await expectStatus(c.token, 'PATCH', `/groups/${gid}/itinerary/activities/${activity.id}`, { titulo: 'x' }, 403);
   });
