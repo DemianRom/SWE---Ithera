@@ -57,8 +57,7 @@ Casos sensibles:
 
 `VITE_GOOGLE_MAPS_API_KEY` es publica por diseno (queda en el bundle). Debe estar restringida en
 Google Cloud a sitios web (`https://traveling.tonyquezada.com/*` y `http://localhost:5173/*`) y a
-las APIs Maps JavaScript API y Places API (New). Conviene un tope de cuota diario para evitar
-cargos. Ver [../maps/README.md](../maps/README.md).
+las APIs Maps JavaScript API y Places API (New). Ver [../maps/README.md](../maps/README.md).
 
 ## CORS
 

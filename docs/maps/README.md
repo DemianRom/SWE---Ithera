@@ -24,22 +24,20 @@ Google: ubicacion en texto libre y foto de portada en el encabezado.
   memoria durante la sesion. El centro del destino se guarda en `sessionStorage`.
 - El backend no llama a Google; solo valida el formato del Place ID.
 
-## APIs y costo
+## APIs y consumo
 
 | API de Google | Uso |
 | --- | --- |
 | Maps JavaScript API | Cargar la libreria y dibujar el mapa. |
 | Places API (New) | Sugerencias (Autocomplete), datos del lugar elegido (Place Details) y ubicar el destino (Text Search). |
 
-Para bajar el costo, las sugerencias se piden con un retraso de 300 ms, desde 3 caracteres y
-dentro de una sesion que termina al elegir un lugar; las coordenadas y el destino se piden una
-vez por sesion del navegador. Google exige cuenta de facturacion; el uso de un proyecto escolar
-normalmente queda dentro de su cuota gratuita mensual. Conviene fijar topes de cuota diarios.
+Para pedir lo menos posible, las sugerencias se piden con un retraso de 300 ms, desde 3
+caracteres y dentro de una sesion que termina al elegir un lugar; las coordenadas y el destino se
+piden una vez por sesion del navegador. No se configuro facturacion ni tarjeta en Google Cloud.
 
 ## Configurar la llave
 
-1. En [Google Cloud Console](https://console.cloud.google.com/), crear o elegir un proyecto y
-   ligarle una cuenta de facturacion.
+1. En [Google Cloud Console](https://console.cloud.google.com/), crear o elegir un proyecto.
 2. Habilitar **Maps JavaScript API** y **Places API (New)** (APIs y servicios -> Biblioteca).
 3. Crear una llave (APIs y servicios -> Credenciales -> Crear credenciales -> Clave de API) y
    restringirla:
