@@ -135,6 +135,12 @@ export function ChatDrawer({
   const [onlineUserIds, setOnlineUserIds] = useState<string[]>([])
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+  const drawerRef = useRef<HTMLDivElement | null>(null)
+
+  const hasOtherDialog = useCallback(() =>
+    Array.from(document.querySelectorAll<HTMLElement>('[role="dialog"], dialog[open]'))
+      .some((dialog) => dialog !== drawerRef.current && !dialog.contains(drawerRef.current) &&
+        !dialog.closest('[inert], [aria-hidden="true"]') && dialog.getClientRects().length > 0), [])
 
   // Derived: true whenever the loaded data doesn't match the current group yet
   const isLoading = groupId != null && loadedGroupId !== groupId
@@ -229,12 +235,67 @@ export function ChatDrawer({
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }, [messages.length])
 
-  // Focus textarea when drawer opens
   useEffect(() => {
     if (!open) return
-    const t = setTimeout(() => textareaRef.current?.focus(), 300)
-    return () => clearTimeout(t)
-  }, [open])
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    const drawer = drawerRef.current
+    const focusDrawer = () => {
+      if (textareaRef.current && !textareaRef.current.disabled) textareaRef.current.focus()
+      else drawer?.focus()
+    }
+    let otherDialogOpen = hasOtherDialog()
+    if (!otherDialogOpen) focusDrawer()
+    const observer = new MutationObserver(() => {
+      const hasDialog = hasOtherDialog()
+      if (drawer?.isConnected && !drawer.inert && otherDialogOpen && !hasDialog &&
+        (document.activeElement === document.body || document.activeElement === document.documentElement)) {
+        focusDrawer()
+      }
+      otherDialogOpen = hasDialog
+    })
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class', 'style', 'hidden', 'inert', 'aria-hidden', 'open'],
+    })
+    return () => {
+      observer.disconnect()
+      if (!hasOtherDialog() && previousFocus?.isConnected &&
+        (drawer?.contains(document.activeElement) || document.activeElement === document.body)) {
+        previousFocus.focus()
+      }
+    }
+  }, [open, hasOtherDialog])
+
+  const handleDrawerKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.defaultPrevented || hasOtherDialog()) return
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      event.stopPropagation()
+      onClose()
+      return
+    }
+    if (event.key !== 'Tab') return
+    const drawer = drawerRef.current
+    if (!drawer) return
+    const focusable = Array.from(drawer.querySelectorAll<HTMLElement>(
+      'a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
+    )).filter((element) => !element.closest('[inert], [hidden], [aria-hidden="true"]') && element.getClientRects().length > 0)
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    if (!first || !last) {
+      event.preventDefault()
+      drawer.focus()
+    } else if (event.shiftKey && (document.activeElement === first || document.activeElement === drawer)) {
+      event.preventDefault()
+      last.focus()
+    } else if (!event.shiftKey && (document.activeElement === last || document.activeElement === drawer)) {
+      event.preventDefault()
+      first.focus()
+    }
+    event.stopPropagation()
+  }
 
   const handleSend = useCallback(() => {
     const text = chatInput.trim()
@@ -311,9 +372,14 @@ export function ChatDrawer({
 
       {/* Drawer */}
       <div
+        ref={drawerRef}
         role="dialog"
         aria-modal="true"
         aria-label={`Chat del grupo ${groupName}`}
+        aria-hidden={!open}
+        inert={!open}
+        tabIndex={-1}
+        onKeyDown={handleDrawerKeyDown}
         className={[
           'fixed right-0 top-0 z-50 flex h-full w-[420px] max-w-full flex-col shadow-2xl',
           'transition-transform duration-300 ease-in-out',
