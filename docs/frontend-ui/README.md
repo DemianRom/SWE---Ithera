@@ -9,9 +9,7 @@ Esta guia resume convenciones visuales y de organizacion para la interfaz.
 - [Kit de marca](kit-marca/README.md): instrucciones, tokens y logotipos.
 - [Manual visual HTML](kit-marca/index.html): propuesta de identidad y componentes.
 
-La propuesta se incorporó el 25 de noviembre de 2026. El frontend actual todavía
-no aplica esta renovación. Mantener la copia del kit de esta carpeta como referencia
-del equipo y trasladar los patrones a React por fases, conservando la funcionalidad.
+La propuesta se incorporó el 25 de noviembre de 2026 y su implementación es parcial: la marca, el acceso y algunos controles ya se han actualizado. El alcance visual vigente es escritorio. Mantener el kit como referencia y trasladar los patrones a React por fases, conservando la funcionalidad.
 
 ## Estructura UI
 
