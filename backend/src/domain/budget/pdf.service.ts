@@ -394,20 +394,24 @@ const buildBudgetSummaryPdf = (data: PdfDocumentData): Buffer => {
   const pages: string[][] = [];
   let commands: string[] = [];
   let y = 0;
-  const navy = '0.055 0.157 0.224';
-  const teal = '0.008 0.49 0.49';
-  const muted = '0.35 0.42 0.46';
+  const navy = '0.027 0.231 0.322';
+  const blue = '0.027 0.357 0.522';
+  const muted = '0.322 0.424 0.475';
+  const border = '0.796 0.867 0.89';
+  const pale = '0.91 0.957 0.98';
   const startPage = () => {
     commands = [];
     pages.push(commands);
-    addRect(commands, 0, 724, 612, 68, navy);
-    addRect(commands, 48, 747, 4, 22, teal);
-    addText(commands, 'TRAVELING', 62, 755, 16, 'F2', '1 1 1');
-    addText(commands, pages.length === 1 ? 'RESUMEN DE GASTOS' : 'RESUMEN DE GASTOS  /  CONTINUACION', 340, 756, 9, 'F2', '1 1 1');
-    addRect(commands, 48, 46, 516, 1, '0.85 0.89 0.89');
-    addText(commands, 'TRAVELING  /  RESUMEN DE VIAJE', 48, 30, 8, 'F2', muted);
+    if (pages.length > 1) {
+      addRect(commands, 0, 724, 612, 68, navy);
+      addText(commands, 'Resumen de gastos', 48, 755, 17, 'F2', '1 1 1');
+      addText(commands, 'Traveling / Continuacion', 48, 736, 9, 'F1', '0.9 0.95 0.97');
+    }
+    addRect(commands, 0, 18, 612, 32, '0.957 0.976 0.98');
+    addRect(commands, 0, 50, 612, 1, border);
+    addText(commands, 'Generado por Traveling', 48, 30, 8, 'F1', muted);
     addText(commands, `Pagina ${pages.length}`, 510, 30, 8, 'F1', muted);
-    y = 694;
+    y = 700;
   };
   const ensureSpace = (height: number) => {
     if (y - height < 62) startPage();
@@ -427,40 +431,54 @@ const buildBudgetSummaryPdf = (data: PdfDocumentData): Buffer => {
   };
 
   startPage();
-  addText(commands, 'TU VIAJE EN NUMEROS', 48, y, 9, 'F2', teal);
-  y -= 26;
-  writeWrapped(data.subtitle, 48, 38, 22, 'F2', navy, 27);
-  y -= 5;
-  writeWrapped(data.folio, 48, 72, 9, 'F1', muted, 13);
-  y -= 12;
-  ensureSpace(78);
-  addRect(commands, 48, y - 65, 516, 65, '0.93 0.97 0.96');
-  addText(commands, 'TOTAL GASTADO', 64, y - 21, 9, 'F2', muted);
-  addText(commands, moneyText(data.total), 64, y - 46, 18, 'F2', navy);
-  addText(commands, 'GASTOS', 424, y - 21, 9, 'F2', muted);
-  addText(commands, data.authCode ?? '0', 424, y - 46, 18, 'F2', navy);
-  y -= 92;
+  addRect(commands, 0, 566, 612, 226, navy);
+  addText(commands, data.title, 48, 750, 23, 'F2', '1 1 1');
+  const subtitleLines = wrap(data.subtitle, 67);
+  subtitleLines.slice(0, 3).forEach((line, index) => {
+    addText(commands, line, 48, 725 - index * 15, 11, 'F1', '0.9 0.95 0.97');
+  });
+  addText(commands, data.folio, 48, 669, 9, 'F1', '0.9 0.95 0.97');
+  addRect(commands, 48, 588, 250, 62, blue);
+  addRect(commands, 314, 588, 250, 62, blue);
+  addText(commands, 'TOTAL GASTADO', 62, 630, 9, 'F2', '0.9 0.95 0.97');
+  addText(commands, moneyText(data.total), 62, 605, 15, 'F2', '1 1 1');
+  addText(commands, 'GASTOS', 328, 630, 9, 'F2', '0.9 0.95 0.97');
+  addText(commands, data.authCode ?? '0', 328, 605, 15, 'F2', '1 1 1');
+  y = 542;
+  // Los nombres largos continuan fuera del encabezado sin perder contenido.
+  subtitleLines.slice(3).forEach((line) => {
+    ensureSpace(15);
+    addText(commands, line, 48, y, 11, 'F1', navy);
+    y -= 15;
+  });
 
   data.sections.forEach((section) => {
     ensureSpace(65);
-    addText(commands, section.title, 48, y, 12, 'F2', navy);
-    y -= 12;
-    addRect(commands, 48, y, 516, 1, '0.80 0.87 0.87');
-    y -= 20;
+    addRect(commands, 48, y - 30, 516, 30, border);
+    addRect(commands, 49, y - 29, 514, 28, pale);
+    addText(commands, section.title, 62, y - 20, 11, 'F2', navy);
+    y -= 30;
     section.lines.forEach((line) => {
-      ensureSpace(36);
-      if (line.label) {
-        writeWrapped(line.label, 48, 80, 9, 'F2', teal, 12);
-        y -= 2;
+      const textLines = [
+        ...(line.label ? wrap(line.label, 78).map((text) => ({ text, font: 'F2', color: blue, size: 9 })) : []),
+        ...wrap(line.value, 86).map((text) => ({ text, font: 'F1', color: navy, size: 10 })),
+      ];
+      // Cada fragmento tiene su propio borde para poder continuar en otra pagina.
+      while (textLines.length) {
+        ensureSpace(30);
+        const count = Math.min(textLines.length, Math.max(1, Math.floor((y - 62 - 12) / 14)));
+        const fragment = textLines.splice(0, count);
+        const height = fragment.length * 14 + 12;
+        addRect(commands, 48, y - height, 516, height, border);
+        addRect(commands, 49, y - height + 1, 514, height - 2, '1 1 1');
+        fragment.forEach((item, index) => addText(commands, item.text, 62, y - 16 - index * 14, item.size, item.font, item.color));
+        y -= height;
       }
-      writeWrapped(line.value, 48, 90, 10, 'F1', navy, 14);
-      y -= 10;
     });
-    y -= 8;
+    y -= 16;
   });
   if (data.footer) {
     ensureSpace(36);
-    y -= 4;
     writeWrapped(data.footer, 48, 95, 8, 'F1', muted, 11);
   }
 
