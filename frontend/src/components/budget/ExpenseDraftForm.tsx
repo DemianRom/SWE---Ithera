@@ -77,9 +77,9 @@ export const ExpenseDraftForm: FC<Props> = ({
   return (
     <div className="grid gap-4">
       <div>
-        <label className="mb-1.5 block font-body text-sm font-medium text-[#3D4A5C]">Monto</label>
+        <label className="mb-1.5 block font-body text-sm font-medium text-[#183F51]">Monto</label>
         <div className="relative">
-          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-body text-sm text-[#7A8799]">$</span>
+          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-body text-sm text-[#526C79]">$</span>
           <input
             type="number"
             min="0"
@@ -87,38 +87,38 @@ export const ExpenseDraftForm: FC<Props> = ({
             value={amount}
             onChange={(event) => onAmountChange(event.target.value)}
             placeholder="0.00"
-            className="w-full rounded-xl border border-[#E2E8F0] bg-[#F4F6F8] py-3 pl-7 pr-4 font-body text-sm text-[#3D4A5C] outline-none transition-colors focus:border-[#1E6FD9]"
+            className="w-full rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] py-3 pl-7 pr-4 font-body text-sm text-[#183F51] outline-none transition-colors focus:border-[#0878CF]"
           />
         </div>
       </div>
 
       <div>
-        <label className="mb-1.5 block font-body text-sm font-medium text-[#3D4A5C]">Descripcion</label>
+        <label className="mb-1.5 block font-body text-sm font-medium text-[#183F51]">Descripcion</label>
         <input
           type="text"
           value={description}
           onChange={(event) => onDescriptionChange(event.target.value)}
           placeholder="ej. Vuelos, Hotel, Tour..."
-          className="w-full rounded-xl border border-[#E2E8F0] bg-[#F4F6F8] px-4 py-3 font-body text-sm text-[#3D4A5C] outline-none transition-colors focus:border-[#1E6FD9]"
+          className="w-full rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-3 font-body text-sm text-[#183F51] outline-none transition-colors focus:border-[#0878CF]"
         />
       </div>
 
       <div>
-        <label className="mb-1.5 block font-body text-sm font-medium text-[#3D4A5C]">Fecha</label>
+        <label className="mb-1.5 block font-body text-sm font-medium text-[#183F51]">Fecha</label>
         <input
           type="date"
           value={date}
           onChange={(event) => onDateChange(event.target.value)}
-          className="w-full rounded-xl border border-[#E2E8F0] bg-[#F4F6F8] px-4 py-3 font-body text-sm text-[#3D4A5C] outline-none transition-colors focus:border-[#1E6FD9]"
+          className="w-full rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-3 font-body text-sm text-[#183F51] outline-none transition-colors focus:border-[#0878CF]"
         />
       </div>
 
       <div>
-        <label className="mb-1.5 block font-body text-sm font-medium text-[#3D4A5C]">Categoria</label>
+        <label className="mb-1.5 block font-body text-sm font-medium text-[#183F51]">Categoria</label>
         <select
           value={category}
           onChange={(event) => onCategoryChange(event.target.value as BudgetCategory)}
-          className="w-full rounded-xl border border-[#E2E8F0] bg-[#F4F6F8] px-4 py-3 font-body text-sm text-[#3D4A5C] outline-none transition-colors focus:border-[#1E6FD9]"
+          className="w-full rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-3 font-body text-sm text-[#183F51] outline-none transition-colors focus:border-[#0878CF]"
         >
           {CATEGORY_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
@@ -127,11 +127,11 @@ export const ExpenseDraftForm: FC<Props> = ({
       </div>
 
       <div>
-        <label className="mb-1.5 block font-body text-sm font-medium text-[#3D4A5C]">Pagador</label>
+        <label className="mb-1.5 block font-body text-sm font-medium text-[#183F51]">Pagador</label>
         <select
           value={paidBy}
           onChange={(event) => onPaidByChange(event.target.value)}
-          className="w-full rounded-xl border border-[#E2E8F0] bg-[#F4F6F8] px-4 py-3 font-body text-sm text-[#3D4A5C] outline-none transition-colors focus:border-[#1E6FD9]"
+          className="w-full rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-3 font-body text-sm text-[#183F51] outline-none transition-colors focus:border-[#0878CF]"
         >
           {activeMembers.map((member) => (
             <option key={member.id} value={member.id}>{member.label}</option>
@@ -140,8 +140,8 @@ export const ExpenseDraftForm: FC<Props> = ({
       </div>
 
       <div>
-        <label className="mb-1.5 block font-body text-sm font-medium text-[#3D4A5C]">Personas del gasto</label>
-        <div className="flex flex-wrap gap-2 rounded-xl border border-[#E2E8F0] bg-[#F4F6F8] px-3 py-3">
+        <label className="mb-1.5 block font-body text-sm font-medium text-[#183F51]">Personas del gasto</label>
+        <div className="flex flex-wrap gap-2 rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-3 py-3">
           {members.map((member) => {
             const selected = selectedMemberIds.includes(member.id)
             return (
@@ -152,8 +152,8 @@ export const ExpenseDraftForm: FC<Props> = ({
                 className={[
                   'rounded-full border px-3 py-1.5 font-body text-xs font-semibold transition-colors',
                   selected
-                    ? 'border-[#1E6FD9] bg-[#1E6FD9] text-white'
-                    : 'border-[#E2E8F0] bg-white text-[#7A8799]',
+                    ? 'border-[#0878CF] bg-[#0878CF] text-white'
+                    : 'border-[#CBDDE3] bg-white text-[#526C79]',
                 ].join(' ')}
               >
                 {member.label}
@@ -164,7 +164,7 @@ export const ExpenseDraftForm: FC<Props> = ({
       </div>
 
       <div>
-        <label className="mb-1.5 block font-body text-sm font-medium text-[#3D4A5C]">Tipo de Division</label>
+        <label className="mb-1.5 block font-body text-sm font-medium text-[#183F51]">Tipo de Division</label>
         <div className="flex gap-2">
           {SPLIT_TYPE_OPTIONS.map(({ value, label }) => (
             <button
@@ -174,8 +174,8 @@ export const ExpenseDraftForm: FC<Props> = ({
               className={[
                 'flex-1 rounded-xl border px-2 py-2.5 font-body text-sm font-medium transition-colors',
                 splitType === value
-                  ? 'border-[#1E6FD9] bg-[#1E6FD9] text-white'
-                  : 'border-[#E2E8F0] bg-[#F4F6F8] text-[#7A8799]',
+                  ? 'border-[#0878CF] bg-[#0878CF] text-white'
+                  : 'border-[#CBDDE3] bg-[#F4F9FA] text-[#526C79]',
               ].join(' ')}
             >
               {label}
@@ -195,20 +195,20 @@ export const ExpenseDraftForm: FC<Props> = ({
       )}
 
       {splitType === 'personalizada' && (
-        <div className="flex flex-col gap-2 rounded-xl border border-[#E2E8F0] bg-[#F4F6F8] px-4 py-3">
-          <p className="font-body text-xs font-medium text-[#7A8799]">Monto por persona</p>
+        <div className="flex flex-col gap-2 rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-3">
+          <p className="font-body text-xs font-medium text-[#526C79]">Monto por persona</p>
           {activeMembers.map((member) => (
             <div key={member.id} className="flex items-center gap-3">
-              <span className="w-28 shrink-0 font-body text-sm text-[#3D4A5C]">{member.label}</span>
+              <span className="w-28 shrink-0 font-body text-sm text-[#183F51]">{member.label}</span>
               <div className="relative flex-1">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 font-body text-sm text-[#7A8799]">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 font-body text-sm text-[#526C79]">$</span>
                 <input
                   type="number"
                   min="0"
                   value={splitAmounts[member.id] ?? ''}
                   onChange={(event) => onSplitAmountChange(member.id, event.target.value)}
                   placeholder="0"
-                  className="w-full rounded-lg border border-[#E2E8F0] bg-white py-2 pl-6 pr-3 font-body text-sm text-[#3D4A5C] outline-none transition-colors focus:border-[#1E6FD9]"
+                  className="w-full rounded-lg border border-[#CBDDE3] bg-white py-2 pl-6 pr-3 font-body text-sm text-[#183F51] outline-none transition-colors focus:border-[#0878CF]"
                 />
               </div>
             </div>
