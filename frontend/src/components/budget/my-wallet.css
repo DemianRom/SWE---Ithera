@@ -1,5 +1,5 @@
-.wallet-view { color: var(--text); font-family: var(--font-body); }
-.wallet-header { padding: 28px max(32px, calc((100% - 1180px) / 2)) 38px; background: linear-gradient(120deg, #073b52, #075b85); }
+.wallet-view { color: var(--text); font-family: var(--font-body); margin: -24px; min-height: 100%; }
+.wallet-header { padding: 28px max(56px, calc((100% - 1180px) / 2 + 56px)) 38px; background: linear-gradient(120deg, #073b52, #075b85); }
 .wallet-header button { min-height: 44px; }
 .wallet-header h1 { font: 600 34px/1.15 var(--font-display); margin: 5px 0 8px; }
 .wallet-eyebrow, .wallet-section-kicker { font-size: 11px; font-weight: 800; letter-spacing: .12em; }
