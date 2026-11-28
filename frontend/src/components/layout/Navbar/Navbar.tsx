@@ -579,20 +579,31 @@ function DashboardNavContent({
   useEffect(() => {
     if (!menuOpen && !notifOpen && !tripMenuOpen) return
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return
+      if (event.key !== 'Escape' || event.defaultPrevented || document.querySelector('[aria-modal="true"]')) return
       const active = document.activeElement
-      const ref = menuRef.current?.contains(active) ? menuRef :
-        notifRef.current?.contains(active) ? notifRef :
-          tripMenuRef.current?.contains(active) ? tripMenuRef : null
+      const ref = menuOpen && menuRef.current?.contains(active) ? menuRef :
+        notifOpen && notifRef.current?.contains(active) ? notifRef :
+          tripMenuOpen && tripMenuRef.current?.contains(active) ? tripMenuRef :
+            menuOpen ? menuRef : notifOpen ? notifRef : tripMenuRef
       if (!ref) return
       event.preventDefault()
       setMenuOpen(false)
       setNotifOpen(false)
       setTripMenuOpen(false)
-      ref.current?.querySelector<HTMLButtonElement>('button')?.focus()
+      if (ref.current?.contains(active)) ref.current.querySelector<HTMLButtonElement>('button')?.focus()
+    }
+    const handleFocus = (event: FocusEvent) => {
+      const target = event.target as Node
+      if (menuOpen && !menuRef.current?.contains(target)) setMenuOpen(false)
+      if (notifOpen && !notifRef.current?.contains(target)) setNotifOpen(false)
+      if (tripMenuOpen && !tripMenuRef.current?.contains(target)) setTripMenuOpen(false)
     }
     document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
+    document.addEventListener('focusin', handleFocus)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('focusin', handleFocus)
+    }
   }, [menuOpen, notifOpen, tripMenuOpen])
 
   useEffect(() => {
@@ -875,7 +886,9 @@ function DashboardNavContent({
                             type="button"
                             onClick={(event) => {
                               event.stopPropagation()
-                              notifRef.current?.querySelector<HTMLButtonElement>('button')?.focus()
+                              const buttons = Array.from(notifRef.current?.querySelectorAll<HTMLButtonElement>('button') ?? [])
+                              const index = buttons.indexOf(event.currentTarget)
+                              ;(buttons[index + 1] ?? buttons[0])?.focus()
                               markAsRead(n.id)
                             }}
                             className="mt-2 block rounded text-left font-body text-xs font-semibold text-[#075EAA] underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#075EAA]"

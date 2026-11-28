@@ -211,18 +211,27 @@ export function RightPanelDashboard({
     }
     document.addEventListener('mousedown', handler)
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return
+      if (e.key !== 'Escape' || e.defaultPrevented || document.querySelector('[aria-modal="true"]')) return
       const active = document.activeElement
-      if (!participantTriggerRef.current?.contains(active) && !floatingPopoverRef.current?.contains(active)) return
+      const focusInside = participantTriggerRef.current?.contains(active) || floatingPopoverRef.current?.contains(active)
       e.preventDefault()
       setPopoverOpen(false)
       setSearch('')
-      participantButtonRef.current?.focus()
+      if (focusInside) participantButtonRef.current?.focus()
+    }
+    const handleFocus = (e: FocusEvent) => {
+      const target = e.target as Node
+      if (!participantTriggerRef.current?.contains(target) && !floatingPopoverRef.current?.contains(target)) {
+        setPopoverOpen(false)
+        setSearch('')
+      }
     }
     document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('focusin', handleFocus)
     return () => {
       document.removeEventListener('mousedown', handler)
       document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('focusin', handleFocus)
     }
   }, [popoverOpen])
 
