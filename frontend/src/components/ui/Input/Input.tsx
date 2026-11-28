@@ -28,18 +28,25 @@ export function Input({
   id: idProp,
   className = '',
   disabled,
+  required,
+  'aria-describedby': describedBy,
+  'aria-invalid': ariaInvalid,
   ...rest
 }: InputProps) {
   const generatedId = useId()
   const id = idProp ?? generatedId
   const helperId = `${id}-helper`
+  const errorId = `${id}-error`
   const hasError = !!error
+  const description = [describedBy, helperText && helperId, hasError && errorId]
+    .filter(Boolean)
+    .join(' ') || undefined
 
   return (
     <div className={`flex flex-col gap-1 ${containerClassName}`}>
       {label && (
-        <label htmlFor={id} className="font-body text-sm font-medium text-gray-700">
-          {label}
+        <label htmlFor={id} className="font-body text-sm font-bold text-[#073b52]">
+          {label}{required && <span aria-hidden="true" className="ml-1 text-[#8d4034]">*</span>}
         </label>
       )}
       <div className="relative">
@@ -52,18 +59,19 @@ export function Input({
           {...rest}
           id={id}
           disabled={disabled}
-          aria-invalid={hasError}
-          aria-describedby={helperText || error ? helperId : undefined}
+          required={required}
+          aria-invalid={hasError ? true : ariaInvalid}
+          aria-describedby={description}
           className={[
-            'w-full font-body bg-white border rounded-lg outline-none transition-colors duration-150',
-            'focus:ring-2 focus:ring-offset-0',
+            'w-full font-body text-[#073b52] bg-white border rounded-lg transition-colors duration-150 motion-reduce:transition-none',
+            'placeholder:text-[#647b84] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#006bb5]',
             hasError
-              ? 'border-error focus:border-error focus:ring-error/30'
-              : 'border-gray-300 focus:border-blue focus:ring-blue/30',
-            disabled ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : '',
+              ? 'border-[#a44735] bg-[#fffaf8]'
+              : 'border-[#a0bbc3] focus:border-[#006bb5]',
+            sizeClasses[size],
+            'disabled:bg-[#edf4f5] disabled:text-[#536e78] disabled:cursor-not-allowed',
             leftIcon ? 'pl-10' : '',
             rightIcon ? 'pr-10' : '',
-            sizeClasses[size],
             className,
           ].join(' ')}
         />
@@ -73,11 +81,8 @@ export function Input({
           </span>
         )}
       </div>
-      {(error || helperText) && (
-        <p id={helperId} className={`font-body text-xs ${hasError ? 'text-error' : 'text-gray-500'}`}>
-          {error ?? helperText}
-        </p>
-      )}
+      {helperText && <p id={helperId} className="font-body text-xs text-[#476975]">{helperText}</p>}
+      {error && <p id={errorId} role="alert" className="font-body text-xs font-bold text-[#8d4034]">{error}</p>}
     </div>
   )
 }

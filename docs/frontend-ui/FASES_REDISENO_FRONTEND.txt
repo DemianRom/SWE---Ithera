@@ -1,0 +1,407 @@
+NOTA DE ALCANCE VIGENTE — 27 de noviembre de 2026
+Por decisión del usuario, el rediseño de Traveling se trabajará solo para la vista de computadora/escritorio. La vista móvil queda fuera del alcance actual. En todo este plan, cualquier criterio, tarea o verificación que exija móvil, responsive, uso táctil o tamaños de teléfono queda invalidado como requisito vigente y no debe usarse para aceptar o rechazar entregas. Enfocar las verificaciones actuales de interfaz en escritorio. El texto histórico se conserva sin cambios como referencia; no constituye criterio de aceptación móvil.
+TRAVELING — PLAN DE RENOVACIÓN DEL FRONTEND POR FASES
+Fecha: 25 de noviembre de 2026
+Base revisada: commit db6d584 del repositorio SWE---Ithera.
+Alcance: aplicación del Equipo 2, orientada a las cuentas compartidas del viaje.
+Estado: análisis y propuesta de trabajo; el rediseño aún no está implementado.
+
+1. CONCLUSIÓN DEL ANÁLISIS
+========================
+Sí podemos empezar. El kit ya define una dirección visual suficiente, pero no
+conviene cambiar todas las pantallas a la vez ni limitarse a sustituir colores.
+Primero se construyen los componentes compartidos; después se valida la nueva
+interfaz con el flujo financiero y se extiende al resto de la aplicación.
+
+La personalidad viajera se concentrará en marca, títulos, ilustraciones y pequeños
+detalles. Los importes, formularios, permisos y estados de pago deben conservar una
+lectura directa. No agregaremos reservas, vuelos, hoteles, propuestas ni votaciones.
+Un gasto seguirá pudiendo existir sin actividad de itinerario asociada.
+
+Este análisis se basa en rutas, páginas, componentes, estilos, servicios, hooks,
+tipos y documentación locales. Incluye compilación y lint, pero no es una prueba
+completa de interacción con cuentas reales ni una auditoría visual de cada estado.
+Antes de dar por terminada cada fase se probará en navegador con backend y usuarios
+de prueba. La vista local sin servicios reales no certifica los flujos financieros.
+
+2. LO QUE EXISTE Y LO QUE DEBEMOS ATENDER
+======================================
+- Stack verificado: React 19, TypeScript, Vite, Tailwind CSS 3, React Router,
+  Recharts, Supabase y Socket.IO. No hace falta cambiar de framework para renovar UI.
+- Hay 14 rutas específicas y una ruta comodín de error (15 páginas). Finanzas, Itinerario y
+  Archivos están dentro de DashboardPage; no son tres páginas independientes.
+- La identidad actual conserva morados, verdes y colores hexadecimales directos.
+  index.css y tailwind.config.js usan Plus Jakarta Sans y DM Sans; el kit propone
+  Fredoka y Nunito. Cambiar solo Tailwind dejaría muchos estilos antiguos intactos.
+- Ya existen Button, Input, Card, Badge, Table, Avatar, Toast, ConfirmDialog y
+  HelpButton, pero hay numerosos botones, campos y diálogos escritos por separado.
+  Se deben reutilizar y completar estas piezas, evitando crear otro sistema paralelo.
+- Button e Input tienen tamaños de 32/40/48 px. Adoptaremos 44 px como objetivo
+  mínimo de área interactiva para uso táctil, sin agrandar indiscriminadamente todo.
+- ConfirmDialog ya declara role y aria-modal, pero no implementa dentro del
+  componente confinamiento/restauración del foco ni Escape. Tener ARIA no basta.
+- MyWalletView contiene formularios con campos identificados solo por placeholder;
+  hacen falta etiquetas persistentes y errores dentro del diálogo correspondiente.
+- DashboardPage tiene 1,995 líneas; GroupPanelPage, 1,538; CreateGroupPage, 1,346;
+  ProfilePage, 1,046. Hay que extraer secciones por responsabilidad al intervenirlas,
+  conservando primero sus contratos. El tamaño no demuestra un fallo por sí solo.
+- AppLayout combina altura de pantalla, scroll interno, sidebar de 256 px y panel
+  derecho de 280 px. Revisar móvil, zoom, teclado virtual y modales será esencial.
+- El logo del componente Logo.tsx es una composición temporal; debe migrar a los
+  recursos del kit. Los PNG originales requieren verificar legibilidad en pequeño;
+  una versión vectorial limpia es una mejora posterior, no un bloqueo inicial.
+- Hay formatos monetarios inconsistentes: BudgetDashboard muestra algunas cifras
+  sin decimales y BudgetSummaryPanel permite dos. ExpenseDraftForm redondea cifras
+  en un mensaje de reparto. Definir presentación común sin modificar los cálculos.
+- Hay datos de caché local y refrescos por Socket.IO. Cambiar de viaje o de sesión
+  debe evitar mostrar datos del contexto anterior. Se requiere prueba específica;
+  no se afirma aquí que exista una fuga de datos comprobada.
+- Hay alertas nativas en la exportación del itinerario y mensajes técnicos para
+  usuarios finales. Sustituirlos por feedback contextual y lenguaje claro.
+- El contrato financiero actual declara reparto equitativo o personalizado. No
+  presentar un modo porcentual nuevo como existente sin validar soporte del servidor.
+
+Verificaciones ejecutadas sobre la base actual:
+- npm run build: correcto.
+- npm run lint: correcto.
+- Advertencia de bundle: JS principal de aproximadamente 1,298.14 kB minificado
+  (350.49 kB gzip), superior a la advertencia de 500 kB de Vite.
+- Advertencia de datos Browserslist antiguos. Actualizarlos en un cambio técnico
+  separado, comprobando el lockfile; no es necesario para incorporar este kit.
+- No se encontró una suite frontend propia por nombres test/spec ni un script test
+  en su package.json. Build y lint no sustituyen pruebas de uso.
+
+3. INVENTARIO PARA NO DEJAR PANTALLAS FUERA
+=========================================
+Rutas reales, archivo principal y fase de intervención:
+
+/                       pages/Landing/LandingPage.tsx               F11
+/login                  pages/Login/LoginPage.tsx                   F04
+/register               pages/Register/RegisterPage.tsx             F04
+/forgot-password        pages/ForgotPassword/ForgotPasswordPage.tsx F04
+/reset-password         pages/ResetPassword/ResetPasswordPage.tsx   F04
+/otp                    pages/OTP/OTPPage.tsx                       F04
+/join-group             pages/JoinGroup/JoinGroupPage.tsx           F05
+/shared/:token          pages/Shared/SharedItineraryPage.tsx        F09
+/my-trips               pages/MyTrips/MyTripsPage.tsx               F05
+/dashboard              pages/Itinerary/DashboardPage.tsx           F03/F06/F09/F10
+/create-group           pages/CreateGroup/CreateGroupPage.tsx       F05
+/grouppanel             pages/GroupPanel/GroupPanelPage.tsx         F05
+/group-settings         pages/GroupSettings/GroupSettingsPage.tsx   F05
+/profile                pages/Profile/ProfilePage.tsx              F04
+* (no encontrada)       pages/NotFound/NotFoundPage.tsx              F11
+
+Todas las rutas de archivo anteriores parten de frontend/src/.
+Conservar parámetros groupId, tab, code, token y redirect donde se usan, enlaces
+compartidos y regreso tras iniciar sesión. No renombrar URLs solo por estética.
+
+Piezas transversales:
+- Navegación: Layout, AppLayout, Navbar, Sidebar y paneles laterales.
+- Acceso: AuthContext, ProtectedRoute, PublicRoute, lib/supabase y lib/oauth.
+- Finanzas: BudgetDashboard, RegisterExpenseModal, ExpenseDraftForm,
+  CategoryBudgetPanel, MyWalletView y BudgetSummaryPanel.
+- Itinerario: DayView, ActivityFormModal y GroupConfigModal.
+- Participantes: GroupPanelPage e InviteModal.
+- Archivos: DocumentVaultPanel y services/documents y context-links.
+- Comunicación: ChatDrawer, Navbar, useNotifications, useSocket,
+  useGroupRealtimeRefresh, useNetworkMonitor, OfflineBanner y ToastContainer.
+- Integraciones: services/apiClient, groups, budget, export, chat y notifications.
+  Sus contratos deben conservarse durante el rediseño.
+
+4. FASES DE TRABAJO
+==================
+Cada fase debe poder revisarse por separado. Su cierre exige conservar funcionalidad,
+no solamente una captura bonita. Las fases numeradas indican dependencias generales;
+Finanzas será el primer módulo piloto después de la base y la navegación.
+
+F00 — PREPARACIÓN Y LÍNEA BASE
+Depende de: ninguna. Prioridad: imprescindible.
+Objetivo: saber qué funciona y cómo comprobar que no se pierde.
+Trabajo:
+- Incorporar este plan y el kit al repositorio (realizado con esta entrega).
+- Preparar entorno de prueba con API y Supabase válidos; no usar datos reales para
+  ensayos destructivos. No incluir credenciales en el kit ni en capturas.
+- Registrar capturas de escritorio y móvil de las pantallas actuales.
+- Crear escenarios: sin viajes, viaje activo, sin gastos, viaje con gastos,
+  presupuesto ausente/excedido, pago pendiente/rechazado/confirmado, viaje cerrado.
+- Disponer de administrador y dos integrantes para revisar permisos y saldos.
+- Registrar build/lint y criterios funcionales antes del primer cambio.
+Entrega: matriz de escenarios, capturas y lista de flujos a conservar.
+Cierre: existe un recorrido reproducible crear viaje -> registrar gasto -> repartir
+-> registrar pago -> confirmar -> exportar, y se conocen sus resultados esperados.
+
+F01 — TOKENS, MARCA Y BASE VISUAL
+Depende de: F00. Prioridad: alta.
+Archivos: index.css, tailwind.config.js, components/ui/Logo, assets e index.html
+del frontend. Referencia: docs/frontend-ui/kit-marca/.
+Trabajo:
+- Llevar los colores del kit a tokens semánticos: acción, texto, superficie,
+  borde, foco, información, éxito, advertencia y error.
+- Mapear Tailwind a esos valores y migrar colores directos por módulo. Mantener
+  compatibilidad temporal cuando una pantalla todavía no haya sido migrada.
+- Aplicar Fredoka a títulos seleccionados y Nunito a controles, lectura e importes.
+  Definir pesos, fallbacks y estrategia de carga; comprobar tildes, ñ y cifras.
+- Definir importes con moneda y centavos cuando correspondan, números tabulares,
+  fechas consistentes, espacios y radios. No ocultar diferencias de dinero.
+- Integrar logo horizontal, variante vertical y favicon/isotipo si se prepara.
+  No inventar una versión del logotipo con otra tipografía.
+- Establecer una familia consistente de iconos y movimiento reducido.
+Entrega: base visual utilizable desde React, no una importación global del CSS del
+manual, cuyas clases pertenecen a la página de documentación.
+Cierre: una muestra de texto, botones, campos y cifras cumple contraste, foco y
+legibilidad. Los recursos no dependen de rutas absolutas de la computadora.
+
+F02 — COMPONENTES REUTILIZABLES Y ESTADOS
+Depende de: F01. Prioridad: alta.
+Archivos: components/ui, types/ui.ts y componentes de formulario compartidos.
+Trabajo:
+- Actualizar Button: principal, secundario, discreto y destructivo; tamaños,
+  iconos, hover, pressed, focus, disabled y loading sin desplazar el contenido.
+- Dar personalidad con bordes, radios y relieve sutil; mantener jerarquía clara
+  y evitar que decoración, animación o sombras cambien la acción percibida.
+- Completar Input, select, textarea, checkbox/switch y campo monetario con label,
+  ayuda, requerido/opcional, error asociado y navegación por teclado.
+- Unificar Modal/ConfirmDialog y Drawer: foco inicial, recorrido dentro del modal,
+  retorno al disparador, Escape cuando sea seguro, scroll y salida sin perder datos.
+- Añadir patrones compartidos de Tabs, menú, filtros, lista/tabla adaptable,
+  estado vacío, carga, error con reintento, aviso y progreso de subida.
+- Conservar Avatar, Card, Badge, HelpButton y ToastContainer; ajustar sus variantes.
+  Los errores persistentes van junto al formulario, no únicamente en un toast.
+Entrega: componentes reales y ejemplos de sus estados. El kit orienta la apariencia;
+sus demos no reemplazan estos componentes ni están conectadas a la API.
+Cierre: las piezas se pueden usar con teclado y en móvil; no hay acciones sin nombre
+accesible; una operación pendiente no se dispara varias veces.
+
+F03 — NAVEGACIÓN Y ESTRUCTURA DEL PANEL
+Depende de: F02. Prioridad: alta.
+Archivos: App.tsx, components/layout, pages/Itinerary/DashboardPage.tsx.
+Trabajo:
+- Unificar encabezado, navegación general, selector de viaje y paneles laterales.
+- Mantener Finanzas, Itinerario y Archivos como áreas principales del viaje.
+  Participantes/configuración y chat permanecen accesibles sin saturar el panel.
+- Definir versión móvil: menú o drawer, acciones esenciales visibles y contenido
+  a ancho útil; evitar que sidebar, chat y teclado tapen formularios.
+- Mostrar nombre y estado del viaje, selección activa y regreso a Mis viajes.
+- Separar progresivamente secciones de DashboardPage sin alterar peticiones,
+  sincronización ni permisos. No reescribir toda la página en un solo cambio.
+- Revisar recarga, atrás/adelante y enlaces directos con groupId y tab.
+Entrega: estructura reutilizable para los módulos, validada primero en Finanzas.
+Cierre: cambiar de viaje no conserva datos visibles del anterior; un enlace directo
+abre el contexto correcto y los controles principales caben en móvil.
+
+F04 — AUTENTICACIÓN Y PERFIL
+Depende de: F02; perfil también de F03. Prioridad: alta.
+Archivos: Login, Register, OTP, ForgotPassword, ResetPassword, Profile y guards.
+Trabajo:
+- Unificar composición de acceso, errores y estados de envío con la nueva marca.
+- Preservar login con Google, validación de cuenta, OTP, reenvío, caducidad,
+  recuperación, restablecimiento y redirección posterior a una invitación.
+- Permitir pegar códigos y usar gestores de contraseñas; mantener ver/ocultar clave.
+- Conservar perfil, avatar, contraseña, preferencias, estadísticas y acciones de
+  cuenta presentes, diferenciando edición normal de acciones irreversibles.
+- Revisar sesión vencida, acceso restringido y borradores al volver a un formulario.
+Entrega: familia coherente de pantallas de acceso y cuenta.
+Cierre: el flujo real registro -> OTP -> acceso y recuperación -> nueva contraseña
+funciona; los errores no borran datos útiles ni exponen mensajes técnicos.
+
+F05 — VIAJES, INTEGRANTES E INVITACIONES
+Depende de: F03 y acceso funcional de F04. Prioridad: alta.
+Archivos: MyTrips, CreateGroup, JoinGroup, GroupPanel, GroupSettings, InviteModal.
+Trabajo:
+- Rediseñar tarjetas de viajes activos/pasados, búsqueda/filtros existentes y vacío.
+- Simplificar visualmente crear/editar viaje manteniendo nombre, fechas, destino
+  en texto y opciones admitidas. No introducir buscadores externos eliminados.
+- Organizar integrantes, roles, solicitudes de acceso y delegación de administración.
+- Mantener enlace/código/QR, copia con confirmación, caducidad y reglas de invitación.
+- Diferenciar permisos de administrador e integrante y mostrar el estado cerrado.
+- Revisar cerrar/eliminar/abandonar según las acciones disponibles; explicar alcance
+  y consecuencias de cada una antes de confirmar.
+Entrega: recorrido autónomo crear viaje -> invitar -> incorporarse -> administrarlo.
+Cierre: la persona entiende quién puede hacer qué; un viaje cerrado no ofrece edición
+activa y las invitaciones válidas o vencidas tienen respuesta clara.
+
+F06 — FINANZAS: RESUMEN, GASTOS Y REPARTO (MÓDULO PILOTO)
+Depende de: F03 y escenarios de F00. Prioridad: máxima de producto.
+Archivos: BudgetDashboard, RegisterExpenseModal, ExpenseDraftForm, services/budget.
+Trabajo:
+- Priorizar presupuesto si existe, total gastado, saldo personal e historial.
+- Rediseñar lista de gastos, detalle, filtros y menú de acciones para móvil.
+- Unificar captura y edición: descripción, monto, fecha, categoría, pagador,
+  participantes, reparto y vínculos opcionales a actividad/comprobante.
+- Hacer visible cuánto corresponde a cada integrante y si la suma coincide.
+- Conservar reglas de fechas y validaciones del servidor; permitir registrar un
+  gasto sin itinerario. Explicar errores de monto/reparto junto al control.
+- Revisar cancelación, eliminación y doble envío. Si se guarda el gasto pero falla
+  un adjunto/vínculo, informar resultado parcial y ofrecer recuperación sin duplicar.
+- Mantener datos anteriores cuando falla un refresco, indicando que son una copia
+  previa; no anunciar conexión caída como causa de cualquier error del servidor.
+Entrega: primera experiencia completa con el nuevo diseño.
+Cierre: crear, editar y eliminar un gasto conserva importes y participantes; el
+resumen coincide con la API y se actualiza en otra sesión sin recargar manualmente.
+
+F07 — PRESUPUESTO TOTAL, CATEGORÍAS Y RESÚMENES
+Depende de: F06. Prioridad: alta.
+Archivos: CategoryBudgetPanel, BudgetSummaryPanel y sección de ajustes financieros.
+Trabajo:
+- Diferenciar sin presupuesto definido, cero, disponible y excedido.
+- Presentar planeado/gastado/disponible, categorías y alertas con texto y cantidades.
+- Mantener gráficos de apoyo con leyenda y alternativa tabular; no depender del color.
+- Alinear resumen por integrante con pagos confirmados y reglas actuales de cálculo.
+- Clarificar exportación PDF/CSV, carga, error y archivo descargado.
+Entrega: seguimiento financiero legible y exportaciones localizables.
+Cierre: categorías sin presupuesto no producen porcentajes engañosos; cifras de
+pantalla y archivos coinciden. Cambiar visuales no cambia la fórmula financiera.
+
+F08 — SALDOS, PAGOS Y VALIDACIÓN ENTRE INTEGRANTES
+Depende de: F06. Prioridad: alta; requiere revisión funcional cuidadosa.
+Archivos: MyWalletView, tipos y métodos financieros de registro/revisión de pagos.
+Trabajo:
+- Explicar quién debe a quién, saldo a favor, pendiente y al corriente con nombres.
+- Presentar los estados reales pendiente_validacion, confirmado y rechazado.
+- Separar registrar un pago de confirmarlo/rechazarlo; respetar quién puede actuar.
+- Dar etiquetas visibles a monto, método, nota, comprobante y motivo de rechazo.
+- Preservar edición/cancelación de pagos enviados donde esté permitida y conservar
+  validaciones existentes, incluida la evidencia de transferencia cuando se exige.
+- Mostrar historial y errores dentro del contexto; no cerrar el diálogo al fallar.
+- Aclarar que Traveling registra pagos hechos fuera de la app: no realiza transferencias.
+Entrega: flujo comprensible de liquidación y revisión.
+Cierre: probar pago parcial, rechazo, corrección y confirmación con dos cuentas;
+el saldo solo cambia conforme a las reglas de la API y no se confirma dos veces.
+
+F09 — ITINERARIO Y VISTA COMPARTIDA
+Depende de: F03; vínculos financieros se prueban con F06. Prioridad: media.
+Archivos: DashboardPage, DayView, ActivityFormModal, GroupConfigModal,
+SharedItineraryPage y services/export.
+Trabajo:
+- Ordenar días/horarios, actividad, ubicación escrita, notas y gasto vinculado.
+- Aplicar formularios y confirmaciones consistentes para crear/editar/eliminar.
+- Conservar restricciones del itinerario, permisos y modo de solo lectura.
+- Mantener asociaciones con gastos/documentos sin obligar a usarlas.
+- Rediseñar itinerario compartido: carga, vacío, token inválido/vencido y lectura móvil.
+- Revisar impresión/exportación y reemplazar alertas nativas por mensajes útiles.
+Entrega: itinerario básico coherente con la aplicación financiera.
+Cierre: se puede navegar por días y consultar gasto asociado; el enlace público
+solo muestra datos autorizados y no expone finanzas/comprobantes privados.
+
+F10 — ARCHIVOS, COMPROBANTES Y VÍNCULOS
+Depende de: F02/F03; integración con F06 y F09. Prioridad: alta.
+Archivos: DocumentVaultPanel, services/documents y services/context-links.
+Trabajo:
+- Organizar lista, categoría, búsqueda existente, detalle y acciones del archivo.
+- Diseñar selección/subida con tipos y tamaño admitidos por la API, estado pendiente,
+  éxito, error y reintento. No simular un porcentaje real si no se mide transferencia.
+- Mostrar a qué gasto/actividad corresponde y facilitar revisar el vínculo.
+- Conservar creación de gasto/actividad desde documento cuando el flujo lo permite.
+- Indicar acceso privado, errores de enlace de descarga y acciones destructivas.
+Entrega: gestión documental conectada al contexto financiero.
+Cierre: subir, vincular, consultar y descargar funciona con permisos correctos;
+si falla el archivo o el vínculo, no queda una confirmación de éxito engañosa.
+
+F11 — LANDING, COMUNICACIÓN, AYUDA Y PANTALLAS AUXILIARES
+Depende de: F02/F03. Prioridad: media; dividir en entregas pequeñas.
+F11A, presentación pública:
+- LandingPage, Layout, Footer y NotFoundPage: nueva identidad, beneficio financiero,
+  llamados a crear viaje/acceder, ejemplos reales y enlaces funcionales.
+- Diferenciar claramente demostración estática de controles utilizables.
+- Revisar textos, ilustraciones, imágenes, movimiento y legibilidad móvil.
+F11B, comunicación del producto:
+- Navbar/useNotifications: avisos, contador, leído/no leído y destino correcto.
+- ChatDrawer: mensajes, envío, reconexión, historial, vacío y contador de pendientes.
+- OfflineBanner, Toast y HelpButton: avisos consistentes, sin duplicaciones ni
+  mensajes efímeros como única explicación de un error importante.
+- Mostrar si la información está desactualizada; no prometer envío offline si no
+  existe una cola real. Revisar sesión expirada y cambio de grupo con sockets activos.
+Entrega: experiencia completa desde portada hasta ayuda y recuperación.
+Cierre: una notificación abre su viaje; reconectar no duplica mensajes ni acciones;
+un error tiene salida y la portada representa lo que la aplicación realmente ofrece.
+
+F12 — REGRESIÓN, ACCESIBILIDAD, RENDIMIENTO Y ENTREGA
+Depende de: fases migradas; ejecutar también una revisión breve en cada fase.
+Trabajo:
+- Probar 360/390 px, tablet y escritorio; zoom 200 %, teclado virtual y textos largos.
+- Verificar foco visible, orden de tabulación, lectores de pantalla en flujos clave,
+  etiquetas, contraste y reduced-motion. No basar estados únicamente en color.
+- Ejecutar recorrido financiero con céntimos, muchos gastos y varios integrantes.
+- Probar roles, viaje cerrado, token vencido, fallos de red/API y archivos privados.
+- Medir carga antes/después; dividir por rutas y módulos pesados cuando convenga,
+  con fallback de carga. No cambiar dependencias sin demostrar el beneficio.
+- Optimizar imágenes/fuentes y revisar carga inicial de gráficos para reducir bundle.
+- Añadir pruebas de comportamiento para dinero, permisos y recuperación; evitar
+  pruebas que solo repitan clases CSS o detalles internos del componente.
+- Ejecutar build/lint, revisar consola y documentar capturas/comportamientos en PR.
+Entrega: evidencia de que la migración conserva funciones y cumple la guía.
+Cierre: ninguna regresión crítica abierta; condiciones de aceptación verificadas.
+
+5. ORDEN PRÁCTICO Y SEPARACIÓN DE CAMBIOS
+======================================
+Orden recomendado:
+1) F00 -> F01 -> F02 -> F03.
+2) F06 como piloto; con el acceso existente ya funcional en entorno de prueba.
+3) F07 y F08 para completar las cuentas compartidas.
+4) F04 y F05 para acceso, perfil, viajes e integrantes.
+5) F09 y F10 para itinerario, archivos y asociaciones.
+6) F11A/F11B y cierre F12.
+
+Si la autenticación actual falla en el entorno de prueba, resolverla antes del piloto.
+No esperar a F12 para probar responsive, teclado, dinero o permisos.
+Tras estabilizar componentes, landing y autenticación pueden trabajarse por separado
+de finanzas. Evitar ediciones simultáneas de DashboardPage y Navbar sin coordinación.
+
+Cada entrega debe cubrir un flujo pequeño de extremo a extremo. Separar extracción
+de componentes y cambios visuales cuando facilite detectar regresiones. Mantener
+servicios, payloads y reglas de negocio; un cambio necesario de contrato requiere
+su propio análisis y coordinación con backend.
+
+No fijamos semanas aún: el esfuerzo depende del estado de prueba real y del equipo.
+Mayor riesgo: pagos/saldos, formularios enlazados, permisos, caché y sincronización.
+Menor riesgo funcional: paleta, logo, tipografías y landing, aunque afectan consistencia.
+
+6. QUÉ FALTA DEFINIR DEL KIT AL IMPLEMENTAR
+========================================
+No se necesita otro rediseño completo del manual. Se completará con ejemplos reales:
+- Variantes y estados de todos los controles, incluidos destructivos y carga.
+- Modal/drawer accesibles, menús, tabs, filtros y navegación móvil.
+- Tabla/lista de gastos, gráfico con alternativa textual y resumen monetario.
+- Reparto válido/inválido; pagos pendientes, rechazados y confirmados.
+- OTP, invitación vencida, sesión expirada, sin permiso y viaje cerrado.
+- Archivos: selección, subida, fallo, descarga y vínculo parcial.
+- Vacíos distintos de fallos; datos guardados frente a copia local desactualizada.
+- Reglas para textos largos, monedas, decimales, fechas y contenido de ejemplo.
+
+Los tokens del kit son la referencia visual. El HTML contiene ejemplos conceptuales;
+no se debe copiar su simulación de guardado a los flujos de la aplicación.
+
+7. CRITERIOS DE NIELSEN APLICADOS A CADA ENTREGA
+=============================================
+1) Visibilidad: indicar guardando, actualizado, pendiente y fallo con texto.
+2) Lenguaje cotidiano: “Pagó”, “Te deben”, “Debes”, “Registrar pago”; moneda visible.
+3) Control: cancelar, volver y corregir; confirmar acciones irreversibles.
+4) Consistencia: mismo componente, verbo y ubicación para una misma acción.
+5) Prevención: validar importes/repartos/fechas; impedir envíos repetidos.
+6) Reconocimiento: nombres y contexto visibles; no depender de memorizar IDs.
+7) Eficiencia: teclado, filtros y acceso directo a funciones frecuentes.
+8) Claridad visual: cifras y siguiente acción primero; decoración secundaria.
+9) Recuperación: explicar qué falló y cómo corregirlo conservando la captura.
+10) Ayuda: aclarar reparto, presupuesto y confirmación del pago junto al control.
+
+Esta lista es un criterio de revisión, no una certificación automática de usabilidad.
+
+8. RECURSOS Y PRÓXIMO PASO
+=========================
+Kit dentro del repositorio: docs/frontend-ui/kit-marca/index.html
+Valores visuales: docs/frontend-ui/kit-marca/tokens.css
+Logotipos: docs/frontend-ui/kit-marca/assets/
+Guía de uso del kit: docs/frontend-ui/kit-marca/README.md
+Este documento: docs/frontend-ui/FASES_REDISENO_FRONTEND.txt
+
+Abrir el HTML localmente o servir solo la carpeta del kit con un servidor estático.
+Las fuentes de Google Fonts requieren conexión; se conservan fuentes alternativas.
+La copia dentro del repositorio será la referencia mantenida por el equipo; evitar
+editar otra copia externa y dejar ambas diferentes.
+
+Primera entrega de implementación propuesta: tokens + Logo + Button + Input +
+Modal/ConfirmDialog, seguidos del resumen financiero y registro de gasto piloto.
+No se modificó el código funcional del frontend en esta entrega documental.
+Kit y plan quedan disponibles para incluirse en el próximo commit. No se realizó
+commit, push ni despliegue. Seguir CONTRIBUTING.md para rama, issue y PR; main tiene
+despliegue automático y no es el lugar para experimentar con el rediseño.

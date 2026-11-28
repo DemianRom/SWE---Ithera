@@ -1,4 +1,6 @@
-import type { ReactNode } from "react";
+import { useId, useRef, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { useModalStack } from "../useModalStack";
 
 export type ConfirmDialogVariant = "danger" | "warning" | "info" | "success";
 
@@ -62,21 +64,36 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const titleId = useId();
+  const descriptionId = useId();
+  const layerRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  useModalStack({
+    open,
+    closeBlocked: loading,
+    layerRef,
+    panelRef: dialogRef,
+    initialFocusRef: cancelRef,
+    onClose: onCancel,
+  });
+
   if (!open) return null;
 
   const styles = VARIANT_STYLES[variant];
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm"
+      ref={layerRef}
+      className="fixed inset-0 flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm"
       role="dialog"
-      aria-modal="true"
-      aria-labelledby="confirm-dialog-title"
+      aria-labelledby={titleId}
+      aria-describedby={descriptionId}
       onClick={(event) => {
         if (event.target === event.currentTarget && !loading) onCancel();
       }}
     >
-      <div className="w-full max-w-md rounded-[28px] border border-white/80 bg-white p-5 shadow-2xl shadow-[#1E0A4E]/20 ring-1 ring-[#E2E8F0]/70">
+      <div ref={dialogRef} tabIndex={-1} className="w-full max-w-md rounded-[28px] border border-white/80 bg-white p-5 shadow-2xl shadow-[#1E0A4E]/20 ring-1 ring-[#E2E8F0]/70">
         <div className="flex items-start gap-4">
           <div
             className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-xl font-black ring-1 ${styles.iconWrapper}`}
@@ -86,12 +103,12 @@ export function ConfirmDialog({
           </div>
           <div className="min-w-0 flex-1">
             <h2
-              id="confirm-dialog-title"
+              id={titleId}
               className="font-heading text-lg font-extrabold text-[#1E0A4E]"
             >
               {title}
             </h2>
-            <p className="mt-2 font-body text-sm font-medium leading-relaxed text-[#475569]">
+            <p id={descriptionId} className="mt-2 font-body text-sm font-medium leading-relaxed text-[#475569]">
               {description}
             </p>
           </div>
@@ -105,6 +122,7 @@ export function ConfirmDialog({
 
         <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button
+            ref={cancelRef}
             type="button"
             disabled={loading}
             onClick={onCancel}
@@ -123,6 +141,7 @@ export function ConfirmDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

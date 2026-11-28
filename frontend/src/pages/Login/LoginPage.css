@@ -1,0 +1,164 @@
+.login-page {
+  --login-focus: var(--focus-on-light);
+
+  background: var(--surface-page);
+  color: var(--text);
+  font-family: var(--font-body);
+}
+
+.login-page :is(a, button, input):focus-visible {
+  outline: 2px solid var(--login-focus);
+  outline-offset: 3px;
+}
+
+.login-heading {
+  font-family: var(--font-display);
+}
+
+.login-promo {
+  --login-focus: var(--focus-on-dark);
+
+  background: var(--surface-dark);
+  background-image: radial-gradient(
+    ellipse at bottom right,
+    color-mix(in srgb, var(--surface-dark) 72%, var(--brand-cyan)),
+    transparent 64%
+  );
+  color: var(--text-on-dark);
+}
+
+.login-promo-card,
+.login-promo-badge {
+  border: 1px solid color-mix(in srgb, var(--text-on-dark) 25%, transparent);
+  background: color-mix(in srgb, var(--text-on-dark) 9%, transparent);
+}
+
+.login-promo-card {
+  border-radius: var(--radius-md);
+}
+
+.login-promo-badge {
+  border-radius: var(--radius-pill);
+  color: var(--brand-sun);
+}
+
+.login-promo-accent {
+  background: var(--brand-sun);
+}
+
+.login-promo-track {
+  background: color-mix(in srgb, var(--text-on-dark) 25%, transparent);
+}
+
+.login-promo-copy {
+  color: color-mix(in srgb, var(--text-on-dark) 86%, transparent);
+}
+
+.login-promo-label {
+  color: var(--brand-sky);
+}
+
+.login-title,
+.login-current-tab {
+  color: var(--text-strong);
+}
+
+.login-current-tab {
+  border-color: var(--action);
+}
+
+.login-nav-link,
+.login-muted,
+.login-input::placeholder {
+  color: var(--text-muted);
+}
+
+.login-nav-link:hover,
+.login-text-link {
+  color: var(--link);
+}
+
+.login-text-link {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.login-text-link:hover {
+  color: var(--action-pressed);
+}
+
+.login-divider {
+  background: var(--border-subtle);
+}
+
+.login-input,
+.login-provider {
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.login-input:focus,
+.login-provider:enabled:hover {
+  border-color: var(--action-hover);
+}
+
+.login-input[aria-invalid="true"],
+.login-input-error {
+  border-color: var(--status-error-text);
+}
+
+.login-provider:enabled:hover {
+  background: var(--status-info-surface);
+}
+
+.login-provider:disabled {
+  cursor: not-allowed;
+  border-color: var(--border-subtle);
+  color: var(--text-muted);
+}
+
+.login-checkbox {
+  accent-color: var(--action);
+}
+
+.login-warning,
+.login-error {
+  border: 1px solid currentColor;
+  border-radius: var(--radius-sm);
+}
+
+.login-warning {
+  background: var(--status-warning-surface);
+  color: var(--status-warning-text);
+}
+
+.login-error {
+  background: var(--status-error-surface);
+}
+
+.login-error,
+.login-error-text {
+  color: var(--status-error-text);
+}
+
+.login-action {
+  border-radius: var(--radius-pill);
+  background: var(--action);
+  color: var(--action-text);
+}
+
+.login-action:hover {
+  background: var(--action-hover);
+}
+
+.login-action:active {
+  background: var(--action-pressed);
+}
+
+.login-action:disabled {
+  cursor: not-allowed;
+  background: var(--border-subtle);
+  color: var(--text-strong);
+}

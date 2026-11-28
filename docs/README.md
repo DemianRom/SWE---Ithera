@@ -27,6 +27,8 @@ Para incorporarse rapido al proyecto:
 | [security/README.md](security/README.md) | Todo el equipo | Secrets, auth, permisos, CORS, uploads y revision segura. |
 | [releases/README.md](releases/README.md) | Lideres, equipo | Cierre de sprint, releases, hotfixes y checklist de entrega. |
 | [frontend-ui/README.md](frontend-ui/README.md) | Frontend | Convenciones de paginas, componentes, servicios y UI. |
+| [frontend-ui/FASES_REDISENO_FRONTEND.txt](frontend-ui/FASES_REDISENO_FRONTEND.txt) | Frontend, equipo | Análisis y fases de renovación con criterios de aceptación. |
+| [frontend-ui/kit-marca/README.md](frontend-ui/kit-marca/README.md) | Diseño, frontend | Kit visual HTML, tokens y logotipos de Traveling. |
 | [issues/README.md](issues/README.md) | Todo el equipo | Tipos de issues, contenido minimo y criterios de aceptacion. |
 | [gitflow/README.md](gitflow/README.md) | Todo el equipo | Ramas, destinos, releases, hotfixes y reglas de merge. |
 | [requerimientos/README.md](requerimientos/README.md) | Analisis, PO, QA | Requerimientos del sistema. |

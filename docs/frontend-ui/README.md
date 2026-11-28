@@ -2,6 +2,15 @@
 
 Esta guia resume convenciones visuales y de organizacion para la interfaz.
 
+## Renovación visual de Traveling
+
+- [Plan por fases del frontend (TXT)](FASES_REDISENO_FRONTEND.txt): inventario de
+  rutas, diagnóstico, dependencias y criterios de aceptación de cada entrega.
+- [Kit de marca](kit-marca/README.md): instrucciones, tokens y logotipos.
+- [Manual visual HTML](kit-marca/index.html): propuesta de identidad y componentes.
+
+La propuesta se incorporó el 25 de noviembre de 2026 y su implementación es parcial: la marca, el acceso y algunos controles ya se han actualizado. El alcance visual vigente es escritorio. Mantener el kit como referencia y trasladar los patrones a React por fases, conservando la funcionalidad.
+
 ## Estructura UI
 
 | Carpeta | Uso |

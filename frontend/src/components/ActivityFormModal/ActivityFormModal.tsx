@@ -1,6 +1,9 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { createPortal } from "react-dom";
 import type { Activity } from "../ui/DayView";
 import { PlaceAutocompleteInput } from "../ui/PlaceAutocompleteInput";
+import { Select } from "../ui/Select";
+import { useModalStack } from "../ui/useModalStack";
 
 // Ciudad de México usa UTC-6 todo el año (sin horario de verano desde 2022).
 const MEXICO_CITY_OFFSET = "-06:00";
@@ -84,6 +87,17 @@ export function ActivityFormModal({
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const layerRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const titleRef = useRef<HTMLInputElement>(null);
+  useModalStack({
+    open,
+    closeBlocked: saving,
+    layerRef,
+    panelRef: formRef,
+    initialFocusRef: titleRef,
+    onClose,
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -131,17 +145,19 @@ export function ActivityFormModal({
     }
   };
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm"
+      ref={layerRef}
+      className="fixed inset-0 flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm"
       role="dialog"
-      aria-modal="true"
       aria-labelledby="activity-form-title"
       onClick={(event) => {
         if (event.target === event.currentTarget && !saving) onClose();
       }}
     >
       <form
+        ref={formRef}
+        tabIndex={-1}
         onSubmit={handleSubmit}
         className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-[28px] border border-white/80 bg-white p-6 shadow-2xl shadow-[#1E0A4E]/20 ring-1 ring-[#E2E8F0]/70"
       >
@@ -156,13 +172,13 @@ export function ActivityFormModal({
           <div>
             <label htmlFor="activity-title" className={labelClass}>Título</label>
             <input
+              ref={titleRef}
               id="activity-title"
               value={title}
               maxLength={120}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Ej: Visita a Monte Albán"
               className={inputClass}
-              autoFocus
             />
           </div>
 
@@ -181,33 +197,33 @@ export function ActivityFormModal({
             </div>
             <div>
               <label htmlFor="activity-start" className={labelClass}>Inicio</label>
-              <select
+              <Select
                 id="activity-start"
+                className="h-11"
                 value={startTime}
                 onChange={(e) => {
                   setStartTime(e.target.value);
                   if (endTime && endTime <= e.target.value) setEndTime("");
                 }}
-                className={inputClass}
               >
                 {TIME_OPTIONS.map((option) => (
                   <option key={option} value={option}>{option}</option>
                 ))}
-              </select>
+              </Select>
             </div>
             <div>
               <label htmlFor="activity-end" className={labelClass}>Fin (opcional)</label>
-              <select
+              <Select
                 id="activity-end"
+                className="h-11"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className={inputClass}
               >
                 <option value="">Sin hora de fin</option>
                 {endOptions.map((option) => (
                   <option key={option} value={option}>{option}</option>
                 ))}
-              </select>
+              </Select>
             </div>
           </div>
 
@@ -266,6 +282,7 @@ export function ActivityFormModal({
           </button>
         </div>
       </form>
-    </div>
+    </div>,
+    document.body,
   );
 }

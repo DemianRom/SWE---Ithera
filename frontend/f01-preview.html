@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es-MX">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Base visual F01 · Traveling</title>
+    <link rel="stylesheet" href="/src/styles/traveling-brand.css" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        background: var(--surface-page);
+        color: var(--text);
+        font: 400 1rem/1.5 var(--font-body);
+      }
+
+      main {
+        width: min(100% - 2rem, 62rem);
+        margin-inline: auto;
+        padding-block: clamp(var(--space-4), 6vw, var(--space-16));
+      }
+
+      h1, h2 {
+        margin: 0;
+        color: var(--text-strong);
+        font-family: var(--font-display);
+        font-weight: 600;
+        line-height: 1.15;
+      }
+
+      h1 { font-size: clamp(2rem, 6vw, 3.25rem); }
+      h2 { font-size: 1.375rem; }
+      p { margin: 0; }
+      [hidden] { display: none; }
+
+      :focus-visible {
+        outline: 3px solid var(--focus-on-light);
+        outline-offset: 3px;
+      }
+
+      .intro {
+        display: grid;
+        justify-items: start;
+        gap: var(--space-2);
+        padding: clamp(var(--space-4), 5vw, var(--space-12));
+        border-radius: var(--radius-lg);
+        background: var(--surface-dark);
+        color: var(--text-on-dark);
+      }
+
+      .intro h1 { color: inherit; }
+      .intro p { color: var(--brand-sky); }
+
+      .intro a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        color: inherit;
+        font-weight: 700;
+        text-underline-offset: 0.2em;
+      }
+
+      .intro a:focus-visible { outline-color: var(--focus-on-dark); }
+
+      .examples {
+        display: grid;
+        gap: var(--space-4);
+        margin-block-start: var(--space-4);
+      }
+
+      .card {
+        min-width: 0;
+        padding: clamp(var(--space-4), 3vw, var(--space-8));
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        background: var(--surface);
+        box-shadow: var(--shadow-card);
+      }
+
+      .sample-amount {
+        display: block;
+        margin-block: var(--space-3) var(--space-1);
+        color: var(--text-strong);
+        font: 800 clamp(1.5rem, 6vw, 2.25rem)/1.2 var(--font-body);
+        font-variant-numeric: tabular-nums;
+        overflow-wrap: anywhere;
+      }
+
+      .muted { color: var(--text-muted); }
+
+      form {
+        display: grid;
+        gap: var(--space-2);
+        margin-block-start: var(--space-6);
+      }
+
+      label { color: var(--text-strong); font-weight: 700; }
+
+      input, button {
+        min-height: 44px;
+        padding: var(--space-2) var(--space-3);
+        border: 1px solid var(--border-control);
+        border-radius: var(--radius-sm);
+        font: inherit;
+      }
+
+      input {
+        min-width: 0;
+        color: var(--text-strong);
+        background: var(--surface);
+        font-variant-numeric: tabular-nums;
+      }
+
+      input[aria-invalid="true"] { border-color: var(--status-error-text); }
+      .field-error { color: var(--status-error-text); font-weight: 700; }
+
+      button {
+        justify-self: start;
+        margin-block-start: var(--space-2);
+        border-color: transparent;
+        color: var(--action-text);
+        background: var(--action);
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button:hover { background: var(--action-hover); }
+      button:active { background: var(--action-pressed); }
+
+      .states {
+        display: grid;
+        gap: var(--space-2);
+        margin: var(--space-4) 0 0;
+      }
+
+      .state {
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-sm);
+        color: var(--state-text);
+        background: var(--state-surface);
+      }
+
+      .state dt { font-weight: 800; }
+      .state dd { margin: 0; }
+
+      .info {
+        --state-text: var(--status-info-text);
+        --state-surface: var(--status-info-surface);
+      }
+
+      .success {
+        --state-text: var(--status-success-text);
+        --state-surface: var(--status-success-surface);
+      }
+
+      .warning {
+        --state-text: var(--status-warning-text);
+        --state-surface: var(--status-warning-surface);
+      }
+
+      .error {
+        --state-text: var(--status-error-text);
+        --state-surface: var(--status-error-surface);
+      }
+
+      @media (min-width: 46rem) {
+        .examples { grid-template-columns: 1fr 1fr; }
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        button { transition: background-color 160ms ease; }
+      }
+    </style>
+  </head>
+  <body class="traveling-brand">
+    <main>
+      <header class="intro">
+        <p>Traveling · Base visual F01</p>
+        <h1>Gastos del viaje</h1>
+        <a href="#estados">Ver ejemplos de estados</a>
+      </header>
+
+      <div class="examples">
+        <section class="card" aria-labelledby="resumen">
+          <h2 id="resumen">Resumen del gasto</h2>
+          <output class="sample-amount" id="importe" for="monto">$1,250.50 MXN</output>
+          <p class="muted">Alojamiento · <time datetime="2026-11-27">27 de noviembre de 2026</time></p>
+
+          <form novalidate>
+            <label for="monto">Monto del gasto (MXN)</label>
+            <input id="monto" type="number" inputmode="decimal" min="0.01" step="0.01" value="1250.50" required aria-describedby="ayuda-monto error-monto" />
+            <p class="muted" id="ayuda-monto">Usa hasta dos decimales. El importe solo se actualiza en esta muestra.</p>
+            <p class="field-error" id="error-monto" hidden>Ingresa un monto mayor que cero con hasta dos decimales.</p>
+            <button type="submit">Actualizar importe</button>
+          </form>
+        </section>
+
+        <section class="card" aria-labelledby="estados">
+          <h2 id="estados">Estados del viaje</h2>
+          <dl class="states">
+            <div class="state info">
+              <dt>Información</dt>
+              <dd>El importe se muestra en pesos mexicanos.</dd>
+            </div>
+            <div class="state success">
+              <dt>Pago confirmado</dt>
+              <dd>El pago ya se refleja en el saldo.</dd>
+            </div>
+            <div class="state warning">
+              <dt>Pago pendiente</dt>
+              <dd>El pago está en revisión.</dd>
+            </div>
+            <div class="state error">
+              <dt>Pago rechazado</dt>
+              <dd>Revisa el comprobante antes de volver a enviarlo.</dd>
+            </div>
+          </dl>
+        </section>
+      </div>
+    </main>
+    <script type="module">
+      const form = document.querySelector('form')
+      const amount = document.querySelector('#monto')
+      const amountError = document.querySelector('#error-monto')
+      const total = document.querySelector('#importe')
+      const pesos = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' })
+
+      amount.addEventListener('input', () => {
+        if (amount.validity.valid) {
+          amount.removeAttribute('aria-invalid')
+          amountError.hidden = true
+        }
+      })
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault()
+        if (!amount.validity.valid) {
+          amount.setAttribute('aria-invalid', 'true')
+          amountError.hidden = false
+          amount.focus()
+          return
+        }
+
+        total.value = `${pesos.format(amount.valueAsNumber)} MXN`
+      })
+    </script>
+  </body>
+</html>

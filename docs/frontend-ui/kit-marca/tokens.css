@@ -1,0 +1,26 @@
+:root {
+  --brand-blue: #0878cf;
+  --brand-blue-hover: #075eaa;
+  --brand-cyan: #16b9d0;
+  --brand-sky: #91def0;
+  --brand-sun: #ffbf20;
+  --ink: #073b52;
+  --text: #183f51;
+  --muted: #526c79;
+  --surface: #ffffff;
+  --background: #f4f9fa;
+  --border: #cbdde3;
+  --success: #075b85;
+  --success-bg: #e8f4fa;
+  --warning: #765000;
+  --warning-bg: #fff2d1;
+  --danger: #8d4034;
+  --danger-bg: #faede7;
+  --focus: #005aaf;
+  --font-display: 'Fredoka', 'Trebuchet MS', sans-serif;
+  --font-body: 'Nunito', 'Segoe UI', sans-serif;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-6: 24px; --space-8: 32px; --space-12: 48px; --space-16: 64px;
+  --radius-sm: 12px; --radius-md: 20px; --radius-lg: 28px; --radius-pill: 999px;
+  --shadow-card: 0 10px 30px rgba(13, 64, 84, .07);
+}

@@ -29,7 +29,7 @@ Requiere un backend en ejecucion y un proyecto de Supabase (la pila local de la 
 
 ```bash
 cd backend
-SMOKE_API_URL=http://localhost:3001 \
+SMOKE_API_URL=http://localhost:3001/api \
 SUPABASE_URL=... SUPABASE_ANON_KEY=... SUPABASE_SECRET_KEY=... \
 npm run smoke
 ```
