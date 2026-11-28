@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useId, useMemo, useState } from 'react'
 import type { FC } from 'react'
 import type { BudgetMember, BudgetPaymentHistoryItem, BudgetSettlement } from '../../services/budget'
 
@@ -46,7 +46,7 @@ interface Props {
   }) => Promise<void>
 }
 
-const formatMXN = (n: number): string => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n)
+const formatMXN = (n: number): string => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 2 }).format(n)
 const round2 = (n: number): number => Math.round(n * 100) / 100
 const paymentStatusLabel: Record<BudgetPaymentHistoryItem['status'], string> = { pendiente_validacion: 'Pendiente de validacion', confirmado: 'Confirmado', rechazado: 'Rechazado' }
 
@@ -63,6 +63,7 @@ export const MyWalletView: FC<Props> = ({
   onDeleteSentPayment,
   onGenerateReceipt,
 }) => {
+  const paymentFieldId = useId()
   const [error, setError] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [copyState, setCopyState] = useState<'idle' | 'loading' | 'done'>('idle')
@@ -505,10 +506,25 @@ export const MyWalletView: FC<Props> = ({
           <div className="w-full max-w-md rounded-2xl bg-white p-4">
             <h3 className="mb-3 text-base font-bold">Registrar pago a {payingEntry.persona}</h3>
             <div className="grid gap-2">
-              <input value={payAmount} onChange={(e) => setPayAmount(e.target.value)} placeholder="Monto" className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm" />
-              <select value={payMethod} onChange={(e) => setPayMethod(e.target.value as 'efectivo_presencial' | 'transferencia')} className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm"><option value="transferencia">Transferencia</option><option value="efectivo_presencial">Efectivo presencial</option></select>
-              <input type="file" onChange={(e) => setPayProof(e.target.files?.[0] ?? null)} className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm" />
-              <input value={payNote} onChange={(e) => setPayNote(e.target.value)} placeholder="Nota opcional" className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm" />
+              <div className="grid gap-1 text-sm">
+                <label htmlFor={paymentFieldId + '-pay-amount'} className="font-semibold">Monto</label>
+                <input id={paymentFieldId + '-pay-amount'} value={payAmount} onChange={(e) => setPayAmount(e.target.value)} className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm" />
+              </div>
+              <div className="grid gap-1 text-sm">
+                <label htmlFor={paymentFieldId + '-pay-method'} className="font-semibold">Método de pago</label>
+                <select id={paymentFieldId + '-pay-method'} value={payMethod} onChange={(e) => setPayMethod(e.target.value as 'efectivo_presencial' | 'transferencia')} className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm">
+                  <option value="transferencia">Transferencia</option>
+                  <option value="efectivo_presencial">Efectivo presencial</option>
+                </select>
+              </div>
+              <div className="grid gap-1 text-sm">
+                <label htmlFor={paymentFieldId + '-pay-proof'} className="font-semibold">Comprobante</label>
+                <input id={paymentFieldId + '-pay-proof'} type="file" onChange={(e) => setPayProof(e.target.files?.[0] ?? null)} className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm" />
+              </div>
+              <div className="grid gap-1 text-sm">
+                <label htmlFor={paymentFieldId + '-pay-note'} className="font-semibold">Nota opcional</label>
+                <input id={paymentFieldId + '-pay-note'} value={payNote} onChange={(e) => setPayNote(e.target.value)} className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm" />
+              </div>
             </div>
             <div className="mt-3 flex justify-end gap-2">
               <button onClick={() => setPayingEntry(null)} className="rounded-lg border border-[#CBDDE3] px-3 py-1.5 text-sm">Cancelar</button>
@@ -536,10 +552,25 @@ export const MyWalletView: FC<Props> = ({
           <div className="w-full max-w-md rounded-2xl bg-white p-4">
             <h3 className="mb-3 text-base font-bold">Editar pago enviado</h3>
             <div className="grid gap-2">
-              <input value={editAmount} onChange={(e) => setEditAmount(e.target.value)} className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm" />
-              <select value={editMethod} onChange={(e) => setEditMethod(e.target.value as 'efectivo_presencial' | 'transferencia')} className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm"><option value="transferencia">Transferencia</option><option value="efectivo_presencial">Efectivo presencial</option></select>
-              <input type="file" onChange={(e) => setEditProof(e.target.files?.[0] ?? null)} className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm" />
-              <input value={editNote} onChange={(e) => setEditNote(e.target.value)} placeholder="Nota opcional" className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm" />
+              <div className="grid gap-1 text-sm">
+                <label htmlFor={paymentFieldId + '-edit-amount'} className="font-semibold">Monto</label>
+                <input id={paymentFieldId + '-edit-amount'} value={editAmount} onChange={(e) => setEditAmount(e.target.value)} className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm" />
+              </div>
+              <div className="grid gap-1 text-sm">
+                <label htmlFor={paymentFieldId + '-edit-method'} className="font-semibold">Método de pago</label>
+                <select id={paymentFieldId + '-edit-method'} value={editMethod} onChange={(e) => setEditMethod(e.target.value as 'efectivo_presencial' | 'transferencia')} className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm">
+                  <option value="transferencia">Transferencia</option>
+                  <option value="efectivo_presencial">Efectivo presencial</option>
+                </select>
+              </div>
+              <div className="grid gap-1 text-sm">
+                <label htmlFor={paymentFieldId + '-edit-proof'} className="font-semibold">Comprobante</label>
+                <input id={paymentFieldId + '-edit-proof'} type="file" onChange={(e) => setEditProof(e.target.files?.[0] ?? null)} className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm" />
+              </div>
+              <div className="grid gap-1 text-sm">
+                <label htmlFor={paymentFieldId + '-edit-note'} className="font-semibold">Nota opcional</label>
+                <input id={paymentFieldId + '-edit-note'} value={editNote} onChange={(e) => setEditNote(e.target.value)} className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm" />
+              </div>
             </div>
             <div className="mt-3 flex justify-end gap-2">
               <button onClick={() => setEditingPayment(null)} className="rounded-lg border border-[#CBDDE3] px-3 py-1.5 text-sm">Cancelar</button>
