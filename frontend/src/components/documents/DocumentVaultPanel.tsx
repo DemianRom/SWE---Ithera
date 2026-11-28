@@ -600,7 +600,7 @@ export const DocumentVaultPanel: FC<Props> = ({
       )
       await loadContextLinks()
       setItems((prev) => {
-        const nextItems = [created, ...prev]
+        const nextItems = [created, ...prev.filter((item) => item.id !== created.id)]
         if (groupId) {
           const cached = getVaultCache(String(groupId))
           vaultDataCache.set(String(groupId), {
