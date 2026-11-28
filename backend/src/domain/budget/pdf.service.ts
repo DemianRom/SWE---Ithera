@@ -431,15 +431,22 @@ const buildBudgetSummaryPdf = (data: PdfDocumentData): Buffer => {
   };
 
   startPage();
-  addRect(commands, 0, 566, 612, 226, navy);
+  // El mismo degradado azul de las exportaciones de liquidacion, sin perder
+  // la paginacion propia del resumen de gastos.
+  for (let i = 0; i < 51; i += 1) {
+    const t = i / 50;
+    const color = [0.027, 0.231 + 0.126 * t, 0.322 + 0.2 * t]
+      .map((channel) => channel.toFixed(3)).join(' ');
+    addRect(commands, i * 12, 566, i === 50 ? 12 : 12.1, 226, color);
+  }
   addText(commands, data.title, 48, 750, 23, 'F2', '1 1 1');
   const subtitleLines = wrap(data.subtitle, 67);
   subtitleLines.slice(0, 3).forEach((line, index) => {
     addText(commands, line, 48, 725 - index * 15, 11, 'F1', '0.9 0.95 0.97');
   });
   addText(commands, data.folio, 48, 669, 9, 'F1', '0.9 0.95 0.97');
-  addRect(commands, 48, 588, 250, 62, blue);
-  addRect(commands, 314, 588, 250, 62, blue);
+  addRect(commands, 48, 588, 250, 62, '0.118 0.353 0.427');
+  addRect(commands, 314, 588, 250, 62, '0.118 0.420 0.545');
   addText(commands, 'TOTAL GASTADO', 62, 630, 9, 'F2', '0.9 0.95 0.97');
   addText(commands, moneyText(data.total), 62, 605, 15, 'F2', '1 1 1');
   addText(commands, 'GASTOS', 328, 630, 9, 'F2', '0.9 0.95 0.97');
