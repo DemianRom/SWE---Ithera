@@ -270,8 +270,8 @@ export const MyWalletView: FC<Props> = ({
   }
 
   return (
-    <div className="flex flex-1 flex-col overflow-y-auto bg-[#F4F6F8]">
-      <div className="bg-[#1E0A4E] px-6 pb-8 pt-6">
+    <div className="flex flex-1 flex-col overflow-y-auto bg-[#F4F9FA]">
+      <div className="bg-[#073B52] px-6 pb-8 pt-6">
         <button
           onClick={onBack}
           className="mb-4 inline-flex items-center gap-2 rounded-lg border border-white/30 bg-white/10 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-white/20 hover:shadow-md"
@@ -285,9 +285,9 @@ export const MyWalletView: FC<Props> = ({
       </div>
 
       <div className="flex flex-1 flex-col gap-4 px-6 py-5">
-        {error && <div className="rounded-xl border border-[#FBC7C7] bg-[#FFF5F5] px-4 py-3 text-sm text-[#C03535]">{error}</div>}
+        {error && <div className="rounded-xl border border-[#EAC8C0] bg-[#FAEDE7] px-4 py-3 text-sm text-[#8D4034]">{error}</div>}
         {isReadOnly && (
-          <div role="status" className="rounded-xl border border-[#FDE68A] bg-[#FFFBEB] px-4 py-3 text-[#92400E]">
+          <div role="status" className="rounded-xl border border-[#EBD391] bg-[#FFF2D1] px-4 py-3 text-[#765000]">
             <p className="text-sm font-semibold">Sin conexión</p>
             <p className="mt-1 text-sm leading-relaxed">
               Mi cartera está en modo solo lectura. Puedes consultar el último estado sincronizado, pero no modificar pagos.
@@ -295,9 +295,9 @@ export const MyWalletView: FC<Props> = ({
           </div>
         )}
 
-        <section className="rounded-2xl border border-[#E2E8F0] bg-white p-4">
+        <section className="rounded-2xl border border-[#CBDDE3] bg-white p-4">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <h2 className="text-sm font-bold text-[#3D4A5C]">Resumen</h2>
+            <h2 className="text-sm font-bold text-[#073B52]">Resumen</h2>
             <div className="flex gap-2">
               <button
                 onClick={async () => {
@@ -312,7 +312,7 @@ export const MyWalletView: FC<Props> = ({
                   }
                 }}
                 disabled={copyState === 'loading'}
-                className="rounded-lg border border-[#CBD5E1] px-3 py-1 text-xs font-semibold text-[#334155]"
+                className="rounded-lg border border-[#CBDDE3] px-3 py-1 text-xs font-semibold text-[#183F51]"
               >
                 {copyState === 'loading' ? 'Copiando...' : copyState === 'done' ? 'Resumen copiado' : 'Copiar resumen'}
               </button>
@@ -354,39 +354,39 @@ export const MyWalletView: FC<Props> = ({
                   }
                 }}
                 disabled={exportingPdf}
-                className="rounded-lg bg-[#1E6FD9] px-3 py-1 text-xs font-semibold text-white"
+                className="rounded-lg bg-[#0878CF] px-3 py-1 text-xs font-semibold text-white"
               >
                 {exportingPdf ? 'Exportando...' : 'Exportar PDF'}
               </button>
             </div>
           </div>
           <div className="grid gap-3 md:grid-cols-3">
-            <div className="rounded-xl border border-[#DCFCE7] bg-[#F0FDF4] px-3 py-2"><p className="text-xs text-[#166534]">Te deben</p><p className="text-lg font-bold text-[#15803D]">{formatMXN(totalOweMe)}</p></div>
-            <div className="rounded-xl border border-[#FECACA] bg-[#FEF2F2] px-3 py-2"><p className="text-xs text-[#991B1B]">Tu debes</p><p className="text-lg font-bold text-[#DC2626]">{formatMXN(totalIOwe)}</p></div>
-            <div className="rounded-xl border border-[#DBEAFE] bg-[#EFF6FF] px-3 py-2"><p className="text-xs text-[#1E40AF]">Balance neto</p><p className="text-lg font-bold text-[#1D4ED8]">{formatMXN(net)}</p></div>
+            <div className="rounded-xl border border-[#CBDDE3] bg-[#E8F4FA] px-3 py-2"><p className="text-xs text-[#075B85]">Te deben</p><p className="text-lg font-bold text-[#075B85]">{formatMXN(totalOweMe)}</p></div>
+            <div className="rounded-xl border border-[#EAC8C0] bg-[#FAEDE7] px-3 py-2"><p className="text-xs text-[#8D4034]">Tu debes</p><p className="text-lg font-bold text-[#8D4034]">{formatMXN(totalIOwe)}</p></div>
+            <div className="rounded-xl border border-[#CBDDE3] bg-[#E8F4FA] px-3 py-2"><p className="text-xs text-[#075675]">Balance neto</p><p className="text-lg font-bold text-[#075675]">{formatMXN(net)}</p></div>
           </div>
           {sentByMe.some((p) => p.status === 'pendiente_validacion') && (
-            <div className="mt-3 rounded-xl border border-[#BFDBFE] bg-[#EFF6FF] px-3 py-2">
-              <p className="text-xs font-semibold text-[#1E40AF]">Proyeccion si confirman tus pagos pendientes</p>
-              <p className="text-xs text-[#334155]">
+            <div className="mt-3 rounded-xl border border-[#91DEF0] bg-[#E8F4FA] px-3 py-2">
+              <p className="text-xs font-semibold text-[#075675]">Proyeccion si confirman tus pagos pendientes</p>
+              <p className="text-xs text-[#183F51]">
                 Te deberian: <b>{formatMXN(projectedMeDebenTotal)}</b> · Tu deberias: <b>{formatMXN(projectedYoDeboTotal)}</b>
               </p>
             </div>
           )}
           <div className="mt-3 grid gap-3 lg:grid-cols-2">
-            <div className="rounded-xl border border-[#E2E8F0] p-3">
+            <div className="rounded-xl border border-[#CBDDE3] p-3">
               <p className="mb-2 text-sm font-semibold">Te deben</p>
-              {meDeben.length === 0 ? <p className="text-xs text-[#64748B]">Nadie te debe por ahora.</p> : meDeben.map((e) => (
-                <div key={e.pairId} className="mb-2 rounded-lg border border-[#E2E8F0] px-3 py-2">
+              {meDeben.length === 0 ? <p className="text-xs text-[#526C79]">Nadie te debe por ahora.</p> : meDeben.map((e) => (
+                <div key={e.pairId} className="mb-2 rounded-lg border border-[#CBDDE3] px-3 py-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm">{e.persona}</span>
-                    <span className="text-sm font-semibold text-[#15803D]">+{formatMXN(e.monto)}</span>
+                    <span className="text-sm font-semibold text-[#075B85]">+{formatMXN(e.monto)}</span>
                   </div>
                   <div className="mt-2">
                     <button
                       onClick={() => setReceiptModalEntry(e)}
                       disabled={isReadOnly || receiptBusyPairId === e.pairId}
-                      className="rounded-lg border border-[#15803D] px-3 py-1 text-xs font-semibold text-[#15803D]"
+                      className="rounded-lg border border-[#075B85] px-3 py-1 text-xs font-semibold text-[#075B85]"
                     >
                       {receiptBusyPairId === e.pairId ? 'Generando...' : receiptDonePairIds.has(e.pairId) ? 'Ya en boveda' : 'Generar recibo'}
                     </button>
@@ -394,21 +394,21 @@ export const MyWalletView: FC<Props> = ({
                 </div>
               ))}
             </div>
-            <div className="rounded-xl border border-[#E2E8F0] p-3">
+            <div className="rounded-xl border border-[#CBDDE3] p-3">
               <p className="mb-2 text-sm font-semibold">Tu debes</p>
-              {leDebo.length === 0 ? <p className="text-xs text-[#64748B]">No debes nada.</p> : leDebo.map((e) => {
+              {leDebo.length === 0 ? <p className="text-xs text-[#526C79]">No debes nada.</p> : leDebo.map((e) => {
                 const hasPending = pendingPairSet.has(`${e.fromUserId}-${e.toUserId}`)
                 return (
-                  <div key={e.pairId} className="mb-2 rounded-lg border border-[#E2E8F0] px-3 py-2">
+                  <div key={e.pairId} className="mb-2 rounded-lg border border-[#CBDDE3] px-3 py-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm">{e.persona}</span>
-                      <span className="text-sm font-semibold text-[#DC2626]">-{formatMXN(e.monto)}</span>
+                      <span className="text-sm font-semibold text-[#8D4034]">-{formatMXN(e.monto)}</span>
                     </div>
                     <div className="mt-2">
                       <button
                         disabled={isReadOnly || hasPending}
                         onClick={() => { setPayingEntry(e); setPayAmount(String(e.monto)); setPayMethod('transferencia'); setPayNote(''); setPayProof(null) }}
-                        className="rounded-lg bg-[#1E6FD9] px-3 py-1 text-xs font-semibold text-white disabled:opacity-60"
+                        className="rounded-lg bg-[#0878CF] px-3 py-1 text-xs font-semibold text-white disabled:opacity-60"
                       >
                         {hasPending ? 'Ya tienes un pago pendiente' : 'Pagar'}
                       </button>
@@ -420,10 +420,10 @@ export const MyWalletView: FC<Props> = ({
           </div>
         </section>
 
-        <section className="rounded-2xl border border-[#E2E8F0] bg-white p-4">
-          <h2 className="mb-3 text-sm font-bold text-[#3D4A5C]">Pagos por validar</h2>
-          {pendingToReview.length === 0 ? <p className="text-xs text-[#64748B]">No hay pagos pendientes de tu validacion.</p> : pendingToReview.map((p) => (
-            <div key={p.id} className="mb-2 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-3">
+        <section className="rounded-2xl border border-[#CBDDE3] bg-white p-4">
+          <h2 className="mb-3 text-sm font-bold text-[#073B52]">Pagos por validar</h2>
+          {pendingToReview.length === 0 ? <p className="text-xs text-[#526C79]">No hay pagos pendientes de tu validacion.</p> : pendingToReview.map((p) => (
+            <div key={p.id} className="mb-2 rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-3 py-3">
               <p className="text-sm font-semibold">{nameById.get(p.from) ?? `Usuario ${p.from}`} reporto {formatMXN(p.amount)}</p>
               <div className="mt-2 flex gap-2">
                 <button
@@ -432,18 +432,18 @@ export const MyWalletView: FC<Props> = ({
                     setReviewBusyId(p.id)
                     try { await onReviewPayment?.(p.id, { status: 'confirmado' }) } finally { setReviewBusyId(null) }
                   }}
-                  className="rounded-lg bg-[#16A34A] px-3 py-1 text-xs font-semibold text-white disabled:opacity-60"
+                  className="rounded-lg bg-[#075B85] px-3 py-1 text-xs font-semibold text-white disabled:opacity-60"
                 >
                   {reviewBusyId === p.id ? 'Confirmando...' : 'Confirmar'}
                 </button>
-                <input disabled={isReadOnly} value={rejectReasonByPayment[p.id] ?? ''} onChange={(e) => setRejectReasonByPayment((s) => ({ ...s, [p.id]: e.target.value }))} placeholder="Motivo rechazo" className="rounded-lg border border-[#CBD5E1] px-2 py-1 text-xs" />
+                <input disabled={isReadOnly} value={rejectReasonByPayment[p.id] ?? ''} onChange={(e) => setRejectReasonByPayment((s) => ({ ...s, [p.id]: e.target.value }))} placeholder="Motivo rechazo" className="rounded-lg border border-[#CBDDE3] px-2 py-1 text-xs" />
                 <button
                   disabled={isReadOnly || reviewBusyId === p.id}
                   onClick={async () => {
                     setReviewBusyId(p.id)
                     try { await onReviewPayment?.(p.id, { status: 'rechazado', rejection_reason: rejectReasonByPayment[p.id] ?? '' }) } finally { setReviewBusyId(null) }
                   }}
-                  className="rounded-lg border border-[#DC2626] px-3 py-1 text-xs font-semibold text-[#DC2626] disabled:opacity-60"
+                  className="rounded-lg border border-[#8D4034] px-3 py-1 text-xs font-semibold text-[#8D4034] disabled:opacity-60"
                 >
                   {reviewBusyId === p.id ? 'Rechazando...' : 'Rechazar'}
                 </button>
@@ -452,13 +452,13 @@ export const MyWalletView: FC<Props> = ({
           ))}
         </section>
 
-        <section className="rounded-2xl border border-[#E2E8F0] bg-white p-4">
-          <h2 className="mb-3 text-sm font-bold text-[#3D4A5C]">Pagos enviados por ti</h2>
-          {sentByMe.length === 0 ? <p className="text-xs text-[#64748B]">No tienes pagos enviados pendientes/rechazados.</p> : sentByMe.map((p) => (
-            <div key={p.id} className="mb-2 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-3">
+        <section className="rounded-2xl border border-[#CBDDE3] bg-white p-4">
+          <h2 className="mb-3 text-sm font-bold text-[#073B52]">Pagos enviados por ti</h2>
+          {sentByMe.length === 0 ? <p className="text-xs text-[#526C79]">No tienes pagos enviados pendientes/rechazados.</p> : sentByMe.map((p) => (
+            <div key={p.id} className="mb-2 rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-3 py-3">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold">A {nameById.get(p.to) ?? `Usuario ${p.to}`} por {formatMXN(p.amount)}</p>
-                <span className="text-xs text-[#64748B]">{paymentStatusLabel[p.status]}</span>
+                <span className="text-xs text-[#526C79]">{paymentStatusLabel[p.status]}</span>
               </div>
               <div className="mt-2 flex gap-2">
                 {p.status === 'pendiente_validacion' && (
@@ -471,7 +471,7 @@ export const MyWalletView: FC<Props> = ({
                       setEditProof(null)
                     }}
                     disabled={isReadOnly}
-                    className="rounded-lg bg-[#1E6FD9] px-3 py-1 text-xs font-semibold text-white disabled:opacity-60"
+                    className="rounded-lg bg-[#0878CF] px-3 py-1 text-xs font-semibold text-white disabled:opacity-60"
                   >
                     Editar
                   </button>
@@ -484,7 +484,7 @@ export const MyWalletView: FC<Props> = ({
                       try { await onDeleteSentPayment?.(p.id) } catch (e) { setError(e instanceof Error ? e.message : 'No se pudo eliminar') } finally { setBusyId(null) }
                     }}
                     disabled={isReadOnly || busyId === p.id}
-                    className="rounded-lg border border-[#DC2626] px-3 py-1 text-xs font-semibold text-[#DC2626] disabled:opacity-60"
+                    className="rounded-lg border border-[#8D4034] px-3 py-1 text-xs font-semibold text-[#8D4034] disabled:opacity-60"
                   >
                     {busyId === p.id ? 'Eliminando...' : 'Eliminar'}
                   </button>
@@ -494,9 +494,9 @@ export const MyWalletView: FC<Props> = ({
           ))}
         </section>
 
-        <section className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white">
-          <button onClick={() => setHistorialOpen((v) => !v)} className="flex w-full items-center justify-between px-4 py-4"><span className="text-sm font-bold text-[#3D4A5C]">Historial de pagos</span><span className="text-xs text-[#7A8799]">{historialOpen ? 'Ocultar' : 'Ver'}</span></button>
-          {historialOpen && <div className="border-t border-[#E2E8F0] px-4 pb-4 pt-3">{paymentHistory.length === 0 ? <p className="text-xs text-[#64748B]">Aun no hay pagos.</p> : paymentHistory.map((p) => <div key={p.id} className="mb-2 rounded-xl bg-[#F8FAFC] px-3 py-2"><p className="text-xs font-semibold">{nameById.get(p.from) ?? `Usuario ${p.from}`} reporto pago a {nameById.get(p.to) ?? `Usuario ${p.to}`}</p><p className="text-[11px] text-[#64748B]">{formatMXN(p.amount)} - {paymentStatusLabel[p.status]}</p></div>)}</div>}
+        <section className="overflow-hidden rounded-2xl border border-[#CBDDE3] bg-white">
+          <button onClick={() => setHistorialOpen((v) => !v)} className="flex w-full items-center justify-between px-4 py-4"><span className="text-sm font-bold text-[#073B52]">Historial de pagos</span><span className="text-xs text-[#526C79]">{historialOpen ? 'Ocultar' : 'Ver'}</span></button>
+          {historialOpen && <div className="border-t border-[#CBDDE3] px-4 pb-4 pt-3">{paymentHistory.length === 0 ? <p className="text-xs text-[#526C79]">Aun no hay pagos.</p> : paymentHistory.map((p) => <div key={p.id} className="mb-2 rounded-xl bg-[#F4F9FA] px-3 py-2"><p className="text-xs font-semibold">{nameById.get(p.from) ?? `Usuario ${p.from}`} reporto pago a {nameById.get(p.to) ?? `Usuario ${p.to}`}</p><p className="text-[11px] text-[#526C79]">{formatMXN(p.amount)} - {paymentStatusLabel[p.status]}</p></div>)}</div>}
         </section>
       </div>
 
@@ -505,13 +505,13 @@ export const MyWalletView: FC<Props> = ({
           <div className="w-full max-w-md rounded-2xl bg-white p-4">
             <h3 className="mb-3 text-base font-bold">Registrar pago a {payingEntry.persona}</h3>
             <div className="grid gap-2">
-              <input value={payAmount} onChange={(e) => setPayAmount(e.target.value)} placeholder="Monto" className="rounded-lg border border-[#CBD5E1] px-2 py-2 text-sm" />
-              <select value={payMethod} onChange={(e) => setPayMethod(e.target.value as 'efectivo_presencial' | 'transferencia')} className="rounded-lg border border-[#CBD5E1] px-2 py-2 text-sm"><option value="transferencia">Transferencia</option><option value="efectivo_presencial">Efectivo presencial</option></select>
-              <input type="file" onChange={(e) => setPayProof(e.target.files?.[0] ?? null)} className="rounded-lg border border-[#CBD5E1] px-2 py-2 text-sm" />
-              <input value={payNote} onChange={(e) => setPayNote(e.target.value)} placeholder="Nota opcional" className="rounded-lg border border-[#CBD5E1] px-2 py-2 text-sm" />
+              <input value={payAmount} onChange={(e) => setPayAmount(e.target.value)} placeholder="Monto" className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm" />
+              <select value={payMethod} onChange={(e) => setPayMethod(e.target.value as 'efectivo_presencial' | 'transferencia')} className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm"><option value="transferencia">Transferencia</option><option value="efectivo_presencial">Efectivo presencial</option></select>
+              <input type="file" onChange={(e) => setPayProof(e.target.files?.[0] ?? null)} className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm" />
+              <input value={payNote} onChange={(e) => setPayNote(e.target.value)} placeholder="Nota opcional" className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm" />
             </div>
             <div className="mt-3 flex justify-end gap-2">
-              <button onClick={() => setPayingEntry(null)} className="rounded-lg border border-[#CBD5E1] px-3 py-1.5 text-sm">Cancelar</button>
+              <button onClick={() => setPayingEntry(null)} className="rounded-lg border border-[#CBDDE3] px-3 py-1.5 text-sm">Cancelar</button>
               <button onClick={async () => {
                 const amount = Number(payAmount)
                 if (!Number.isFinite(amount) || amount <= 0) return setError('Monto invalido')
@@ -523,7 +523,7 @@ export const MyWalletView: FC<Props> = ({
                   await onRegisterPayment?.({ from_user_id: payingEntry.fromUserId, to_user_id: payingEntry.toUserId, amount, payment_method: payMethod, note: payNote || null, proofFile: payProof })
                   setPayingEntry(null)
                 } catch (e) { setError(e instanceof Error ? e.message : 'No se pudo registrar') } finally { setBusyId(null) }
-              }} disabled={isReadOnly || busyId === `pay-${payingEntry.pairId}`} className="rounded-lg bg-[#1E6FD9] px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-60">
+              }} disabled={isReadOnly || busyId === `pay-${payingEntry.pairId}`} className="rounded-lg bg-[#0878CF] px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-60">
                 {busyId === `pay-${payingEntry.pairId}` ? 'Guardando...' : 'Guardar'}
               </button>
             </div>
@@ -536,13 +536,13 @@ export const MyWalletView: FC<Props> = ({
           <div className="w-full max-w-md rounded-2xl bg-white p-4">
             <h3 className="mb-3 text-base font-bold">Editar pago enviado</h3>
             <div className="grid gap-2">
-              <input value={editAmount} onChange={(e) => setEditAmount(e.target.value)} className="rounded-lg border border-[#CBD5E1] px-2 py-2 text-sm" />
-              <select value={editMethod} onChange={(e) => setEditMethod(e.target.value as 'efectivo_presencial' | 'transferencia')} className="rounded-lg border border-[#CBD5E1] px-2 py-2 text-sm"><option value="transferencia">Transferencia</option><option value="efectivo_presencial">Efectivo presencial</option></select>
-              <input type="file" onChange={(e) => setEditProof(e.target.files?.[0] ?? null)} className="rounded-lg border border-[#CBD5E1] px-2 py-2 text-sm" />
-              <input value={editNote} onChange={(e) => setEditNote(e.target.value)} placeholder="Nota opcional" className="rounded-lg border border-[#CBD5E1] px-2 py-2 text-sm" />
+              <input value={editAmount} onChange={(e) => setEditAmount(e.target.value)} className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm" />
+              <select value={editMethod} onChange={(e) => setEditMethod(e.target.value as 'efectivo_presencial' | 'transferencia')} className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm"><option value="transferencia">Transferencia</option><option value="efectivo_presencial">Efectivo presencial</option></select>
+              <input type="file" onChange={(e) => setEditProof(e.target.files?.[0] ?? null)} className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm" />
+              <input value={editNote} onChange={(e) => setEditNote(e.target.value)} placeholder="Nota opcional" className="rounded-lg border border-[#CBDDE3] px-2 py-2 text-sm" />
             </div>
             <div className="mt-3 flex justify-end gap-2">
-              <button onClick={() => setEditingPayment(null)} className="rounded-lg border border-[#CBD5E1] px-3 py-1.5 text-sm">Cancelar</button>
+              <button onClick={() => setEditingPayment(null)} className="rounded-lg border border-[#CBDDE3] px-3 py-1.5 text-sm">Cancelar</button>
               <button onClick={async () => {
                 const amount = Number(editAmount)
                 if (!Number.isFinite(amount) || amount <= 0) return setError('Monto invalido')
@@ -552,7 +552,7 @@ export const MyWalletView: FC<Props> = ({
                   await onUpdateSentPayment?.(editingPayment.id, { amount, payment_method: editMethod, note: editNote || null, proofFile: editProof })
                   setEditingPayment(null)
                 } catch (e) { setError(e instanceof Error ? e.message : 'No se pudo actualizar') } finally { setBusyId(null) }
-              }} disabled={isReadOnly || busyId === `edit-${editingPayment.id}`} className="rounded-lg bg-[#1E6FD9] px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-60">
+              }} disabled={isReadOnly || busyId === `edit-${editingPayment.id}`} className="rounded-lg bg-[#0878CF] px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-60">
                 {busyId === `edit-${editingPayment.id}` ? 'Guardando...' : 'Guardar cambios'}
               </button>
             </div>
@@ -564,13 +564,13 @@ export const MyWalletView: FC<Props> = ({
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-md rounded-2xl bg-white p-4">
             <h3 className="mb-2 text-base font-bold">Generar recibo de cobro</h3>
-            <p className="text-sm text-[#475569]">
+            <p className="text-sm text-[#526C79]">
               Puedes abrir la vista previa del recibo y decidir si tambien quieres guardarlo en la boveda.
             </p>
             <div className="mt-4 flex flex-wrap justify-end gap-2">
               <button
                 onClick={() => setReceiptModalEntry(null)}
-                className="rounded-lg border border-[#CBD5E1] px-3 py-1.5 text-sm"
+                className="rounded-lg border border-[#CBDDE3] px-3 py-1.5 text-sm"
               >
                 Cancelar
               </button>
@@ -618,7 +618,7 @@ export const MyWalletView: FC<Props> = ({
                     setReceiptBusyPairId(null)
                   }
                 }}
-                className="rounded-lg border border-[#1E6FD9] px-3 py-1.5 text-sm font-semibold text-[#1E6FD9]"
+                className="rounded-lg border border-[#0878CF] px-3 py-1.5 text-sm font-semibold text-[#0878CF]"
               >
                 Solo vista previa
               </button>
@@ -667,7 +667,7 @@ export const MyWalletView: FC<Props> = ({
                     setReceiptBusyPairId(null)
                   }
                 }}
-                className="rounded-lg bg-[#1E6FD9] px-3 py-1.5 text-sm font-semibold text-white"
+                className="rounded-lg bg-[#0878CF] px-3 py-1.5 text-sm font-semibold text-white"
               >
                 Vista previa + guardar en boveda
               </button>
@@ -678,12 +678,12 @@ export const MyWalletView: FC<Props> = ({
       {receiptDuplicateNotice && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-md rounded-2xl bg-white p-4">
-            <h3 className="mb-2 text-base font-bold text-[#1E0A4E]">Recibo ya guardado</h3>
-            <p className="text-sm text-[#475569]">{receiptDuplicateNotice}</p>
+            <h3 className="mb-2 text-base font-bold text-[#073B52]">Recibo ya guardado</h3>
+            <p className="text-sm text-[#526C79]">{receiptDuplicateNotice}</p>
             <div className="mt-4 flex justify-end">
               <button
                 onClick={() => setReceiptDuplicateNotice(null)}
-                className="rounded-lg bg-[#1E6FD9] px-3 py-1.5 text-sm font-semibold text-white"
+                className="rounded-lg bg-[#0878CF] px-3 py-1.5 text-sm font-semibold text-white"
               >
                 Entendido
               </button>
