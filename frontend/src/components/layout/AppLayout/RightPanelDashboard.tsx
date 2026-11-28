@@ -211,7 +211,9 @@ export function RightPanelDashboard({
     }
     document.addEventListener('mousedown', handler)
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape' || e.defaultPrevented || document.querySelector('[aria-modal="true"]')) return
+      if (e.key !== 'Escape' || e.defaultPrevented || Array.from(document.querySelectorAll<HTMLElement>('[aria-modal="true"]')).some(
+        (dialog) => !dialog.closest('[inert], [hidden], [aria-hidden="true"]') && dialog.getClientRects().length > 0 && getComputedStyle(dialog).visibility === 'visible'
+      )) return
       const active = document.activeElement
       const focusInside = participantTriggerRef.current?.contains(active) || floatingPopoverRef.current?.contains(active)
       e.preventDefault()

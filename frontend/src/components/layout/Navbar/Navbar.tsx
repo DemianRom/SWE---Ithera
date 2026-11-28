@@ -579,7 +579,9 @@ function DashboardNavContent({
   useEffect(() => {
     if (!menuOpen && !notifOpen && !tripMenuOpen) return
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape' || event.defaultPrevented || document.querySelector('[aria-modal="true"]')) return
+      if (event.key !== 'Escape' || event.defaultPrevented || Array.from(document.querySelectorAll<HTMLElement>('[aria-modal="true"]')).some(
+        (dialog) => !dialog.closest('[inert], [hidden], [aria-hidden="true"]') && dialog.getClientRects().length > 0 && getComputedStyle(dialog).visibility === 'visible'
+      )) return
       const active = document.activeElement
       const ref = menuOpen && menuRef.current?.contains(active) ? menuRef :
         notifOpen && notifRef.current?.contains(active) ? notifRef :
