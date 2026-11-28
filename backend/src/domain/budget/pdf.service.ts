@@ -33,6 +33,7 @@ type PdfDocumentData = {
   /** Etiquetas de los tres datos del encabezado (por defecto: Folio, Total, Autorizacion). */
   labels?: { folio?: string; total?: string; auth?: string };
   footer?: string;
+  summaryBudget?: string;
 };
 
 
@@ -88,6 +89,16 @@ const addRect = (commands: string[], x: number, y: number, width: number, height
   commands.push(`${color} rg`);
   commands.push(`${x} ${y} ${width} ${height} re f`);
   commands.push('Q');
+};
+
+const addRoundedRect = (commands: string[], x: number, y: number, width: number, height: number, radius: number, color: string): void => {
+  const r = Math.min(radius, width / 2, height / 2);
+  const k = r * 0.55228475;
+  commands.push('q', `${color} rg`, `${x + r} ${y} m`, `${x + width - r} ${y} l`,
+    `${x + width - r + k} ${y} ${x + width} ${y + r - k} ${x + width} ${y + r} c`,
+    `${x + width} ${y + height - r} l`, `${x + width} ${y + height - r + k} ${x + width - r + k} ${y + height} ${x + width - r} ${y + height} c`,
+    `${x + r} ${y + height} l`, `${x + r - k} ${y + height} ${x} ${y + height - r + k} ${x} ${y + height - r} c`,
+    `${x} ${y + r} l`, `${x} ${y + r - k} ${x + r - k} ${y} ${x + r} ${y} c`, 'f', 'Q');
 };
 
 const addImage = (commands: string[], name: string, x: number, y: number, width: number, height: number): void => {
@@ -407,8 +418,8 @@ const buildBudgetSummaryPdf = (data: PdfDocumentData): Buffer => {
       addText(commands, 'Resumen de gastos', 48, 755, 17, 'F2', '1 1 1');
       addText(commands, 'Traveling / Continuacion', 48, 736, 9, 'F1', '0.9 0.95 0.97');
     }
-    addRect(commands, 0, 18, 612, 32, '0.957 0.976 0.98');
-    addRect(commands, 0, 50, 612, 1, border);
+    addRect(commands, 30, 18, 552, 32, '0.957 0.976 0.98');
+    addRect(commands, 30, 50, 552, 1, border);
     addText(commands, 'Generado por Traveling', 48, 30, 8, 'F1', muted);
     addText(commands, `Pagina ${pages.length}`, 510, 30, 8, 'F1', muted);
     y = 700;
@@ -433,24 +444,27 @@ const buildBudgetSummaryPdf = (data: PdfDocumentData): Buffer => {
   startPage();
   // El mismo degradado azul de las exportaciones de liquidacion, sin perder
   // la paginacion propia del resumen de gastos.
-  for (let i = 0; i < 51; i += 1) {
-    const t = i / 50;
+  for (let i = 0; i < 46; i += 1) {
+    const t = i / 45;
     const color = [0.027, 0.231 + 0.126 * t, 0.322 + 0.2 * t]
       .map((channel) => channel.toFixed(3)).join(' ');
-    addRect(commands, i * 12, 566, i === 50 ? 12 : 12.1, 226, color);
+    addRect(commands, 30 + i * 12, 566, i === 45 ? 12 : 12.1, 196, color);
   }
-  addText(commands, data.title, 48, 750, 23, 'F2', '1 1 1');
+  addText(commands, data.title, 54, 732, 23, 'F2', '1 1 1');
   const subtitleLines = wrap(data.subtitle, 67);
   subtitleLines.slice(0, 3).forEach((line, index) => {
-    addText(commands, line, 48, 725 - index * 15, 11, 'F1', '0.9 0.95 0.97');
+    addText(commands, line, 54, 707 - index * 15, 11, 'F1', '0.9 0.95 0.97');
   });
-  addText(commands, data.folio, 48, 669, 9, 'F1', '0.9 0.95 0.97');
-  addRect(commands, 48, 588, 250, 62, '0.118 0.353 0.427');
-  addRect(commands, 314, 588, 250, 62, '0.118 0.420 0.545');
-  addText(commands, 'TOTAL GASTADO', 62, 630, 9, 'F2', '0.9 0.95 0.97');
-  addText(commands, moneyText(data.total), 62, 605, 15, 'F2', '1 1 1');
-  addText(commands, 'GASTOS', 328, 630, 9, 'F2', '0.9 0.95 0.97');
-  addText(commands, data.authCode ?? '0', 328, 605, 15, 'F2', '1 1 1');
+  addText(commands, data.folio, 54, 658, 9, 'F1', '0.9 0.95 0.97');
+  addRoundedRect(commands, 54, 585, 160, 57, 9, '0.165 0.369 0.443');
+  addRoundedRect(commands, 226, 585, 160, 57, 9, '0.165 0.400 0.490');
+  addRoundedRect(commands, 398, 585, 160, 57, 9, '0.165 0.430 0.530');
+  addText(commands, 'Total gastado', 64, 623, 10, 'F1', '1 1 1');
+  addText(commands, moneyText(data.total), 64, 602, 14, 'F2', '1 1 1');
+  addText(commands, 'Presupuesto', 236, 623, 10, 'F1', '1 1 1');
+  addText(commands, data.summaryBudget ?? 'Sin definir', 236, 602, 14, 'F2', '1 1 1');
+  addText(commands, 'Gastos', 408, 623, 10, 'F1', '1 1 1');
+  addText(commands, data.authCode ?? '0', 408, 602, 14, 'F2', '1 1 1');
   y = 542;
   // Los nombres largos continuan fuera del encabezado sin perder contenido.
   subtitleLines.slice(3).forEach((line) => {
@@ -461,8 +475,7 @@ const buildBudgetSummaryPdf = (data: PdfDocumentData): Buffer => {
 
   data.sections.forEach((section) => {
     ensureSpace(65);
-    addRect(commands, 48, y - 30, 516, 30, border);
-    addRect(commands, 49, y - 29, 514, 28, pale);
+    addRoundedRect(commands, 48, y - 30, 516, 30, 10, pale);
     addText(commands, section.title, 62, y - 20, 11, 'F2', navy);
     y -= 30;
     section.lines.forEach((line) => {
@@ -539,6 +552,7 @@ export const generateBudgetSummaryPdf = async (summary: BudgetSummary): Promise<
     subtitle: group.nombre,
     folio: `RES-${group.id}-${dateKey}`,
     total: formatPdfMoney(totals.committed),
+    summaryBudget: totals.budget === null ? 'Sin definir' : formatPdfMoney(totals.budget),
     authCode: String(totals.expenseCount),
     labels: { folio: 'Resumen', total: 'Total gastado', auth: 'Gastos' },
     footer: `Resumen generado el ${generated}. El detalle de cada gasto esta en la exportacion CSV.`,
