@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { exportService, type SharedItineraryItem, type SharedGroupInfo } from '../../services/export'
+import { ApiError } from '../../services/apiClient'
 
 function formatDate(value?: string | null) {
   if (!value) return 'Sin fecha'
@@ -21,6 +22,10 @@ function formatRange(start?: string | null, end?: string | null) {
 
 export function SharedItineraryPage() {
   const { token } = useParams<{ token: string }>()
+  return <SharedItinerary token={token} key={token} />
+}
+
+function SharedItinerary({ token }: { token?: string }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [group, setGroup] = useState<SharedGroupInfo | null>(null)
@@ -48,7 +53,11 @@ export function SharedItineraryPage() {
         setExpiresAt(response.tokenMeta?.expiresAt ?? null)
       } catch (err) {
         if (cancelled) return
-        setError(err instanceof Error ? err.message : 'No se pudo cargar el itinerario compartido')
+        setError(err instanceof ApiError && err.status === 0
+          ? 'No se pudo conectar. Verifica tu conexión e inténtalo de nuevo.'
+          : err instanceof ApiError && [400, 401, 403, 404, 410].includes(err.status)
+            ? 'No se pudo abrir el itinerario. Comprueba que el enlace sea válido y no haya vencido.'
+            : 'No se pudo cargar el itinerario. Inténtalo de nuevo más tarde.')
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -76,15 +85,19 @@ export function SharedItineraryPage() {
       <div className="mx-auto w-full max-w-5xl">
         <header className="mb-6 rounded-2xl bg-[#073B52] px-6 py-5 text-white shadow-lg">
           <p className="text-xs uppercase tracking-wide text-white/70">Itinerario compartido</p>
-          <h1 className="mt-1 font-heading text-2xl font-bold">{group?.nombre ?? 'Cargando viaje...'}</h1>
-          <p className="mt-1 text-sm text-white/85">
-            {group?.destino_formatted_address ?? group?.destino ?? 'Destino sin definir'}
-          </p>
-          <p className="mt-2 text-xs text-white/75">
-            {group ? formatRange(group.fecha_inicio, group.fecha_fin) : 'Preparando fechas...'}
-          </p>
-          {expiresAt ? (
-            <p className="mt-1 text-xs text-white/85">Enlace válido hasta: {formatDate(expiresAt)}</p>
+          <h1 className="mt-1 font-heading text-2xl font-bold">
+            {!loading && !error && group ? group.nombre : 'Itinerario compartido'}
+          </h1>
+          {!loading && !error && group ? (
+            <>
+              <p className="mt-1 text-sm text-white/85">
+                {group.destino_formatted_address ?? group.destino ?? 'Destino sin definir'}
+              </p>
+              <p className="mt-2 text-xs text-white/75">{formatRange(group.fecha_inicio, group.fecha_fin)}</p>
+              {expiresAt ? (
+                <p className="mt-1 text-xs text-white/85">Enlace válido hasta: {formatDate(expiresAt)}</p>
+              ) : null}
+            </>
           ) : null}
         </header>
 
