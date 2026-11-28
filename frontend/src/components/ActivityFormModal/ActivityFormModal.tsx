@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import type { Activity } from "../ui/DayView";
 import { PlaceAutocompleteInput } from "../ui/PlaceAutocompleteInput";
 import { Select } from "../ui/Select";
@@ -85,6 +85,61 @@ export function ActivityFormModal({
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const savingRef = useRef(saving);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    savingRef.current = saving;
+    onCloseRef.current = onClose;
+    if (saving && (!formRef.current?.contains(document.activeElement) ||
+      (document.activeElement instanceof HTMLButtonElement && document.activeElement.disabled))) {
+      titleRef.current?.focus();
+    }
+  }, [saving, onClose]);
+
+  useEffect(() => {
+    if (!open) return;
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const form = formRef.current;
+    if (!form) return;
+
+    titleRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return;
+      if (event.key === "Escape") {
+        if (!savingRef.current) {
+          event.preventDefault();
+          onCloseRef.current();
+        }
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const focusable = Array.from(form.querySelectorAll<HTMLElement>(
+        'a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
+      )).filter((element) => !element.hidden && element.getClientRects().length > 0);
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      if (!first || !last) {
+        event.preventDefault();
+        form.focus();
+      } else if (event.shiftKey && (active === first || !form.contains(active) || active === form)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (active === last || !form.contains(active) || active === form)) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -143,6 +198,8 @@ export function ActivityFormModal({
       }}
     >
       <form
+        ref={formRef}
+        tabIndex={-1}
         onSubmit={handleSubmit}
         className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-[28px] border border-white/80 bg-white p-6 shadow-2xl shadow-[#1E0A4E]/20 ring-1 ring-[#E2E8F0]/70"
       >
@@ -157,13 +214,13 @@ export function ActivityFormModal({
           <div>
             <label htmlFor="activity-title" className={labelClass}>Título</label>
             <input
+              ref={titleRef}
               id="activity-title"
               value={title}
               maxLength={120}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Ej: Visita a Monte Albán"
               className={inputClass}
-              autoFocus
             />
           </div>
 
