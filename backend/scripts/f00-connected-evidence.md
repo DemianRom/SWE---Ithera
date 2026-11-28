@@ -27,3 +27,28 @@
 - Con dos gastos de 900 y 300, saldos iniciales comprobados por integrante: acreedor 500, segundo integrante -50 y deudor -450. El pago de 300 pendiente no modifica esos valores; confirmado por el acreedor, los saldos consultados quedan 200, -50 y -150. Una segunda confirmación responde 400 y no modifica los saldos.
 - Un pago parcial adicional de 100 se registra pendiente. El deudor recibe 403 al intentar rechazarlo; el acreedor recibe 400 sin motivo. El rechazo con motivo conserva estado y motivo, y los saldos 200, -50 y -150. Estos resultados amplían la sección anterior, que describe únicamente la primera ejecución.
 - Límite: no se comprobó edición/corrección de pago, confirmación de otro pago parcial, concurrencia de revisiones ni la interfaz de escritorio conectada. La conservación del identificador del viaje al crearlo mejora la limpieza en salidas tempranas; otros fallos de infraestructura podrían igualmente requerir limpieza manual de los datos de prueba.
+
+## Corrección y revisiones simultáneas — 27 de noviembre de 2026
+
+- API `127.0.0.1:3001` con salud HTTP 200 y Supabase efectivo `127.0.0.1:55321`; siete migraciones registradas coinciden con los siete archivos locales. El proceso pertenecía al manager, HEAD `f87f23d`, sin cambios locales; sus rutas y dominio de presupuesto coinciden con la base `8b41100`. No se reinició ni modificó el servidor ni la base.
+- Smoke `mwzzm1vt2ceb`, con tres cuentas aisladas: **54/55 pasos**, salida 1 por el fallo de concurrencia descrito abajo. El smoke informó limpieza correcta; consulta de solo lectura posterior: cero cuentas Auth y cero viajes principal/secundario con el identificador de esta ejecución. No se auditó de forma independiente todo el almacenamiento. No se actuó sobre cuentas de otras ejecuciones ni sobre `.qa-manager`.
+- Pago rechazado: la edición directa respondió 400; se registró un pago nuevo de 100 y su creador lo corrigió a 90 mientras estaba pendiente. El rechazo y la corrección pendiente conservaron los saldos 200, -50 y -150. Esto no demuestra edición directa de un pago rechazado, que el contrato actual no permite.
+- Dos confirmaciones simultáneas del pago corregido: HTTP 200 y 400; estado final confirmado y saldos 110, -50 y -60, consistentes con aplicar 90 una vez. Es una observación de una ejecución, no una garantía de ausencia de carreras.
+- Para otro pago pendiente de 20, confirmación y rechazo simultáneos devolvieron **HTTP 200 y 200** respectivamente; el estado final leído fue `rechazado` y los saldos siguieron en 110, -50 y -60. La prueba esperaba un único éxito y falló. Se observó éxito contradictorio, no doble aplicación monetaria en el estado final de esta ejecución. El patrón de lectura de estado seguida de actualización sin condición de estado en `reviewSettlementPayment` es una posible causa; no se cambió código productivo. La carrera depende del orden de ejecución y podría no aparecer en cada intento.
+- `node --check backend/scripts/smoke.mjs` y `git diff --check` pasaron. Pendientes: corregir y verificar la atomicidad en backend con cambios separados; comprobar notificaciones duplicadas o contradictorias, otras intercalaciones y la interfaz conectada. El smoke mantiene la aserción de un solo éxito para detectar la regresión.
+
+## Reproducción del issue #4 con el smoke integrado
+
+1. Partir del commit de prueba `596a516` o un descendiente. Confirmar antes de cada ejecución que la API escucha en `127.0.0.1:3001`, que su entorno **efectivo** apunta a Supabase de pruebas `127.0.0.1:55321`, que el archivo de entorno usado por el smoke corresponde a esa misma instancia y que las siete migraciones locales están registradas. No reiniciar ni borrar la base. La observación documentada arriba se obtuvo con backend del manager `f87f23d`, cuyo código de presupuesto coincide con `8b41100`.
+2. Desde `backend/` del worktree, con las dependencias instaladas, ejecutar en PowerShell:
+
+   ```powershell
+   $env:SMOKE_API_URL = 'http://127.0.0.1:3001/api'
+   node --env-file='C:\Users\demia\Desktop\Ing. Software\traveling-manager\backend\.env' scripts/smoke.mjs
+   ```
+
+   No mostrar ni registrar el contenido del archivo de entorno. El smoke crea cuentas y viajes identificados por un sufijo nuevo y limpia únicamente los objetos que crea; su limpieza tiene los límites indicados arriba.
+3. El paso `Revisiones opuestas simultáneas: un único resultado` crea un pago de 20 y envía desde la cuenta acreedora, mediante `Promise.all`, un PATCH de confirmación y otro de rechazo para el mismo pago. Después consulta el estado y los saldos. La prueba exige una sola respuesta 200, una 400, y saldos coherentes con el estado final.
+4. En la ejecución `mwzzm1vt2ceb` se observó `revisiones opuestas: HTTP 200,200; estado final rechazado`, 54/55 pasos y código de salida 1. Los saldos consultados fueron coherentes con el rechazo. Una ejecución posterior puede pasar si la intercalación cambia: este smoke detecta la carrera cuando ocurre, pero no fuerza determinísticamente que ambas revisiones lean el estado pendiente antes de actualizar.
+
+El paso separado de confirmaciones simultáneas comprueba que el saldo refleje el pago corregido una sola vez y que solo una solicitud tenga éxito. En la ejecución registrada pasó; no demuestra por sí solo que el backend sea seguro ante concurrencia. La corrección de producción y su validación pertenecen al issue #4 y quedan fuera de este commit.

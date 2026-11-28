@@ -66,6 +66,12 @@ Ver [../maps/README.md](../maps/README.md).
 reparto porcentual, `expense_splits.percentage` guarda el porcentaje de cada integrante y `share`
 el monto que le toca; en los otros tipos `percentage` es null.
 
+La función `update_pending_settlement_payment` guarda los datos del pago y el vínculo al
+comprobante en una sola transacción. Se ejecuta con los permisos del invocador y solo
+`service_role` tiene permiso de ejecución. El backend verifica la pertenencia al viaje y la
+función condiciona la escritura al viaje, al autor y al estado pendiente. Al borrar un pago
+pendiente, la clave foránea elimina el vínculo al comprobante en cascada.
+
 ## Flujo de trabajo
 
 Primera vez en una maquina (requiere acceso al proyecto en Supabase):
@@ -114,6 +120,8 @@ autorizada es `https://<project-ref>.supabase.co/auth/v1/callback`. En el fronte
 se muestran solo si `VITE_OAUTH_PROVIDERS` los incluye (p. ej. `google`).
 
 `deploy.sh` no toca la base de datos: las migraciones se aplican a mano con la CLI.
+Aplica `20261128055313_atomic_pending_settlement_payment_edit.sql` en la base de destino
+antes de desplegar el backend que usa `update_pending_settlement_payment`.
 
 ## Smoke test
 
