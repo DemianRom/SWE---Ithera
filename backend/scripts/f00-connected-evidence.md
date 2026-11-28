@@ -16,6 +16,6 @@
 ## Hallazgos y pendientes
 
 - No se observó un fallo de producto en los pasos ejecutados; el resultado no demuestra los escenarios no comprobados arriba ni cierra F00 visual.
-- `docs/testing/README.md` muestra `SMOKE_API_URL=http://localhost:3001` sin `/api`, aunque el smoke concatena directamente las rutas y su valor por defecto sí incluye `/api`. Usar la URL completa indicada arriba; corrección documental fuera del alcance de esta entrega.
+- Se detectó que `docs/testing/README.md` omitía `/api` en `SMOKE_API_URL`; la guía se corrigió posteriormente para usar la URL completa indicada arriba.
 - `--keep` evita la limpieza final y el borrado del viaje principal, pero el smoke elimina explícitamente el viaje secundario y el gasto porcentual creado durante la prueba. No interpretar la opción como conservación absoluta de todos los datos creados.
 - El smoke anuncia limpieza de archivos, pero este informe solo confirmó mediante consulta posterior la ausencia de las cuentas Auth y el viaje principal; no se realizó una auditoría independiente de todos los objetos o filas asociadas.
