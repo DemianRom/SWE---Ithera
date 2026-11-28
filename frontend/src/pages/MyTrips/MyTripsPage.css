@@ -1,0 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+
+.traveling-trips-shell {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  background: #f4f9fa;
+  color: #073b52;
+  font-family: 'Nunito', 'Segoe UI', sans-serif;
+}
+.traveling-trips-shell .font-body { font-family: 'Nunito', 'Segoe UI', sans-serif; }
+.traveling-trips-shell .font-heading { font-family: 'Fredoka', 'Trebuchet MS', sans-serif; }
+.traveling-trips-shell button:focus-visible,
+.traveling-trips-shell input:focus-visible { outline: 3px solid #005aaf; outline-offset: 3px; }
