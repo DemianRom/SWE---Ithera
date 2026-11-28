@@ -179,7 +179,7 @@ export function AppLayout({
                     <div className="relative">
                       <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 font-body text-[11px] font-bold uppercase tracking-[0.16em] text-[#91def0]">
                         <span className="h-1.5 w-1.5 rounded-full bg-[#16b9d0]" />
-                        Viaje activo
+                        Viaje
                       </p>
                       <h2 className="max-w-full break-words font-heading text-lg font-extrabold leading-tight text-white" title={trip.name}>
                         {trip.name}
