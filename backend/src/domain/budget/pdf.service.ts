@@ -448,24 +448,23 @@ const buildBudgetSummaryPdf = (data: PdfDocumentData): Buffer => {
     const t = i / 45;
     const color = [0.027, 0.231 + 0.126 * t, 0.322 + 0.2 * t]
       .map((channel) => channel.toFixed(3)).join(' ');
-    addRect(commands, 30 + i * 12, 566, i === 45 ? 12 : 12.1, 196, color);
+    addRect(commands, 30 + i * 12, 586, i === 45 ? 12 : 12.1, 176, color);
   }
   addText(commands, data.title, 54, 732, 23, 'F2', '1 1 1');
   const subtitleLines = wrap(data.subtitle, 67);
   subtitleLines.slice(0, 3).forEach((line, index) => {
     addText(commands, line, 54, 707 - index * 15, 11, 'F1', '0.9 0.95 0.97');
   });
-  addText(commands, data.folio, 54, 658, 9, 'F1', '0.9 0.95 0.97');
-  addRoundedRect(commands, 54, 585, 160, 57, 9, '0.165 0.369 0.443');
-  addRoundedRect(commands, 226, 585, 160, 57, 9, '0.165 0.400 0.490');
-  addRoundedRect(commands, 398, 585, 160, 57, 9, '0.165 0.430 0.530');
-  addText(commands, 'Total gastado', 64, 623, 10, 'F1', '1 1 1');
-  addText(commands, moneyText(data.total), 64, 602, 14, 'F2', '1 1 1');
-  addText(commands, 'Presupuesto', 236, 623, 10, 'F1', '1 1 1');
-  addText(commands, data.summaryBudget ?? 'Sin definir', 236, 602, 14, 'F2', '1 1 1');
-  addText(commands, 'Gastos', 408, 623, 10, 'F1', '1 1 1');
-  addText(commands, data.authCode ?? '0', 408, 602, 14, 'F2', '1 1 1');
-  y = 542;
+  addRoundedRect(commands, 54, 605, 160, 57, 9, '0.165 0.369 0.443');
+  addRoundedRect(commands, 226, 605, 160, 57, 9, '0.165 0.400 0.490');
+  addRoundedRect(commands, 398, 605, 160, 57, 9, '0.165 0.430 0.530');
+  addText(commands, 'Total gastado', 64, 643, 10, 'F1', '1 1 1');
+  addText(commands, moneyText(data.total), 64, 622, 14, 'F2', '1 1 1');
+  addText(commands, 'Presupuesto', 236, 643, 10, 'F1', '1 1 1');
+  addText(commands, data.summaryBudget ?? 'Sin definir', 236, 622, 14, 'F2', '1 1 1');
+  addText(commands, 'Gastos', 408, 643, 10, 'F1', '1 1 1');
+  addText(commands, data.authCode ?? '0', 408, 622, 14, 'F2', '1 1 1');
+  y = 565;
   // Los nombres largos continuan fuera del encabezado sin perder contenido.
   subtitleLines.slice(3).forEach((line) => {
     ensureSpace(15);
@@ -474,28 +473,26 @@ const buildBudgetSummaryPdf = (data: PdfDocumentData): Buffer => {
   });
 
   data.sections.forEach((section) => {
-    ensureSpace(65);
-    addRoundedRect(commands, 48, y - 30, 516, 30, 10, pale);
-    addText(commands, section.title, 62, y - 20, 11, 'F2', navy);
-    y -= 30;
-    section.lines.forEach((line) => {
-      const textLines = [
-        ...(line.label ? wrap(line.label, 78).map((text) => ({ text, font: 'F2', color: blue, size: 9 })) : []),
-        ...wrap(line.value, 86).map((text) => ({ text, font: 'F1', color: navy, size: 10 })),
-      ];
-      // Cada fragmento tiene su propio borde para poder continuar en otra pagina.
-      while (textLines.length) {
-        ensureSpace(30);
-        const count = Math.min(textLines.length, Math.max(1, Math.floor((y - 62 - 12) / 14)));
-        const fragment = textLines.splice(0, count);
-        const height = fragment.length * 14 + 12;
-        addRect(commands, 48, y - height, 516, height, border);
-        addRect(commands, 49, y - height + 1, 514, height - 2, '1 1 1');
-        fragment.forEach((item, index) => addText(commands, item.text, 62, y - 16 - index * 14, item.size, item.font, item.color));
-        y -= height;
-      }
-    });
-    y -= 16;
+    const lines = section.lines.flatMap((line) => [
+      ...(line.label ? wrap(line.label, 78).map((text) => ({ text, font: 'F2', color: navy, size: 10 })) : []),
+      ...wrap(line.value, 86).map((text) => ({ text, font: 'F1', color: blue, size: 10 })),
+      { text: '', font: 'F1', color: navy, size: 10 },
+    ]);
+    if (lines.length === 0) return;
+    while (lines.length) {
+      ensureSpace(76);
+      const count = Math.min(lines.length, Math.max(1, Math.floor((y - 62 - 48) / 14)));
+      const fragment = lines.splice(0, count);
+      const height = 46 + fragment.length * 14;
+      addRoundedRect(commands, 48, y - height, 516, height, 12, border);
+      addRoundedRect(commands, 49, y - height + 1, 514, height - 2, 11, '1 1 1');
+      addRoundedRect(commands, 49, y - 38, 514, 37, 11, pale);
+      addRect(commands, 49, y - 38, 514, 10, pale);
+      addRect(commands, 49, y - 38, 514, 1, border);
+      addText(commands, section.title, 62, y - 25, 13, 'F2', navy);
+      fragment.forEach((item, index) => addText(commands, item.text, 62, y - 55 - index * 14, item.size, item.font, item.color));
+      y -= height + 16;
+    }
   });
   if (data.footer) {
     ensureSpace(36);
@@ -560,7 +557,7 @@ export const generateBudgetSummaryPdf = async (summary: BudgetSummary): Promise<
       {
         title: 'Por integrante (saldo positivo = le deben)',
         lines: summary.byMember.map((member) => ({
-          label: member.nombre,
+          label: member.nombre?.trim() || `Integrante ${member.usuarioId}`,
           value: `Pago ${formatPdfMoney(member.paid)} | Le toca ${formatPdfMoney(member.share)} | Saldo ${member.balance >= 0 ? '+' : '-'}${formatPdfMoney(Math.abs(member.balance))}`,
         })),
       },
