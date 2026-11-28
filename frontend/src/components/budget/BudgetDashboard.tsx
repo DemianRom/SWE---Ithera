@@ -816,6 +816,7 @@ export const BudgetDashboard: FC<Props> = ({
       <MyWalletView
         onBack={() => setView('dashboard')}
         isOffline={isOffline}
+        isTripReadOnly={isReadOnly}
         settlements={dashboard?.settlements ?? []}
         paymentHistory={dashboard?.paymentHistory ?? []}
         members={members}

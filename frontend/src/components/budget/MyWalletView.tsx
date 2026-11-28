@@ -13,6 +13,7 @@ interface WalletEntry {
 interface Props {
   onBack: () => void
   isOffline?: boolean
+  isTripReadOnly?: boolean
   settlements?: BudgetSettlement[]
   paymentHistory?: BudgetPaymentHistoryItem[]
   members?: BudgetMember[]
@@ -53,6 +54,7 @@ const paymentStatusLabel: Record<BudgetPaymentHistoryItem['status'], string> = {
 export const MyWalletView: FC<Props> = ({
   onBack,
   isOffline = false,
+  isTripReadOnly = false,
   settlements = [],
   paymentHistory = [],
   members = [],
@@ -63,6 +65,7 @@ export const MyWalletView: FC<Props> = ({
   onDeleteSentPayment,
   onGenerateReceipt,
 }) => {
+  const receiptDisabled = isOffline || isTripReadOnly
   const paymentFieldId = useId()
   const [error, setError] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
@@ -386,7 +389,7 @@ export const MyWalletView: FC<Props> = ({
                   <div className="mt-2">
                     <button
                       onClick={() => setReceiptModalEntry(e)}
-                      disabled={isOffline || receiptBusyPairId === e.pairId}
+                      disabled={receiptDisabled || receiptBusyPairId === e.pairId}
                       className="rounded-lg border border-[#075B85] px-3 py-1 text-xs font-semibold text-[#075B85]"
                     >
                       {receiptBusyPairId === e.pairId ? 'Generando...' : receiptDonePairIds.has(e.pairId) ? 'Ya en boveda' : 'Generar recibo'}
@@ -606,7 +609,9 @@ export const MyWalletView: FC<Props> = ({
                 Cancelar
               </button>
               <button
+                disabled={receiptDisabled || receiptBusyPairId !== null}
                 onClick={async () => {
+                  if (receiptDisabled) return
                   const e = receiptModalEntry
                   const now = new Date()
                   const folio = `RC-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${now.getTime().toString().slice(-6)}`
@@ -654,7 +659,9 @@ export const MyWalletView: FC<Props> = ({
                 Solo vista previa
               </button>
               <button
+                disabled={receiptDisabled || receiptBusyPairId !== null}
                 onClick={async () => {
+                  if (receiptDisabled) return
                   const e = receiptModalEntry
                   const now = new Date()
                   const folio = `RC-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${now.getTime().toString().slice(-6)}`
