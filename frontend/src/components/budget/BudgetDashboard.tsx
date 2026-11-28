@@ -815,7 +815,7 @@ export const BudgetDashboard: FC<Props> = ({
     return (
       <MyWalletView
         onBack={() => setView('dashboard')}
-        isReadOnly={isReadOnly || isOffline}
+        isOffline={isOffline}
         settlements={dashboard?.settlements ?? []}
         paymentHistory={dashboard?.paymentHistory ?? []}
         members={members}
@@ -1142,7 +1142,7 @@ export const BudgetDashboard: FC<Props> = ({
           {!isReadOnly && (
             <button
               onClick={() => { setEditingExpense(null); setShowModal(true) }}
-              disabled={!groupId || members.length === 0 || isSaving}
+              disabled={!groupId || members.length === 0 || isSaving || isOffline}
               className="flex items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#073B52,#16B9D0)] py-4 font-body text-base font-extrabold text-white shadow-[0_14px_28px_rgba(13,64,84,0.18)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               + Registrar gasto
@@ -1584,7 +1584,7 @@ export const BudgetDashboard: FC<Props> = ({
       </div>
 
       <RegisterExpenseModal
-        open={showModal && !isReadOnly}
+        open={showModal && !isReadOnly && !isOffline}
         members={members}
         editingExpense={editingExpense}
         activityOptions={linkOptions.activities}

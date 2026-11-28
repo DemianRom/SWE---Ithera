@@ -1770,7 +1770,7 @@ export function DashboardPage() {
                 <circle cx="12" cy="16" r="1" fill="currentColor" />
               </svg>
               <p className="font-body text-[12px] text-[#64748B] leading-relaxed">
-                Presupuesto en modo lectura. Puedes consultar balances y deudas,
+                Este viaje está cerrado. Puedes consultar balances y liquidar deudas,
                 pero no registrar nuevos gastos.
               </p>
             </div>
