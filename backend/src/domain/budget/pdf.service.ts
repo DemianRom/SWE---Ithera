@@ -388,7 +388,110 @@ export const generateCollectionReceiptPdf = async (data: {
 const formatPdfMoney = (value: number): string =>
   `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN`;
 
-/** Resumen de gastos del viaje en una pagina (el detalle por gasto va en el CSV). */
+// El resumen usa una plantilla propia para no alterar los comprobantes de liquidacion.
+// Cada linea puede continuar en otra pagina, incluso cuando un nombre es muy largo.
+const buildBudgetSummaryPdf = (data: PdfDocumentData): Buffer => {
+  const pages: string[][] = [];
+  let commands: string[] = [];
+  let y = 0;
+  const navy = '0.055 0.157 0.224';
+  const teal = '0.008 0.49 0.49';
+  const muted = '0.35 0.42 0.46';
+  const startPage = () => {
+    commands = [];
+    pages.push(commands);
+    addRect(commands, 0, 724, 612, 68, navy);
+    addRect(commands, 48, 747, 4, 22, teal);
+    addText(commands, 'TRAVELING', 62, 755, 16, 'F2', '1 1 1');
+    addText(commands, pages.length === 1 ? 'RESUMEN DE GASTOS' : 'RESUMEN DE GASTOS  /  CONTINUACION', 340, 756, 9, 'F2', '1 1 1');
+    addRect(commands, 48, 46, 516, 1, '0.85 0.89 0.89');
+    addText(commands, 'TRAVELING  /  RESUMEN DE VIAJE', 48, 30, 8, 'F2', muted);
+    addText(commands, `Pagina ${pages.length}`, 510, 30, 8, 'F1', muted);
+    y = 694;
+  };
+  const ensureSpace = (height: number) => {
+    if (y - height < 62) startPage();
+  };
+  // wrapText no divide palabras largas; este envoltorio tambien las divide.
+  const wrap = (value: string, width: number): string[] => {
+    const words = toPdfSafeText(value).split(/\s+/).filter(Boolean);
+    const chunks = words.flatMap((word) => word.match(new RegExp(`.{1,${width}}`, 'g')) ?? []);
+    return wrapText(chunks.join(' '), width);
+  };
+  const writeWrapped = (value: string, x: number, width: number, size: number, font: string, color: string, leading: number) => {
+    wrap(value, width).forEach((line) => {
+      ensureSpace(leading);
+      addText(commands, line, x, y, size, font, color);
+      y -= leading;
+    });
+  };
+
+  startPage();
+  addText(commands, 'TU VIAJE EN NUMEROS', 48, y, 9, 'F2', teal);
+  y -= 26;
+  writeWrapped(data.subtitle, 48, 38, 22, 'F2', navy, 27);
+  y -= 5;
+  writeWrapped(data.folio, 48, 72, 9, 'F1', muted, 13);
+  y -= 12;
+  ensureSpace(78);
+  addRect(commands, 48, y - 65, 516, 65, '0.93 0.97 0.96');
+  addText(commands, 'TOTAL GASTADO', 64, y - 21, 9, 'F2', muted);
+  addText(commands, moneyText(data.total), 64, y - 46, 18, 'F2', navy);
+  addText(commands, 'GASTOS', 424, y - 21, 9, 'F2', muted);
+  addText(commands, data.authCode ?? '0', 424, y - 46, 18, 'F2', navy);
+  y -= 92;
+
+  data.sections.forEach((section) => {
+    ensureSpace(65);
+    addText(commands, section.title, 48, y, 12, 'F2', navy);
+    y -= 12;
+    addRect(commands, 48, y, 516, 1, '0.80 0.87 0.87');
+    y -= 20;
+    section.lines.forEach((line) => {
+      ensureSpace(36);
+      if (line.label) {
+        writeWrapped(line.label, 48, 80, 9, 'F2', teal, 12);
+        y -= 2;
+      }
+      writeWrapped(line.value, 48, 90, 10, 'F1', navy, 14);
+      y -= 10;
+    });
+    y -= 8;
+  });
+  if (data.footer) {
+    ensureSpace(36);
+    y -= 4;
+    writeWrapped(data.footer, 48, 95, 8, 'F1', muted, 11);
+  }
+
+  // Objetos por pagina: pagina y contenido; las fuentes son compartidas.
+  const pageIds = pages.map((_, index) => 5 + index * 2);
+  const objects = [
+    '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n',
+    `2 0 obj\n<< /Type /Pages /Kids [${pageIds.map((id) => `${id} 0 R`).join(' ')}] /Count ${pages.length} >>\nendobj\n`,
+    '3 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>\nendobj\n',
+    '4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>\nendobj\n',
+  ];
+  pages.forEach((page, index) => {
+    const id = pageIds[index];
+    const content = page.join('\n');
+    objects.push(`${id} 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${id + 1} 0 R >>\nendobj\n`);
+    objects.push(`${id + 1} 0 obj\n<< /Length ${Buffer.byteLength(content, 'binary')} >>\nstream\n${content}\nendstream\nendobj\n`);
+  });
+  let pdf = '%PDF-1.4\n';
+  const offsets = [0];
+  objects.forEach((object) => {
+    offsets.push(Buffer.byteLength(pdf, 'binary'));
+    pdf += object;
+  });
+  const xrefOffset = Buffer.byteLength(pdf, 'binary');
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  offsets.slice(1).forEach((offset) => { pdf += `${String(offset).padStart(10, '0')} 00000 n \n`; });
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+  return Buffer.from(pdf, 'binary');
+};
+
+/** Resumen de gastos del viaje; el detalle por gasto va en el CSV. */
 export const generateBudgetSummaryPdf = async (summary: BudgetSummary): Promise<Buffer> => {
   const { group, totals } = summary;
   const dates = [group.fechaInicio, group.fechaFin].filter(Boolean).join(' a ');
@@ -406,7 +509,7 @@ export const generateBudgetSummaryPdf = async (summary: BudgetSummary): Promise<
         ? formatPdfMoney(totals.available)
         : `Excedido por ${formatPdfMoney(Math.abs(totals.available))}`;
 
-  return buildElegantPdf({
+  return buildBudgetSummaryPdf({
     title: 'Resumen de gastos',
     subtitle: group.nombre,
     folio: `RES-${group.id}-${dateKey}`,
@@ -415,6 +518,13 @@ export const generateBudgetSummaryPdf = async (summary: BudgetSummary): Promise<
     labels: { folio: 'Resumen', total: 'Total gastado', auth: 'Gastos' },
     footer: `Resumen generado el ${generated}. El detalle de cada gasto esta en la exportacion CSV.`,
     sections: [
+      {
+        title: 'Por integrante (saldo positivo = le deben)',
+        lines: summary.byMember.map((member) => ({
+          label: member.nombre,
+          value: `Pago ${formatPdfMoney(member.paid)} | Le toca ${formatPdfMoney(member.share)} | Saldo ${member.balance >= 0 ? '+' : '-'}${formatPdfMoney(Math.abs(member.balance))}`,
+        })),
+      },
       {
         title: 'Viaje',
         lines: [
@@ -443,13 +553,7 @@ export const generateBudgetSummaryPdf = async (summary: BudgetSummary): Promise<
                 : formatPdfMoney(item.spent),
           })),
       },
-      {
-        title: 'Por integrante (saldo positivo = le deben)',
-        lines: summary.byMember.map((member) => ({
-          label: member.nombre.length > 18 ? `${member.nombre.slice(0, 17)}.` : member.nombre,
-          value: `Pago ${formatPdfMoney(member.paid)} | Le toca ${formatPdfMoney(member.share)} | Saldo ${member.balance >= 0 ? '+' : '-'}${formatPdfMoney(Math.abs(member.balance))}`,
-        })),
-      },
+
     ],
   });
 };
