@@ -6,6 +6,8 @@ import { isOAuthProviderEnabled, oauthProviderCount } from "../../lib/oauth";
 import { useNavigate, Link, useSearchParams, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
 import { ApiError, apiClient } from "../../services/apiClient";
+import "../../styles/traveling-brand.css";
+import "./LoginPage.css";
 
 const REDIRECT_STORAGE_KEY = "traveling_post_login_redirect";
 const LOGIN_LOCK_STORAGE_KEY = "traveling_login_lockout";
@@ -350,37 +352,30 @@ export function LoginPage() {
     }
   };
 
-  const inputBase =
-    "w-full rounded-[14px] border border-[#D9DEE7] bg-white px-4 py-3 text-[15px] text-[#3D4A5C] outline-none transition placeholder:text-[#7A8799] focus:border-[#1E6FD9] focus:ring-2 focus:ring-[#1E6FD9]/15";
+  const isEmailInvalid = Boolean(emailError) || errorCode === "ERR-11-002";
+  const inputBase = "login-input w-full px-4 py-3 text-[15px]";
 
   return (
-    <div className="h-screen overflow-hidden bg-[#F4F6F8] font-body">
-      <div className="grid h-screen grid-cols-1 lg:grid-cols-[45%_55%]">
+    <div className="traveling-brand login-page h-dvh overflow-hidden">
+      <div className="grid h-full grid-cols-1 grid-rows-[minmax(0,1fr)] lg:grid-cols-[45%_55%]">
         {/* ── Left panel ── */}
-        <section className="relative hidden overflow-hidden lg:flex">
-          <div className="absolute inset-0 bg-[linear-gradient(135deg,#0D0820_0%,#1E0A4E_48%,#31136F_100%)]" />
-          <div className="absolute inset-0 opacity-20">
-            <div className="h-full w-full bg-[radial-gradient(circle,rgba(255,255,255,0.12)_1px,transparent_1px)] [background-size:26px_26px]" />
-          </div>
-          <div className="landing-glow absolute left-10 top-28 h-40 w-40 rounded-full bg-[#1E6FD9]/35 blur-3xl" />
-          <div className="landing-glow absolute bottom-20 right-8 h-44 w-44 rounded-full bg-[#35C56A]/25 blur-3xl" />
-
-          <div className="relative z-10 flex h-full w-full flex-col px-16 py-12">
+        <section className="login-promo hidden overflow-y-auto lg:block">
+          <div className="flex min-h-full w-full flex-col gap-8 px-12 py-10 xl:px-16 xl:py-12">
             <Link to="/" className="inline-flex w-fit">
               <Logo variant="white" height={48} className="cursor-pointer" />
             </Link>
 
             <div className="flex flex-1 items-center">
               <div className="w-full max-w-[620px]">
-                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[12px] font-bold uppercase tracking-[0.16em] text-[#9AF0B8] backdrop-blur">
-                  <span className="h-2 w-2 rounded-full bg-[#35C56A]" />
+                <div className="login-promo-badge mb-6 inline-flex items-center gap-2 px-4 py-2 text-[12px] font-bold uppercase tracking-[0.16em]">
+                  <span className="login-promo-accent h-2 w-2 rounded-full" />
                   Plataforma colaborativa
                 </div>
-                <h1 className="text-[68px] font-extrabold leading-[0.96] tracking-[-0.04em] text-white">
+                <h1 className="login-heading text-[clamp(2.75rem,4.1vw,4.25rem)] font-semibold leading-[1.02] tracking-[-0.025em]">
                   Registra gastos, repártelos y cierra las cuentas del viaje sin pendientes.
                 </h1>
 
-                <p className="mt-8 max-w-[540px] text-[19px] leading-[1.65] text-white/75">
+                <p className="login-promo-copy mt-8 max-w-[540px] text-[19px] leading-[1.55]">
                   Itinerarios, presupuesto, decisiones y documentos conectados
                   para que cada integrante sepa qué sigue.
                 </p>
@@ -393,10 +388,10 @@ export function LoginPage() {
                   ].map(([title, subtitle]) => (
                     <div
                       key={title}
-                      className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur"
+                      className="login-promo-card px-4 py-3"
                     >
-                      <p className="text-[13px] font-bold text-white">{title}</p>
-                      <p className="mt-1 text-[11px] leading-tight text-white/55">
+                      <p className="text-[13px] font-bold">{title}</p>
+                      <p className="login-promo-copy mt-1 text-[12px] leading-tight">
                         {subtitle}
                       </p>
                     </div>
@@ -406,25 +401,25 @@ export function LoginPage() {
             </div>
 
             <div className="grid max-w-[560px] grid-cols-[1fr_0.9fr] gap-3">
-              <div className="rounded-3xl border border-white/15 bg-white/10 p-4 backdrop-blur">
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#9ED4FF]">
+              <div className="login-promo-card p-4">
+                <p className="login-promo-label text-[12px] font-bold uppercase tracking-[0.16em]">
                   Próximo plan
                 </p>
-                <p className="mt-2 text-[16px] font-bold text-white">
+                <p className="mt-2 text-[16px] font-bold">
                   Cena frente al mar
                 </p>
-                <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/15">
-                  <div className="h-full w-3/4 rounded-full bg-[#35C56A]" />
+                <div className="login-promo-track mt-4 h-2 overflow-hidden rounded-full">
+                  <div className="login-promo-accent h-full w-3/4 rounded-full" />
                 </div>
               </div>
-              <div className="rounded-3xl border border-white/15 bg-white/10 p-4 backdrop-blur">
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D8C8FF]">
+              <div className="login-promo-card p-4">
+                <p className="login-promo-label text-[12px] font-bold uppercase tracking-[0.16em]">
                   Presupuesto
                 </p>
-                <p className="mt-2 text-[22px] font-extrabold text-white">
+                <p className="mt-2 text-[22px] font-extrabold">
                   $50,000
                 </p>
-                <p className="mt-1 text-[12px] text-white/55">
+                <p className="login-promo-copy mt-1 text-[12px]">
                   28% comprometido
                 </p>
               </div>
@@ -433,11 +428,11 @@ export function LoginPage() {
         </section>
 
         {/* ── Right panel ── */}
-        <section className="flex h-screen items-start justify-center overflow-y-auto bg-[#F4F6F8] px-6 py-10 sm:px-10 lg:px-16 lg:py-12">
+        <section className="flex min-h-0 min-w-0 items-start justify-center overflow-y-auto px-6 py-10 sm:px-10 lg:px-16 lg:py-12">
           <div className="w-full max-w-[470px]">
             <Link
               to="/"
-              className="mb-8 inline-flex items-center gap-1.5 text-[13px] text-[#98A2B3] transition hover:text-[#667085]"
+              className="login-nav-link mb-8 inline-flex items-center gap-1.5 text-[13px]"
             >
               <svg
                 width="16"
@@ -461,21 +456,22 @@ export function LoginPage() {
             <div className="mb-7 flex items-center justify-center gap-8 text-[15px]">
               <button
                 type="button"
-                className="border-b-2 border-[#111827] pb-1 font-semibold text-[#111827]"
+                aria-current="page"
+                className="login-current-tab border-b-2 pb-1 font-semibold"
               >
                 Iniciar sesión
               </button>
 
               <Link
                 to="/register"
-                className="text-[#98A2B3] transition hover:text-[#667085]"
+                className="login-nav-link"
               >
                 Registrarse
               </Link>
             </div>
 
             {/* Title */}
-            <h2 className="mb-8 text-center text-[52px] font-extrabold leading-none tracking-[-0.04em] text-[#111827]">
+            <h2 className="login-heading login-title mb-8 text-center text-[clamp(2.25rem,8vw,3.25rem)] font-semibold leading-none tracking-[-0.025em]">
               Bienvenido de nuevo
             </h2>
 
@@ -500,11 +496,11 @@ export function LoginPage() {
                           setLoading(false);
                         }
                       }}
-                      className="flex h-[54px] items-center justify-center gap-3 rounded-[14px] border border-[#D9DEE7] bg-white text-[16px] font-medium text-[#344054] transition hover:border-[#2C8BE6] disabled:cursor-not-allowed disabled:opacity-60"
+                      className="login-provider flex h-[54px] items-center justify-center gap-3 text-[16px] font-semibold"
                     >
                       <img
                         src={googleIcon}
-                        alt="Google"
+                        alt=""
                         className="h-5 w-5 object-contain"
                       />
                       <span>Google</span>
@@ -528,11 +524,11 @@ export function LoginPage() {
                           setLoading(false);
                         }
                       }}
-                      className="flex h-[54px] items-center justify-center gap-3 rounded-[14px] border border-[#D9DEE7] bg-white text-[16px] font-medium text-[#344054] transition hover:border-[#2C8BE6] disabled:cursor-not-allowed disabled:opacity-60"
+                      className="login-provider flex h-[54px] items-center justify-center gap-3 text-[16px] font-semibold"
                     >
                       <img
                         src={facebookIcon}
-                        alt="Facebook"
+                        alt=""
                         className="h-5 w-5 object-contain"
                       />
                       <span>Facebook</span>
@@ -542,18 +538,18 @@ export function LoginPage() {
 
                 {/* Divider */}
                 <div className="mb-8 flex items-center gap-4">
-                  <div className="h-px flex-1 bg-[#E4E7EC]" />
-                  <span className="text-[14px] text-[#98A2B3]">
+                  <div className="login-divider h-px flex-1" />
+                  <span className="login-muted text-[14px]">
                     o continúa con tu correo
                   </span>
-                  <div className="h-px flex-1 bg-[#E4E7EC]" />
+                  <div className="login-divider h-px flex-1" />
                 </div>
               </>
             )}
 
             {/* Session expired banner */}
             {sessionExpired && (
-              <div className="mb-5 rounded-xl border border-[#F59E0B]/30 bg-[#FFFBEB] px-4 py-3 text-sm text-[#92400E]">
+              <div className="login-warning mb-5 px-4 py-3 text-sm">
                 Tu sesión expiró. Por favor inicia sesión de nuevo.
               </div>
             )}
@@ -563,7 +559,7 @@ export function LoginPage() {
               <div
                 role="status"
                 aria-live="polite"
-                className="mb-5 flex items-start gap-3 rounded-xl border border-[#F59E0B]/30 bg-[#FFFBEB] px-4 py-3 text-sm font-medium text-[#92400E]"
+                className="login-warning mb-5 flex items-start gap-3 px-4 py-3 text-sm font-medium"
               >
                 <svg
                   width="18"
@@ -614,10 +610,11 @@ export function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Email */}
               <div>
-                <label className="mb-2 block text-[15px] font-semibold text-[#344054]">
+                <label htmlFor="login-email" className="mb-2 block text-[15px] font-semibold">
                   Correo electrónico
                 </label>
                 <input
+                  id="login-email"
                   type="text"
                   inputMode="email"
                   autoComplete="email"
@@ -640,11 +637,18 @@ export function LoginPage() {
                   }}
                   onBlur={(e) => validateEmail(e.target.value)}
                   placeholder="correo@ejemplo.com"
-                  aria-invalid={Boolean(emailError)}
-                  className={`${inputBase} ${emailError || errorCode === "ERR-11-002" ? "border-[#EF4444]" : ""}`}
+                  aria-invalid={isEmailInvalid}
+                  aria-describedby={
+                    emailError
+                      ? "login-email-error"
+                      : errorCode === "ERR-11-002" && error && !isOffline
+                        ? "login-error"
+                        : undefined
+                  }
+                  className={inputBase}
                 />
                 {emailError && (
-                  <p className="mt-1 text-[12px] font-medium text-[#EF4444]">
+                  <p id="login-email-error" className="login-error-text mt-1 text-[12px] font-semibold">
                     {emailError}
                   </p>
                 )}
@@ -652,12 +656,14 @@ export function LoginPage() {
 
               {/* Password */}
               <div>
-                <label className="mb-2 block text-[15px] font-semibold text-[#344054]">
+                <label htmlFor="login-password" className="mb-2 block text-[15px] font-semibold">
                   Contraseña
                 </label>
                 <div className="relative">
                   <input
+                    id="login-password"
                     type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
                     value={password}
                     onChange={(e) => {
                       setPassword(e.target.value);
@@ -671,12 +677,14 @@ export function LoginPage() {
                     aria-describedby={
                       isCapsLockOn ? "caps-lock-warning" : undefined
                     }
-                    className={`${inputBase} pr-12 ${error ? "border-[#EF4444]" : ""}`}
+                    className={`${inputBase} pr-12${error ? " login-input-error" : ""}`}
                   />
                   <button
                     type="button"
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    aria-controls="login-password"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#98A2B3] hover:text-[#667085] transition"
+                    className="login-nav-link absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg"
                   >
                     {showPassword ? (
                       <svg
@@ -684,6 +692,7 @@ export function LoginPage() {
                         height="22"
                         viewBox="0 0 24 24"
                         fill="none"
+                        aria-hidden="true"
                       >
                         <path
                           d="M3 3l18 18"
@@ -713,6 +722,7 @@ export function LoginPage() {
                         height="22"
                         viewBox="0 0 24 24"
                         fill="none"
+                        aria-hidden="true"
                       >
                         <path
                           d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6Z"
@@ -736,7 +746,7 @@ export function LoginPage() {
                     id="caps-lock-warning"
                     role="status"
                     aria-live="polite"
-                    className="mt-2 flex items-start gap-2 rounded-[12px] border border-[#F59E0B]/30 bg-[#FFFBEB] px-3 py-2 text-[12px] font-medium text-[#92400E]"
+                    className="login-warning mt-2 flex items-start gap-2 px-3 py-2 text-[12px] font-medium"
                   >
                     <svg
                       width="16"
@@ -772,13 +782,9 @@ export function LoginPage() {
               {error && !isOffline && (
                 <div
                   role="alert"
-                  className={`rounded-[12px] border px-3 py-2 text-[12px] font-semibold ${
-                    isLoginLocked
-                      ? "border-[#F59E0B]/30 bg-[#FFFBEB] text-[#92400E]"
-                      : "border-[#EF4444]/30 bg-[#FEF2F2] text-[#EF4444]"
-                  }`}
+                  className={`${isLoginLocked ? "login-warning" : "login-error"} px-3 py-2 text-[12px] font-semibold`}
                 >
-                  <p>{error}</p>
+                  <p id="login-error">{error}</p>
                   {isLoginLocked && (
                     <p className="mt-1 font-medium">
                       Tiempo restante: {lockMinutes}:{lockSeconds}. El botón se
@@ -789,7 +795,7 @@ export function LoginPage() {
                   {errorCode === "ERR-11-002" && (
                     <Link
                       to="/register"
-                      className="mt-3 inline-flex rounded-full bg-[#7A4FD6] px-4 py-2 text-[12px] font-bold text-white transition hover:opacity-90"
+                      className="login-action mt-3 inline-flex px-4 py-2 text-[12px] font-bold"
                     >
                       Crear cuenta
                     </Link>
@@ -798,20 +804,20 @@ export function LoginPage() {
               )}
 
               {/* Remember me + Forgot password */}
-              <div className="flex items-center justify-between pt-1">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 pt-1">
                 <label className="flex cursor-pointer items-center gap-2">
                   <input
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="h-4 w-4 rounded border-[#D9DEE7] accent-[#7A4FD6]"
+                    className="login-checkbox h-4 w-4"
                   />
-                  <span className="text-[14px] text-[#344054]">Recordarme</span>
+                  <span className="text-[14px]">Recordarme</span>
                 </label>
 
                 <Link
                   to="/forgot-password"
-                  className="text-[14px] font-medium text-[#7A4FD6] transition hover:opacity-80"
+                  className="login-text-link text-[14px] font-semibold"
                 >
                   ¿Olvidaste tu contraseña?
                 </Link>
@@ -821,17 +827,17 @@ export function LoginPage() {
               <button
                 type="submit"
                 disabled={loading || isOffline || isLoginLocked || !isLoginFormReady}
-                className="mt-2 h-[54px] w-full rounded-full bg-[linear-gradient(90deg,#7A4FD6_0%,#6D46D4_35%,#6E45E6_65%,#5B35D5_100%)] text-[18px] font-bold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70"
+                className="login-action mt-2 h-[54px] w-full text-[18px] font-bold"
               >
                 {loading ? "Iniciando sesión..." : isOffline ? "Sin conexión" : isLoginLocked ? `Bloqueado ${lockMinutes}:${lockSeconds}` : "Iniciar sesión"}
               </button>
 
               {/* Sign-up link */}
-              <p className="pt-2 text-center text-[14px] text-[#98A2B3]">
+              <p className="login-muted pt-2 text-center text-[14px]">
                 ¿No tienes cuenta?{" "}
                 <Link
                   to="/register"
-                  className="font-medium text-[#7A4FD6] transition hover:opacity-80"
+                  className="login-text-link font-semibold"
                 >
                   Regístrate
                 </Link>
