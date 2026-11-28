@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 
 export type ConfirmDialogVariant = "danger" | "warning" | "info" | "success";
 
@@ -62,6 +62,71 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const titleId = useId();
+  const descriptionId = useId();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  const loadingRef = useRef(loading);
+  const onCancelRef = useRef(onCancel);
+  useEffect(() => {
+    loadingRef.current = loading;
+    onCancelRef.current = onCancel;
+  }, [loading, onCancel]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const previousFocus = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    if (cancelRef.current && !cancelRef.current.disabled) {
+      cancelRef.current.focus();
+    } else {
+      dialog.focus();
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        if (!loadingRef.current) {
+          event.preventDefault();
+          onCancelRef.current();
+        }
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const focusable = Array.from(dialog.querySelectorAll<HTMLElement>(
+        'a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
+      )).filter((element) => !element.hidden && element.getClientRects().length > 0);
+      if (focusable.length === 0) {
+        event.preventDefault();
+        dialog.focus();
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      if (event.shiftKey && (active === first || !dialog.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (active === last || !dialog.contains(active) || active === dialog)) {
+        event.preventDefault();
+        first.focus();
+      } else if (event.shiftKey && active === dialog) {
+        event.preventDefault();
+        last.focus();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+  }, [open]);
+
   if (!open) return null;
 
   const styles = VARIANT_STYLES[variant];
@@ -71,12 +136,13 @@ export function ConfirmDialog({
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="confirm-dialog-title"
+      aria-labelledby={titleId}
+      aria-describedby={descriptionId}
       onClick={(event) => {
         if (event.target === event.currentTarget && !loading) onCancel();
       }}
     >
-      <div className="w-full max-w-md rounded-[28px] border border-white/80 bg-white p-5 shadow-2xl shadow-[#1E0A4E]/20 ring-1 ring-[#E2E8F0]/70">
+      <div ref={dialogRef} tabIndex={-1} className="w-full max-w-md rounded-[28px] border border-white/80 bg-white p-5 shadow-2xl shadow-[#1E0A4E]/20 ring-1 ring-[#E2E8F0]/70">
         <div className="flex items-start gap-4">
           <div
             className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-xl font-black ring-1 ${styles.iconWrapper}`}
@@ -86,12 +152,12 @@ export function ConfirmDialog({
           </div>
           <div className="min-w-0 flex-1">
             <h2
-              id="confirm-dialog-title"
+              id={titleId}
               className="font-heading text-lg font-extrabold text-[#1E0A4E]"
             >
               {title}
             </h2>
-            <p className="mt-2 font-body text-sm font-medium leading-relaxed text-[#475569]">
+            <p id={descriptionId} className="mt-2 font-body text-sm font-medium leading-relaxed text-[#475569]">
               {description}
             </p>
           </div>
@@ -105,6 +171,7 @@ export function ConfirmDialog({
 
         <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button
+            ref={cancelRef}
             type="button"
             disabled={loading}
             onClick={onCancel}
