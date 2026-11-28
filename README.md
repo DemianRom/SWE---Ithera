@@ -139,6 +139,8 @@ base de datos se aplican aparte con la Supabase CLI. Guia completa:
 | Documento | Uso |
 | --- | --- |
 | [docs/README.md](docs/README.md) | Indice general. |
+| [Kit de marca](docs/frontend-ui/kit-marca/README.md) | Manual visual HTML, tokens y logotipos para renovar el frontend. |
+| [Fases del rediseño (TXT)](docs/frontend-ui/FASES_REDISENO_FRONTEND.txt) | Análisis del frontend, módulos, dependencias y criterios de aceptación. |
 | [docs/plan-traveling.md](docs/plan-traveling.md) | Plan y bitacora de la conversion Ithera → Traveling. |
 | [docs/api/endpoints.md](docs/api/endpoints.md) | Endpoints REST. |
 | [docs/architecture/README.md](docs/architecture/README.md) | Arquitectura. |
