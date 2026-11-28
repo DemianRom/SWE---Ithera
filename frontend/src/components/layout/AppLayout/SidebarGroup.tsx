@@ -16,9 +16,9 @@ export interface SidebarGroupProps {
 // ── Default mock members ──────────────────────────────────────────────────────
 
 const DEFAULT_MEMBERS: GroupMember[] = [
-  { id: '1', name: 'Bryan A.',    role: 'Organizador', color: '#1E6FD9', isOnline: true  },
-  { id: '2', name: 'Ana L.',      role: 'Miembro',     color: '#35C56A', isOnline: true  },
-  { id: '3', name: 'Luis R.',     role: 'Miembro',     color: '#7A4FD6', isOnline: true  },
+  { id: '1', name: 'Bryan A.',    role: 'Organizador', color: '#0878cf', isOnline: true  },
+  { id: '2', name: 'Ana L.',      role: 'Miembro',     color: '#16b9d0', isOnline: true  },
+  { id: '3', name: 'Luis R.',     role: 'Miembro',     color: '#16b9d0', isOnline: true  },
   { id: '4', name: 'Mariana G.', role: 'Miembro',     color: '#F59E0B', isOnline: false },
 ]
 
@@ -35,7 +35,7 @@ export function SidebarGroup({ members = DEFAULT_MEMBERS, onInvite }: SidebarGro
           <p className="font-body text-[10px] text-white/40 uppercase tracking-widest">
             Integrantes
           </p>
-          <span className="font-body text-[11px] font-semibold text-greenAccent bg-greenAccent/20 rounded-full px-2 py-0.5">
+          <span className="font-body text-[11px] font-semibold text-[#91def0] bg-[#91def0]/20 rounded-full px-2 py-0.5">
             {onlineCount} en línea
           </span>
         </div>
@@ -67,7 +67,7 @@ export function SidebarGroup({ members = DEFAULT_MEMBERS, onInvite }: SidebarGro
 
               {/* Online indicator */}
               {member.isOnline && (
-                <span className="w-2 h-2 rounded-full bg-greenAccent shrink-0" />
+                <span className="w-2 h-2 rounded-full bg-[#91def0] shrink-0" />
               )}
             </li>
           ))}

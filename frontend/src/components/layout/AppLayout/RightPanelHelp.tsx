@@ -81,9 +81,9 @@ export function RightPanelHelp({
           {tips.map((tip, i) => (
             <div
               key={i}
-              className="flex items-start gap-3 bg-white border border-[#E2E8F0] rounded-xl px-4 py-3"
+              className="flex items-start gap-3 bg-white border border-[#cbdde3] rounded-xl px-4 py-3"
             >
-              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#F3EEFF] font-body text-[11px] font-bold leading-none text-[#7A4FD6]">{tip.icon}</span>
+              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#e8f4fa] font-body text-[11px] font-bold leading-none text-[#075b85]">{tip.icon}</span>
               <div className="flex-1 min-w-0">
                 <p className="font-body text-xs font-semibold text-gray700 leading-tight">
                   {tip.title}
@@ -98,7 +98,7 @@ export function RightPanelHelp({
       </section>
 
       {/* Divider */}
-      <div className="border-t border-[#E2E8F0] shrink-0" />
+      <div className="border-t border-[#cbdde3] shrink-0" />
 
       {/* Links */}
       <section className="shrink-0">

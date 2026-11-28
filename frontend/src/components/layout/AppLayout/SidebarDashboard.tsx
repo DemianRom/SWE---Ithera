@@ -80,10 +80,10 @@ export function SidebarDashboard({
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <span className={`rounded-full px-2 py-0.5 font-body text-xs font-semibold ${isActive ? 'bg-greenAccent/20 text-greenAccent' : 'bg-white/10 text-white/45'}`}>
+            <span className={`rounded-full px-2 py-0.5 font-body text-xs font-semibold ${isActive ? 'bg-[#91def0]/20 text-[#91def0]' : 'bg-white/10 text-white/45'}`}>
               {count}
             </span>
-            {isActive && <span className="h-2 w-2 rounded-full bg-greenAccent" />}
+            {isActive && <span className="h-2 w-2 rounded-full bg-[#91def0]" />}
           </div>
         </div>
       </button>
@@ -95,18 +95,18 @@ export function SidebarDashboard({
       <section className="mb-4 rounded-2xl border border-white/10 bg-white/[0.04] p-3">
         <div className="mb-3 flex items-center justify-between gap-2">
           <div>
-            <p className="inline-flex items-center gap-2 rounded-full bg-[#1E6FD9]/20 px-2.5 py-1 font-body text-xs font-bold uppercase tracking-widest text-[#BFD7FF]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#5EA0FF]" />
+            <p className="inline-flex items-center gap-2 rounded-full bg-[#0878cf]/20 px-2.5 py-1 font-body text-xs font-bold uppercase tracking-widest text-[#b9eaf5]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#91def0]" />
               Itinerario
             </p>
             <div className="mt-2 flex gap-2">
-              <div className="flex items-center gap-1.5 rounded-xl bg-[#1E6FD9]/25 px-2.5 py-1.5">
-                <span className="font-heading text-base font-extrabold leading-none text-[#7DC4FF]">{days.length}</span>
-                <span className="font-body text-xs font-semibold text-[#BFD7FF]">día{days.length !== 1 ? 's' : ''}</span>
+              <div className="flex items-center gap-1.5 rounded-xl bg-[#0878cf]/25 px-2.5 py-1.5">
+                <span className="font-heading text-base font-extrabold leading-none text-[#91def0]">{days.length}</span>
+                <span className="font-body text-xs font-semibold text-[#b9eaf5]">día{days.length !== 1 ? 's' : ''}</span>
               </div>
-              <div className="flex items-center gap-1.5 rounded-xl bg-[#35C56A]/20 px-2.5 py-1.5">
-                <span className="font-heading text-base font-extrabold leading-none text-[#6EEEA0]">{totalActivities}</span>
-                <span className="font-body text-xs font-semibold text-[#9AF0B8]">actividad{totalActivities !== 1 ? 'es' : ''}</span>
+              <div className="flex items-center gap-1.5 rounded-xl bg-[#16b9d0]/20 px-2.5 py-1.5">
+                <span className="font-heading text-base font-extrabold leading-none text-[#91def0]">{totalActivities}</span>
+                <span className="font-body text-xs font-semibold text-[#91def0]">actividad{totalActivities !== 1 ? 'es' : ''}</span>
               </div>
             </div>
           </div>
@@ -144,8 +144,8 @@ export function SidebarDashboard({
       </section>
 
       <div className="mt-4 border-t border-white/10 pt-4">
-        <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#7A4FD6]/25 px-3 py-1 font-body text-xs font-bold uppercase tracking-widest text-[#D8C8FF]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#B89BFF]" />
+        <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#16b9d0]/25 px-3 py-1 font-body text-xs font-bold uppercase tracking-widest text-[#91def0]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#91def0]" />
           Panel del grupo
         </p>
 
@@ -153,7 +153,7 @@ export function SidebarDashboard({
           <button
             type="button"
             onClick={onOpenGroupPanel}
-            className="flex w-full items-center justify-between rounded-xl border border-white/0 px-3 py-2 text-left transition-all duration-200 hover:border-[#7A4FD6]/35 hover:bg-white/10"
+            className="flex w-full items-center justify-between rounded-xl border border-white/0 px-3 py-2 text-left transition-all duration-200 hover:border-[#16b9d0]/35 hover:bg-white/10"
           >
             <p className="font-body text-sm font-semibold leading-tight text-white/85">Miembros e invitaciones</p>
             <span className="font-body text-xs text-white/45">›</span>
@@ -163,7 +163,7 @@ export function SidebarDashboard({
             <button
               type="button"
               onClick={onOpenGroupSettings}
-              className="flex w-full items-center justify-between rounded-xl border border-white/0 px-3 py-2 text-left transition-all duration-200 hover:border-[#35C56A]/30 hover:bg-white/10"
+              className="flex w-full items-center justify-between rounded-xl border border-white/0 px-3 py-2 text-left transition-all duration-200 hover:border-[#16b9d0]/30 hover:bg-white/10"
             >
               <div className="min-w-0">
                 <p className="font-body text-sm font-semibold leading-tight text-white/85">Configuración</p>

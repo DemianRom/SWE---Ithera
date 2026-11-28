@@ -16,7 +16,7 @@ export function Navbar({
   onAvatarClick,
 }: NavbarProps) {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 h-16 bg-primary-dark flex items-center px-6 shadow-md">
+    <nav className="fixed top-0 left-0 right-0 z-50 h-16 bg-[#073b52] flex items-center px-6 shadow-md">
       {/* Logo */}
       <Logo variant="white" height={40} />
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import '../AppLayout/shell-brand.css'
 import { useNavigate } from 'react-router-dom'
 import { Logo } from '../../ui/Logo'
 import { useAuth } from '../../../context/useAuth'
@@ -146,9 +147,9 @@ function LandingDesktopRight({ isScrolled }: { isScrolled: boolean }) {
     return () => document.removeEventListener('mousedown', handleOutside)
   }, [dropdownOpen])
 
-  const subtleText = isScrolled ? 'text-gray500 hover:text-purpleNavbar' : 'text-white/70 hover:text-white'
+  const subtleText = isScrolled ? 'text-gray500 hover:text-[#075eaa]' : 'text-white/70 hover:text-white'
   const loginClass = isScrolled
-    ? 'border-[#E2E8F0] bg-white text-gray700 hover:border-bluePrimary hover:text-bluePrimary'
+    ? 'border-[#cbdde3] bg-white text-gray700 hover:border-bluePrimary hover:text-bluePrimary'
     : 'border-white/20 bg-white/10 text-white hover:bg-white/20'
 
   if (localUser) {
@@ -165,21 +166,21 @@ function LandingDesktopRight({ isScrolled }: { isScrolled: boolean }) {
           <button
             type="button"
             onClick={() => setDropdownOpen((o) => !o)}
-            className={`flex items-center gap-2.5 rounded-2xl border px-3 py-2 transition-colors ${isScrolled ? 'border-[#E2E8F0] bg-white hover:bg-[#F8FAFC]' : 'border-white/15 bg-white/10 hover:bg-white/15'}`}
+            className={`flex items-center gap-2.5 rounded-2xl border px-3 py-2 transition-colors ${isScrolled ? 'border-[#cbdde3] bg-white hover:bg-[#f4f9fa]' : 'border-white/15 bg-white/10 hover:bg-white/15'}`}
           >
             {localUser.avatar_url ? (
               <img src={localUser.avatar_url} alt="" className="h-7 w-7 rounded-full object-cover" />
             ) : (
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#1E6FD9] to-[#7A4FD6] font-body text-xs font-bold text-white">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#075eaa] to-[#0878cf] font-body text-xs font-bold text-white">
                 {initials}
               </span>
             )}
             <div className="flex flex-col items-start">
-              <span className={`font-body text-xs font-semibold leading-none ${isScrolled ? 'text-[#1E0A4E]' : 'text-white'}`}>
+              <span className={`font-body text-xs font-semibold leading-none ${isScrolled ? 'text-[#073b52]' : 'text-white'}`}>
                 {(localUser.nombre || 'Usuario').split(' ')[0]}
               </span>
-              <span className="mt-0.5 flex items-center gap-1 font-body text-[10px] font-medium text-[#35C56A]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#35C56A]" />
+              <span className="mt-0.5 flex items-center gap-1 font-body text-[10px] font-medium text-[#16b9d0]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#16b9d0]" />
                 En línea
               </span>
             </div>
@@ -189,18 +190,18 @@ function LandingDesktopRight({ isScrolled }: { isScrolled: boolean }) {
           </button>
 
           {dropdownOpen && (
-            <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-2xl border border-[#E2E8F0] bg-white shadow-[0_16px_40px_rgba(15,23,42,0.12)]">
+            <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-2xl border border-[#cbdde3] bg-white shadow-[0_16px_40px_rgba(15,23,42,0.12)]">
               <div className="border-b border-[#F1F5F9] px-4 py-3">
-                <p className="font-body text-sm font-semibold text-[#1E0A4E]">{localUser.nombre || 'Usuario'}</p>
+                <p className="font-body text-sm font-semibold text-[#073b52]">{localUser.nombre || 'Usuario'}</p>
                 <p className="truncate font-body text-xs text-[#64748B]">{localUser.email}</p>
               </div>
               <div className="p-2">
                 <button
                   type="button"
                   onClick={() => { setDropdownOpen(false); navigate('/my-trips') }}
-                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left font-body text-sm font-semibold text-[#1E0A4E] transition-colors hover:bg-[#F0EEF8]"
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left font-body text-sm font-semibold text-[#073b52] transition-colors hover:bg-[#f4f9fa]"
                 >
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#EEF4FF] text-[#1E6FD9]">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#e8f4fa] text-[#0878cf]">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                       <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       <polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -242,7 +243,7 @@ function LandingDesktopRight({ isScrolled }: { isScrolled: boolean }) {
       </a>
       <a
         href="/register"
-        className="rounded-xl bg-gradient-to-r from-[#1E6FD9] to-[#7A4FD6] px-4 py-2 font-body text-sm font-bold text-white shadow-[0_10px_24px_rgba(30,111,217,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(30,111,217,0.34)]"
+        className="rounded-xl bg-gradient-to-r from-[#075eaa] to-[#0878cf] px-4 py-2 font-body text-sm font-bold text-white shadow-[0_10px_24px_rgba(30,111,217,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(30,111,217,0.34)]"
       >
         Crear cuenta
       </a>
@@ -254,10 +255,10 @@ function LandingMobileMenu({ navLinks, isScrolled }: { navLinks: NavLink[]; isSc
   const { localUser, logout } = useAuth()
   const navigate = useNavigate()
   const menuClass = isScrolled
-    ? 'border-[#E2E8F0] bg-white shadow-lg'
-    : 'border-white/15 bg-[#1E0A4E]/95 shadow-[0_20px_50px_rgba(9,5,28,0.34)] backdrop-blur-xl'
+    ? 'border-[#cbdde3] bg-white shadow-lg'
+    : 'border-white/15 bg-[#073b52]/95 shadow-[0_20px_50px_rgba(9,5,28,0.34)] backdrop-blur-xl'
   const linkClass = isScrolled
-    ? 'text-gray500 hover:text-purpleNavbar'
+    ? 'text-gray500 hover:text-[#075eaa]'
     : 'text-white/70 hover:text-white'
 
   return (
@@ -271,19 +272,19 @@ function LandingMobileMenu({ navLinks, isScrolled }: { navLinks: NavLink[]; isSc
           {link.label}
         </a>
       ))}
-      <div className={`flex flex-col gap-2 border-t pt-3 ${isScrolled ? 'border-[#E2E8F0]' : 'border-white/10'}`}>
+      <div className={`flex flex-col gap-2 border-t pt-3 ${isScrolled ? 'border-[#cbdde3]' : 'border-white/10'}`}>
         {localUser ? (
           <>
-            <div className={`rounded-xl border px-4 py-3 ${isScrolled ? 'border-[#E2E8F0] bg-[#F8FAFC]' : 'border-white/10 bg-white/[0.07]'}`}>
-              <p className={`font-body text-sm font-semibold ${isScrolled ? 'text-[#1E0A4E]' : 'text-white'}`}>{localUser.nombre || 'Usuario'}</p>
-              <p className="mt-0.5 flex items-center gap-1 font-body text-xs text-[#35C56A]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#35C56A]" /> En línea
+            <div className={`rounded-xl border px-4 py-3 ${isScrolled ? 'border-[#cbdde3] bg-[#f4f9fa]' : 'border-white/10 bg-white/[0.07]'}`}>
+              <p className={`font-body text-sm font-semibold ${isScrolled ? 'text-[#073b52]' : 'text-white'}`}>{localUser.nombre || 'Usuario'}</p>
+              <p className="mt-0.5 flex items-center gap-1 font-body text-xs text-[#16b9d0]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#16b9d0]" /> En línea
               </p>
             </div>
             <button
               type="button"
               onClick={() => navigate('/my-trips')}
-              className={`rounded-xl border px-4 py-2 text-center font-body text-sm font-semibold transition-colors ${isScrolled ? 'border-[#E2E8F0] text-[#1E0A4E] hover:bg-[#F0EEF8]' : 'border-white/20 text-white hover:bg-white/10'}`}
+              className={`rounded-xl border px-4 py-2 text-center font-body text-sm font-semibold transition-colors ${isScrolled ? 'border-[#cbdde3] text-[#073b52] hover:bg-[#f4f9fa]' : 'border-white/20 text-white hover:bg-white/10'}`}
             >
               Ir a la plataforma
             </button>
@@ -299,13 +300,13 @@ function LandingMobileMenu({ navLinks, isScrolled }: { navLinks: NavLink[]; isSc
           <>
             <a
               href="/login"
-              className={`rounded-xl border px-4 py-2 text-center font-body text-sm font-semibold transition-colors ${isScrolled ? 'border-[#E2E8F0] text-gray700 hover:border-bluePrimary hover:text-bluePrimary' : 'border-white/20 text-white hover:bg-white/10'}`}
+              className={`rounded-xl border px-4 py-2 text-center font-body text-sm font-semibold transition-colors ${isScrolled ? 'border-[#cbdde3] text-gray700 hover:border-bluePrimary hover:text-bluePrimary' : 'border-white/20 text-white hover:bg-white/10'}`}
             >
               Iniciar sesión
             </a>
             <a
               href="/register"
-              className="rounded-xl bg-gradient-to-r from-[#1E6FD9] to-[#7A4FD6] px-4 py-2 text-center font-body text-sm font-bold text-white transition-opacity hover:opacity-90"
+              className="rounded-xl bg-gradient-to-r from-[#075eaa] to-[#0878cf] px-4 py-2 text-center font-body text-sm font-bold text-white transition-opacity hover:opacity-90"
             >
               Crear cuenta
             </a>
@@ -326,12 +327,12 @@ function LandingNavContent({
   isScrolled: boolean
 }) {
   const linkClass = isScrolled
-    ? 'text-gray500 hover:text-purpleNavbar'
+    ? 'text-gray500 hover:text-[#075eaa]'
     : 'text-white/75 hover:text-white'
 
   return (
     <>
-      <div className={`ml-8 hidden items-center gap-1 rounded-2xl border px-2 py-1.5 backdrop-blur md:flex ${isScrolled ? 'border-[#E2E8F0] bg-[#F8FAFC]' : 'border-white/15 bg-white/10'}`}>
+      <div className={`ml-8 hidden items-center gap-1 rounded-2xl border px-2 py-1.5 backdrop-blur md:flex ${isScrolled ? 'border-[#cbdde3] bg-[#f4f9fa]' : 'border-white/15 bg-white/10'}`}>
         {navLinks.map((link) => (
           <a
             key={link.href}
@@ -479,7 +480,7 @@ const DEFAULT_USER: NavUserInfo = {
   name: 'Cargando...',
   role: '',
   initials: '--',
-  color: '#1E6FD9',
+  color: '#0878cf',
 }
 
 function formatTripRange(start?: string | null, end?: string | null): string {
@@ -490,7 +491,7 @@ function formatTripRange(start?: string | null, end?: string | null): string {
 
 function TripThumbnail({ group }: { group: Group }) {
   return (
-    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#1E6FD9]/10 font-body text-xs font-bold text-[#1E6FD9]">
+    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0878cf]/10 font-body text-xs font-bold text-[#0878cf]">
       {(group.nombre || 'V')[0]}
     </div>
   )
@@ -500,7 +501,7 @@ function DashboardMobileMenu({ trip, user }: { trip: TripInfo; user: NavUserInfo
   const { localUser } = useAuth()
   const avatarUrl = localUser?.avatar_url
   return (
-    <div className="md:hidden absolute top-full left-0 right-0 bg-purpleNavbar border-b border-white/10 shadow-lg px-6 py-4 flex flex-col gap-4 z-40">
+    <div className="md:hidden absolute top-full left-0 right-0 bg-[#075eaa] border-b border-white/10 shadow-lg px-6 py-4 flex flex-col gap-4 z-40">
       {/* Trip info */}
       <div className="flex flex-col gap-1 py-2 border-b border-white/10">
         <p className="font-body text-[10px] font-semibold text-white/40 uppercase tracking-widest">
@@ -513,7 +514,7 @@ function DashboardMobileMenu({ trip, user }: { trip: TripInfo; user: NavUserInfo
       <div className="flex items-center gap-3">
         <div
           className="w-10 h-10 rounded-full flex items-center justify-center text-white font-body font-bold text-sm shrink-0 overflow-hidden"
-          style={{ backgroundColor: user.color ?? '#1E6FD9' }}
+          style={{ backgroundColor: user.color ?? '#0878cf' }}
         >
           {avatarUrl ? (
             <img
@@ -705,9 +706,9 @@ function DashboardNavContent({
           </button>
 
           {tripMenuOpen && (
-            <div className="absolute left-1/2 top-full z-50 mt-2 w-[360px] -translate-x-1/2 overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-xl">
-              <div className="border-b border-[#E2E8F0] px-4 py-3">
-                <p className="font-heading text-sm font-bold text-[#1E0A4E]">Cambiar de grupo</p>
+            <div className="absolute left-1/2 top-full z-50 mt-2 w-[360px] -translate-x-1/2 overflow-hidden rounded-2xl border border-[#cbdde3] bg-white shadow-xl">
+              <div className="border-b border-[#cbdde3] px-4 py-3">
+                <p className="font-heading text-sm font-bold text-[#073b52]">Cambiar de grupo</p>
                 <p className="mt-0.5 font-body text-[11px] text-gray500">Selecciona otro viaje sin volver a Mis viajes.</p>
               </div>
 
@@ -733,14 +734,14 @@ function DashboardNavContent({
                       key={`${option.id}-${item.rol}`}
                       onClick={() => handleTripSelect(item)}
                       disabled={tripSwitchingId === String(option.id)}
-                      className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#F8FAFC] disabled:cursor-wait disabled:opacity-70 ${isActive ? 'bg-[#F4F1FF]' : ''}`}
+                      className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#f4f9fa] disabled:cursor-wait disabled:opacity-70 ${isActive ? 'bg-[#e8f4fa]' : ''}`}
                     >
                       <TripThumbnail group={option} />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="truncate font-body text-sm font-bold text-[#1E0A4E]">{option.nombre}</p>
+                          <p className="truncate font-body text-sm font-bold text-[#073b52]">{option.nombre}</p>
                           {isActive && (
-                            <span className="rounded-full bg-greenAccent/10 px-2 py-0.5 font-body text-[10px] font-semibold text-greenAccent">Activo</span>
+                            <span className="rounded-full bg-[#e8f4fa] px-2 py-0.5 font-body text-[10px] font-semibold text-[#075b85]">Activo</span>
                           )}
                         </div>
                         <p className="mt-0.5 truncate font-body text-[11px] text-gray500">
@@ -750,7 +751,7 @@ function DashboardNavContent({
                           {formatTripRange(option.fecha_inicio, option.fecha_fin)}
                         </p>
                       </div>
-                      <span className="shrink-0 rounded-full bg-[#EEF4FF] px-2 py-1 font-body text-[10px] font-semibold text-[#1E6FD9]">
+                      <span className="shrink-0 rounded-full bg-[#e8f4fa] px-2 py-1 font-body text-[10px] font-semibold text-[#0878cf]">
                         {tripSwitchingId === String(option.id) ? 'Cambiando...' : item.rol === 'admin' ? 'Organizador' : 'Viajero'}
                       </span>
                     </button>
@@ -758,10 +759,10 @@ function DashboardNavContent({
                 })}
               </div>
 
-              <div className="border-t border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
+              <div className="border-t border-[#cbdde3] bg-[#f4f9fa] px-4 py-3">
                 <button
                   onClick={() => { setTripMenuOpen(false); navigate('/my-trips') }}
-                  className="font-body text-xs font-semibold text-[#1E6FD9] hover:underline"
+                  className="font-body text-xs font-semibold text-[#0878cf] hover:underline"
                 >
                   Ver todos mis viajes →
                 </button>
@@ -810,9 +811,9 @@ function DashboardNavContent({
           </button>
 
           {notifOpen && (
-            <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-[#E2E8F0] rounded-xl shadow-lg overflow-hidden z-50 max-h-96 overflow-y-auto">
-              <div className="px-4 py-3 border-b border-[#E2E8F0] flex items-center justify-between sticky top-0 bg-white">
-                <span className="font-heading font-bold text-[#1E0A4E] text-sm">Notificaciones</span>
+            <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-[#cbdde3] rounded-xl shadow-lg overflow-hidden z-50 max-h-96 overflow-y-auto">
+              <div className="px-4 py-3 border-b border-[#cbdde3] flex items-center justify-between sticky top-0 bg-white">
+                <span className="font-heading font-bold text-[#073b52] text-sm">Notificaciones</span>
                 <div className="flex items-center gap-2">
                   {unreadCount > 0 && (
                     <button
@@ -823,7 +824,7 @@ function DashboardNavContent({
                     </button>
                   )}
                   {unreadCount > 0 && (
-                    <span className="font-body text-[11px] text-[#1E6FD9] bg-[#1E6FD9]/10 px-2 py-0.5 rounded-full">{unreadCount} nuevas</span>
+                    <span className="font-body text-[11px] text-[#0878cf] bg-[#0878cf]/10 px-2 py-0.5 rounded-full">{unreadCount} nuevas</span>
                   )}
                 </div>
               </div>
@@ -839,19 +840,19 @@ function DashboardNavContent({
                     <div
                       key={n.id}
                       onClick={() => { if (!n.leida) markAsRead(n.id); }}
-                      className={`flex items-start gap-3 px-4 py-3 hover:bg-[#F8FAFC] transition-colors border-b border-[#E2E8F0] last:border-none ${!n.leida ? 'cursor-pointer bg-[#F8FAFC]/50' : 'cursor-default opacity-70'}`}
+                      className={`flex items-start gap-3 px-4 py-3 hover:bg-[#f4f9fa] transition-colors border-b border-[#cbdde3] last:border-none ${!n.leida ? 'cursor-pointer bg-[#f4f9fa]/50' : 'cursor-default opacity-70'}`}
                     >
-                      <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${!n.leida ? 'bg-[#1E6FD9]' : 'bg-transparent'}`} />
+                      <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${!n.leida ? 'bg-[#0878cf]' : 'bg-transparent'}`} />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-3">
-                          <p className="font-body text-sm font-semibold text-[#1E0A4E] leading-snug">{n.titulo}</p>
-                          <span className="font-body text-[10px] text-[#1E0A4E]/40 whitespace-nowrap mt-0.5">
+                          <p className="font-body text-sm font-semibold text-[#073b52] leading-snug">{n.titulo}</p>
+                          <span className="font-body text-[10px] text-[#073b52]/40 whitespace-nowrap mt-0.5">
                             {formatRelativeTime(n.created_at)}
                           </span>
                         </div>
                         <p className="font-body text-xs text-gray700 leading-snug mt-1">{n.mensaje}</p>
                         {formatScheduledInfo(n.metadata) && (
-                          <p className="font-body text-[11px] text-[#1E6FD9] bg-[#1E6FD9]/10 rounded-md px-2 py-1 mt-2 line-clamp-2">
+                          <p className="font-body text-[11px] text-[#0878cf] bg-[#0878cf]/10 rounded-md px-2 py-1 mt-2 line-clamp-2">
                             {formatScheduledInfo(n.metadata)}
                           </p>
                         )}
@@ -864,7 +865,7 @@ function DashboardNavContent({
                               setNotifOpen(false)
                               navigate(action.url)
                             }}
-                            className="mt-2 inline-flex rounded-lg bg-[#1E6FD9] px-3 py-1.5 font-body text-[11px] font-semibold text-white hover:bg-[#2C8BE6]"
+                            className="mt-2 inline-flex rounded-lg bg-[#0878cf] px-3 py-1.5 font-body text-[11px] font-semibold text-white hover:bg-[#2C8BE6]"
                           >
                             {action.label}
                           </button>
@@ -885,16 +886,16 @@ function DashboardNavContent({
         <div
           className={`hidden md:flex items-center gap-1.5 rounded-full border px-3 py-1 ${
             isOnline
-              ? 'border-greenAccent/30 bg-greenAccent/20'
+              ? 'border-[#91def0]/30 bg-[#91def0]/20'
               : 'border-red-300/40 bg-red-500/15'
           }`}
           title={isOnline ? 'Conectado y sincronizando en tiempo real' : 'Sin conexión o WebSocket desconectado'}
         >
           <span className="relative flex w-2 h-2 shrink-0">
-            {isOnline && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-greenAccent opacity-75" />}
-            <span className={`relative inline-flex h-2 w-2 rounded-full ${isOnline ? 'bg-greenAccent' : 'bg-red-400'}`} />
+            {isOnline && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#91def0] opacity-75" />}
+            <span className={`relative inline-flex h-2 w-2 rounded-full ${isOnline ? 'bg-[#91def0]' : 'bg-red-400'}`} />
           </span>
-          <span className={`font-body text-xs font-medium ${isOnline ? 'text-greenAccent' : 'text-red-100'}`}>
+          <span className={`font-body text-xs font-medium ${isOnline ? 'text-[#91def0]' : 'text-red-100'}`}>
             {isOnline ? 'En línea' : 'Sin conexión'}
           </span>
         </div>
@@ -912,7 +913,7 @@ function DashboardNavContent({
           >
             <div
               className="w-8 h-8 rounded-full flex items-center justify-center text-white font-body font-bold text-xs shrink-0 overflow-hidden"
-              style={{ backgroundColor: user.color ?? '#1E6FD9' }}
+              style={{ backgroundColor: user.color ?? '#0878cf' }}
             >
               {avatarUrl ? (
                 <img
@@ -936,15 +937,15 @@ function DashboardNavContent({
 
           {/* Dropdown */}
           {menuOpen && (
-            <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-[#E2E8F0] rounded-xl shadow-lg overflow-hidden z-50">
+            <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-[#cbdde3] rounded-xl shadow-lg overflow-hidden z-50">
               <button
                 onClick={() => { setMenuOpen(false); navigate('/profile') }}
-                className="w-full flex items-center gap-3 px-4 py-3 font-body text-sm text-[#1E0A4E] hover:bg-[#F8FAFC] transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-3 font-body text-sm text-[#073b52] hover:bg-[#f4f9fa] transition-colors"
               >
-                <span className="text-[#1E0A4E]/60"><IconUser /></span>
+                <span className="text-[#073b52]/60"><IconUser /></span>
                 Mi perfil
               </button>
-              <div className="h-px bg-[#E2E8F0] mx-3" />
+              <div className="h-px bg-[#cbdde3] mx-3" />
               <button
                 onClick={handleLogout}
                 className="w-full flex items-center gap-3 px-4 py-3 font-body text-sm text-[#EF4444] hover:bg-[#FEF2F2] transition-colors"
@@ -983,12 +984,12 @@ export function Navbar(props: NavbarProps) {
 
   const isDashboard = props.variant === 'dashboard'
 
-  const navBase = 'fixed top-0 left-0 right-0 z-50 h-20 px-6 flex items-center transition-all duration-300'
+  const navBase = 'traveling-navbar fixed top-0 left-0 right-0 z-50 h-20 px-6 flex items-center transition-all duration-300'
   const navTheme = isDashboard
-    ? 'border-b border-white/10 bg-[linear-gradient(90deg,#24105E_0%,#2B1163_44%,#5B2BC0_100%)]'
+    ? 'border-b border-white/10 bg-[linear-gradient(90deg,#073b52_0%,#075b85_44%,#0878cf_100%)]'
     : scrolled
-      ? 'bg-white/90 border-b border-[#E2E8F0] shadow-sm backdrop-blur-xl'
-      : 'bg-[#1E0A4E]/20 border-b border-white/10 backdrop-blur-xl'
+      ? 'bg-white/90 border-b border-[#cbdde3] shadow-sm backdrop-blur-xl'
+      : 'bg-[#073b52]/20 border-b border-white/10 backdrop-blur-xl'
   const navShadow = scrolled
     ? isDashboard ? 'shadow-[0_2px_12px_rgba(0,0,0,0.4)]' : 'shadow-[0_18px_44px_rgba(15,23,42,0.08)]'
     : ''
