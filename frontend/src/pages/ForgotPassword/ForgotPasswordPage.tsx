@@ -1,4 +1,9 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import type { FormEvent } from "react";
+import { Input } from "../../components/ui/Input";
+import { Button } from "../../components/ui/Button";
+import "../../styles/traveling-brand.css";
+import "./ForgotPasswordPage.css";
 import { Link } from "react-router-dom";
 import { Logo } from "../../components/ui/Logo";
 import { useAuth } from '../../context/useAuth';
@@ -25,11 +30,14 @@ export function ForgotPasswordPage() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const submitting = useRef(false);
   const normalizedEmail = normalizeEmail(email);
   const isEmailValid = EMAIL_REGEX.test(normalizedEmail);
   const canSubmit = isEmailValid && !loading;
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (submitting.current) return;
     setError("");
     setMessage("");
 
@@ -43,6 +51,7 @@ export function ForgotPasswordPage() {
       return;
     }
 
+    submitting.current = true;
     try {
       setLoading(true);
       await forgotPassword(normalizedEmail);
@@ -56,23 +65,17 @@ export function ForgotPasswordPage() {
           : "No se pudo procesar la solicitud.";
       setError(toSpanishForgotPasswordError(msg));
     } finally {
+      submitting.current = false;
       setLoading(false);
     }
   };
 
-  const inputBase =
-    "w-full rounded-[14px] border border-[#D9DEE7] bg-white px-4 py-3 text-[15px] text-[#3D4A5C] outline-none transition placeholder:text-[#98A2B3] focus:border-[#1E6FD9] focus:ring-2 focus:ring-[#1E6FD9]/15";
-
   return (
-    <div className="min-h-screen bg-[#F4F6F8] font-body">
+    <div className="traveling-brand forgot-page min-h-screen font-body">
       <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[45%_55%]">
         {/* Panel izquierdo */}
         <section
-          className="relative hidden overflow-hidden lg:flex"
-          style={{
-            background:
-              "linear-gradient(135deg, #0D0820 0%, #1E0A4E 55%, #0D0820 100%)",
-          }}
+          className="forgot-promo relative hidden overflow-hidden lg:flex"
         >
           <div className="absolute inset-0 opacity-[0.15]">
             <div className="h-full w-full bg-[radial-gradient(circle,rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:24px_24px]" />
@@ -91,7 +94,7 @@ export function ForgotPasswordPage() {
                   Seguridad de acceso
                 </div>
 
-                <h1 className="text-[64px] font-extrabold leading-[0.96] tracking-[-0.04em] text-white">
+                <h1 className="forgot-heading text-[64px] font-extrabold leading-[0.96] tracking-[-0.04em] text-white">
                   Recupera tu acceso de forma segura.
                 </h1>
 
@@ -105,11 +108,11 @@ export function ForgotPasswordPage() {
         </section>
 
         {/* Panel derecho */}
-        <section className="flex items-center justify-center bg-[#F4F6F8] px-6 py-10 sm:px-10 lg:px-16">
+        <section className="flex items-center justify-center forgot-surface px-6 py-10 sm:px-10 lg:px-16">
           <div className="w-full max-w-[470px]">
             <Link
               to="/login"
-              className="mb-8 inline-flex items-center gap-1.5 text-[13px] text-[#98A2B3] transition hover:text-[#667085]"
+              className="mb-8 inline-flex items-center gap-1.5 text-[13px] forgot-link transition"
             >
               <svg
                 width="16"
@@ -129,9 +132,9 @@ export function ForgotPasswordPage() {
               Volver al inicio de sesión
             </Link>
 
-            <div className="rounded-[28px] border border-white/70 bg-white/90 p-8 shadow-[0_18px_60px_rgba(17,24,39,0.08)] backdrop-blur-sm sm:p-10">
+            <div className="forgot-card rounded-[28px] p-8 sm:p-10">
               <div className="mb-8">
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EEF4FF] text-[#1E6FD9]">
+                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl forgot-icon">
                   <svg
                     width="22"
                     height="22"
@@ -154,22 +157,24 @@ export function ForgotPasswordPage() {
                   </svg>
                 </div>
 
-                <h1 className="text-[42px] font-extrabold leading-none tracking-[-0.04em] text-[#111827]">
+                <h1 className="forgot-heading text-[42px] font-extrabold leading-none tracking-[-0.04em] text-[var(--text-strong)]">
                   ¿Olvidaste tu contraseña?
                 </h1>
 
-                <p className="mt-4 text-[15px] leading-[1.7] text-[#667085]">
+                <p className="mt-4 text-[15px] leading-[1.7] text-[var(--text-muted)]">
                   Ingresa el correo asociado a tu cuenta y te enviaremos un
                   enlace para recuperar el acceso.
                 </p>
               </div>
 
-              <div className="space-y-5">
+              <form onSubmit={handleSubmit} noValidate className="space-y-5">
                 <div>
-                  <label className="mb-2 block text-[15px] font-semibold text-[#344054]">
-                    Correo electrónico
-                  </label>
-                  <input
+                  <Input
+                    label="Correo electrónico"
+                    id="forgot-email"
+                    autoComplete="email"
+                    aria-invalid={!!error}
+                    aria-describedby={error ? "forgot-error" : undefined}
                     type="email"
                     value={email}
                     onChange={(e) => {
@@ -202,41 +207,42 @@ export function ForgotPasswordPage() {
                       }
                     }}
                     placeholder="correo@ejemplo.com"
-                    className={`${inputBase} ${error ? "border-[#EF4444]" : ""}`}
+                    size="lg"
                   />
                 </div>
 
                 {error && (
-                  <div className="rounded-2xl border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-sm text-[#B42318]">
+                  <div id="forgot-error" role="alert" className="forgot-error rounded-2xl px-4 py-3 text-sm">
                     {error}
                   </div>
                 )}
 
                 {message && (
-                  <div className="rounded-2xl border border-[#ABEFC6] bg-[#ECFDF3] px-4 py-3 text-sm text-[#067647]">
+                  <div role="status" className="forgot-success rounded-2xl px-4 py-3 text-sm">
                     {message}
                   </div>
                 )}
 
-                <button
-                  type="button"
-                  onClick={handleSubmit}
+                <Button
+                  type="submit"
                   disabled={!canSubmit}
-                  className="w-full rounded-[16px] bg-[#1E6FD9] py-3.5 text-[15px] font-semibold text-white transition hover:bg-[#175FC0] disabled:cursor-not-allowed disabled:bg-[#98A2B3] disabled:opacity-70"
+                  isLoading={loading}
+                  fullWidth
+                  size="lg"
                 >
                   {loading ? "Enviando enlace..." : "Enviar enlace de recuperación"}
-                </button>
+                </Button>
 
-                <p className="pt-1 text-center text-[14px] text-[#98A2B3]">
+                <p className="pt-1 text-center text-[14px] text-[var(--text-muted)]">
                   ¿Recordaste tu contraseña?{" "}
                   <Link
                     to="/login"
-                    className="font-semibold text-[#7A4FD6] transition hover:text-[#6A3FD1]"
+                    className="font-semibold forgot-link transition"
                   >
                     Inicia sesión
                   </Link>
                 </p>
-              </div>
+              </form>
             </div>
           </div>
         </section>
