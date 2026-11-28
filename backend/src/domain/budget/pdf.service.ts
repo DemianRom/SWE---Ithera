@@ -244,26 +244,26 @@ const buildElegantPdf = async (data: PdfDocumentData): Promise<Buffer> => {
   const images: Record<string, PdfImage> = {};
   if (heroImage) images.ImHero = heroImage;
 
-  addRect(commands, 0, 720, 612, 72, '0.118 0.039 0.306');
+  addRect(commands, 0, 720, 612, 72, '0.027 0.231 0.322');
   addRect(commands, 390, 720, 222, 72, '1 1 1');
-  addRect(commands, 390, 720, 1, 72, '0.875 0.906 0.953');
+  addRect(commands, 390, 720, 1, 72, '0.796 0.867 0.890');
   addText(commands, 'TRAVELING', 48, 758, 18, 'F2', '1 1 1');
   addText(commands, data.title, 48, 735, 15, 'F2', '1 1 1');
 
   // Encabezado de texto: sin logo en imagen hasta que el equipo defina el suyo.
-  addText(commands, data.subtitle, 408, 744, 9, 'F1', '0.118 0.039 0.306');
+  addText(commands, data.subtitle, 408, 744, 9, 'F1', '0.027 0.231 0.322');
 
-  addRect(commands, 48, 654, 516, 46, '0.948 0.965 0.996');
-  addText(commands, data.labels?.folio ?? 'Folio', 64, 681, 8, 'F2', '0.392 0.455 0.545');
-  addText(commands, data.folio, 64, 665, 13, 'F2', '0.118 0.039 0.306');
-  addText(commands, data.labels?.total ?? 'Total', 330, 681, 8, 'F2', '0.392 0.455 0.545');
-  addText(commands, moneyText(data.total), 330, 665, 13, 'F2', '0.118 0.039 0.306');
-  addText(commands, data.labels?.auth ?? 'Autorizacion', 448, 681, 8, 'F2', '0.392 0.455 0.545');
-  addText(commands, data.authCode ?? 'N/A', 448, 665, 13, 'F2', '0.118 0.039 0.306');
+  addRect(commands, 48, 654, 516, 46, '0.957 0.976 0.980');
+  addText(commands, data.labels?.folio ?? 'Folio', 64, 681, 8, 'F2', '0.322 0.424 0.475');
+  addText(commands, data.folio, 64, 665, 13, 'F2', '0.027 0.231 0.322');
+  addText(commands, data.labels?.total ?? 'Total', 330, 681, 8, 'F2', '0.322 0.424 0.475');
+  addText(commands, moneyText(data.total), 330, 665, 13, 'F2', '0.027 0.231 0.322');
+  addText(commands, data.labels?.auth ?? 'Autorizacion', 448, 681, 8, 'F2', '0.322 0.424 0.475');
+  addText(commands, data.authCode ?? 'N/A', 448, 665, 13, 'F2', '0.027 0.231 0.322');
 
   let y = 622;
   if (heroImage) {
-    addRect(commands, 48, 500, 516, 112, '0.948 0.965 0.996');
+    addRect(commands, 48, 500, 516, 112, '0.957 0.976 0.980');
     const fitted = fitImage(heroImage, 516, 112);
     addImage(commands, 'ImHero', 48 + (516 - fitted.width) / 2, 500 + (112 - fitted.height) / 2, fitted.width, fitted.height);
     y = 466;
@@ -275,7 +275,7 @@ const buildElegantPdf = async (data: PdfDocumentData): Promise<Buffer> => {
   const markTruncated = () => {
     if (truncated) return;
     truncated = true;
-    addText(commands, 'Contenido truncado: consulta la exportacion CSV para el detalle completo.', 64, y, 9, 'F2', '0.725 0.110 0.110');
+    addText(commands, 'Contenido truncado: consulta la exportacion CSV para el detalle completo.', 64, y, 9, 'F2', '0.553 0.251 0.204');
   };
 
   data.sections.forEach((section) => {
@@ -284,9 +284,9 @@ const buildElegantPdf = async (data: PdfDocumentData): Promise<Buffer> => {
       markTruncated();
       return;
     }
-    addText(commands, section.title, 48, y, 12, 'F2', '0.118 0.039 0.306');
+    addText(commands, section.title, 48, y, 12, 'F2', '0.027 0.231 0.322');
     y -= 14;
-    addRect(commands, 48, y - 7, 516, 1, '0.875 0.906 0.953');
+    addRect(commands, 48, y - 7, 516, 1, '0.796 0.867 0.890');
     y -= 22;
 
     section.lines.forEach((line) => {
@@ -296,11 +296,11 @@ const buildElegantPdf = async (data: PdfDocumentData): Promise<Buffer> => {
         return;
       }
       const label = line.label ? `${line.label}:` : '';
-      if (label) addText(commands, label, 64, y, 9, 'F2', '0.392 0.455 0.545');
+      if (label) addText(commands, label, 64, y, 9, 'F2', '0.322 0.424 0.475');
       const valueX = label ? 180 : 64;
       const wrapped = wrapText(line.value, label ? 58 : 86).slice(0, 4);
       wrapped.forEach((textLine, index) => {
-        addText(commands, textLine, valueX, y - index * 12, 9, 'F1', '0.118 0.039 0.306');
+        addText(commands, textLine, valueX, y - index * 12, 9, 'F1', '0.027 0.231 0.322');
       });
       y -= Math.max(18, wrapped.length * 12 + 6);
     });
@@ -308,9 +308,9 @@ const buildElegantPdf = async (data: PdfDocumentData): Promise<Buffer> => {
     y -= 8;
   });
 
-  addRect(commands, 48, 54, 516, 40, '0.948 0.965 0.996');
-  addText(commands, data.footer ?? 'Documento generado por Traveling. Conserva este comprobante en los archivos del viaje.', 64, 77, 9, 'F1', '0.118 0.039 0.306');
-  if (data.recipientEmail) addText(commands, `PDF enviado a: ${data.recipientEmail}`, 64, 63, 8, 'F1', '0.392 0.455 0.545');
+  addRect(commands, 48, 54, 516, 40, '0.957 0.976 0.980');
+  addText(commands, data.footer ?? 'Documento generado por Traveling. Conserva este comprobante en los archivos del viaje.', 64, 77, 9, 'F1', '0.027 0.231 0.322');
+  if (data.recipientEmail) addText(commands, `PDF enviado a: ${data.recipientEmail}`, 64, 63, 8, 'F1', '0.322 0.424 0.475');
 
   const imageData = buildImageObjects(images, 7);
   const xObjectEntries = Object.entries(imageData.names).map(([name, id]) => `/${name} ${id} 0 R`).join(' ');

@@ -1493,38 +1493,38 @@ export function DashboardPage() {
           <title>Itinerario - ${tripName}</title>
           <style>
             :root {
-              --ink:#1E0A4E;
-              --ink-soft:#2E1767;
-              --blue:#1E6FD9;
-              --blue-soft:#EEF4FF;
-              --purple:#7A4FD6;
-              --purple-soft:#F3EEFF;
-              --green:#35C56A;
+              --ink:#073B52;
+              --ink-soft:#075B85;
+              --blue:#0878CF;
+              --blue-soft:#E8F4FA;
+              --purple:#16B9D0;
+              --purple-soft:#E8F4FA;
+              --green:#16B9D0;
               --paper:#FFFFFF;
-              --text:#243247;
-              --muted:#64748B;
+              --text:#183F51;
+              --muted:#526C79;
             }
             * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             body {
               margin:0;
               font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
               color:var(--text);
-              background:linear-gradient(145deg,#EBE6FA 0%,#EAF2FF 100%);
+              background:linear-gradient(145deg,#F4F9FA 0%,#E8F4FA 100%);
               padding:24px;
             }
             .sheet {
               max-width:900px;
               margin:0 auto;
               background:var(--paper);
-              border:1px solid #D9E4F7;
+              border:1px solid #CBDDE3;
               border-radius:20px;
               overflow:hidden;
-              box-shadow:0 24px 56px rgba(30,10,78,0.18);
+              box-shadow:0 24px 56px rgba(7,59,82,0.18);
             }
             .hero {
               background:
-                radial-gradient(circle at top right, rgba(122,79,214,.24), transparent 44%),
-                radial-gradient(circle at top left, rgba(30,111,217,.22), transparent 38%),
+                radial-gradient(circle at top right, rgba(22,185,208,.24), transparent 44%),
+                radial-gradient(circle at top left, rgba(8,120,207,.22), transparent 38%),
                 linear-gradient(120deg,var(--ink),var(--ink-soft));
               color:#fff;
               padding:28px 30px;
@@ -1540,10 +1540,10 @@ export function DashboardPage() {
               font-size:11px;
               font-weight:600;
             }
-            .content { padding:18px 20px 26px; background:linear-gradient(180deg,#FAFCFF 0%,#FFFFFF 18%); }
+            .content { padding:18px 20px 26px; background:linear-gradient(180deg,#F4F9FA 0%,#FFFFFF 18%); }
             .day-section + .day-section { margin-top:14px; }
             .day-section {
-              border:1px solid #DEE7FB;
+              border:1px solid #CBDDE3;
               border-radius:16px;
               background:#fff;
               overflow:hidden;
@@ -1554,17 +1554,17 @@ export function DashboardPage() {
               justify-content:space-between;
               gap:10px;
               padding:12px 14px;
-              background:linear-gradient(90deg,var(--purple-soft),#F8FAFF);
-              border-bottom:1px solid #E5ECFA;
+              background:linear-gradient(90deg,var(--purple-soft),#F4F9FA);
+              border-bottom:1px solid #CBDDE3;
             }
             .day-header h3 { margin:0; color:var(--ink); font-size:16px; }
-            .day-header span { color:#4B5F86; font-size:12px; font-weight:700; }
+            .day-header span { color:#526C79; font-size:12px; font-weight:700; }
             .activity-card {
               display:flex;
               gap:12px;
               background:#fff;
               border-left:4px solid var(--blue);
-              border-bottom:1px solid #EEF2FB;
+              border-bottom:1px solid #E8F4FA;
               padding:12px 14px;
               margin:0;
             }
@@ -1573,30 +1573,30 @@ export function DashboardPage() {
               width:28px;
               height:28px;
               border-radius:999px;
-              background:linear-gradient(140deg,var(--blue),#4A8DF0);
+              background:linear-gradient(140deg,var(--blue),#075EAA);
               color:#fff;
               display:grid;
               place-items:center;
               font-size:12px;
               font-weight:800;
               flex-shrink:0;
-              box-shadow:0 6px 14px rgba(30,111,217,.26);
+              box-shadow:0 6px 14px rgba(8,120,207,.26);
             }
             .activity-content h4 { margin:0; color:var(--ink); font-size:15px; }
-            .activity-content .desc { margin:4px 0 0; color:#4A5C77; font-size:12px; line-height:1.45; }
+            .activity-content .desc { margin:4px 0 0; color:#526C79; font-size:12px; line-height:1.45; }
             .chips { display:flex; gap:6px; flex-wrap:wrap; margin-top:9px; }
             .chips span {
               background:var(--purple-soft);
-              border:1px solid #DCCEFF;
-              color:#452A84;
+              border:1px solid #91DEF0;
+              color:#075B85;
               font-size:10.5px;
               padding:4px 8px;
               border-radius:999px;
               font-weight:600;
             }
             .footer {
-              border-top:1px solid #E5ECFA;
-              background:#FAFCFF;
+              border-top:1px solid #CBDDE3;
+              background:#F4F9FA;
               padding:12px 20px;
               color:var(--muted);
               font-size:11px;
@@ -1606,7 +1606,7 @@ export function DashboardPage() {
             }
             .dot { width:8px; height:8px; border-radius:999px; background:var(--green); display:inline-block; margin-right:6px; }
             @media print {
-              body { background:#EEE8FB; padding:0; }
+              body { background:#F4F9FA; padding:0; }
               .sheet { border:0; border-radius:0; box-shadow:none; max-width:100%; }
               @page { size:A4; margin:10mm; }
             }

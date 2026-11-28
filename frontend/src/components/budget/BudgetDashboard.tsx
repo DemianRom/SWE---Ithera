@@ -163,7 +163,7 @@ function buildReceiptPdfDocument(data: {
     '0 -24 Td (Traveling - Comprobante financiero) Tj',
     // Body labels/values
     '/F1 12 Tf',
-    '0.16 0.22 0.36 rg',
+    '0.094 0.247 0.318 rg',
     '0 -70 Td (Folio) Tj',
     '240 0 Td (Fecha de emision) Tj',
     '-240 -20 Td',
@@ -190,35 +190,35 @@ function buildReceiptPdfDocument(data: {
     '0 -52 Td (Monto) Tj',
     '0 -20 Td',
     '/F1 22 Tf',
-    '0.12 0.44 0.86 rg',
+    '0.031 0.471 0.812 rg',
     `(${esc(data.monto)}) Tj`,
     '/F1 11 Tf',
-    '0.32 0.40 0.54 rg',
+    '0.322 0.424 0.475 rg',
     '0 -42 Td (Snapshot inmutable del estado de deuda al momento de emision.) Tj',
     'ET',
   ].join('\n')
 
   const draw = [
     // Header background
-    '0.12 0.04 0.36 rg',
+    '0.027 0.231 0.322 rg',
     '40 740 515 90 re',
     'f',
     // Main card
-    '0.96 0.96 0.99 rg',
+    '0.957 0.976 0.980 rg',
     '72 250 451 480 re',
     'f',
     // Card border
-    '0.82 0.85 0.93 RG',
+    '0.796 0.867 0.890 RG',
     '1 w',
     '72 250 451 480 re',
     'S',
     // Horizontal separators
-    '0.86 0.89 0.95 RG',
+    '0.796 0.867 0.890 RG',
     '0.8 w',
-    '92 586 m 503 586 l S',
-    '92 512 m 503 512 l S',
-    '92 438 m 503 438 l S',
-    '92 364 m 503 364 l S',
+    '92 574 m 503 574 l S',
+    '92 500 m 503 500 l S',
+    '92 426 m 503 426 l S',
+    '92 352 m 503 352 l S',
   ].join('\n')
 
   const contentStream = `${draw}\n${lines}`

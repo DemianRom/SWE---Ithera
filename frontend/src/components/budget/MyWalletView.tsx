@@ -222,28 +222,28 @@ export const MyWalletView: FC<Props> = ({
           <meta name="viewport" content="width=device-width,initial-scale=1" />
           <title>Resumen de Liquidacion</title>
           <style>
-            :root{--ink:#1E0A4E;--ink-soft:#2E1767;--blue:#1E6FD9;--paper:#fff;--muted:#64748B;}
+            :root{--ink:#073B52;--ink-soft:#075B85;--blue:#0878CF;--paper:#fff;--muted:#526C79;}
             *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-            body{margin:0;font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(145deg,#EBE6FA 0%,#EAF2FF 100%);padding:24px;color:#243247;}
-            .sheet{max-width:900px;margin:0 auto;background:var(--paper);border:1px solid #D9E4F7;border-radius:20px;overflow:hidden;box-shadow:0 24px 56px rgba(30,10,78,.18);}
+            body{margin:0;font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(145deg,#F4F9FA 0%,#E8F4FA 100%);padding:24px;color:#183F51;}
+            .sheet{max-width:900px;margin:0 auto;background:var(--paper);border:1px solid #CBDDE3;border-radius:20px;overflow:hidden;box-shadow:0 24px 56px rgba(7,59,82,.18);}
             .hero{background:linear-gradient(120deg,var(--ink),var(--ink-soft));color:#fff;padding:28px 30px;}
             .hero h1{margin:0;font-size:30px;}
             .hero p{margin:8px 0 0;font-size:14px;color:rgba(255,255,255,.9);}
             .metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px;}
             .metric{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24);padding:10px;border-radius:12px;}
             .metric b{display:block;font-size:20px;margin-top:4px;}
-            .content{padding:18px 20px 26px;background:linear-gradient(180deg,#FAFCFF 0%,#FFFFFF 18%);}
-            .section{border:1px solid #DEE7FB;border-radius:16px;background:#fff;overflow:hidden;}
-            .section h3{margin:0;padding:12px 14px;background:linear-gradient(90deg,#F3EEFF,#F8FAFF);border-bottom:1px solid #E5ECFA;color:var(--ink);}
-            .row{display:flex;gap:12px;border-bottom:1px solid #EEF2FB;padding:12px 14px;}
+            .content{padding:18px 20px 26px;background:linear-gradient(180deg,#F4F9FA 0%,#FFFFFF 18%);}
+            .section{border:1px solid #CBDDE3;border-radius:16px;background:#fff;overflow:hidden;}
+            .section h3{margin:0;padding:12px 14px;background:linear-gradient(90deg,#E8F4FA,#F4F9FA);border-bottom:1px solid #CBDDE3;color:var(--ink);}
+            .row{display:flex;gap:12px;border-bottom:1px solid #E8F4FA;padding:12px 14px;}
             .row:last-child{border-bottom:0;}
-            .index{width:28px;height:28px;border-radius:999px;background:linear-gradient(140deg,var(--blue),#4A8DF0);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:800;flex-shrink:0;}
+            .index{width:28px;height:28px;border-radius:999px;background:linear-gradient(140deg,var(--blue),#075EAA);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:800;flex-shrink:0;}
             .content h4{margin:0;color:var(--ink);font-size:15px;}
             .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;}
-            .chips span{background:#F3EEFF;border:1px solid #DCCEFF;color:#452A84;font-size:10.5px;padding:4px 8px;border-radius:999px;font-weight:600;}
+            .chips span{background:#E8F4FA;border:1px solid #91DEF0;color:#075B85;font-size:10.5px;padding:4px 8px;border-radius:999px;font-weight:600;}
             .empty{margin:0;padding:16px;color:var(--muted);font-size:13px;}
-            .footer{border-top:1px solid #E5ECFA;background:#FAFCFF;padding:12px 20px;color:var(--muted);font-size:11px;display:flex;justify-content:space-between;}
-            @media print{body{background:#EEE8FB;padding:0}.sheet{border:0;border-radius:0;box-shadow:none;max-width:100%}@page{size:A4;margin:10mm}}
+            .footer{border-top:1px solid #CBDDE3;background:#F4F9FA;padding:12px 20px;color:var(--muted);font-size:11px;display:flex;justify-content:space-between;}
+            @media print{body{background:#F4F9FA;padding:0}.sheet{border:0;border-radius:0;box-shadow:none;max-width:100%}@page{size:A4;margin:10mm}}
           </style>
         </head>
         <body>
