@@ -185,6 +185,11 @@ responde **400**. Si el borrado gana, una revisión concurrente recibe **400** c
 leído el pago o **404** cuando no lo encuentra. Al editar, el importe y el enlace al comprobante
 se guardan juntos. Si la edición se completa primero, la revisión se aplica al pago actualizado.
 
+Al registrar o editar un pago, el comprobante debe pertenecer al mismo viaje. Si pertenece a
+otro viaje, no existe o el identificador tiene un formato inválido, la API responde **400** con
+el mismo mensaje y conserva el estado anterior. El historial devuelve `proof_document_id: null`
+para vínculos históricos a documentos de otros viajes y conserva el pago y su vínculo en la base.
+
 Reparto del gasto (`split_type`):
 
 | Valor | Campo | Regla |

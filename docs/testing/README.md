@@ -42,7 +42,8 @@ despues de desplegar.
 La prueba monta las rutas reales de autenticación y presupuesto en una API de prueba ligada
 a `127.0.0.1`. Confirma en PostgreSQL que dos solicitudes están esperando por el mismo pago
 antes de liberar el bloqueo. Comprueba ambos órdenes de edición o borrado frente a confirmación,
-los saldos, los comprobantes y los permisos de la función de base de datos.
+los saldos, la pertenencia de los comprobantes a su viaje y los permisos de las funciones de
+base de datos.
 
 1. Instala las dependencias en la raíz y en `backend`. Usa un contexto local de Docker.
 2. En un directorio nuevo y separado, inicializa Supabase con

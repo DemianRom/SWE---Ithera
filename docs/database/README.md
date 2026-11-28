@@ -66,11 +66,15 @@ Ver [../maps/README.md](../maps/README.md).
 reparto porcentual, `expense_splits.percentage` guarda el porcentaje de cada integrante y `share`
 el monto que le toca; en los otros tipos `percentage` es null.
 
-La función `update_pending_settlement_payment` guarda los datos del pago y el vínculo al
-comprobante en una sola transacción. Se ejecuta con los permisos del invocador y solo
-`service_role` tiene permiso de ejecución. El backend verifica la pertenencia al viaje y la
-función condiciona la escritura al viaje, al autor y al estado pendiente. Al borrar un pago
-pendiente, la clave foránea elimina el vínculo al comprobante en cascada.
+Las funciones `create_pending_settlement_payment` y `update_pending_settlement_payment` guardan
+el pago y el vínculo al comprobante en la misma transacción. Se ejecutan con los permisos
+del invocador y el único rol de la API que puede invocarlas es `service_role`. El backend
+valida los permisos del usuario. La edición condiciona la escritura al viaje, al autor y al
+estado pendiente. Ambas funciones comprueban que el documento pertenezca al viaje del pago
+y mantienen bloqueado el documento para escritura hasta terminar la transacción. La
+migración conserva las filas previas, incluidos los vínculos históricos a otro viaje. El
+historial de la API omite el identificador de esos vínculos. Al borrar un pago pendiente,
+la clave foránea elimina el vínculo al comprobante en cascada.
 
 ## Flujo de trabajo
 
@@ -120,8 +124,9 @@ autorizada es `https://<project-ref>.supabase.co/auth/v1/callback`. En el fronte
 se muestran solo si `VITE_OAUTH_PROVIDERS` los incluye (p. ej. `google`).
 
 `deploy.sh` no toca la base de datos: las migraciones se aplican a mano con la CLI.
-Aplica `20261128055313_atomic_pending_settlement_payment_edit.sql` en la base de destino
-antes de desplegar el backend que usa `update_pending_settlement_payment`.
+Aplica `20261128055313_atomic_pending_settlement_payment_edit.sql` y después
+`20261128085924_settlement_payment_proof_trip.sql` en la base de destino antes de desplegar
+el backend actualizado.
 
 ## Smoke test
 

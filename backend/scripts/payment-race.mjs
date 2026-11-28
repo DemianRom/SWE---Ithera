@@ -12,6 +12,7 @@ const project = 'traveling-payment-race';
 const container = `supabase_db_${project}`;
 const gateway = `supabase_kong_${project}`;
 const rpcName = 'update_pending_settlement_payment';
+const createRpc = 'create_pending_settlement_payment';
 const [supabaseDir, extraArg] = process.argv.slice(2);
 if (!supabaseDir || extraArg) {
   throw new Error('Uso: node backend/scripts/payment-race.mjs <directorio de la pila Supabase aislada>');
@@ -69,8 +70,8 @@ Object.assign(process.env, {
 
 const dbArgs = ['exec', container, 'psql', '-X', '-qAt', '-v', 'ON_ERROR_STOP=1', '-U', 'postgres', '-d', 'postgres'];
 const sql = (query) => docker(...dbArgs, '-c', query);
-if (sql(`select to_regprocedure('public.${rpcName}(bigint,bigint,bigint,numeric,text,text,uuid)') is not null`) !== 't') {
-  throw new Error('La pila aislada necesita la migración de edición atómica.');
+if (sql(`select to_regprocedure('public.${createRpc}(bigint,bigint,bigint,bigint,numeric,text,text,uuid)') is not null`) !== 't') {
+  throw new Error('La pila aislada necesita las migraciones de pagos y comprobantes.');
 }
 
 const require = createRequire(import.meta.url);
@@ -92,7 +93,7 @@ const options = { auth: { autoRefreshToken: false, persistSession: false } };
 const admin = createClient(supabaseUrl, SERVICE_ROLE_KEY, options);
 const run = randomUUID().slice(0, 8);
 const users = [];
-let groupId;
+const groupIds = [];
 
 async function data(response) {
   const result = await response;
@@ -173,13 +174,20 @@ select id from public.settlement_payments where id = ${id} for update; select 'l
   return Promise.all(submitted);
 }
 
+async function createGroup(owner, label) {
+  const group = await data(admin.from('grupos_viaje').insert({
+    nombre: `Race ${run} ${label}`, creado_por: owner.id, codigo_invitacion: `${run}-${label}`, presupuesto_total: 5000,
+  }).select('id').single());
+  groupIds.push(group.id);
+  return group.id;
+}
+
 try {
   const creditor = await createUser('creditor');
   const debtor = await createUser('debtor');
-  const group = await data(admin.from('grupos_viaje').insert({
-    nombre: `Race ${run}`, creado_por: creditor.id, codigo_invitacion: run, presupuesto_total: 5000,
-  }).select('id').single());
-  groupId = group.id;
+  const outsider = await createUser('outsider');
+  const groupId = await createGroup(creditor, 'ledger');
+  const foreignGroupId = await createGroup(outsider, 'outside');
   await data(admin.from('grupo_miembros').insert([
     { grupo_id: groupId, usuario_id: creditor.id, rol: 'admin' },
     { grupo_id: groupId, usuario_id: debtor.id, rol: 'viajero' },
@@ -196,12 +204,16 @@ try {
   const oldProof = proofs.find(({ file_name }) => file_name === 'old.pdf');
   const newProof = proofs.find(({ file_name }) => file_name === 'new.pdf');
   assert(oldProof && newProof, 'Faltan los comprobantes de prueba.');
+  const foreignProof = await data(admin.from('trip_documents').insert({
+    trip_id: foreignGroupId, user_id: outsider.authId, file_name: 'foreign.pdf', file_path: `${run}/foreign.pdf`,
+  }).select('id').single());
 
+  const registration = {
+    from_user_id: debtor.id, to_user_id: creditor.id, amount: 100,
+    payment_method: 'transferencia', proof_document_id: oldProof.id, note: 'original',
+  };
   async function pending() {
-    const result = await api(debtor, 'POST', payments, {
-      from_user_id: debtor.id, to_user_id: creditor.id, amount: 100,
-      payment_method: 'transferencia', proof_document_id: oldProof.id, note: 'original',
-    });
+    const result = await api(debtor, 'POST', payments, registration);
     return result.paymentHistory.find(({ status }) => status === 'pendiente_validacion').id;
   }
 
@@ -209,6 +221,40 @@ try {
   const readPayment = (id) => data(admin.from('settlement_payments')
     .select('status, amount, note, paid_at, settlement_payment_documents(trip_document_id)').eq('id', id).maybeSingle());
   const balance = async () => (await api(creditor, 'GET', `${base}/balances`)).data[debtor.id];
+  const invalidProof = { status: 400, body: { ok: false, error: 'Comprobante de pago invalido' } };
+  const missingProofId = randomUUID();
+  for (const proofId of [foreignProof.id, missingProofId, 'not-a-uuid']) {
+    assert.deepEqual(await request(debtor, 'POST', payments, { ...registration, proof_document_id: proofId }), invalidProof);
+  }
+  assert.deepEqual(await data(admin.from('settlement_payments').select('id').eq('group_id', groupId)), []);
+  assert.equal(await balance(), -1000);
+
+  const proofPaymentId = await pending();
+  const proofRoute = `${payments}/${proofPaymentId}`;
+  const initialProofPayment = await readPayment(proofPaymentId);
+  for (const proofId of [foreignProof.id, missingProofId, 'not-a-uuid']) {
+    assert.deepEqual(await request(debtor, 'PATCH', proofRoute, { ...changes, proof_document_id: proofId }), invalidProof);
+    assert.deepEqual(await readPayment(proofPaymentId), initialProofPayment);
+  }
+  assert.equal((await request(creditor, 'PATCH', proofRoute, changes)).status, 403);
+  assert.equal((await request(outsider, 'PATCH', proofRoute, changes)).status, 403);
+  assert.equal((await request(outsider, 'POST', payments, registration)).status, 403);
+  assert.equal(await balance(), -1000);
+  console.log('Alta y edición: comprobantes de otro viaje, inexistentes o mal formados reciben el mismo 400 sin mutaciones.');
+
+  // Simula un vínculo histórico que precede a la validación de pertenencia.
+  await data(admin.from('settlement_payment_documents').delete().eq('settlement_payment_id', proofPaymentId));
+  await data(admin.from('settlement_payment_documents').insert({
+    settlement_payment_id: proofPaymentId, trip_document_id: foreignProof.id,
+  }));
+  const legacyDashboard = await api(creditor, 'GET', `${base}/dashboard`);
+  const legacyPayment = legacyDashboard.paymentHistory.find(({ id }) => id === proofPaymentId);
+  assert.equal(legacyPayment?.proof_document_id, null);
+  assert(!JSON.stringify(legacyDashboard).includes(foreignProof.id));
+  assert.deepEqual((await readPayment(proofPaymentId)).settlement_payment_documents, [{ trip_document_id: foreignProof.id }]);
+  await api(debtor, 'DELETE', proofRoute);
+  console.log('Historial: el identificador de otro viaje se omite y el vínculo histórico permanece en la base.');
+
   let paid = 0;
 
   for (const [first, second, codes, amount, proof] of [
@@ -244,29 +290,31 @@ try {
 
   const id = await pending();
   const initial = await readPayment(id);
-  const anyProof = randomUUID();
-  const invalid = await request(debtor, 'PATCH', `${payments}/${id}`, { ...changes, proof_document_id: anyProof });
-  assert.equal(invalid.status, 500);
-  assert.deepEqual(await readPayment(id), initial);
   assert.equal(await balance(), -1000 + paid);
-  console.log('Comprobante inexistente: HTTP 500; reversión del importe, nota, fecha y vínculo original');
 
   const args = {
     p_payment_id: id, p_group_id: groupId, p_creator_id: debtor.id,
     p_amount: changes.amount, p_payment_method: changes.payment_method,
     p_note: changes.note, p_proof_document_id: changes.proof_document_id,
   };
+  const createArgs = {
+    p_group_id: groupId, p_from_user_id: debtor.id, p_to_user_id: creditor.id, p_creator_id: debtor.id,
+    p_amount: registration.amount, p_payment_method: registration.payment_method, p_note: registration.note,
+    p_proof_document_id: foreignProof.id,
+  };
   for (const client of [createClient(supabaseUrl, ANON_KEY, options), debtor.client]) {
-    const { error } = await client.rpc(rpcName, args);
-    assert.equal(error?.code, '42501');
+    assert.equal((await client.rpc(rpcName, args)).error?.code, '42501');
+    assert.equal((await client.rpc(createRpc, createArgs)).error?.code, '42501');
   }
+  assert.equal((await admin.rpc(createRpc, createArgs)).error?.code, 'PZ001');
+  assert.equal((await admin.rpc(rpcName, { ...args, p_proof_document_id: foreignProof.id })).error?.code, 'PZ001');
   assert.equal(await data(admin.rpc(rpcName, { ...args, p_creator_id: creditor.id })), false);
   assert.equal(await data(admin.rpc(rpcName, { ...args, p_group_id: groupId + 1 })), false);
   assert.deepEqual(await readPayment(id), initial);
   console.log('RPC: anon y authenticated sin EXECUTE; autor o viaje incorrecto devuelve false');
 } finally {
   try {
-    if (groupId) await data(admin.from('grupos_viaje').delete().eq('id', groupId));
+    if (groupIds.length) await data(admin.from('grupos_viaje').delete().in('id', groupIds));
   } finally {
     const cleanup = await Promise.allSettled(users.map(({ authId }) => data(admin.auth.admin.deleteUser(authId))));
     await sockets.close();

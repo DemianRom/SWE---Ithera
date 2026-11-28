@@ -6,6 +6,10 @@ import { createNotification, emitGroupDashboardUpdated } from '../src/domain/not
 jest.mock('../src/infrastructure/db/supabase.client', () => ({
   supabaseAdmin: {
     from: jest.fn((table: string) => mockFrom(table)),
+    rpc: jest.fn((name: string, params: Row) => {
+      if (name !== 'create_pending_settlement_payment') throw new Error(`RPC inesperada: ${name}`);
+      return mockCreatePendingPayment(params);
+    }),
   },
 }));
 
@@ -131,6 +135,22 @@ const mockCreateQuery = (tableName: string) => {
 
 function mockFrom(table: string) {
   return mockCreateQuery(table);
+}
+
+async function mockCreatePendingPayment(params: Row) {
+  const id = String(mockDb.settlement_payments.length + 1);
+  mockDb.settlement_payments.push({
+    id,
+    group_id: params.p_group_id,
+    from_user_id: params.p_from_user_id,
+    to_user_id: params.p_to_user_id,
+    created_by_user_id: params.p_creator_id,
+    status: 'pendiente_validacion',
+    amount: params.p_amount,
+    payment_method: params.p_payment_method,
+    note: params.p_note,
+  });
+  return { data: id, error: null };
 }
 
 describe('BudgetService', () => {

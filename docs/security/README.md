@@ -16,8 +16,9 @@ Esta guia resume reglas de seguridad para desarrollo, revision y despliegue.
   escribir directamente.
 - Solo `service_role` (el backend, con la llave secreta) tiene privilegios. Ver
   [../database/README.md](../database/README.md).
-- Solo `service_role` puede ejecutar `update_pending_settlement_payment`. La función usa los
-  permisos de ese rol y verifica viaje, autor y estado pendiente al actualizar el pago.
+- Solo `service_role` puede ejecutar las funciones que registran y editan pagos pendientes.
+  Las funciones usan los permisos de ese rol y validan el viaje del comprobante. La edición
+  también verifica el viaje, el autor y el estado pendiente del pago.
 - El navegador solo usa Supabase para Auth (registro, login, OTP y Google).
 
 ## Autenticacion
