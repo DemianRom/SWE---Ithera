@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import type { Activity } from "../ui/DayView";
 import { PlaceAutocompleteInput } from "../ui/PlaceAutocompleteInput";
+import { Select } from "../ui/Select";
 
 // Ciudad de México usa UTC-6 todo el año (sin horario de verano desde 2022).
 const MEXICO_CITY_OFFSET = "-06:00";
@@ -181,33 +182,33 @@ export function ActivityFormModal({
             </div>
             <div>
               <label htmlFor="activity-start" className={labelClass}>Inicio</label>
-              <select
+              <Select
                 id="activity-start"
+                className="h-11"
                 value={startTime}
                 onChange={(e) => {
                   setStartTime(e.target.value);
                   if (endTime && endTime <= e.target.value) setEndTime("");
                 }}
-                className={inputClass}
               >
                 {TIME_OPTIONS.map((option) => (
                   <option key={option} value={option}>{option}</option>
                 ))}
-              </select>
+              </Select>
             </div>
             <div>
               <label htmlFor="activity-end" className={labelClass}>Fin (opcional)</label>
-              <select
+              <Select
                 id="activity-end"
+                className="h-11"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className={inputClass}
               >
                 <option value="">Sin hora de fin</option>
                 {endOptions.map((option) => (
                   <option key={option} value={option}>{option}</option>
                 ))}
-              </select>
+              </Select>
             </div>
           </div>
 
