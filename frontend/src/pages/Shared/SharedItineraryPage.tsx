@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { exportService, type SharedItineraryItem, type SharedGroupInfo } from '../../services/export'
+import { ApiError } from '../../services/apiClient'
 
 function formatDate(value?: string | null) {
   if (!value) return 'Sin fecha'
@@ -21,6 +22,10 @@ function formatRange(start?: string | null, end?: string | null) {
 
 export function SharedItineraryPage() {
   const { token } = useParams<{ token: string }>()
+  return <SharedItinerary token={token} key={token} />
+}
+
+function SharedItinerary({ token }: { token?: string }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [group, setGroup] = useState<SharedGroupInfo | null>(null)
@@ -48,7 +53,11 @@ export function SharedItineraryPage() {
         setExpiresAt(response.tokenMeta?.expiresAt ?? null)
       } catch (err) {
         if (cancelled) return
-        setError(err instanceof Error ? err.message : 'No se pudo cargar el itinerario compartido')
+        setError(err instanceof ApiError && err.status === 0
+          ? 'No se pudo conectar. Verifica tu conexión e inténtalo de nuevo.'
+          : err instanceof ApiError && [400, 401, 403, 404, 410].includes(err.status)
+            ? 'No se pudo abrir el itinerario. Comprueba que el enlace sea válido y no haya vencido.'
+            : 'No se pudo cargar el itinerario. Inténtalo de nuevo más tarde.')
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -72,40 +81,44 @@ export function SharedItineraryPage() {
   }, [items])
 
   return (
-    <main className="min-h-screen bg-[#F4F6F8] px-4 py-8">
+    <main className="min-h-screen bg-[#F4F9FA] px-4 py-8 font-body">
       <div className="mx-auto w-full max-w-5xl">
-        <header className="mb-6 rounded-2xl bg-[#1E0A4E] px-6 py-5 text-white shadow-lg">
+        <header className="mb-6 rounded-2xl bg-[#073B52] px-6 py-5 text-white shadow-lg">
           <p className="text-xs uppercase tracking-wide text-white/70">Itinerario compartido</p>
-          <h1 className="mt-1 text-2xl font-bold">{group?.nombre ?? 'Cargando viaje...'}</h1>
-          <p className="mt-1 text-sm text-white/85">
-            {group?.destino_formatted_address ?? group?.destino ?? 'Destino sin definir'}
-          </p>
-          <p className="mt-2 text-xs text-white/75">
-            {group ? formatRange(group.fecha_inicio, group.fecha_fin) : 'Preparando fechas...'}
-          </p>
-          {expiresAt ? (
-            <p className="mt-1 text-xs text-white/65">Enlace válido hasta: {formatDate(expiresAt)}</p>
+          <h1 className="mt-1 font-heading text-2xl font-bold">
+            {!loading && !error && group ? group.nombre : 'Itinerario compartido'}
+          </h1>
+          {!loading && !error && group ? (
+            <>
+              <p className="mt-1 text-sm text-white/85">
+                {group.destino_formatted_address ?? group.destino ?? 'Destino sin definir'}
+              </p>
+              <p className="mt-2 text-xs text-white/75">{formatRange(group.fecha_inicio, group.fecha_fin)}</p>
+              {expiresAt ? (
+                <p className="mt-1 text-xs text-white/85">Enlace válido hasta: {formatDate(expiresAt)}</p>
+              ) : null}
+            </>
           ) : null}
         </header>
 
-        {loading ? <div className="rounded-2xl bg-white p-5 text-sm text-[#475569]">Cargando itinerario...</div> : null}
-        {!loading && error ? <div className="rounded-2xl border border-[#FECACA] bg-[#FEF2F2] p-5 text-sm text-[#991B1B]">{error}</div> : null}
+        {loading ? <div className="rounded-2xl bg-white p-5 text-sm text-[#183F51]">Cargando itinerario...</div> : null}
+        {!loading && error ? <div className="rounded-2xl border border-[#DAB5AA] bg-[#FAEDE7] p-5 text-sm text-[#8D4034]">{error}</div> : null}
 
         {!loading && !error && groupedByDay.length === 0 ? (
-          <div className="rounded-2xl bg-white p-5 text-sm text-[#475569]">No hay actividades públicas para mostrar.</div>
+          <div className="rounded-2xl bg-white p-5 text-sm text-[#183F51]">No hay actividades públicas para mostrar.</div>
         ) : null}
 
         {!loading && !error && groupedByDay.length > 0 ? (
           <section className="space-y-4">
             {groupedByDay.map(([day, dayItems]) => (
-              <article key={day} className="rounded-2xl border border-[#E2E8F0] bg-white p-4">
-                <h2 className="text-base font-bold text-[#1E0A4E]">{day}</h2>
+              <article key={day} className="rounded-2xl border border-[#CBDDE3] bg-white p-4">
+                <h2 className="font-heading text-base font-bold text-[#073B52]">{day}</h2>
                 <div className="mt-3 space-y-3">
                   {dayItems.map((item) => (
-                    <div key={item.id} className="rounded-xl bg-[#F8FAFC] p-3">
-                      <p className="font-semibold text-[#1E0A4E]">{item.title}</p>
-                      {item.description ? <p className="mt-1 text-sm text-[#475569]">{item.description}</p> : null}
-                      <p className="mt-1 text-xs text-[#64748B]">
+                    <div key={item.id} className="rounded-xl bg-[#F4F9FA] p-3">
+                      <p className="font-semibold text-[#073B52]">{item.title}</p>
+                      {item.description ? <p className="mt-1 text-sm text-[#183F51]">{item.description}</p> : null}
+                      <p className="mt-1 text-xs text-[#526C79]">
                         {item.location ? `${item.location} · ` : ''}
                         {formatDate(item.startsAt)}
                         {item.endsAt ? ` a ${formatDate(item.endsAt)}` : ''}

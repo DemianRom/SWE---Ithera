@@ -21,8 +21,8 @@ export function SidebarCreateGroup({ currentStep = 1 }: SidebarCreateGroupProps)
   return (
     <div className="flex flex-col">
       {/* Section label */}
-      <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#7A4FD6]/25 px-3 py-1.5 font-body text-xs font-extrabold uppercase tracking-[0.16em] text-[#D8C8FF]">
-        <span className="h-1.5 w-1.5 rounded-full bg-[#B89BFF]" />
+      <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#16b9d0]/25 px-3 py-1.5 font-body text-xs font-extrabold uppercase tracking-[0.16em] text-[#91def0]">
+        <span className="h-1.5 w-1.5 rounded-full bg-[#91def0]" />
         Proceso de creación
       </p>
 
@@ -30,7 +30,7 @@ export function SidebarCreateGroup({ currentStep = 1 }: SidebarCreateGroupProps)
       <div className="mb-5 rounded-3xl border border-white/15 bg-white/10 p-4">
         <div className="mb-2 h-2 overflow-hidden rounded-full bg-white/10">
           <div
-            className="h-full rounded-full bg-[linear-gradient(90deg,#B89BFF,#2C8BE6)] transition-all duration-500"
+            className="h-full rounded-full bg-[linear-gradient(90deg,#91def0,#2C8BE6)] transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -50,7 +50,7 @@ export function SidebarCreateGroup({ currentStep = 1 }: SidebarCreateGroupProps)
               key={step.number}
               className={[
                 'flex items-start gap-3 rounded-2xl px-3 py-3.5 transition-all duration-200',
-                isActive ? 'border border-white/20 bg-white text-[#1E0A4E] shadow-[0_12px_26px_rgba(0,0,0,0.16)]' : 'border border-white/10 bg-white/5',
+                isActive ? 'border border-white/20 bg-white text-[#073b52] shadow-[0_12px_26px_rgba(0,0,0,0.16)]' : 'border border-white/10 bg-white/5',
               ].join(' ')}
             >
               {/* Step circle */}
@@ -58,9 +58,9 @@ export function SidebarCreateGroup({ currentStep = 1 }: SidebarCreateGroupProps)
                 className={[
                   'mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl font-body text-sm font-extrabold',
                   isCompleted
-                    ? 'bg-[#35C56A] text-white'
+                    ? 'bg-[#ffbf20] text-[#073b52]'
                     : isActive
-                    ? 'bg-[#F3EEFF] text-[#7A4FD6]'
+                    ? 'bg-[#e8f4fa] text-[#075b85]'
                     : 'bg-white/10 text-white/55',
                 ].join(' ')}
               >
@@ -82,7 +82,7 @@ export function SidebarCreateGroup({ currentStep = 1 }: SidebarCreateGroupProps)
               <div className="flex-1 min-w-0">
                 <p
                   className={`font-body text-base font-extrabold leading-tight ${
-                    isActive ? 'text-[#1E0A4E]' : isCompleted ? 'text-white/75' : 'text-white/60'
+                    isActive ? 'text-[#073b52]' : isCompleted ? 'text-white/75' : 'text-white/60'
                   }`}
                 >
                   {step.label}

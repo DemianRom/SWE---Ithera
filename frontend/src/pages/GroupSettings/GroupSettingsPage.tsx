@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AppLayout } from '../../components/layout/AppLayout'
 import { useAuth } from '../../context/useAuth'
@@ -50,9 +50,9 @@ function isClosedGroup(group?: Group | null) {
 }
 
 const addDaysISO = (date: string, days: number) => {
-  const parsed = new Date(`${date}T00:00:00`)
+  const parsed = new Date(`${date}T00:00:00Z`)
   if (Number.isNaN(parsed.getTime())) return ''
-  parsed.setDate(parsed.getDate() + days)
+  parsed.setUTCDate(parsed.getUTCDate() + days)
   return parsed.toISOString().slice(0, 10)
 }
 
@@ -98,7 +98,9 @@ export function GroupSettingsPage() {
   const [searchParams] = useSearchParams()
   const { accessToken, localUser } = useAuth()
 
-  const [group, setGroup] = useState<Group | null>(getCurrentGroup())
+  const [initialGroupId] = useState(() => String(getCurrentGroup()?.id ?? ''))
+  const [group, setGroup] = useState<Group | null>(null)
+  const [resolvedContext, setResolvedContext] = useState<{ groupId: string; accessToken: string } | null>(null)
   const [form, setForm] = useState<SettingsForm>({
     name: '',
     destination: '',
@@ -119,10 +121,16 @@ export function GroupSettingsPage() {
   const [success, setSuccess] = useState('')
   const [accessDenied, setAccessDenied] = useState(false)
 
-  const groupId = searchParams.get('groupId') || group?.id || ''
-  const currentGroupFallback = getCurrentGroup()
-  const effectiveGroup = group ?? currentGroupFallback
-  const effectiveGroupId = String(group?.id ?? currentGroupFallback?.id ?? groupId ?? '')
+  const groupId = searchParams.get('groupId') || initialGroupId
+  const contextGeneration = useRef(0)
+
+  useLayoutEffect(() => {
+    const context = contextGeneration
+    context.current++
+    return () => { context.current++ }
+  }, [accessToken, groupId])
+  const effectiveGroup = resolvedContext?.groupId === groupId && resolvedContext.accessToken === accessToken ? group : null
+  const effectiveGroupId = String(effectiveGroup?.id ?? '')
   const formError = getValidationError(form, effectiveGroup)
   const today = todayISO()
   const originalStartDate = effectiveGroup?.fecha_inicio ?? ''
@@ -164,9 +172,22 @@ export function GroupSettingsPage() {
   }
 
   useEffect(() => {
+    let cancelled = false
+    const generation = contextGeneration.current
+    setGroup(null)
+    setResolvedContext(null)
+    setConfirmAction(null)
+    setError('')
+    setSuccess('')
+    setAccessDenied(false)
+    setSaving(false)
+    setClosing(false)
+    setDeleting(false)
+
     if (!accessToken || !groupId) {
+      setError('No se encontró el viaje solicitado')
       setLoading(false)
-      return
+      return () => { cancelled = true }
     }
 
     const loadGroup = async () => {
@@ -176,6 +197,7 @@ export function GroupSettingsPage() {
         setAccessDenied(false)
 
         const history = await groupsService.getMyHistory(accessToken)
+        if (cancelled || contextGeneration.current !== generation) return
         const allItems = [...history.activos, ...history.pasados]
         const foundItem = allItems.find((item) => String(item.grupos_viaje?.id) === String(groupId)) || null
 
@@ -184,6 +206,7 @@ export function GroupSettingsPage() {
         }
 
         const foundGroup = { ...foundItem.grupos_viaje, myRole: foundItem.rol }
+        setResolvedContext({ groupId, accessToken })
 
         if (foundItem.rol !== 'admin') {
           setGroup(foundGroup)
@@ -196,13 +219,14 @@ export function GroupSettingsPage() {
         setForm(buildForm(foundGroup))
         saveCurrentGroup(foundGroup)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'No se pudo cargar el grupo')
+        if (!cancelled && contextGeneration.current === generation) setError(err instanceof Error ? err.message : 'No se pudo cargar el grupo')
       } finally {
-        setLoading(false)
+        if (!cancelled && contextGeneration.current === generation) setLoading(false)
       }
     }
 
     loadGroup()
+    return () => { cancelled = true }
   }, [accessToken, groupId])
 
   const setField = (key: keyof SettingsForm, value: string | boolean) => {
@@ -229,7 +253,8 @@ export function GroupSettingsPage() {
   }
 
   const handleSave = async () => {
-    if (!accessToken || !group || isReadOnly) return
+    if (!accessToken || !group || !effectiveGroup || isReadOnly) return
+    const generation = contextGeneration.current
 
     const validationError = getValidationError(form, group)
     if (validationError) {
@@ -258,24 +283,27 @@ export function GroupSettingsPage() {
         accessToken
       )
 
+      if (contextGeneration.current !== generation) return
       const updatedGroup = { ...response.group, myRole: group.myRole }
       setGroup(updatedGroup)
       saveCurrentGroup(updatedGroup)
       setSuccess('Cambios guardados correctamente')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo guardar')
+      if (contextGeneration.current === generation) setError(err instanceof Error ? err.message : 'No se pudo guardar')
     } finally {
-      setSaving(false)
+      if (contextGeneration.current === generation) setSaving(false)
     }
   }
 
   const handleCloseTrip = async () => {
-    if (!accessToken || !group || isReadOnly) return
+    if (!accessToken || !group || !effectiveGroup || isReadOnly) return
+    const generation = contextGeneration.current
 
     try {
       setClosing(true)
       setError('')
       const response = await groupsService.closeGroup(group.id, accessToken)
+      if (contextGeneration.current !== generation) return
       const closedGroup = { ...response.group, myRole: group.myRole }
       setGroup(closedGroup)
       saveCurrentGroup(closedGroup)
@@ -283,34 +311,36 @@ export function GroupSettingsPage() {
       setSuccess('Viaje cerrado y archivado correctamente')
       navigate('/my-trips#viajes-pasados')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo cerrar el viaje')
+      if (contextGeneration.current === generation) setError(err instanceof Error ? err.message : 'No se pudo cerrar el viaje')
     } finally {
-      setClosing(false)
+      if (contextGeneration.current === generation) setClosing(false)
     }
   }
 
   const handleDelete = async () => {
-    if (!accessToken || !group || isReadOnly) return
+    if (!accessToken || !group || !effectiveGroup || isReadOnly) return
+    const generation = contextGeneration.current
 
     try {
       setDeleting(true)
       setError('')
       await groupsService.deleteGroup(group.id, accessToken)
+      if (contextGeneration.current !== generation) return
       clearCurrentGroup()
       setConfirmAction(null)
       navigate('/my-trips')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo eliminar el viaje')
+      if (contextGeneration.current === generation) setError(err instanceof Error ? err.message : 'No se pudo eliminar el viaje')
     } finally {
-      setDeleting(false)
+      if (contextGeneration.current === generation) setDeleting(false)
     }
   }
 
-  if (loading) {
+  if (loading || (group && !effectiveGroup)) {
     return (
       <AppLayout showTripSelector={false} showRightPanel={false}>
         <div className="flex-1 flex items-center justify-center">
-          <p className="font-body text-sm text-[#7A8799]">Cargando configuración...</p>
+          <p className="font-body text-sm text-[#526C79]">Cargando configuración...</p>
         </div>
       </AppLayout>
     )
@@ -320,23 +350,23 @@ export function GroupSettingsPage() {
     return (
       <AppLayout showTripSelector={false} showRightPanel={false}>
         <div className="flex-1 flex items-center justify-center px-4">
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 max-w-md w-full text-center shadow-sm">
-            <h2 className="font-heading text-xl text-[#1E0A4E] mb-2">Acceso restringido</h2>
-            <p className="font-body text-sm leading-relaxed text-[#64748B]">
+          <div className="bg-white rounded-2xl border border-[#CBDDE3] p-6 max-w-md w-full text-center shadow-sm">
+            <h2 className="font-heading text-xl text-[#073B52] mb-2">Acceso restringido</h2>
+            <p className="font-body text-sm leading-relaxed text-[#526C79]">
               Solo el organizador puede abrir la configuración del viaje. Puedes consultar el panel del grupo o volver al itinerario.
             </p>
             <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:justify-center">
               <button
                 type="button"
                 onClick={goToGroupPanel}
-                className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-3 text-sm font-semibold text-[#1E0A4E] shadow-sm transition hover:bg-[#F8FAFC]"
+                className="rounded-xl border border-[#CBDDE3] bg-white px-4 py-3 text-sm font-semibold text-[#073B52] shadow-sm transition hover:bg-[#F4F9FA]"
               >
                 Ir al panel
               </button>
               <button
                 type="button"
                 onClick={goToItinerary}
-                className="rounded-xl bg-[#1E6FD9] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1557B0]"
+                className="rounded-xl bg-[#075EAA] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#075EAA]"
               >
                 Volver al itinerario
               </button>
@@ -347,16 +377,16 @@ export function GroupSettingsPage() {
     )
   }
 
-  if (error && !group) {
+  if (error && !effectiveGroup) {
     return (
       <AppLayout showTripSelector={false} showRightPanel={false}>
         <div className="flex-1 flex items-center justify-center px-4">
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 max-w-md w-full text-center">
-            <h2 className="font-heading text-xl text-[#1E0A4E] mb-2">No se pudo abrir configuración</h2>
+          <div className="bg-white rounded-2xl border border-[#CBDDE3] p-6 max-w-md w-full text-center">
+            <h2 className="font-heading text-xl text-[#073B52] mb-2">No se pudo abrir configuración</h2>
             <p className="font-body text-sm text-red-500">{error}</p>
             <button
               onClick={effectiveGroupId ? goToItinerary : () => navigate('/my-trips')}
-              className="mt-4 bg-[#1E6FD9] text-white rounded-xl px-4 py-3 text-sm"
+              className="mt-4 bg-[#075EAA] text-white rounded-xl px-4 py-3 text-sm"
             >
               {effectiveGroupId ? 'Volver al itinerario' : 'Volver a mis viajes'}
             </button>
@@ -378,29 +408,29 @@ export function GroupSettingsPage() {
         name: localUser?.nombre || 'Usuario',
         role: isAdmin ? 'Organizador' : 'Viajero',
         initials: (localUser?.nombre || 'U').slice(0, 2).toUpperCase(),
-        color: '#7A4FD6',
+        color: '#075B85',
       }}
       showTripSelector={false}
       showRightPanel={false}
     >
       <div className="flex-1 overflow-y-auto px-4 py-8">
         <div className="max-w-3xl mx-auto space-y-5">
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-sm">
+          <div className="bg-white rounded-2xl border border-[#CBDDE3] p-6 shadow-sm">
             <div className="flex items-center justify-between gap-3 mb-4">
               <div>
-                <h1 className="font-heading font-bold text-[#1E0A4E] text-2xl">Configuración del viaje</h1>
-                <p className="font-body text-sm text-[#7A8799]">{isReadOnly ? 'Consulta la información del viaje cerrado' : 'Edita la información principal del viaje'}</p>
+                <h1 className="font-heading font-bold text-[#073B52] text-2xl">Configuración del viaje</h1>
+                <p className="font-body text-sm text-[#526C79]">{isReadOnly ? 'Consulta la información del viaje cerrado' : 'Edita la información principal del viaje'}</p>
               </div>
               <div className="flex flex-wrap justify-end gap-2">
                 <button
                   onClick={goToGroupPanel}
-                  className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-3 text-sm font-semibold text-[#1E0A4E] shadow-sm transition hover:bg-[#F8FAFC]"
+                  className="rounded-xl border border-[#CBDDE3] bg-white px-4 py-3 text-sm font-semibold text-[#073B52] shadow-sm transition hover:bg-[#F4F9FA]"
                 >
                   Volver al panel
                 </button>
                 <button
                   onClick={goToItinerary}
-                  className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-3 text-sm font-semibold text-[#1E0A4E] shadow-sm transition hover:bg-[#F8FAFC]"
+                  className="rounded-xl border border-[#CBDDE3] bg-white px-4 py-3 text-sm font-semibold text-[#073B52] shadow-sm transition hover:bg-[#F4F9FA]"
                 >
                   Ir al itinerario
                 </button>
@@ -408,9 +438,9 @@ export function GroupSettingsPage() {
             </div>
 
             {isReadOnly && (
-              <div className="mb-5 rounded-2xl border border-[#CBD5E1] bg-[#F8FAFC] px-4 py-3">
-                <p className="font-heading text-sm font-semibold text-[#1E0A4E]">Viaje cerrado · configuración en modo lectura</p>
-                <p className="mt-1 font-body text-sm leading-relaxed text-[#64748B]">
+              <div className="mb-5 rounded-2xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-3">
+                <p className="font-heading text-sm font-semibold text-[#073B52]">Viaje cerrado · configuración en modo lectura</p>
+                <p className="mt-1 font-body text-sm leading-relaxed text-[#526C79]">
                   Este viaje ya finalizó. La información se conserva para consulta, pero no se puede editar ni eliminar.
                 </p>
               </div>
@@ -418,7 +448,7 @@ export function GroupSettingsPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-xs font-semibold text-[#1E0A4E]/60 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-semibold text-[#073B52]/60 uppercase tracking-wide mb-1.5">
                   Nombre del viaje
                 </label>
                 <input
@@ -426,18 +456,18 @@ export function GroupSettingsPage() {
                   maxLength={GROUP_NAME_MAX_LENGTH}
                   onChange={(e) => setField('name', e.target.value)}
                   disabled={isReadOnly}
-                  className={`w-full border rounded-xl px-4 py-3 text-sm ${form.name.trim().length > GROUP_NAME_MAX_LENGTH ? 'border-red-400' : 'border-[#E2E8F0]'}`}
+                  className={`w-full border rounded-xl px-4 py-3 text-sm ${form.name.trim().length > GROUP_NAME_MAX_LENGTH ? 'border-red-400' : 'border-[#CBDDE3]'}`}
                 />
                 <div className="mt-1.5 flex items-center justify-between gap-3">
-                  <p className="text-[11px] text-[#1E0A4E]/40">Máximo {GROUP_NAME_MAX_LENGTH} caracteres.</p>
-                  <p className={`text-[11px] ${form.name.length >= GROUP_NAME_MAX_LENGTH ? 'text-red-500' : 'text-[#1E0A4E]/40'}`}>
+                  <p className="text-[11px] text-[#073B52]/40">Máximo {GROUP_NAME_MAX_LENGTH} caracteres.</p>
+                  <p className={`text-[11px] ${form.name.length >= GROUP_NAME_MAX_LENGTH ? 'text-red-500' : 'text-[#073B52]/40'}`}>
                     {form.name.length}/{GROUP_NAME_MAX_LENGTH}
                   </p>
                 </div>
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-xs font-semibold text-[#1E0A4E]/60 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-semibold text-[#073B52]/60 uppercase tracking-wide mb-1.5">
                   Destino
                 </label>
                 <input
@@ -446,12 +476,12 @@ export function GroupSettingsPage() {
                   onChange={(e) => setField('destination', e.target.value)}
                   disabled={isReadOnly}
                   placeholder="Ej: Oaxaca, México"
-                  className="w-full border rounded-xl px-4 py-3 text-sm border-[#E2E8F0]"
+                  className="w-full border rounded-xl px-4 py-3 text-sm border-[#CBDDE3]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#1E0A4E]/60 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-semibold text-[#073B52]/60 uppercase tracking-wide mb-1.5">
                   Fecha de inicio
                 </label>
                 <input
@@ -460,17 +490,17 @@ export function GroupSettingsPage() {
                   min={minStartDate}
                   onChange={(e) => setField('startDate', e.target.value)}
                   disabled={isReadOnly || tripAlreadyStarted}
-                  className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3 text-sm disabled:bg-[#F8FAFC] disabled:text-[#94A3B8]"
+                  className="w-full border border-[#CBDDE3] rounded-xl px-4 py-3 text-sm disabled:bg-[#F4F9FA] disabled:text-[#94A3B8]"
                 />
                 {tripAlreadyStarted && !isReadOnly && (
-                  <p className="mt-1.5 text-[11px] leading-relaxed text-[#7A8799]">
+                  <p className="mt-1.5 text-[11px] leading-relaxed text-[#526C79]">
                     El viaje ya comenzó; la fecha de inicio se conserva para no mover actividades existentes.
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#1E0A4E]/60 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-semibold text-[#073B52]/60 uppercase tracking-wide mb-1.5">
                   Fecha de fin
                 </label>
                 <input
@@ -479,12 +509,12 @@ export function GroupSettingsPage() {
                   min={minEndDate}
                   onChange={(e) => setField('endDate', e.target.value)}
                   disabled={isReadOnly}
-                  className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3 text-sm disabled:bg-[#F8FAFC] disabled:text-[#94A3B8]"
+                  className="w-full border border-[#CBDDE3] rounded-xl px-4 py-3 text-sm disabled:bg-[#F4F9FA] disabled:text-[#94A3B8]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#1E0A4E]/60 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-semibold text-[#073B52]/60 uppercase tracking-wide mb-1.5">
                   Máximo de miembros
                 </label>
                 <input
@@ -498,18 +528,18 @@ export function GroupSettingsPage() {
                   onWheel={(e) => e.currentTarget.blur()}
                   onChange={(e) => setField('maxMembers', e.target.value)}
                   disabled={isReadOnly}
-                  className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3 text-sm"
+                  className="w-full border border-[#CBDDE3] rounded-xl px-4 py-3 text-sm"
                 />
-                <p className="mt-1.5 text-[11px] text-[#1E0A4E]/40">
+                <p className="mt-1.5 text-[11px] text-[#073B52]/40">
                   Mínimo 1. El viaje puede iniciar solo con el creador y después aceptar más integrantes.
                 </p>
               </div>
 
-              <div className="md:col-span-2 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-4">
+              <div className="md:col-span-2 rounded-2xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-4">
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <h3 className="font-heading text-sm font-semibold text-[#1E0A4E]">Viaje público</h3>
-                    <p className="mt-1 font-body text-xs text-[#7A8799]">
+                    <h3 className="font-heading text-sm font-semibold text-[#073B52]">Viaje público</h3>
+                    <p className="mt-1 font-body text-xs text-[#526C79]">
                       Activado: cualquiera con el código entra sin aprobación. Desactivado: el organizador aprueba solicitudes.
                     </p>
                   </div>
@@ -519,8 +549,8 @@ export function GroupSettingsPage() {
                     aria-checked={form.isPublic}
                     onClick={() => setField('isPublic', !form.isPublic)}
                     disabled={isReadOnly}
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#1E6FD9]/30 ${
-                      form.isPublic ? 'bg-[#1E6FD9]' : 'bg-gray-200'
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#075EAA]/30 ${
+                      form.isPublic ? 'bg-[#075EAA]' : 'bg-gray-200'
                     }`}
                   >
                     <span
@@ -532,10 +562,10 @@ export function GroupSettingsPage() {
                 </div>
               </div>
 
-              <div className="md:col-span-2 rounded-2xl border border-[#E2E8F0] bg-white px-4 py-4">
+              <div className="md:col-span-2 rounded-2xl border border-[#CBDDE3] bg-white px-4 py-4">
                 <div className="mb-4">
-                  <h3 className="font-heading text-sm font-semibold text-[#1E0A4E]">Control de módulos</h3>
-                  <p className="mt-1 font-body text-xs text-[#7A8799]">
+                  <h3 className="font-heading text-sm font-semibold text-[#073B52]">Control de módulos</h3>
+                  <p className="mt-1 font-body text-xs text-[#526C79]">
                     Activa o bloquea el acceso de escritura a Itinerario y Presupuesto para los viajeros.
                   </p>
                 </div>
@@ -554,15 +584,15 @@ export function GroupSettingsPage() {
                     locked: form.budgetLocked,
                   },
                 ].map((item) => (
-                  <div key={item.key} className="flex items-center justify-between gap-4 border-t border-[#E2E8F0] py-3 first:border-t-0 first:pt-0 last:pb-0">
+                  <div key={item.key} className="flex items-center justify-between gap-4 border-t border-[#CBDDE3] py-3 first:border-t-0 first:pt-0 last:pb-0">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h4 className="font-heading text-sm font-semibold text-[#1E0A4E]">{item.title}</h4>
-                        <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${item.locked ? 'bg-gray-100 text-gray-600' : 'bg-[#35C56A]/15 text-[#15803D]'}`}>
+                        <h4 className="font-heading text-sm font-semibold text-[#073B52]">{item.title}</h4>
+                        <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${item.locked ? 'bg-gray-100 text-gray-600' : 'bg-[#075EAA]/15 text-[#075B85]'}`}>
                           {item.locked ? 'Bloqueado' : 'Activo'}
                         </span>
                       </div>
-                      <p className="mt-1 font-body text-xs text-[#7A8799]">{item.description}</p>
+                      <p className="mt-1 font-body text-xs text-[#526C79]">{item.description}</p>
                     </div>
                     <button
                       type="button"
@@ -570,8 +600,8 @@ export function GroupSettingsPage() {
                       aria-checked={!item.locked}
                       onClick={() => setField(item.key, !item.locked)}
                       disabled={isReadOnly || saving}
-                      className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#1E6FD9]/30 disabled:cursor-not-allowed disabled:opacity-50 ${
-                        item.locked ? 'bg-gray-300' : 'bg-[#35C56A]'
+                      className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#075EAA]/30 disabled:cursor-not-allowed disabled:opacity-50 ${
+                        item.locked ? 'bg-gray-300' : 'bg-[#075EAA]'
                       }`}
                     >
                       <span
@@ -585,7 +615,7 @@ export function GroupSettingsPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-xs font-semibold text-[#1E0A4E]/60 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-semibold text-[#073B52]/60 uppercase tracking-wide mb-1.5">
                   Descripción
                 </label>
                 <textarea
@@ -594,11 +624,11 @@ export function GroupSettingsPage() {
                   onChange={(e) => setField('description', e.target.value)}
                   disabled={isReadOnly}
                   rows={4}
-                  className={`w-full border rounded-xl px-4 py-3 text-sm resize-none ${form.description.trim().length > GROUP_DESCRIPTION_MAX_LENGTH ? 'border-red-400' : 'border-[#E2E8F0]'}`}
+                  className={`w-full border rounded-xl px-4 py-3 text-sm resize-none ${form.description.trim().length > GROUP_DESCRIPTION_MAX_LENGTH ? 'border-red-400' : 'border-[#CBDDE3]'}`}
                 />
                 <div className="mt-1.5 flex items-center justify-between gap-3">
-                  <p className="text-[11px] text-[#1E0A4E]/40">Máximo {GROUP_DESCRIPTION_MAX_LENGTH} caracteres.</p>
-                  <p className={`text-[11px] ${form.description.length >= GROUP_DESCRIPTION_MAX_LENGTH ? 'text-red-500' : 'text-[#1E0A4E]/40'}`}>
+                  <p className="text-[11px] text-[#073B52]/40">Máximo {GROUP_DESCRIPTION_MAX_LENGTH} caracteres.</p>
+                  <p className={`text-[11px] ${form.description.length >= GROUP_DESCRIPTION_MAX_LENGTH ? 'text-red-500' : 'text-[#073B52]/40'}`}>
                     {form.description.length}/{GROUP_DESCRIPTION_MAX_LENGTH}
                   </p>
                 </div>
@@ -623,14 +653,14 @@ export function GroupSettingsPage() {
               </p>
             )}
             {error && <p className="mt-4 text-sm text-red-500">{error}</p>}
-            {success && <p className="mt-4 text-sm text-[#35C56A]">{success}</p>}
+            {success && <p className="mt-4 text-sm text-[#075EAA]">{success}</p>}
 
             <div className="mt-5 flex flex-wrap gap-3">
               <button
                 onClick={handleSave}
                 disabled={isReadOnly || saving || Boolean(formError)}
                 title={formError || undefined}
-                className="bg-[#1E6FD9] text-white rounded-xl px-5 py-3 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-[#075EAA] text-white rounded-xl px-5 py-3 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isReadOnly ? 'Solo lectura' : (saving ? 'Guardando...' : 'Guardar cambios')}
               </button>
@@ -639,7 +669,7 @@ export function GroupSettingsPage() {
 
           <div className="bg-white rounded-2xl border border-red-200 p-6 shadow-sm">
             <h2 className="font-heading text-lg text-red-600 font-semibold">Zona de peligro</h2>
-            <p className="font-body text-sm text-[#7A8799] mt-1">
+            <p className="font-body text-sm text-[#526C79] mt-1">
               {isReadOnly ? 'Este viaje está cerrado y solo puede consultarse desde el historial.' : 'Estas acciones afectan el acceso de todos los integrantes. Revisa antes de confirmar.'}
             </p>
 
@@ -669,10 +699,10 @@ export function GroupSettingsPage() {
       {confirmAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 px-4">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            <h2 className="font-heading text-xl font-bold text-[#1E0A4E]">
+            <h2 className="font-heading text-xl font-bold text-[#073B52]">
               {confirmAction === 'close' ? 'Cerrar viaje' : 'Eliminar viaje'}
             </h2>
-            <p className="mt-2 font-body text-sm leading-relaxed text-[#64748B]">
+            <p className="mt-2 font-body text-sm leading-relaxed text-[#526C79]">
               {confirmAction === 'close'
                 ? 'El viaje se archivará permanentemente y todos los módulos quedarán en modo solo lectura.'
                 : 'Esta acción eliminará el viaje permanentemente. No se puede deshacer.'}
@@ -682,7 +712,7 @@ export function GroupSettingsPage() {
                 type="button"
                 onClick={() => setConfirmAction(null)}
                 disabled={closing || deleting}
-                className="rounded-xl border border-[#E2E8F0] px-4 py-2.5 text-sm font-semibold text-[#1E0A4E] disabled:opacity-50"
+                className="rounded-xl border border-[#CBDDE3] px-4 py-2.5 text-sm font-semibold text-[#073B52] disabled:opacity-50"
               >
                 Cancelar
               </button>

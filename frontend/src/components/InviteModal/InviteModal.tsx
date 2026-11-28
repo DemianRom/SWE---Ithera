@@ -232,7 +232,7 @@ export function InviteModal({
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/35 px-4">
       {toast && (
-        <div className={`fixed right-6 top-6 z-[80] flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl ${toast.type === 'success' ? 'border border-[#BBF7D0] bg-[#F0FDF4] text-[#166534]' : 'border border-[#FECACA] bg-[#FEF2F2] text-[#991B1B]'}`}>
+        <div className={`fixed right-6 top-6 z-[80] flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl ${toast.type === 'success' ? 'border border-[#CBDDE3] bg-[#E8F4FA] text-[#075B85]' : 'border border-[#EAC8C0] bg-[#FAEDE7] text-[#8D4034]'}`}>
           <span aria-hidden="true">{toast.type === 'success' ? '✓' : '⚠️'}</span>
           <span>{toast.message}</span>
         </div>
@@ -242,7 +242,7 @@ export function InviteModal({
         <div className="mb-5 flex items-center justify-between">
           <div>
             <h3 className="text-2xl font-bold text-[#0D1117]">Invitar al grupo</h3>
-            <p className="mt-1 text-sm text-[#7A8799]">
+            <p className="mt-1 text-sm text-[#526C79]">
               Comparte el QR, el enlace o envía invitaciones por correo.
             </p>
           </div>
@@ -250,14 +250,14 @@ export function InviteModal({
           <button
             type="button"
             onClick={onClose}
-            className="text-[#7A8799] transition hover:text-[#3D4A5C]"
+            className="text-[#526C79] transition hover:text-[#183F51]"
           >
             ✕
           </button>
         </div>
 
-        <div className="mb-5 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-4">
-          <p className="mb-3 text-sm font-semibold text-[#1E0A4E]">
+        <div className="mb-5 rounded-2xl border border-[#CBDDE3] bg-[#F4F9FA] p-4">
+          <p className="mb-3 text-sm font-semibold text-[#073B52]">
             Código QR
           </p>
 
@@ -266,10 +266,10 @@ export function InviteModal({
               <img
                 src={qrBase64}
                 alt="Código QR de invitación al grupo"
-                className="h-40 w-40 rounded-2xl border border-[#E2E8F0] bg-white p-3"
+                className="h-40 w-40 rounded-2xl border border-[#CBDDE3] bg-white p-3"
               />
             ) : (
-              <div className="flex h-40 w-40 items-center justify-center rounded-2xl border border-dashed border-[#CBD5E1] bg-white text-center text-xs text-[#7A8799]">
+              <div className="flex h-40 w-40 items-center justify-center rounded-2xl border border-dashed border-[#CBDDE3] bg-white text-center text-xs text-[#526C79]">
                 Generando QR…
               </div>
             )}
@@ -278,15 +278,15 @@ export function InviteModal({
               type="button"
               onClick={handleDownloadQr}
               disabled={!qrBase64 || downloadingQr}
-              className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-white text-sm font-semibold text-[#1E0A4E] transition hover:bg-[#F8FAFC] disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-10 w-full rounded-xl border border-[#CBDDE3] bg-white text-sm font-semibold text-[#073B52] transition hover:bg-[#F4F9FA] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {downloadingQr ? 'Descargando QR…' : 'Descargar QR'}
             </button>
           </div>
         </div>
 
-        <div className="mb-5 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-4">
-          <p className="mb-2 text-sm font-semibold text-[#1E0A4E]">
+        <div className="mb-5 rounded-2xl border border-[#CBDDE3] bg-[#F4F9FA] p-4">
+          <p className="mb-2 text-sm font-semibold text-[#073B52]">
             Enlace de invitación
           </p>
 
@@ -294,43 +294,43 @@ export function InviteModal({
             <input
               value={inviteLink}
               readOnly
-              className="h-11 flex-1 rounded-xl border border-[#E2E8F0] bg-white px-4 text-sm text-[#3D4A5C] outline-none"
+              className="h-11 flex-1 rounded-xl border border-[#CBDDE3] bg-white px-4 text-sm text-[#183F51] outline-none"
             />
 
             <button
               type="button"
               onClick={handleCopy}
-              className="rounded-xl bg-[#1E6FD9] px-4 text-sm font-medium text-white transition hover:bg-[#2C8BE6]"
+              className="rounded-xl bg-[#075EAA] px-4 text-sm font-medium text-white transition hover:bg-[#0878CF]"
             >
               Copiar
             </button>
           </div>
 
           {copied && (
-            <p className="mt-2 text-xs text-[#35C56A]">
+            <p className="mt-2 text-xs text-[#075EAA]">
               Enlace copiado correctamente.
             </p>
           )}
         </div>
 
-        <div className="mb-5 rounded-2xl border border-[#E2E8F0] p-4">
+        <div className="mb-5 rounded-2xl border border-[#CBDDE3] p-4">
           <div className="mb-3">
-            <p className="text-sm font-semibold text-[#1E0A4E]">
+            <p className="text-sm font-semibold text-[#073B52]">
               Seguridad del enlace
             </p>
-            <p className="mt-1 text-xs text-[#7A8799]">
+            <p className="mt-1 text-xs text-[#526C79]">
               Expira el {formatExpiration(inviteSettings?.expiresAt)} · Usos: {usedCount}/{inviteSettings?.maxUses ?? 'ilimitado'}
             </p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <label className="text-xs font-semibold uppercase tracking-wide text-[#7A8799]">
+            <label className="text-xs font-semibold uppercase tracking-wide text-[#526C79]">
               Expiración
               <select
                 value={expirationDays}
                 onChange={(event) => setExpirationDays(Number(event.target.value))}
                 disabled={savingSettings}
-                className="mt-1 h-11 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm font-medium normal-case text-[#1E0A4E] outline-none focus:border-[#1E6FD9] focus:ring-2 focus:ring-[#1E6FD9]/10 disabled:opacity-60"
+                className="mt-1 h-11 w-full rounded-xl border border-[#CBDDE3] bg-white px-3 text-sm font-medium normal-case text-[#073B52] outline-none focus:border-[#075EAA] focus:ring-2 focus:ring-[#075EAA]/10 disabled:opacity-60"
               >
                 <option value={1}>1 día</option>
                 <option value={3}>3 días</option>
@@ -340,13 +340,13 @@ export function InviteModal({
               </select>
             </label>
 
-            <label className="text-xs font-semibold uppercase tracking-wide text-[#7A8799]">
+            <label className="text-xs font-semibold uppercase tracking-wide text-[#526C79]">
               Límite de usos
               <select
                 value={usageLimit}
                 onChange={(event) => setUsageLimit(event.target.value)}
                 disabled={savingSettings}
-                className="mt-1 h-11 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm font-medium normal-case text-[#1E0A4E] outline-none focus:border-[#1E6FD9] focus:ring-2 focus:ring-[#1E6FD9]/10 disabled:opacity-60"
+                className="mt-1 h-11 w-full rounded-xl border border-[#CBDDE3] bg-white px-3 text-sm font-medium normal-case text-[#073B52] outline-none focus:border-[#075EAA] focus:ring-2 focus:ring-[#075EAA]/10 disabled:opacity-60"
               >
                 <option value="unlimited">Ilimitado</option>
                 <option value="1">1 uso</option>
@@ -362,14 +362,14 @@ export function InviteModal({
             type="button"
             onClick={handleSaveSettings}
             disabled={savingSettings}
-            className="mt-3 h-11 w-full rounded-xl bg-[#1E0A4E] text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="mt-3 h-11 w-full rounded-xl bg-[#073B52] text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {savingSettings ? 'Guardando configuración…' : 'Guardar configuración del enlace'}
           </button>
         </div>
 
-        <div className="mb-5 rounded-2xl border border-[#E2E8F0] p-4">
-          <p className="mb-2 text-sm font-semibold text-[#1E0A4E]">
+        <div className="mb-5 rounded-2xl border border-[#CBDDE3] p-4">
+          <p className="mb-2 text-sm font-semibold text-[#073B52]">
             Enviar invitaciones por correo
           </p>
 
@@ -387,17 +387,17 @@ export function InviteModal({
             }}
             placeholder="correo1@gmail.com, correo2@gmail.com"
             aria-invalid={Boolean(emailValidationError || error)}
-            className={`min-h-24 w-full resize-none rounded-xl border px-4 py-3 text-sm text-[#3D4A5C] outline-none transition
+            className={`min-h-24 w-full resize-none rounded-xl border px-4 py-3 text-sm text-[#183F51] outline-none transition
               ${emailValidationError || error
                 ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
-                : 'border-[#E2E8F0] focus:border-[#1E6FD9] focus:ring-2 focus:ring-[#1E6FD9]/10'}
+                : 'border-[#CBDDE3] focus:border-[#075EAA] focus:ring-2 focus:ring-[#075EAA]/10'}
             `}
           />
 
           {emailValidationError ? (
             <p className="mt-2 text-xs text-red-500">{emailValidationError}</p>
           ) : (
-            <p className="mt-2 text-xs text-[#7A8799]">
+            <p className="mt-2 text-xs text-[#526C79]">
               Puedes separar correos con coma, punto y coma o salto de línea.
             </p>
           )}
@@ -406,27 +406,27 @@ export function InviteModal({
             type="button"
             onClick={handleSendInvitations}
             disabled={!canSendInvitations}
-            className="mt-3 h-11 w-full rounded-xl bg-[#1E0A4E] text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="mt-3 h-11 w-full rounded-xl bg-[#073B52] text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {sending ? 'Enviando invitaciones…' : 'Enviar invitaciones'}
           </button>
 
-          {message && <p className="mt-3 text-sm text-[#35C56A]">{message}</p>}
+          {message && <p className="mt-3 text-sm text-[#075EAA]">{message}</p>}
           {error && !emailValidationError && (
             <p className="mt-3 text-sm text-red-500">{error}</p>
           )}
         </div>
 
-        <div className="border-t border-[#E2E8F0] pt-4">
-          <p className="mb-3 text-sm font-semibold text-[#3D4A5C]">
+        <div className="border-t border-[#CBDDE3] pt-4">
+          <p className="mb-3 text-sm font-semibold text-[#183F51]">
             Miembros actuales
           </p>
 
           <div className="max-h-56 space-y-3 overflow-y-auto pr-1">
             {members.map((member) => (
-              <div key={member.id} className="flex items-center justify-between rounded-xl border border-[#F4F6F8] px-3 py-2">
+              <div key={member.id} className="flex items-center justify-between rounded-xl border border-[#F4F9FA] px-3 py-2">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#7A4FD6] to-[#1E6FD9] text-xs font-bold text-white">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#075B85] to-[#075EAA] text-xs font-bold text-white">
                     {member.initials}
                   </div>
 
@@ -434,7 +434,7 @@ export function InviteModal({
                     <p className="text-sm font-medium text-[#0D1117]">
                       {member.name}
                     </p>
-                    <p className="text-xs text-[#7A8799]">{member.role}</p>
+                    <p className="text-xs text-[#526C79]">{member.role}</p>
                   </div>
                 </div>
               </div>
@@ -445,7 +445,7 @@ export function InviteModal({
         <button
           type="button"
           onClick={onClose}
-          className="mt-5 h-11 w-full rounded-xl border border-[#E2E8F0] text-sm font-medium text-[#3D4A5C] transition hover:bg-[#F8FAFC]"
+          className="mt-5 h-11 w-full rounded-xl border border-[#CBDDE3] text-sm font-medium text-[#183F51] transition hover:bg-[#F4F9FA]"
         >
           Cerrar
         </button>

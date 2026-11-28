@@ -385,12 +385,12 @@ export function ChatDrawer({
           'transition-transform duration-300 ease-in-out',
           open ? 'translate-x-0' : 'translate-x-full',
         ].join(' ')}
-        style={{ background: '#FAF9FD' }}
+        style={{ background: '#F4F9FA' }}
       >
         {/* Header */}
         <div
           className="flex items-center gap-3 px-5 py-4 shrink-0"
-          style={{ background: 'linear-gradient(135deg, #1E0A4E, #7A4FD6)' }}
+          style={{ background: 'linear-gradient(135deg, #073B52, #075EAA)' }}
         >
           <div
             className="w-9 h-9 rounded-full flex items-center justify-center font-heading font-bold text-sm text-white shrink-0"
@@ -403,7 +403,7 @@ export function ChatDrawer({
             <p className="font-heading font-bold text-sm text-white leading-tight truncate">{groupName}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span
-                className={`w-1.5 h-1.5 rounded-full shrink-0 ${isSocketConnected ? 'bg-[#35C56A]' : 'bg-white/40'}`}
+                className={`w-1.5 h-1.5 rounded-full shrink-0 ${isSocketConnected ? 'bg-[#91DEF0]' : 'bg-white/40'}`}
               />
               <span className="font-body text-[11px] text-white/70">
                 {isReadOnly ? 'Solo lectura' : (isSocketConnected ? 'En tiempo real' : 'Reconectando...')}
@@ -413,7 +413,7 @@ export function ChatDrawer({
 
           <button
             onClick={onClose}
-            className="text-white/70 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10"
+            className="text-white/70 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             aria-label="Cerrar chat"
           >
             <IconClose />
@@ -422,18 +422,18 @@ export function ChatDrawer({
 
         {/* Online participants bar */}
         {participants.length > 0 && (
-          <div className="flex items-center gap-2.5 px-4 py-2.5 border-b border-[#E2E8F0] bg-white shrink-0">
+          <div className="flex items-center gap-2.5 px-4 py-2.5 border-b border-[#CBDDE3] bg-white shrink-0">
             <div className="flex -space-x-1.5">
               {participants.slice(0, 6).map((p) => (
                 <div key={p.id} className="relative" title={p.name}>
                   <Avatar name={p.name} color={p.color} avatarUrl={p.avatarUrl} size="sm" />
                   {onlineUserIds.includes(p.id) && (
-                    <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#35C56A] border border-white" />
+                    <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#075B85] border border-white" />
                   )}
                 </div>
               ))}
             </div>
-            <span className="font-body text-[11px] text-gray-500">
+            <span className="font-body text-[11px] text-[#526C79]">
               {onlineCount > 0 ? `${onlineCount} en línea ahora` : 'Sin miembros en línea'}
             </span>
           </div>
@@ -443,17 +443,17 @@ export function ChatDrawer({
         <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-0.5 min-h-0">
           {isLoading && (
             <div className="flex-1 flex items-center justify-center py-12">
-              <p className="font-body text-sm text-gray-500">Cargando mensajes...</p>
+              <p className="font-body text-sm text-[#526C79]">Cargando mensajes...</p>
             </div>
           )}
 
           {!isLoading && messages.length === 0 && (
             <div className="flex-1 flex flex-col items-center justify-center gap-3 py-12 text-center">
-              <div className="text-[#7A4FD6]/30">
+              <div className="text-[#0878CF]/30">
                 <IconChatEmpty />
               </div>
-              <p className="font-heading font-bold text-sm text-[#1E0A4E]">Sé el primero en escribir</p>
-              <p className="font-body text-[12px] text-gray-500 max-w-[180px]">
+              <p className="font-heading font-bold text-sm text-[#073B52]">Sé el primero en escribir</p>
+              <p className="font-body text-[12px] text-[#526C79] max-w-[180px]">
                 {isReadOnly ? 'El historial del chat se conserva en modo lectura.' : 'Usa el chat para coordinar con tu grupo en tiempo real'}
               </p>
             </div>
@@ -464,18 +464,18 @@ export function ChatDrawer({
               ? String(message.userId) === String(currentUserId)
               : message.id.startsWith('local-')
             const author = message.authorName || 'Usuario'
-            const pColor = participants.find((p) => p.name === author)?.color ?? '#7A4FD6'
+            const pColor = participants.find((p) => p.name === author)?.color ?? '#0878CF'
             const pAvatar = participants.find((p) => p.name === author)?.avatarUrl ?? null
 
             return (
               <div key={message.id}>
                 {showSeparator && (
                   <div className="flex items-center gap-2 my-3">
-                    <div className="flex-1 h-px bg-[#E2E8F0]" />
-                    <span className="font-body text-[10px] text-gray-500 px-2 capitalize">
+                    <div className="flex-1 h-px bg-[#CBDDE3]" />
+                    <span className="font-body text-[10px] text-[#526C79] px-2 capitalize">
                       {formatDateLabel(message.createdAt)}
                     </span>
-                    <div className="flex-1 h-px bg-[#E2E8F0]" />
+                    <div className="flex-1 h-px bg-[#CBDDE3]" />
                   </div>
                 )}
 
@@ -490,21 +490,21 @@ export function ChatDrawer({
                   )}
                   <div className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'} max-w-[75%]`}>
                     {!isOwn && (
-                      <span className="font-body text-[10px] text-gray-500 mb-0.5 ml-1">{author}</span>
+                      <span className="font-body text-[10px] text-[#526C79] mb-0.5 ml-1">{author}</span>
                     )}
                     <div
                       className={[
                         'font-body text-[13px] px-3 py-2 leading-relaxed',
                         isOwn
                           ? 'text-white rounded-2xl rounded-tr-sm shadow-md'
-                          : 'bg-white text-gray-700 border border-[#E2E8F0] rounded-2xl rounded-tl-sm shadow-sm',
+                          : 'bg-white text-[#183F51] border border-[#CBDDE3] rounded-2xl rounded-tl-sm shadow-sm',
                       ].join(' ')}
-                      style={isOwn ? { background: 'linear-gradient(135deg, #1E6FD9, #7A4FD6)' } : {}}
+                      style={isOwn ? { background: '#075EAA' } : {}}
                     >
                       {message.contenido}
                       <p
                         className={`text-[9px] mt-1 text-right leading-none ${
-                          isOwn ? 'text-white/50' : 'text-gray-500/60'
+                          isOwn ? 'text-white/80' : 'text-[#526C79]'
                         }`}
                       >
                         {formatTime(message.createdAt)}
@@ -522,14 +522,14 @@ export function ChatDrawer({
 
         {/* Error */}
         {chatError && (
-          <div className="px-4 py-2 bg-[#EF4444]/10 border-t border-[#EF4444]/20 shrink-0">
-            <p className="font-body text-[11px] text-[#EF4444]">{chatError}</p>
+          <div className="px-4 py-2 bg-[#FAEDE7] border-t border-[#EAC8C0] shrink-0">
+            <p className="font-body text-[11px] text-[#8D4034]">{chatError}</p>
           </div>
         )}
 
         {isReadOnly && (
-          <div className="border-t border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
-            <p className="font-body text-[11px] leading-relaxed text-[#64748B]">
+          <div className="border-t border-[#CBDDE3] bg-[#F4F9FA] px-4 py-3">
+            <p className="font-body text-[11px] leading-relaxed text-[#526C79]">
               Este viaje ya finalizó. El chat queda disponible únicamente como historial de consulta.
             </p>
           </div>
@@ -537,7 +537,7 @@ export function ChatDrawer({
 
         {/* Input */}
         {!isReadOnly && (
-        <div className="px-4 py-3 border-t border-[#E2E8F0] bg-white shrink-0">
+        <div className="px-4 py-3 border-t border-[#CBDDE3] bg-white shrink-0">
           <div className="flex items-end gap-2">
             <textarea
               ref={textareaRef}
@@ -547,20 +547,20 @@ export function ChatDrawer({
               placeholder="Escribe un mensaje..."
               disabled={!groupId || !accessToken}
               rows={1}
-              className="flex-1 resize-none bg-[#F0EEF8] border border-transparent focus:border-[#7A4FD6] rounded-xl px-3 py-2 font-body text-[13px] text-gray-700 placeholder-gray-400 outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-60 leading-relaxed"
+              className="flex-1 resize-none bg-[#F4F9FA] border border-transparent focus:border-[#005AAF] focus:ring-2 focus:ring-[#005AAF] rounded-xl px-3 py-2 font-body text-[13px] text-[#183F51] placeholder-[#526C79] outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-60 leading-relaxed"
               style={{ minHeight: '38px', maxHeight: '96px', overflowY: 'auto' }}
             />
             <button
               onClick={handleSend}
               disabled={!chatInput.trim() || !groupId || !accessToken}
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-white shrink-0 hover:opacity-90 transition-opacity shadow-md disabled:cursor-not-allowed disabled:opacity-50 mb-0.5"
-              style={{ background: 'linear-gradient(135deg, #1E6FD9, #7A4FD6)' }}
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-white shrink-0 hover:opacity-90 transition-opacity shadow-md disabled:cursor-not-allowed disabled:opacity-50 mb-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#005AAF]"
+              style={{ background: '#075EAA' }}
               aria-label="Enviar mensaje"
             >
               <IconSend />
             </button>
           </div>
-          <p className="font-body text-[10px] text-gray-400 mt-1">
+          <p className="font-body text-[10px] text-[#526C79] mt-1">
             Enter para enviar · Shift+Enter nueva línea
           </p>
         </div>

@@ -159,10 +159,10 @@ function LinkedContext({
   }, 0);
 
   return (
-    <div className="mt-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2.5">
+    <div className="mt-3 rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-3 py-2.5">
       {expenses.length > 0 && (
-        <p className="mb-2 font-body text-sm font-semibold text-[#1E0A4E]">
-          Gastado aquí: <span className="text-[#1E6FD9]">{formatMoney(spent)}</span>
+        <p className="mb-2 font-body text-sm font-semibold text-[#073B52]">
+          Gastado aquí: <span className="text-[#075EAA]">{formatMoney(spent)}</span>
         </p>
       )}
       <div className="flex flex-wrap gap-1.5">
@@ -171,7 +171,7 @@ function LinkedContext({
             key={`${entity.type}:${entity.id}`}
             type="button"
             onClick={onOpenBudget}
-            className="max-w-full truncate rounded-full border border-[#CFE0FF] bg-[#EEF4FF] px-2.5 py-1 font-body text-[13px] font-semibold text-[#1E6FD9] hover:bg-[#E2EDFF]"
+            className="max-w-full truncate rounded-full border border-[#CBDDE3] bg-[#E8F4FA] px-2.5 py-1 font-body text-[13px] font-semibold text-[#075EAA] hover:bg-[#D5F0F5]"
             title={entity.subtitle ?? entity.label}
           >
             Gasto: <span className="font-medium">{entity.label}</span>
@@ -182,7 +182,7 @@ function LinkedContext({
             key={`${entity.type}:${entity.id}`}
             type="button"
             onClick={onOpenVault}
-            className="max-w-full truncate rounded-full border border-[#D8C8FF] bg-[#F3EEFF] px-2.5 py-1 font-body text-[13px] font-semibold text-[#5B35B1] hover:bg-[#ECE4FF]"
+            className="max-w-full truncate rounded-full border border-[#CBDDE3] bg-[#E8F4FA] px-2.5 py-1 font-body text-[13px] font-semibold text-[#075B85] hover:bg-[#D5F0F5]"
             title={entity.label}
           >
             Documento: <span className="font-medium">{entity.label}</span>
@@ -218,18 +218,18 @@ function ActivityCard({
   return (
     <div className="grid grid-cols-[72px_minmax(0,1fr)] gap-3">
       <div className="flex justify-end pt-1">
-        <span className="inline-flex h-7 min-w-[60px] items-center justify-center rounded-full border border-[#E2D8FF] bg-white px-2.5 font-body text-[13px] font-bold text-[#7A4FD6]">
+        <span className="inline-flex h-7 min-w-[60px] items-center justify-center rounded-full border border-[#CBDDE3] bg-white px-2.5 font-body text-[13px] font-bold text-[#075B85]">
           {formatTime(activity.startsAt) ?? activity.time}
         </span>
       </div>
 
-      <article className="rounded-2xl border border-[#E2E8F0] bg-white px-5 py-4 shadow-[0_6px_18px_rgba(30,10,78,0.05)]">
+      <article className="rounded-2xl border border-[#CBDDE3] bg-white px-5 py-4 shadow-[0_6px_18px_rgba(7,59,82,0.05)]">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="font-heading text-base font-bold leading-snug text-purpleNavbar">
+            <h3 className="font-heading text-base font-bold leading-snug text-[#073B52]">
               {activity.title}
             </h3>
-            <p className="mt-0.5 font-body text-sm text-gray500">
+            <p className="mt-0.5 font-body text-sm text-[#526C79]">
               {formatTimeRange(activity)}
               {activity.createdByName ? ` · Agregada por ${activity.createdByName}` : ""}
             </p>
@@ -244,7 +244,7 @@ function ActivityCard({
                   disabled={actionsDisabled}
                   title={actionsDisabled ? actionsDisabledReason : "Editar actividad"}
                   aria-label="Editar actividad"
-                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#D9E2F2] bg-white text-bluePrimary transition-colors hover:border-bluePrimary/30 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#CBDDE3] bg-white text-[#075B85] transition-colors hover:border-[#0878CF]/30 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <IconEdit />
                 </button>
@@ -256,7 +256,7 @@ function ActivityCard({
                   disabled={actionsDisabled}
                   title={actionsDisabled ? actionsDisabledReason : "Eliminar actividad"}
                   aria-label="Eliminar actividad"
-                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#D9E2F2] bg-white text-gray500 transition-colors hover:border-red-200 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#CBDDE3] bg-white text-[#526C79] transition-colors hover:border-red-200 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <IconTrash />
                 </button>
@@ -266,7 +266,7 @@ function ActivityCard({
         </div>
 
         {activity.description && (
-          <p className="mt-2 whitespace-pre-line font-body text-sm leading-relaxed text-gray700">
+          <p className="mt-2 whitespace-pre-line font-body text-sm leading-relaxed text-[#183F51]">
             {activity.description}
           </p>
         )}
@@ -277,9 +277,9 @@ function ActivityCard({
             target="_blank"
             rel="noreferrer"
             title="Abrir en Google Maps"
-            className="mt-3 inline-flex max-w-full items-center gap-1.5 rounded-full bg-neutralBg px-3 py-1 font-body text-sm text-gray700 transition-colors hover:bg-[#E7F0FF]"
+            className="mt-3 inline-flex max-w-full items-center gap-1.5 rounded-full bg-[#F4F9FA] px-3 py-1 font-body text-sm text-[#183F51] transition-colors hover:bg-[#D5F0F5]"
           >
-            <span className="text-bluePrimary">
+            <span className="text-[#075B85]">
               <IconMapPin />
             </span>
             <span className="truncate">{activity.location}</span>
@@ -339,18 +339,18 @@ export const DayView = forwardRef<DayViewHandle, DayViewProps>(function DayView(
           if (!isControlled) setInternalExpanded((value) => !value);
         }}
         className={[
-          "flex w-full items-center justify-between border border-[#E2E8F0] bg-white px-5 py-4 transition-colors hover:bg-gray-50/80",
+          "flex w-full items-center justify-between border border-[#CBDDE3] bg-white px-5 py-4 transition-colors hover:bg-gray-50/80",
           expanded ? "rounded-t-2xl border-b" : "rounded-2xl",
         ].join(" ")}
         aria-expanded={expanded}
       >
         <div className="flex items-center gap-3">
-          <span className="shrink-0 rounded-full bg-bluePrimary/10 px-3 py-1 font-body text-[13px] font-bold leading-none text-bluePrimary">
+          <span className="shrink-0 rounded-full bg-[#0878CF]/10 px-3 py-1 font-body text-[13px] font-bold leading-none text-[#075B85]">
             DÍA {dayNumber}
           </span>
           <div className="flex flex-col items-start gap-0.5">
-            <span className="font-body text-base font-bold leading-none text-gray700">{date}</span>
-            <span className="font-body text-sm leading-none text-gray500">
+            <span className="font-body text-base font-bold leading-none text-[#183F51]">{date}</span>
+            <span className="font-body text-sm leading-none text-[#526C79]">
               {sorted.length === 0
                 ? "Sin actividades"
                 : `${sorted.length} actividad${sorted.length === 1 ? "" : "es"}`}
@@ -358,7 +358,7 @@ export const DayView = forwardRef<DayViewHandle, DayViewProps>(function DayView(
           </div>
         </div>
         <span
-          className={["text-gray500 transition-transform duration-300", expanded ? "rotate-180" : "rotate-0"].join(" ")}
+          className={["text-[#526C79] transition-transform duration-300", expanded ? "rotate-180" : "rotate-0"].join(" ")}
           aria-hidden="true"
         >
           <IconChevron />
@@ -369,13 +369,13 @@ export const DayView = forwardRef<DayViewHandle, DayViewProps>(function DayView(
         className="overflow-hidden transition-all duration-300 ease-in-out"
         style={{ maxHeight: expanded ? "9999px" : 0 }}
       >
-        <div className="space-y-3 rounded-b-2xl border-x border-b border-[#E2E8F0] bg-white px-5 pb-5 pt-4">
+        <div className="space-y-3 rounded-b-2xl border-x border-b border-[#CBDDE3] bg-white px-5 pb-5 pt-4">
           {sorted.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-[#BFD0FF] bg-[#F8FAFF] px-5 py-6 text-center">
-              <p className="font-heading text-base font-bold text-purpleNavbar">
+            <div className="rounded-2xl border border-dashed border-[#91DEF0] bg-[#F4F9FA] px-5 py-6 text-center">
+              <p className="font-heading text-base font-bold text-[#073B52]">
                 Aún no hay actividades para este día
               </p>
-              <p className="mt-1 font-body text-sm text-gray500">
+              <p className="mt-1 font-body text-sm text-[#526C79]">
                 {isPastDay
                   ? "Este día ya pasó; el itinerario queda como consulta."
                   : "Agrega lo que el grupo tiene planeado: horario, lugar y notas."}
@@ -406,12 +406,12 @@ export const DayView = forwardRef<DayViewHandle, DayViewProps>(function DayView(
               onClick={() => onAddActivity?.(dayNumber)}
               disabled={actionsDisabled}
               title={actionsDisabled ? actionsDisabledReason : undefined}
-              className="group inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-[#AFC4F4] bg-white px-4 py-3 transition-colors hover:border-bluePrimary/50 hover:bg-[#EEF4FF] disabled:cursor-not-allowed disabled:opacity-60"
+              className="group inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-[#91DEF0] bg-white px-4 py-3 transition-colors hover:border-[#0878CF]/50 hover:bg-[#E8F4FA] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <span className="text-gray500 transition-colors group-hover:text-bluePrimary">
+              <span className="text-[#526C79] transition-colors group-hover:text-[#075B85]">
                 <IconPlus />
               </span>
-              <span className="font-body text-sm font-semibold text-gray500 transition-colors group-hover:text-bluePrimary">
+              <span className="font-body text-sm font-semibold text-[#526C79] transition-colors group-hover:text-[#075B85]">
                 Agregar actividad
               </span>
             </button>

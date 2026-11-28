@@ -29,7 +29,7 @@ function formatMXN(n: number): string {
   return new Intl.NumberFormat('es-MX', {
     style: 'currency',
     currency: 'MXN',
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 2,
   }).format(n)
 }
 
@@ -87,7 +87,7 @@ function SectionDivider({
         <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />
         {label}
       </span>
-      <span className="h-px flex-1 rounded-full bg-[#E2E8F0]" />
+      <span className="h-px flex-1 rounded-full bg-[#cbdde3]" />
     </div>
   )
 }
@@ -121,6 +121,7 @@ export function RightPanelDashboard({
   const [popoverOpen, setPopoverOpen] = useState(false)
   const [search, setSearch] = useState('')
   const participantTriggerRef = useRef<HTMLDivElement | null>(null)
+  const participantButtonRef = useRef<HTMLButtonElement | null>(null)
   const floatingPopoverRef = useRef<HTMLDivElement | null>(null)
   const [popoverAnchorY, setPopoverAnchorY] = useState(0)
 
@@ -138,7 +139,7 @@ export function RightPanelDashboard({
 
     return uniqueMembers.map((member, index) => {
       const name = member.nombre || member.email || 'Usuario'
-      const colors = ['#1E6FD9', '#35C56A', '#7A4FD6', '#F59E0B']
+      const colors = ['#0878cf', '#16b9d0', '#16b9d0', '#F59E0B']
 
       return {
         id: String(member.usuario_id ?? member.id),
@@ -209,7 +210,31 @@ export function RightPanelDashboard({
       }
     }
     document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || e.defaultPrevented || Array.from(document.querySelectorAll<HTMLElement>('[aria-modal="true"]')).some(
+        (dialog) => !dialog.closest('[inert], [hidden], [aria-hidden="true"]') && dialog.getClientRects().length > 0 && getComputedStyle(dialog).visibility === 'visible'
+      )) return
+      const active = document.activeElement
+      const focusInside = participantTriggerRef.current?.contains(active) || floatingPopoverRef.current?.contains(active)
+      e.preventDefault()
+      setPopoverOpen(false)
+      setSearch('')
+      if (focusInside) participantButtonRef.current?.focus()
+    }
+    const handleFocus = (e: FocusEvent) => {
+      const target = e.target as Node
+      if (!participantTriggerRef.current?.contains(target) && !floatingPopoverRef.current?.contains(target)) {
+        setPopoverOpen(false)
+        setSearch('')
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('focusin', handleFocus)
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('focusin', handleFocus)
+    }
   }, [popoverOpen])
 
   if (isLoading) {
@@ -260,7 +285,7 @@ export function RightPanelDashboard({
           <button
             type="button"
             onClick={onOpenChat}
-            className="group relative flex w-full items-center gap-3 rounded-2xl bg-gradient-to-r from-[#1E0A4E] to-[#7A4FD6] px-4 py-3.5 text-left text-white shadow-md transition-transform hover:scale-[1.01]"
+            className="group relative flex w-full items-center gap-3 rounded-2xl bg-gradient-to-r from-[#073b52] to-[#0878cf] px-4 py-3.5 text-left text-white shadow-md transition-transform hover:scale-[1.01]"
           >
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/20">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -272,7 +297,7 @@ export function RightPanelDashboard({
               <span className="block font-body text-[11px] text-white/75">Coordina con todos en tiempo real</span>
             </span>
             {chatUnreadCount > 0 && (
-              <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-[#35C56A] px-1.5 font-body text-xs font-bold text-white">
+              <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-[#ffbf20] px-1.5 font-body text-xs font-bold text-[#073b52]">
                 {chatUnreadCount > 9 ? '9+' : chatUnreadCount}
               </span>
             )}
@@ -282,13 +307,16 @@ export function RightPanelDashboard({
 
       {/* Participants */}
       <section className="shrink-0">
-        <SectionDivider label="Participantes" color="#1E6FD9" background="#EEF4FF" />
+        <SectionDivider label="Participantes" color="#0878cf" background="#e8f4fa" />
 
         <div className="overflow-hidden rounded-2xl border border-[#BFDBFE] bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE]">
           {/* Avatars row */}
           <div ref={participantTriggerRef} className="px-4 pt-3 pb-2">
             <button
               type="button"
+              ref={participantButtonRef}
+              aria-expanded={popoverOpen}
+              aria-controls="participant-search"
               onClick={() => {
                 if (participantTriggerRef.current) {
                   const rect = participantTriggerRef.current.getBoundingClientRect()
@@ -312,7 +340,7 @@ export function RightPanelDashboard({
                   ))}
                   {hiddenParticipantsCount > 0 && (
                     <div
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-white bg-[#1E0A4E] text-[13px] font-bold text-white"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-white bg-[#073b52] text-[13px] font-bold text-white"
                       title={`${hiddenParticipantsCount} participante(s) más`}
                     >
                       +{hiddenParticipantsCount}
@@ -321,7 +349,7 @@ export function RightPanelDashboard({
                 </div>
               )}
               <p className="font-body text-sm font-semibold text-[#1E40AF] transition-colors hover:text-[#1E3A8A]">
-                {participants.length} participante{participants.length !== 1 ? 's' : ''} · <span className="text-[#059669]">{onlineCount} en línea</span>
+                {participants.length} participante{participants.length !== 1 ? 's' : ''} · <span className="text-[#075b85]">{onlineCount} en línea</span>
               </p>
             </button>
           </div>
@@ -343,20 +371,20 @@ export function RightPanelDashboard({
       {/* Destino */}
       {group?.destino && (
         <section className="shrink-0">
-          <SectionDivider label="Destino" color="#7A4FD6" background="#F3EEFF" />
+          <SectionDivider label="Destino" color="#16b9d0" background="#e8f4fa" />
 
-          <div className="overflow-hidden rounded-2xl border border-[#DDD6FE] bg-gradient-to-br from-[#F5F3FF] to-[#EDE9FE]">
+          <div className="overflow-hidden rounded-2xl border border-[#cbdde3] bg-gradient-to-br from-[#f4f9fa] to-[#e3f5f8]">
             <div className="px-3 py-2.5">
-              <p className="line-clamp-2 font-body text-sm font-semibold text-[#5B21B6] leading-snug" title={group.destino}>
+              <p className="line-clamp-2 font-body text-sm font-semibold text-[#073b52] leading-snug" title={group.destino}>
                 {group.destino}
               </p>
             </div>
-            <div className="border-t border-[#DDD6FE]">
+            <div className="border-t border-[#cbdde3]">
               <a
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(group.destino)}`}
                 target="_blank"
                 rel="noreferrer"
-                className="block py-2 text-center font-body text-xs font-semibold text-[#6D28D9] transition-colors hover:bg-[#EDE9FE]"
+                className="block py-2 text-center font-body text-xs font-semibold text-[#075b85] transition-colors hover:bg-[#e3f5f8]"
               >
                 Abrir en Google Maps
               </a>
@@ -367,24 +395,24 @@ export function RightPanelDashboard({
 
       {/* Mini budget */}
       <section className="shrink-0">
-        <SectionDivider label="Presupuesto" color="#35C56A" background="#EAFBF1" />
+        <SectionDivider label="Presupuesto" color="#16b9d0" background="#e8f4fa" />
 
         {budgetData === null ? (
-          <div className="rounded-2xl border border-[#D1FAE5] bg-[#F0FDF4] px-4 py-3">
+          <div className="rounded-2xl border border-[#cbdde3] bg-[#f4f9fa] px-4 py-3">
             <p className="font-body text-sm text-[#6B7280]">Sin presupuesto definido</p>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-[#D1FAE5] bg-gradient-to-br from-[#F0FDF4] to-[#ECFDF5]">
+          <div className="overflow-hidden rounded-2xl border border-[#cbdde3] bg-gradient-to-br from-[#f4f9fa] to-[#e8f4fa]">
             {/* Total destacado */}
-            <div className="border-b border-[#D1FAE5] px-4 py-3">
-              <p className="font-body text-xs font-bold uppercase tracking-wide text-[#047857]">Presupuesto total</p>
-              <p className="mt-0.5 font-heading text-2xl font-extrabold text-[#065F46]">
+            <div className="border-b border-[#cbdde3] px-4 py-3">
+              <p className="font-body text-xs font-bold uppercase tracking-wide text-[#075b85]">Presupuesto total</p>
+              <p className="mt-0.5 font-heading text-2xl font-extrabold text-[#073b52]">
                 {formatMXN(totalBudget!)}
               </p>
             </div>
 
             {/* Comprometido y disponible */}
-            <div className="grid grid-cols-2 divide-x divide-[#D1FAE5]">
+            <div className="grid grid-cols-2 divide-x divide-[#cbdde3]">
               <div className="px-4 py-3">
                 <p className="font-body text-xs font-bold uppercase tracking-wide text-[#B91C1C]">Comprometido</p>
                 <p className={`mt-0.5 font-heading text-lg font-bold ${budgetData.isOverBudget ? 'text-[#B91C1C]' : 'text-[#DC2626]'}`}>
@@ -392,8 +420,8 @@ export function RightPanelDashboard({
                 </p>
               </div>
               <div className="px-4 py-3">
-                <p className="font-body text-xs font-bold uppercase tracking-wide text-[#047857]">Disponible</p>
-                <p className={`mt-0.5 font-heading text-lg font-bold ${budgetData.available < 0 ? 'text-[#B91C1C]' : 'text-[#059669]'}`}>
+                <p className="font-body text-xs font-bold uppercase tracking-wide text-[#075b85]">Disponible</p>
+                <p className={`mt-0.5 font-heading text-lg font-bold ${budgetData.available < 0 ? 'text-[#B91C1C]' : 'text-[#075b85]'}`}>
                   {formatMXN(budgetData.available)}
                 </p>
               </div>
@@ -401,28 +429,28 @@ export function RightPanelDashboard({
 
             {/* Barra de progreso */}
             <div className="px-4 pb-3">
-              <div className="h-2 overflow-hidden rounded-full bg-[#D1FAE5]">
+              <div className="h-2 overflow-hidden rounded-full bg-[#cbdde3]">
                 <div
                   className="h-full rounded-full transition-all duration-500"
                   style={{
                     width: `${budgetData.pct}%`,
                     background: budgetData.isOverBudget
                       ? 'linear-gradient(90deg, #EF4444, #B91C1C)'
-                      : 'linear-gradient(90deg, #34D399, #059669)',
+                      : 'linear-gradient(90deg, #16b9d0, #075b85)',
                   }}
                 />
               </div>
-              <p className={`mt-1 font-body text-xs font-semibold text-right ${budgetData.isOverBudget ? 'text-[#DC2626]' : 'text-[#059669]'}`}>
+              <p className={`mt-1 font-body text-xs font-semibold text-right ${budgetData.isOverBudget ? 'text-[#DC2626]' : 'text-[#075b85]'}`}>
                 {budgetData.isOverBudget ? '⚠ Presupuesto excedido' : `${budgetData.pct.toFixed(0)}% comprometido`}
               </p>
             </div>
 
             {onOpenBudget && (
-              <div className="border-t border-[#D1FAE5] px-4 py-2.5">
+              <div className="border-t border-[#cbdde3] px-4 py-2.5">
                 <button
                   type="button"
                   onClick={onOpenBudget}
-                  className="w-full font-body text-sm font-semibold text-[#059669] transition-colors hover:text-[#047857]"
+                  className="w-full font-body text-sm font-semibold text-[#075b85] transition-colors hover:text-[#075b85]"
                 >
                   Ajustar presupuesto →
                 </button>
@@ -435,22 +463,24 @@ export function RightPanelDashboard({
       {/* Participant search portal — floats to the left of the right panel */}
       {popoverOpen && createPortal(
         <div
+          id="participant-search"
           ref={floatingPopoverRef}
-          className="fixed z-[200] w-[260px] overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-[0_16px_40px_rgba(15,23,42,0.18)]"
+          className="fixed z-[200] w-[260px] overflow-hidden rounded-2xl border border-[#cbdde3] bg-white shadow-[0_16px_40px_rgba(15,23,42,0.18)]"
           style={{ right: 292, top: popoverAnchorY }}
         >
-          <div className="border-b border-[#E2E8F0] px-4 py-3">
-            <p className="font-body text-sm font-bold text-[#1E0A4E]">Participantes del viaje</p>
+          <div className="border-b border-[#cbdde3] px-4 py-3">
+            <p className="font-body text-sm font-bold text-[#073b52]">Participantes del viaje</p>
           </div>
-          <div className="flex items-center gap-2 border-b border-[#E2E8F0] px-3 py-2.5">
+          <div className="flex items-center gap-2 border-b border-[#cbdde3] px-3 py-2.5">
             <IconSearch />
             <input
               type="text"
+              aria-label="Buscar participante"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar miembro..."
               autoFocus
-              className="flex-1 bg-transparent font-body text-sm text-gray700 outline-none placeholder-gray-400"
+              className="min-w-0 flex-1 rounded bg-transparent font-body text-sm text-gray700 placeholder-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#075EAA]"
             />
           </div>
           <div className="max-h-[320px] overflow-y-auto">
@@ -460,7 +490,7 @@ export function RightPanelDashboard({
               filteredParticipants.map((participant) => (
                 <div
                   key={participant.id}
-                  className="flex items-center gap-2.5 px-3 py-2.5 transition-colors hover:bg-[#F0EEF8]"
+                  className="flex items-center gap-2.5 px-3 py-2.5 transition-colors hover:bg-[#f4f9fa]"
                 >
                   <ParticipantAvatar
                     name={participant.name}
@@ -477,7 +507,7 @@ export function RightPanelDashboard({
                     </p>
                   </div>
                   {participant.isOnline && (
-                    <span className="h-2 w-2 shrink-0 rounded-full bg-greenAccent" />
+                    <span className="h-2 w-2 shrink-0 rounded-full bg-[#91def0]" />
                   )}
                 </div>
               ))

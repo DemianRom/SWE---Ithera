@@ -11,8 +11,8 @@ const LABELS: Record<BudgetCategory, string> = {
 
 // Estado del medidor: el color acompaña al texto, nunca va solo.
 const METER = {
-  track: '#DCE8FB',
-  ok: '#1E6FD9',
+  track: '#D6F2F7',
+  ok: '#075EAA',
   warning: '#B45309',
   over: '#DC2626',
 }
@@ -31,10 +31,10 @@ function MeterRow({ category, spent, planned }: { category: BudgetCategory; spen
   if (planned === null) {
     return (
       <li className="flex items-center justify-between gap-3 py-2">
-        <span className="font-body text-sm font-semibold text-[#3D4A5C]">{LABELS[category]}</span>
-        <span className="text-right font-body text-sm text-[#3D4A5C]">
+        <span className="font-body text-sm font-semibold text-[#073B52]">{LABELS[category]}</span>
+        <span className="text-right font-body text-sm text-[#073B52]">
           <span className="font-semibold">{formatMXN(spent)}</span>
-          <span className="ml-1 text-xs text-[#7A8799]">· sin límite</span>
+          <span className="ml-1 text-xs text-[#526C79]">· sin límite</span>
         </span>
       </li>
     )
@@ -49,10 +49,10 @@ function MeterRow({ category, spent, planned }: { category: BudgetCategory; spen
   return (
     <li className="py-2" title={`${LABELS[category]}: ${formatMXN(spent)} de ${formatMXN(planned)} planeado (${percent} %)`}>
       <div className="mb-1.5 flex items-baseline justify-between gap-3">
-        <span className="font-body text-sm font-semibold text-[#3D4A5C]">{LABELS[category]}</span>
-        <span className="text-right font-body text-sm text-[#3D4A5C]">
+        <span className="font-body text-sm font-semibold text-[#073B52]">{LABELS[category]}</span>
+        <span className="text-right font-body text-sm text-[#073B52]">
           <span className="font-semibold">{formatMXN(spent)}</span>
-          <span className="text-xs text-[#7A8799]"> de {formatMXN(planned)}</span>
+          <span className="text-xs text-[#526C79]"> de {formatMXN(planned)}</span>
         </span>
       </div>
       <div
@@ -69,7 +69,7 @@ function MeterRow({ category, spent, planned }: { category: BudgetCategory; spen
           style={{ width: `${Math.min(ratio, 1) * 100}%`, backgroundColor: color }}
         />
       </div>
-      <p className="mt-1 font-body text-xs font-semibold" style={{ color: ratio >= 0.8 ? color : '#64748B' }}>
+      <p className="mt-1 font-body text-xs font-semibold" style={{ color: ratio >= 0.8 ? color : '#526C79' }}>
         {ratio > 1 ? '⚠ ' : ''}
         {status}
       </p>
@@ -128,12 +128,12 @@ export function CategoryBudgetPanel({ spent, planned, canEdit, onSave }: Props) 
   return (
     <div>
       <div className="mb-2 flex items-center justify-between gap-3">
-        <h3 className="font-heading text-sm font-bold text-[#3D4A5C]">Planeado vs. gastado</h3>
+        <h3 className="font-heading text-base font-semibold text-[#073B52]">Planeado vs. gastado</h3>
         {canEdit && !editing && (
           <button
             type="button"
             onClick={startEditing}
-            className="rounded-lg px-2 py-1 font-body text-xs font-semibold text-[#1E6FD9] transition-colors hover:bg-[#EEF4FF]"
+            className="rounded-lg bg-[#E8F4FA] px-3 py-2 font-body text-xs font-semibold text-[#075EAA] transition-colors hover:bg-[#E8F4FA]"
           >
             {hasAnyPlanned ? 'Editar límites' : 'Definir por categoría'}
           </button>
@@ -186,7 +186,7 @@ export function CategoryBudgetPanel({ spent, planned, canEdit, onSave }: Props) 
           </div>
         </div>
       ) : (
-        <ul className="divide-y divide-[#EEF2F7]">
+        <ul className="divide-y divide-[#E8F4FA]">
           {BUDGET_CATEGORIES.map((category) => (
             <MeterRow key={category} category={category} spent={spent[category] ?? 0} planned={planned[category]} />
           ))}

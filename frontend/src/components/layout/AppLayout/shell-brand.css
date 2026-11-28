@@ -1,0 +1,6 @@
+/* Keep keyboard focus visible on the shell's dark and light surfaces. */
+.traveling-shell aside :is(button, a, input):focus-visible,
+.traveling-navbar :is(button, a, input):focus-visible {
+  outline: 3px solid #ffbf20;
+  outline-offset: 3px;
+}

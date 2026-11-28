@@ -33,16 +33,16 @@ export function GroupConfigModal({
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/35 px-4">
-      <div className="w-full max-w-md rounded-[24px] bg-white p-5 shadow-2xl">
+      <div className="w-full max-w-md rounded-[24px] border-t-4 border-[#16B9D0] bg-white p-5 shadow-2xl">
         <div className="mb-5 flex items-center justify-between">
-          <h3 className="text-[28px] font-bold leading-none text-[#0D1117]">
+          <h3 className="font-heading text-[28px] font-semibold leading-none text-[#073B52]">
             Configuración del grupo
           </h3>
 
           <button
             type="button"
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-[#98A2B3] transition hover:bg-[#F2F4F7] hover:text-[#3D4A5C]"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-[#526C79] transition hover:bg-[#E8F4FA] hover:text-[#073B52]"
             aria-label="Cerrar modal"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -54,66 +54,66 @@ export function GroupConfigModal({
 
         <div className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#344054]">
+            <label className="mb-1.5 block text-xs font-medium text-[#183F51]">
               Nombre del viaje
             </label>
             <input
               type="text"
               value={tripName}
               onChange={(e) => setTripName(e.target.value)}
-              className="h-11 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 text-sm text-[#3D4A5C] outline-none transition focus:border-[#1E6FD9]"
+              className="h-11 w-full rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 text-sm text-[#073B52] outline-none transition focus:border-[#0878CF] focus:ring-2 focus:ring-[#91DEF0]"
             />
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-[#344054]">
+              <label className="mb-1.5 block text-xs font-medium text-[#183F51]">
                 Fecha de inicio
               </label>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="h-11 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 text-sm text-[#3D4A5C] outline-none transition focus:border-[#1E6FD9]"
+                className="h-11 w-full rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 text-sm text-[#073B52] outline-none transition focus:border-[#0878CF] focus:ring-2 focus:ring-[#91DEF0]"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-[#344054]">
+              <label className="mb-1.5 block text-xs font-medium text-[#183F51]">
                 Fecha de fin
               </label>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="h-11 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 text-sm text-[#3D4A5C] outline-none transition focus:border-[#1E6FD9]"
+                className="h-11 w-full rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 text-sm text-[#073B52] outline-none transition focus:border-[#0878CF] focus:ring-2 focus:ring-[#91DEF0]"
               />
             </div>
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#344054]">
+            <label className="mb-1.5 block text-xs font-medium text-[#183F51]">
               Destino
             </label>
             <input
               type="text"
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
-              className="h-11 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 text-sm text-[#3D4A5C] outline-none transition focus:border-[#1E6FD9]"
+              className="h-11 w-full rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 text-sm text-[#073B52] outline-none transition focus:border-[#0878CF] focus:ring-2 focus:ring-[#91DEF0]"
             />
           </div>
 
           <button
             type="button"
             onClick={handleSave}
-            className="mt-1 h-12 w-full rounded-xl bg-[#1E6FD9] text-sm font-semibold text-white transition hover:bg-[#2C8BE6]"
+            className="mt-1 h-12 w-full rounded-xl bg-[#0878CF] text-sm font-semibold text-white transition hover:bg-[#075EAA]"
           >
             Guardar cambios
           </button>
 
           <div className="relative py-2">
-            <div className="border-t border-[#E4E7EC]" />
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs text-[#98A2B3]">
+            <div className="border-t border-[#CBDDE3]" />
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs text-[#526C79]">
               Zona peligrosa
             </span>
           </div>
@@ -126,7 +126,7 @@ export function GroupConfigModal({
             Eliminar viaje completo
           </button>
 
-          <p className="text-center text-xs text-[#98A2B3]">
+          <p className="text-center text-xs text-[#526C79]">
             Esta acción no se puede deshacer.
           </p>
         </div>
