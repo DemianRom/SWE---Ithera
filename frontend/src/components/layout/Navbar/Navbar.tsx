@@ -577,6 +577,25 @@ function DashboardNavContent({
   const tripMenuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    if (!menuOpen && !notifOpen && !tripMenuOpen) return
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      const active = document.activeElement
+      const ref = menuRef.current?.contains(active) ? menuRef :
+        notifRef.current?.contains(active) ? notifRef :
+          tripMenuRef.current?.contains(active) ? tripMenuRef : null
+      if (!ref) return
+      event.preventDefault()
+      setMenuOpen(false)
+      setNotifOpen(false)
+      setTripMenuOpen(false)
+      ref.current?.querySelector<HTMLButtonElement>('button')?.focus()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [menuOpen, notifOpen, tripMenuOpen])
+
+  useEffect(() => {
     setTripSwitchingId(null)
   }, [trip.name, trip.subtitle])
 
@@ -851,6 +870,19 @@ function DashboardNavContent({
                           </span>
                         </div>
                         <p className="font-body text-xs text-gray700 leading-snug mt-1">{n.mensaje}</p>
+                        {!n.leida && (
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              notifRef.current?.querySelector<HTMLButtonElement>('button')?.focus()
+                              markAsRead(n.id)
+                            }}
+                            className="mt-2 block rounded text-left font-body text-xs font-semibold text-[#075EAA] underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#075EAA]"
+                          >
+                            Marcar como leída
+                          </button>
+                        )}
                         {formatScheduledInfo(n.metadata) && (
                           <p className="font-body text-[11px] text-[#0878cf] bg-[#0878cf]/10 rounded-md px-2 py-1 mt-2 line-clamp-2">
                             {formatScheduledInfo(n.metadata)}

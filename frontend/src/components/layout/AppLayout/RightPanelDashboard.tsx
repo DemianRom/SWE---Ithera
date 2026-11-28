@@ -121,6 +121,7 @@ export function RightPanelDashboard({
   const [popoverOpen, setPopoverOpen] = useState(false)
   const [search, setSearch] = useState('')
   const participantTriggerRef = useRef<HTMLDivElement | null>(null)
+  const participantButtonRef = useRef<HTMLButtonElement | null>(null)
   const floatingPopoverRef = useRef<HTMLDivElement | null>(null)
   const [popoverAnchorY, setPopoverAnchorY] = useState(0)
 
@@ -209,7 +210,20 @@ export function RightPanelDashboard({
       }
     }
     document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      const active = document.activeElement
+      if (!participantTriggerRef.current?.contains(active) && !floatingPopoverRef.current?.contains(active)) return
+      e.preventDefault()
+      setPopoverOpen(false)
+      setSearch('')
+      participantButtonRef.current?.focus()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
   }, [popoverOpen])
 
   if (isLoading) {
@@ -289,6 +303,9 @@ export function RightPanelDashboard({
           <div ref={participantTriggerRef} className="px-4 pt-3 pb-2">
             <button
               type="button"
+              ref={participantButtonRef}
+              aria-expanded={popoverOpen}
+              aria-controls="participant-search"
               onClick={() => {
                 if (participantTriggerRef.current) {
                   const rect = participantTriggerRef.current.getBoundingClientRect()
@@ -435,6 +452,7 @@ export function RightPanelDashboard({
       {/* Participant search portal — floats to the left of the right panel */}
       {popoverOpen && createPortal(
         <div
+          id="participant-search"
           ref={floatingPopoverRef}
           className="fixed z-[200] w-[260px] overflow-hidden rounded-2xl border border-[#cbdde3] bg-white shadow-[0_16px_40px_rgba(15,23,42,0.18)]"
           style={{ right: 292, top: popoverAnchorY }}
@@ -446,11 +464,12 @@ export function RightPanelDashboard({
             <IconSearch />
             <input
               type="text"
+              aria-label="Buscar participante"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar miembro..."
               autoFocus
-              className="flex-1 bg-transparent font-body text-sm text-gray700 outline-none placeholder-gray-400"
+              className="min-w-0 flex-1 rounded bg-transparent font-body text-sm text-gray700 placeholder-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#075EAA]"
             />
           </div>
           <div className="max-h-[320px] overflow-y-auto">
