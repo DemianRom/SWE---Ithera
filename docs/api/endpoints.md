@@ -178,6 +178,18 @@ responden **409**; con `modulo_presupuesto_bloqueado` responden **423**. Las liq
 | `GET` | `/:groupId/export.csv` | Si | Gastos en CSV (UTF-8 con BOM para Excel). |
 | `GET` | `/:groupId/summary.pdf` | Si | Resumen de gastos en PDF de una pagina. |
 
+Solo el acreedor puede revisar un pago y solo quien lo registró puede editarlo o borrarlo.
+Las tres operaciones requieren que el pago siga `pendiente_validacion` al escribir. Si otra
+solicitud lo confirma o rechaza primero, una edición, un borrado o una revisión concurrente
+responde **400**. Si el borrado gana, una revisión concurrente recibe **400** cuando ya había
+leído el pago o **404** cuando no lo encuentra. Al editar, el importe y el enlace al comprobante
+se guardan juntos. Si la edición se completa primero, la revisión se aplica al pago actualizado.
+
+Al registrar o editar un pago, el comprobante debe pertenecer al mismo viaje. Si pertenece a
+otro viaje, no existe o el identificador tiene un formato inválido, la API responde **400** con
+el mismo mensaje y conserva el estado anterior. El historial devuelve `proof_document_id: null`
+para vínculos históricos a documentos de otros viajes y conserva el pago y su vínculo en la base.
+
 Reparto del gasto (`split_type`):
 
 | Valor | Campo | Regla |

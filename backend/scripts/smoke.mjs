@@ -398,14 +398,13 @@ async function main() {
     assertBalances(res.data, beforePayment);
   });
 
-  const payment = await step('Registrar pago entre compañeros con comprobante', async () => {
-    assert(doc, 'falta el documento del paso anterior');
-    const res = await api(c.token, 'POST', `/budget/${gid}/settlements/payments`, {
+  const paymentsRoute = `/budget/${gid}/settlements/payments`;
+  const payment = await step('Registrar pago pendiente sin modificar saldos', async () => {
+    const res = await api(c.token, 'POST', paymentsRoute, {
       from_user_id: uc,
       to_user_id: ua,
-      amount: 300,
-      payment_method: 'transferencia',
-      proof_document_id: String(doc.id),
+      amount: 275,
+      payment_method: 'efectivo_presencial',
       note: 'Smoke test',
     });
     const item = res.paymentHistory?.find((p) => p.status === 'pendiente_validacion');
@@ -416,6 +415,18 @@ async function main() {
     return item;
   });
 
+  await step('Editar importe y comprobante del pago pendiente', async () => {
+    assert(payment && doc, 'faltan el pago o el comprobante');
+    const route = `${paymentsRoute}/${payment.id}`;
+    const changes = { amount: 300, payment_method: 'transferencia', proof_document_id: String(doc.id) };
+    await expectStatus(a.token, 'PATCH', route, changes, 403);
+    const dashboard = await api(c.token, 'PATCH', route, changes);
+    const item = dashboard.paymentHistory?.find((p) => String(p.id) === String(payment.id));
+    assert(item?.status === 'pendiente_validacion' && Number(item.amount) === 300, 'no se actualizó el importe pendiente');
+    assert(item.payment_method === 'transferencia' && item.proof_document_id === doc.id, 'no se guardó el comprobante');
+    assertBalances(dashboard.balances, beforePayment);
+  });
+
   await step('Confirmar el pago (acreedor)', async () => {
     assert(payment, 'falta el pago del paso anterior');
     const res = await api(a.token, 'PATCH', `/budget/${gid}/settlements/payments/${payment.id}/review`, {
@@ -423,16 +434,41 @@ async function main() {
     });
     const item = res.paymentHistory?.find((p) => String(p.id) === String(payment.id));
     assert(item?.status === 'confirmado', `estado final: ${item?.status}`);
+    assert(item.proof_document_id === doc?.id, 'la confirmación no conservó el comprobante');
     assertBalances(res.balances, afterPayment);
     const balances = await api(a.token, 'GET', `/budget/${gid}/balances`);
     assertBalances(balances.data, afterPayment);
     await expectStatus(a.token, 'PATCH', `/budget/${gid}/settlements/payments/${payment.id}/review`,
       { status: 'confirmado' }, 400);
+    const route = `${paymentsRoute}/${payment.id}`;
+    await expectStatus(c.token, 'PATCH', route, { amount: 50, payment_method: 'efectivo_presencial' }, 400);
+    await expectStatus(c.token, 'DELETE', route, undefined, 400);
     const afterRetry = await api(a.token, 'GET', `/budget/${gid}/balances`);
     assertBalances(afterRetry.data, afterPayment);
   });
 
-  await step('Rechazar pago parcial sin alterar saldos', async () => {
+  await step('Eliminar un pago pendiente y conservar los saldos y el documento', async () => {
+    assert(doc, 'falta el comprobante');
+    const registered = await api(c.token, 'POST', paymentsRoute, {
+      from_user_id: uc,
+      to_user_id: ua,
+      amount: 100,
+      payment_method: 'transferencia',
+      proof_document_id: String(doc.id),
+    });
+    const pending = registered.paymentHistory?.find((p) => p.status === 'pendiente_validacion');
+    assert(pending?.id, 'el pago para borrado no aparece pendiente');
+    const route = `${paymentsRoute}/${pending.id}`;
+    await expectStatus(a.token, 'DELETE', route, undefined, 403);
+    const dashboard = await api(c.token, 'DELETE', route);
+    assert(!dashboard.paymentHistory?.some((p) => String(p.id) === String(pending.id)), 'el pago sigue en el historial');
+    assertBalances(dashboard.balances, afterPayment);
+    await expectStatus(a.token, 'PATCH', `${route}/review`, { status: 'confirmado' }, 404);
+    const { data, error } = await admin.from('trip_documents').select('id').eq('id', doc.id).maybeSingle();
+    assert(!error && data?.id === doc.id, 'el borrado del pago eliminó el documento');
+  });
+
+  const rejectedPayment = await step('Rechazar pago parcial sin alterar saldos', async () => {
     const route = `/budget/${gid}/settlements/payments`;
     const registered = await api(c.token, 'POST', route, {
       from_user_id: uc,
@@ -456,6 +492,70 @@ async function main() {
     assertBalances(rejected.balances, afterPayment);
     const balances = await api(a.token, 'GET', `/budget/${gid}/balances`);
     assertBalances(balances.data, afterPayment);
+    return result;
+  });
+
+  const correctedPayment = await step('Corregir un pago rechazado mediante un registro nuevo', async () => {
+    assert(rejectedPayment?.id, 'falta el pago rechazado');
+    const route = `/budget/${gid}/settlements/payments`;
+    const correction = { amount: 90, payment_method: 'efectivo_presencial', note: 'Pago corregido' };
+    await expectStatus(c.token, 'PATCH', `${route}/${rejectedPayment.id}`, correction, 400);
+    const registered = await api(c.token, 'POST', route, {
+      from_user_id: uc, to_user_id: ua, amount: 100, payment_method: 'efectivo_presencial',
+      note: 'Nuevo pago tras rechazo',
+    });
+    const item = registered.paymentHistory?.find((p) => p.status === 'pendiente_validacion');
+    assert(item?.id && String(item.id) !== String(rejectedPayment.id), 'falta el nuevo pago');
+    const updated = await api(c.token, 'PATCH', `${route}/${item.id}`, correction);
+    const corrected = updated.paymentHistory?.find((p) => String(p.id) === String(item.id));
+    assert(corrected?.status === 'pendiente_validacion' && Number(corrected.amount) === 90,
+      'no se guardó la corrección del pago pendiente');
+    assertBalances(updated.balances, afterPayment);
+    return corrected;
+  });
+
+  await step('Confirmaciones simultáneas: un solo éxito y un solo efecto', async () => {
+    assert(correctedPayment?.id, 'falta el pago corregido');
+    const route = `/budget/${gid}/settlements/payments/${correctedPayment.id}/review`;
+    const responses = await Promise.all([1, 2].map(() =>
+      api(a.token, 'PATCH', route, { status: 'confirmado' }, { raw: true })));
+    const statuses = responses.map((res) => res.status).sort();
+    const dashboard = await api(a.token, 'GET', `/budget/${gid}/dashboard`);
+    const item = dashboard.paymentHistory?.find((p) => String(p.id) === String(correctedPayment.id));
+    const expected = { [ua]: 110, [ub]: -50, [uc]: -60 };
+    assert(item?.status === 'confirmado', `estado final: ${item?.status}; HTTP ${statuses}`);
+    assertBalances(dashboard.balances, expected);
+    const balances = await api(a.token, 'GET', `/budget/${gid}/balances`);
+    assertBalances(balances.data, expected);
+    assert(statuses.join() === '200,400', `revisiones simultáneas: HTTP ${statuses}; se esperaba 200,400`);
+  });
+
+  await step('Revisiones opuestas simultáneas: un único resultado', async () => {
+    const route = `/budget/${gid}/settlements/payments`;
+    const registered = await api(c.token, 'POST', route, {
+      from_user_id: uc, to_user_id: ua, amount: 20, payment_method: 'efectivo_presencial',
+      note: 'Prueba de revisión simultánea',
+    });
+    const paymentToReview = registered.paymentHistory?.find((p) => p.status === 'pendiente_validacion');
+    assert(paymentToReview?.id, 'falta el pago para revisiones opuestas');
+    const review = `${route}/${paymentToReview.id}/review`;
+    const responses = await Promise.all([
+      api(a.token, 'PATCH', review, { status: 'confirmado' }, { raw: true }),
+      api(a.token, 'PATCH', review, { status: 'rechazado', rejection_reason: 'Prueba concurrente' }, { raw: true }),
+    ]);
+    const statuses = responses.map((res) => res.status);
+    const dashboard = await api(a.token, 'GET', `/budget/${gid}/dashboard`);
+    const item = dashboard.paymentHistory?.find((p) => String(p.id) === String(paymentToReview.id));
+    assert(item?.status === 'confirmado' || item?.status === 'rechazado', `estado final: ${item?.status}; HTTP ${statuses}`);
+    const expected = item.status === 'confirmado'
+      ? { [ua]: 90, [ub]: -50, [uc]: -40 }
+      : { [ua]: 110, [ub]: -50, [uc]: -60 };
+    assertBalances(dashboard.balances, expected);
+    const balances = await api(a.token, 'GET', `/budget/${gid}/balances`);
+    assertBalances(balances.data, expected);
+    const winner = item.status === 'confirmado' ? 0 : 1;
+    assert(statuses[winner] === 200 && statuses[1 - winner] === 400,
+      `revisiones opuestas: HTTP ${statuses}; estado final ${item.status}`);
   });
 
   await step('Recibo de cobro en PDF', async () => {

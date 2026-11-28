@@ -51,6 +51,7 @@ type RawPaymentRow = {
   note?: string | null;
   settlement_payment_documents?: Array<{
     trip_document_id: string;
+    trip_documents: { trip_id: string | number } | null;
   }>;
 };
 
@@ -58,6 +59,13 @@ const createError = (message: string, statusCode: number): ServiceError => {
   const err = new Error(message) as ServiceError;
   err.statusCode = statusCode;
   return err;
+};
+
+const paymentWriteError = (error: { code: string; message: string }): ServiceError => {
+  if (error.code === 'PZ001' || error.code === '22P02') {
+    return createError('Comprobante de pago invalido', 400);
+  }
+  return createError(error.message, 500);
 };
 
 const emitBudgetDashboardUpdated = (
@@ -613,7 +621,7 @@ const calculateMinimumSettlements = (balances: Record<string, number>): BudgetSe
 const getSettlementPayments = async (groupId: string): Promise<RawPaymentRow[]> => {
   const { data, error } = await supabaseAdmin
     .from('settlement_payments')
-    .select('*, settlement_payment_documents(trip_document_id)')
+    .select('*, settlement_payment_documents(trip_document_id, trip_documents(trip_id))')
     .eq('group_id', groupId)
     .order('paid_at', { ascending: false });
 
@@ -633,7 +641,9 @@ const mapPayment = (payment: RawPaymentRow): BudgetPayment => ({
   reviewed_by_user_id: payment.reviewed_by_user_id != null ? String(payment.reviewed_by_user_id) : null,
   reviewed_at: payment.reviewed_at ?? null,
   rejection_reason: payment.rejection_reason ?? null,
-  proof_document_id: payment.settlement_payment_documents?.[0]?.trip_document_id ?? null,
+  proof_document_id: payment.settlement_payment_documents?.find(
+    (proof) => String(proof.trip_documents?.trip_id) === String(payment.group_id),
+  )?.trip_document_id ?? null,
   note: payment.note ?? null,
 });
 
@@ -1067,30 +1077,18 @@ export const markSettlementPaid = async (
     throw createError('Ya tienes un pago pendiente de validacion para este acreedor', 409);
   }
 
-  const { data: inserted, error } = await supabaseAdmin.from('settlement_payments').insert({
-      group_id: groupId,
-      from_user_id: fromUserId,
-      to_user_id: toUserId,
-      amount,
-      status: 'pendiente_validacion',
-      payment_method: paymentMethod,
-      note: payload.note ?? null,
-      created_by_user_id: usuarioId,
-      paid_at: new Date().toISOString(),
-    })
-    .select('id')
-    .single();
-
-  if (error) throw createError(error.message, 500);
-  if (!inserted) throw createError('No se pudo registrar el pago', 500);
-
-  if (proofDocumentId) {
-    const { error: proofError } = await supabaseAdmin.from('settlement_payment_documents').insert({
-      settlement_payment_id: inserted.id,
-      trip_document_id: proofDocumentId,
-    });
-    if (proofError) throw createError(proofError.message, 500);
-  }
+  const { data: paymentId, error } = await supabaseAdmin.rpc('create_pending_settlement_payment', {
+    p_group_id: groupId,
+    p_from_user_id: fromUserId,
+    p_to_user_id: toUserId,
+    p_creator_id: usuarioId,
+    p_amount: amount,
+    p_payment_method: paymentMethod,
+    p_note: payload.note ?? null,
+    p_proof_document_id: proofDocumentId,
+  });
+  if (error) throw paymentWriteError(error);
+  if (paymentId == null) throw createError('No se pudo registrar el pago', 500);
 
   emitBudgetDashboardUpdated(groupId, 'pago_liquidacion_registrado', 'settlement_payment', null, usuarioId, {
     fromUserId,
@@ -1107,7 +1105,7 @@ export const markSettlementPaid = async (
       titulo: 'Pago por validar',
       mensaje: `${debtorName} registró un pago de ${formatMoney(amount)} a tu favor. Confírmalo o recházalo en Finanzas.`,
       entidadTipo: 'settlement_payment',
-      entidadId: inserted.id,
+      entidadId: paymentId,
       metadata: { amount, paymentMethod },
     });
   }
@@ -1157,21 +1155,17 @@ export const updatePendingSettlementPayment = async (
     throw createError('El monto excede la liquidacion pendiente', 400);
   }
 
-  const { error: updateError } = await supabaseAdmin
-    .from('settlement_payments')
-    .update({ amount, payment_method: paymentMethod, note: payload.note ?? null, paid_at: new Date().toISOString() })
-    .eq('id', paymentId)
-    .eq('group_id', groupId);
-  if (updateError) throw createError(updateError.message, 500);
-
-  await supabaseAdmin.from('settlement_payment_documents').delete().eq('settlement_payment_id', paymentId);
-  if (proofDocumentId) {
-    const { error: proofError } = await supabaseAdmin.from('settlement_payment_documents').insert({
-      settlement_payment_id: paymentId,
-      trip_document_id: proofDocumentId,
-    });
-    if (proofError) throw createError(proofError.message, 500);
-  }
+  const { data: updated, error: updateError } = await supabaseAdmin.rpc('update_pending_settlement_payment', {
+    p_payment_id: paymentId,
+    p_group_id: groupId,
+    p_creator_id: usuarioId,
+    p_amount: amount,
+    p_payment_method: paymentMethod,
+    p_note: payload.note ?? null,
+    p_proof_document_id: proofDocumentId,
+  });
+  if (updateError) throw paymentWriteError(updateError);
+  if (!updated) throw createError('Solo se puede editar un pago pendiente', 400);
 
   return getBudgetDashboard(authUserId, groupId);
 };
@@ -1197,13 +1191,17 @@ export const deletePendingSettlementPayment = async (
     throw createError('Solo se puede eliminar un pago pendiente', 400);
   }
 
-  await supabaseAdmin.from('settlement_payment_documents').delete().eq('settlement_payment_id', paymentId);
-  const { error: deleteError } = await supabaseAdmin
+  const { data: deleted, error: deleteError } = await supabaseAdmin
     .from('settlement_payments')
     .delete()
     .eq('id', paymentId)
-    .eq('group_id', groupId);
+    .eq('group_id', groupId)
+    .eq('created_by_user_id', usuarioId)
+    .eq('status', 'pendiente_validacion')
+    .select('id')
+    .maybeSingle();
   if (deleteError) throw createError(deleteError.message, 500);
+  if (!deleted) throw createError('Solo se puede eliminar un pago pendiente', 400);
 
   return getBudgetDashboard(authUserId, groupId);
 };
@@ -1239,7 +1237,7 @@ export const reviewSettlementPayment = async (
     throw createError('Debes indicar el motivo de rechazo', 400);
   }
 
-  const { error: updateError } = await supabaseAdmin
+  const { data: reviewedPayment, error: updateError } = await supabaseAdmin
     .from('settlement_payments')
     .update({
       status,
@@ -1248,9 +1246,14 @@ export const reviewSettlementPayment = async (
       rejection_reason: status === 'rechazado' ? String(payload.rejection_reason ?? '').trim() : null,
     })
     .eq('id', paymentId)
-    .eq('group_id', groupId);
+    .eq('group_id', groupId)
+    .eq('to_user_id', usuarioId)
+    .eq('status', 'pendiente_validacion')
+    .select('id')
+    .maybeSingle();
 
   if (updateError) throw createError(updateError.message, 500);
+  if (!reviewedPayment) throw createError('Este pago ya fue revisado', 400);
 
   emitBudgetDashboardUpdated(groupId, 'pago_liquidacion_revisado', 'settlement_payment', paymentId, usuarioId, {
     fromUserId: String(payment.from_user_id),

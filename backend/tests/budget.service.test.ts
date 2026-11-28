@@ -1,15 +1,25 @@
 import * as BudgetService from '../src/domain/budget/budget.service';
 import { supabaseAdmin } from '../src/infrastructure/db/supabase.client';
 import { getLocalUserId } from '../src/domain/groups/groups.service';
+import { createNotification, emitGroupDashboardUpdated } from '../src/domain/notifications/notifications.service';
 
 jest.mock('../src/infrastructure/db/supabase.client', () => ({
   supabaseAdmin: {
     from: jest.fn((table: string) => mockFrom(table)),
+    rpc: jest.fn((name: string, params: Row) => {
+      if (name !== 'create_pending_settlement_payment') throw new Error(`RPC inesperada: ${name}`);
+      return mockCreatePendingPayment(params);
+    }),
   },
 }));
 
 jest.mock('../src/domain/groups/groups.service', () => ({
   getLocalUserId: jest.fn(),
+}));
+
+jest.mock('../src/domain/notifications/notifications.service', () => ({
+  createNotification: jest.fn().mockResolvedValue(undefined),
+  emitGroupDashboardUpdated: jest.fn(),
 }));
 
 type Row = Record<string, any>;
@@ -67,6 +77,7 @@ const matches = (row: Row, filters: Array<{ column: string; value: any }>) =>
 const mockCreateQuery = (tableName: string) => {
   const filters: Array<{ column: string; value: any }> = [];
   let mutationRows: Row[] | null = null;
+  let updatePayload: Row | null = null;
   let deleteRequested = false;
 
   const table = () => {
@@ -75,7 +86,13 @@ const mockCreateQuery = (tableName: string) => {
   };
 
   const filtered = () => table().filter((row) => matches(row, filters));
-  const resultRows = () => (mutationRows ?? filtered()).map((row) => hydrateRelations(tableName, clone(row)));
+  const resultRows = () => {
+    const rows = mutationRows ?? filtered();
+    if (updatePayload) {
+      for (const row of rows) Object.assign(row, updatePayload);
+    }
+    return rows.map((row) => hydrateRelations(tableName, clone(row)));
+  };
 
   const builder: any = {
     select: jest.fn(() => builder),
@@ -97,9 +114,7 @@ const mockCreateQuery = (tableName: string) => {
       return builder;
     }),
     update: jest.fn((payload: Row) => {
-      const rows = filtered();
-      for (const row of rows) Object.assign(row, payload);
-      mutationRows = rows;
+      updatePayload = payload;
       return builder;
     }),
     delete: jest.fn(() => {
@@ -120,6 +135,22 @@ const mockCreateQuery = (tableName: string) => {
 
 function mockFrom(table: string) {
   return mockCreateQuery(table);
+}
+
+async function mockCreatePendingPayment(params: Row) {
+  const id = String(mockDb.settlement_payments.length + 1);
+  mockDb.settlement_payments.push({
+    id,
+    group_id: params.p_group_id,
+    from_user_id: params.p_from_user_id,
+    to_user_id: params.p_to_user_id,
+    created_by_user_id: params.p_creator_id,
+    status: 'pendiente_validacion',
+    amount: params.p_amount,
+    payment_method: params.p_payment_method,
+    note: params.p_note,
+  });
+  return { data: id, error: null };
 }
 
 describe('BudgetService', () => {
@@ -468,6 +499,60 @@ describe('BudgetService', () => {
     (getLocalUserId as jest.Mock).mockResolvedValue('3');
     await expect(BudgetService.reviewSettlementPayment('auth-user', '7', paymentId, { status: 'confirmado' }))
       .rejects.toMatchObject({ statusCode: 403 });
+  });
+
+  it.each([
+    ['confirmado', 'rechazado'],
+    ['rechazado', 'confirmado'],
+  ] as const)('reviewSettlementPayment: conserva la primera revisión concurrente (%s)', async (winnerStatus, loserStatus) => {
+    const paymentId = '9';
+    mockDb.settlement_payments.push({
+      id: paymentId,
+      group_id: '7',
+      from_user_id: '2',
+      to_user_id: '1',
+      created_by_user_id: '2',
+      amount: 100,
+      status: 'pendiente_validacion',
+    });
+    const rejectionReason = 'Comprobante incorrecto';
+
+    const [winner, loser] = await Promise.allSettled([
+      BudgetService.reviewSettlementPayment('auth-user', '7', paymentId, {
+        status: winnerStatus,
+        rejection_reason: ` ${rejectionReason} `,
+      }),
+      BudgetService.reviewSettlementPayment('auth-user', '7', paymentId, {
+        status: loserStatus,
+        rejection_reason: ` ${rejectionReason} `,
+      }),
+    ]);
+
+    const reviewedPayment = {
+      id: paymentId,
+      status: winnerStatus,
+      reviewed_by_user_id: '1',
+      reviewed_at: expect.any(String),
+      rejection_reason: winnerStatus === 'rechazado' ? rejectionReason : null,
+    };
+    expect(loser).toMatchObject({
+      status: 'rejected',
+      reason: { statusCode: 400, message: 'Este pago ya fue revisado' },
+    });
+    expect(winner).toMatchObject({ status: 'fulfilled', value: { paymentHistory: [reviewedPayment] } });
+    expect(mockDb.settlement_payments).toMatchObject([reviewedPayment]);
+    expect(emitGroupDashboardUpdated).toHaveBeenCalledTimes(1);
+    expect(emitGroupDashboardUpdated).toHaveBeenCalledWith(7, expect.objectContaining({
+      tipo: 'pago_liquidacion_revisado',
+      entidadId: 9,
+      metadata: expect.objectContaining({ status: winnerStatus }),
+    }));
+    expect(createNotification).toHaveBeenCalledTimes(1);
+    expect(createNotification).toHaveBeenCalledWith(expect.objectContaining({
+      usuarioId: 2,
+      tipo: winnerStatus === 'confirmado' ? 'pago_confirmado' : 'pago_rechazado',
+      entidadId: 9,
+    }));
   });
 });
 
