@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AppLayout } from '../../components/layout/AppLayout'
 import { useAuth } from '../../context/useAuth'
@@ -50,9 +50,9 @@ function isClosedGroup(group?: Group | null) {
 }
 
 const addDaysISO = (date: string, days: number) => {
-  const parsed = new Date(`${date}T00:00:00`)
+  const parsed = new Date(`${date}T00:00:00Z`)
   if (Number.isNaN(parsed.getTime())) return ''
-  parsed.setDate(parsed.getDate() + days)
+  parsed.setUTCDate(parsed.getUTCDate() + days)
   return parsed.toISOString().slice(0, 10)
 }
 
@@ -98,7 +98,9 @@ export function GroupSettingsPage() {
   const [searchParams] = useSearchParams()
   const { accessToken, localUser } = useAuth()
 
-  const [group, setGroup] = useState<Group | null>(getCurrentGroup())
+  const [initialGroupId] = useState(() => String(getCurrentGroup()?.id ?? ''))
+  const [group, setGroup] = useState<Group | null>(null)
+  const [resolvedGroupId, setResolvedGroupId] = useState('')
   const [form, setForm] = useState<SettingsForm>({
     name: '',
     destination: '',
@@ -119,10 +121,11 @@ export function GroupSettingsPage() {
   const [success, setSuccess] = useState('')
   const [accessDenied, setAccessDenied] = useState(false)
 
-  const groupId = searchParams.get('groupId') || group?.id || ''
-  const currentGroupFallback = getCurrentGroup()
-  const effectiveGroup = group ?? currentGroupFallback
-  const effectiveGroupId = String(group?.id ?? currentGroupFallback?.id ?? groupId ?? '')
+  const groupId = searchParams.get('groupId') || initialGroupId
+  const currentGroupId = useRef(groupId)
+  currentGroupId.current = groupId
+  const effectiveGroup = resolvedGroupId === groupId ? group : null
+  const effectiveGroupId = String(effectiveGroup?.id ?? '')
   const formError = getValidationError(form, effectiveGroup)
   const today = todayISO()
   const originalStartDate = effectiveGroup?.fecha_inicio ?? ''
@@ -164,9 +167,18 @@ export function GroupSettingsPage() {
   }
 
   useEffect(() => {
+    let cancelled = false
+    setGroup(null)
+    setResolvedGroupId('')
+    setConfirmAction(null)
+    setError('')
+    setSuccess('')
+    setAccessDenied(false)
+
     if (!accessToken || !groupId) {
+      setError('No se encontró el viaje solicitado')
       setLoading(false)
-      return
+      return () => { cancelled = true }
     }
 
     const loadGroup = async () => {
@@ -176,6 +188,7 @@ export function GroupSettingsPage() {
         setAccessDenied(false)
 
         const history = await groupsService.getMyHistory(accessToken)
+        if (cancelled) return
         const allItems = [...history.activos, ...history.pasados]
         const foundItem = allItems.find((item) => String(item.grupos_viaje?.id) === String(groupId)) || null
 
@@ -184,6 +197,7 @@ export function GroupSettingsPage() {
         }
 
         const foundGroup = { ...foundItem.grupos_viaje, myRole: foundItem.rol }
+        setResolvedGroupId(groupId)
 
         if (foundItem.rol !== 'admin') {
           setGroup(foundGroup)
@@ -196,13 +210,14 @@ export function GroupSettingsPage() {
         setForm(buildForm(foundGroup))
         saveCurrentGroup(foundGroup)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'No se pudo cargar el grupo')
+        if (!cancelled) setError(err instanceof Error ? err.message : 'No se pudo cargar el grupo')
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
 
     loadGroup()
+    return () => { cancelled = true }
   }, [accessToken, groupId])
 
   const setField = (key: keyof SettingsForm, value: string | boolean) => {
@@ -229,7 +244,7 @@ export function GroupSettingsPage() {
   }
 
   const handleSave = async () => {
-    if (!accessToken || !group || isReadOnly) return
+    if (!accessToken || !group || resolvedGroupId !== groupId || isReadOnly) return
 
     const validationError = getValidationError(form, group)
     if (validationError) {
@@ -258,24 +273,26 @@ export function GroupSettingsPage() {
         accessToken
       )
 
+      if (currentGroupId.current !== groupId) return
       const updatedGroup = { ...response.group, myRole: group.myRole }
       setGroup(updatedGroup)
       saveCurrentGroup(updatedGroup)
       setSuccess('Cambios guardados correctamente')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo guardar')
+      if (currentGroupId.current === groupId) setError(err instanceof Error ? err.message : 'No se pudo guardar')
     } finally {
       setSaving(false)
     }
   }
 
   const handleCloseTrip = async () => {
-    if (!accessToken || !group || isReadOnly) return
+    if (!accessToken || !group || resolvedGroupId !== groupId || isReadOnly) return
 
     try {
       setClosing(true)
       setError('')
       const response = await groupsService.closeGroup(group.id, accessToken)
+      if (currentGroupId.current !== groupId) return
       const closedGroup = { ...response.group, myRole: group.myRole }
       setGroup(closedGroup)
       saveCurrentGroup(closedGroup)
@@ -283,30 +300,31 @@ export function GroupSettingsPage() {
       setSuccess('Viaje cerrado y archivado correctamente')
       navigate('/my-trips#viajes-pasados')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo cerrar el viaje')
+      if (currentGroupId.current === groupId) setError(err instanceof Error ? err.message : 'No se pudo cerrar el viaje')
     } finally {
       setClosing(false)
     }
   }
 
   const handleDelete = async () => {
-    if (!accessToken || !group || isReadOnly) return
+    if (!accessToken || !group || resolvedGroupId !== groupId || isReadOnly) return
 
     try {
       setDeleting(true)
       setError('')
       await groupsService.deleteGroup(group.id, accessToken)
+      if (currentGroupId.current !== groupId) return
       clearCurrentGroup()
       setConfirmAction(null)
       navigate('/my-trips')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo eliminar el viaje')
+      if (currentGroupId.current === groupId) setError(err instanceof Error ? err.message : 'No se pudo eliminar el viaje')
     } finally {
       setDeleting(false)
     }
   }
 
-  if (loading) {
+  if (loading || (group && resolvedGroupId !== groupId)) {
     return (
       <AppLayout showTripSelector={false} showRightPanel={false}>
         <div className="flex-1 flex items-center justify-center">
@@ -347,7 +365,7 @@ export function GroupSettingsPage() {
     )
   }
 
-  if (error && !group) {
+  if (error && !effectiveGroup) {
     return (
       <AppLayout showTripSelector={false} showRightPanel={false}>
         <div className="flex-1 flex items-center justify-center px-4">

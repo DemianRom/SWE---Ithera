@@ -8,24 +8,30 @@ import { groupsService, saveCurrentGroup } from '../../services/groups'
 import { isNetworkError } from '../../services/apiClient'
 import type { GroupHistoryItem } from '../../types/groups'
 
-// ── Date helper ───────────────────────────────────────────────────────────────
-  function formatRange(
-    start: string | null | undefined,
-    end: string | null | undefined
-  ): string {
+// Trip dates are calendar dates, independent of the browser's time zone.
+function parseTripDate(value: string): Date {
+  return new Date(`${value.slice(0, 10)}T00:00:00Z`)
+}
+
+function formatRange(
+  start: string | null | undefined,
+  end: string | null | undefined
+): string {
   if (!start && !end) return 'Fechas por definir'
 
   const fmt = (iso: string, withYear: boolean) =>
     new Intl.DateTimeFormat('es-MX', {
       day: 'numeric',
       month: 'short',
+      timeZone: 'UTC',
       ...(withYear ? { year: 'numeric' } : {}),
-    }).format(new Date(iso))
+    }).format(parseTripDate(iso))
 
-  if (!end) return `Desde ${fmt(start!, true)}`
+  if (!start) return `Hasta ${fmt(end!, true)}`
+  if (!end) return `Desde ${fmt(start, true)}`
 
-  const startYear = new Date(start!).getFullYear()
-  const endYear   = new Date(end).getFullYear()
+  const startYear = parseTripDate(start!).getUTCFullYear()
+  const endYear   = parseTripDate(end).getUTCFullYear()
   const sameYear  = startYear === endYear
 
   return `${fmt(start!, !sameYear)} – ${fmt(end, true)}`
@@ -38,20 +44,21 @@ function formatTripDate(
   if (!start && !end) return 'Fechas por definir'
 
   const dayMonth = (iso: string) =>
-    new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'long' }).format(new Date(iso))
+    new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(parseTripDate(iso))
   const dayMonthYear = (iso: string) =>
-    new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(iso))
+    new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(parseTripDate(iso))
 
-  if (!end) return `Desde el ${dayMonthYear(start!)}`
+  if (!start) return `Hasta el ${dayMonthYear(end!)}`
+  if (!end) return `Desde el ${dayMonthYear(start)}`
 
-  const s = new Date(start!)
-  const e = new Date(end)
+  const s = parseTripDate(start!)
+  const e = parseTripDate(end)
   const days = Math.round((e.getTime() - s.getTime()) / 86400000)
   const dur = days > 0 ? ` · ${days} ${days === 1 ? 'día' : 'días'}` : ''
 
-  if (s.getMonth() === e.getMonth() && s.getFullYear() === e.getFullYear()) {
-    const monthYear = new Intl.DateTimeFormat('es-MX', { month: 'long', year: 'numeric' }).format(e)
-    return `${s.getDate()} al ${e.getDate()} de ${monthYear}${dur}`
+  if (s.getUTCMonth() === e.getUTCMonth() && s.getUTCFullYear() === e.getUTCFullYear()) {
+    const monthYear = new Intl.DateTimeFormat('es-MX', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(e)
+    return `${s.getUTCDate()} al ${e.getUTCDate()} de ${monthYear}${dur}`
   }
 
   return `${dayMonth(start!)} → ${dayMonthYear(end)}${dur}`
