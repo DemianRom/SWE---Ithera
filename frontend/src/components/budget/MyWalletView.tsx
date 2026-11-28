@@ -1,5 +1,7 @@
 import { useId, useMemo, useState } from 'react'
 import type { FC } from 'react'
+import '../../styles/traveling-brand.css'
+import './my-wallet.css'
 import type { BudgetMember, BudgetPaymentHistoryItem, BudgetSettlement } from '../../services/budget'
 
 interface WalletEntry {
@@ -49,7 +51,7 @@ interface Props {
 
 const formatMXN = (n: number): string => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 2 }).format(n)
 const round2 = (n: number): number => Math.round(n * 100) / 100
-const paymentStatusLabel: Record<BudgetPaymentHistoryItem['status'], string> = { pendiente_validacion: 'Pendiente de validacion', confirmado: 'Confirmado', rechazado: 'Rechazado' }
+const paymentStatusLabel: Record<BudgetPaymentHistoryItem['status'], string> = { pendiente_validacion: 'Pendiente de validación', confirmado: 'Confirmado', rechazado: 'Rechazado' }
 
 export const MyWalletView: FC<Props> = ({
   onBack,
@@ -274,8 +276,8 @@ export const MyWalletView: FC<Props> = ({
   }
 
   return (
-    <div className="flex flex-1 flex-col overflow-y-auto bg-[#F4F9FA]">
-      <div className="bg-[#073B52] px-6 pb-8 pt-6">
+    <div className="wallet-view traveling-brand flex flex-1 flex-col overflow-y-auto bg-[#F4F9FA]">
+      <div className="wallet-header bg-[#073B52] px-6 pb-8 pt-6">
         <button
           onClick={onBack}
           className="mb-4 inline-flex items-center gap-2 rounded-lg border border-white/30 bg-white/10 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-white/20 hover:shadow-md"
@@ -285,11 +287,13 @@ export const MyWalletView: FC<Props> = ({
           </svg>
           Volver al presupuesto
         </button>
-        <h1 className="text-2xl font-bold text-white">Mi Cartera</h1>
+        <p className="wallet-eyebrow">PRESUPUESTO DEL VIAJE</p>
+        <h1 className="text-2xl font-bold text-white">Mi cartera</h1>
+        <p className="wallet-header-description">Consulta tus saldos y administra tus pagos en un solo lugar.</p>
       </div>
 
-      <div className="flex flex-1 flex-col gap-4 px-6 py-5">
-        {error && <div className="rounded-xl border border-[#EAC8C0] bg-[#FAEDE7] px-4 py-3 text-sm text-[#8D4034]">{error}</div>}
+      <div className="wallet-content flex flex-1 flex-col gap-4 px-6 py-5">
+        {error && <div role="alert" className="rounded-xl border border-[#EAC8C0] bg-[#FAEDE7] px-4 py-3 text-sm text-[#8D4034]">{error}</div>}
         {isOffline && (
           <div role="status" className="rounded-xl border border-[#EBD391] bg-[#FFF2D1] px-4 py-3 text-[#765000]">
             <p className="text-sm font-semibold">Sin conexión</p>
@@ -299,9 +303,16 @@ export const MyWalletView: FC<Props> = ({
           </div>
         )}
 
-        <section className="rounded-2xl border border-[#CBDDE3] bg-white p-4">
+        {isTripReadOnly && (
+          <div role="status" className="wallet-notice">
+            <strong>Viaje cerrado</strong>
+            <p>Puedes consultar los saldos y pagos registrados. La generación de recibos no está disponible.</p>
+          </div>
+        )}
+
+        <section className="wallet-summary rounded-2xl border border-[#CBDDE3] bg-white p-4">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <h2 className="text-sm font-bold text-[#073B52]">Resumen</h2>
+            <div><p className="wallet-section-kicker">TU BALANCE</p><h2 className="wallet-section-title">Resumen de cartera</h2><p className="wallet-section-description">El estado actual de tus cuentas en este viaje.</p></div>
             <div className="flex gap-2">
               <button
                 onClick={async () => {
@@ -364,22 +375,22 @@ export const MyWalletView: FC<Props> = ({
               </button>
             </div>
           </div>
-          <div className="grid gap-3 md:grid-cols-3">
-            <div className="rounded-xl border border-[#CBDDE3] bg-[#E8F4FA] px-3 py-2"><p className="text-xs text-[#075B85]">Te deben</p><p className="text-lg font-bold text-[#075B85]">{formatMXN(totalOweMe)}</p></div>
-            <div className="rounded-xl border border-[#EAC8C0] bg-[#FAEDE7] px-3 py-2"><p className="text-xs text-[#8D4034]">Tu debes</p><p className="text-lg font-bold text-[#8D4034]">{formatMXN(totalIOwe)}</p></div>
-            <div className="rounded-xl border border-[#CBDDE3] bg-[#E8F4FA] px-3 py-2"><p className="text-xs text-[#075675]">Balance neto</p><p className="text-lg font-bold text-[#075675]">{formatMXN(net)}</p></div>
+          <div className="wallet-metrics grid gap-3 md:grid-cols-3">
+            <div className="wallet-metric rounded-xl border border-[#CBDDE3] bg-[#E8F4FA] px-3 py-2"><p className="text-xs text-[#075B85]">Te deben</p><p className="text-lg font-bold text-[#075B85]">{formatMXN(totalOweMe)}</p></div>
+            <div className="wallet-metric rounded-xl border border-[#EAC8C0] bg-[#FAEDE7] px-3 py-2"><p className="text-xs text-[#8D4034]">Tú debes</p><p className="text-lg font-bold text-[#8D4034]">{formatMXN(totalIOwe)}</p></div>
+            <div className="wallet-metric wallet-metric-net rounded-xl border border-[#CBDDE3] bg-[#E8F4FA] px-3 py-2"><p className="text-xs text-[#075675]">Balance neto</p><p className="text-lg font-bold text-[#075675]">{formatMXN(net)}</p></div>
           </div>
           {sentByMe.some((p) => p.status === 'pendiente_validacion') && (
             <div className="mt-3 rounded-xl border border-[#91DEF0] bg-[#E8F4FA] px-3 py-2">
-              <p className="text-xs font-semibold text-[#075675]">Proyeccion si confirman tus pagos pendientes</p>
+              <p className="text-xs font-semibold text-[#075675]">Proyección si confirman tus pagos pendientes</p>
               <p className="text-xs text-[#183F51]">
-                Te deberian: <b>{formatMXN(projectedMeDebenTotal)}</b> · Tu deberias: <b>{formatMXN(projectedYoDeboTotal)}</b>
+                Te deberían: <b>{formatMXN(projectedMeDebenTotal)}</b> · Tu deberías: <b>{formatMXN(projectedYoDeboTotal)}</b>
               </p>
             </div>
           )}
-          <div className="mt-3 grid gap-3 lg:grid-cols-2">
+          <div className="wallet-balances mt-3 grid gap-3 lg:grid-cols-2">
             <div className="rounded-xl border border-[#CBDDE3] p-3">
-              <p className="mb-2 text-sm font-semibold">Te deben</p>
+              <h3 className="mb-2 text-sm font-semibold">Te deben</h3>
               {meDeben.length === 0 ? <p className="text-xs text-[#526C79]">Nadie te debe por ahora.</p> : meDeben.map((e) => (
                 <div key={e.pairId} className="mb-2 rounded-lg border border-[#CBDDE3] px-3 py-2">
                   <div className="flex items-center justify-between">
@@ -399,7 +410,7 @@ export const MyWalletView: FC<Props> = ({
               ))}
             </div>
             <div className="rounded-xl border border-[#CBDDE3] p-3">
-              <p className="mb-2 text-sm font-semibold">Tu debes</p>
+              <h3 className="mb-2 text-sm font-semibold">Tú debes</h3>
               {leDebo.length === 0 ? <p className="text-xs text-[#526C79]">No debes nada.</p> : leDebo.map((e) => {
                 const hasPending = pendingPairSet.has(`${e.fromUserId}-${e.toUserId}`)
                 return (
@@ -426,9 +437,9 @@ export const MyWalletView: FC<Props> = ({
 
         <section className="rounded-2xl border border-[#CBDDE3] bg-white p-4">
           <h2 className="mb-3 text-sm font-bold text-[#073B52]">Pagos por validar</h2>
-          {pendingToReview.length === 0 ? <p className="text-xs text-[#526C79]">No hay pagos pendientes de tu validacion.</p> : pendingToReview.map((p) => (
+          {pendingToReview.length === 0 ? <p className="text-xs text-[#526C79]">No hay pagos pendientes de tu validación.</p> : pendingToReview.map((p) => (
             <div key={p.id} className="mb-2 rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-3 py-3">
-              <p className="text-sm font-semibold">{nameById.get(p.from) ?? `Usuario ${p.from}`} reporto {formatMXN(p.amount)}</p>
+              <p className="text-sm font-semibold">{nameById.get(p.from) ?? `Usuario ${p.from}`} reportó {formatMXN(p.amount)}</p>
               <div className="mt-2 flex gap-2">
                 <button
                   disabled={isOffline || reviewBusyId === p.id}
@@ -440,7 +451,7 @@ export const MyWalletView: FC<Props> = ({
                 >
                   {reviewBusyId === p.id ? 'Confirmando...' : 'Confirmar'}
                 </button>
-                <input disabled={isOffline} value={rejectReasonByPayment[p.id] ?? ''} onChange={(e) => setRejectReasonByPayment((s) => ({ ...s, [p.id]: e.target.value }))} placeholder="Motivo rechazo" className="rounded-lg border border-[#CBDDE3] px-2 py-1 text-xs" />
+                <input disabled={isOffline} value={rejectReasonByPayment[p.id] ?? ''} onChange={(e) => setRejectReasonByPayment((s) => ({ ...s, [p.id]: e.target.value }))} aria-label={`Motivo de rechazo del pago de ${nameById.get(p.from) ?? `Usuario ${p.from}`}`} placeholder="Motivo de rechazo" className="rounded-lg border border-[#CBDDE3] px-2 py-1 text-xs" />
                 <button
                   disabled={isOffline || reviewBusyId === p.id}
                   onClick={async () => {
@@ -499,8 +510,8 @@ export const MyWalletView: FC<Props> = ({
         </section>
 
         <section className="overflow-hidden rounded-2xl border border-[#CBDDE3] bg-white">
-          <button onClick={() => setHistorialOpen((v) => !v)} className="flex w-full items-center justify-between px-4 py-4"><span className="text-sm font-bold text-[#073B52]">Historial de pagos</span><span className="text-xs text-[#526C79]">{historialOpen ? 'Ocultar' : 'Ver'}</span></button>
-          {historialOpen && <div className="border-t border-[#CBDDE3] px-4 pb-4 pt-3">{paymentHistory.length === 0 ? <p className="text-xs text-[#526C79]">Aun no hay pagos.</p> : paymentHistory.map((p) => <div key={p.id} className="mb-2 rounded-xl bg-[#F4F9FA] px-3 py-2"><p className="text-xs font-semibold">{nameById.get(p.from) ?? `Usuario ${p.from}`} reporto pago a {nameById.get(p.to) ?? `Usuario ${p.to}`}</p><p className="text-[11px] text-[#526C79]">{formatMXN(p.amount)} - {paymentStatusLabel[p.status]}</p></div>)}</div>}
+          <button aria-expanded={historialOpen} aria-controls={paymentFieldId + '-history'} onClick={() => setHistorialOpen((v) => !v)} className="flex w-full items-center justify-between px-4 py-4"><span className="text-sm font-bold text-[#073B52]">Historial de pagos</span><span className="text-xs text-[#526C79]">{historialOpen ? 'Ocultar' : 'Ver'}</span></button>
+          {historialOpen && <div id={paymentFieldId + '-history'} className="border-t border-[#CBDDE3] px-4 pb-4 pt-3">{paymentHistory.length === 0 ? <p className="text-xs text-[#526C79]">Aún no hay pagos.</p> : paymentHistory.map((p) => <div key={p.id} className="mb-2 rounded-xl bg-[#F4F9FA] px-3 py-2"><p className="text-xs font-semibold">{nameById.get(p.from) ?? `Usuario ${p.from}`} reportó pago a {nameById.get(p.to) ?? `Usuario ${p.to}`}</p><p className="text-[11px] text-[#526C79]">{formatMXN(p.amount)} - {paymentStatusLabel[p.status]}</p></div>)}</div>}
         </section>
       </div>
 
