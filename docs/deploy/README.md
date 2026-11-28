@@ -86,6 +86,8 @@ falla, el contenedor anterior sigue corriendo y el siguiente deploy lo reintenta
 
 Los cambios de base de datos (`supabase/`) no se aplican con `deploy.sh`; se aplican con la
 Supabase CLI (ver [../database/README.md](../database/README.md)).
+Aplica la migración `20261128055313_atomic_pending_settlement_payment_edit.sql` al entorno
+de destino antes del push a `main`, que dispara el despliegue del backend que usa la función.
 
 ## Verificacion
 
