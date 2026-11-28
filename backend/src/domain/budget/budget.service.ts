@@ -1239,7 +1239,7 @@ export const reviewSettlementPayment = async (
     throw createError('Debes indicar el motivo de rechazo', 400);
   }
 
-  const { error: updateError } = await supabaseAdmin
+  const { data: reviewedPayment, error: updateError } = await supabaseAdmin
     .from('settlement_payments')
     .update({
       status,
@@ -1248,9 +1248,14 @@ export const reviewSettlementPayment = async (
       rejection_reason: status === 'rechazado' ? String(payload.rejection_reason ?? '').trim() : null,
     })
     .eq('id', paymentId)
-    .eq('group_id', groupId);
+    .eq('group_id', groupId)
+    .eq('to_user_id', usuarioId)
+    .eq('status', 'pendiente_validacion')
+    .select('id')
+    .maybeSingle();
 
   if (updateError) throw createError(updateError.message, 500);
+  if (!reviewedPayment) throw createError('Este pago ya fue revisado', 400);
 
   emitBudgetDashboardUpdated(groupId, 'pago_liquidacion_revisado', 'settlement_payment', paymentId, usuarioId, {
     fromUserId: String(payment.from_user_id),
