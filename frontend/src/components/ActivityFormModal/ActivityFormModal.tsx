@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { createPortal } from "react-dom";
 import type { Activity } from "../ui/DayView";
 import { PlaceAutocompleteInput } from "../ui/PlaceAutocompleteInput";
 import { Select } from "../ui/Select";
+import { useModalStack } from "../ui/useModalStack";
 
 // Ciudad de México usa UTC-6 todo el año (sin horario de verano desde 2022).
 const MEXICO_CITY_OFFSET = "-06:00";
@@ -85,61 +87,17 @@ export function ActivityFormModal({
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const layerRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
-  const savingRef = useRef(saving);
-  const onCloseRef = useRef(onClose);
-
-  useEffect(() => {
-    savingRef.current = saving;
-    onCloseRef.current = onClose;
-    if (saving && (!formRef.current?.contains(document.activeElement) ||
-      (document.activeElement instanceof HTMLButtonElement && document.activeElement.disabled))) {
-      titleRef.current?.focus();
-    }
-  }, [saving, onClose]);
-
-  useEffect(() => {
-    if (!open) return;
-    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const form = formRef.current;
-    if (!form) return;
-
-    titleRef.current?.focus();
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.defaultPrevented) return;
-      if (event.key === "Escape") {
-        if (!savingRef.current) {
-          event.preventDefault();
-          onCloseRef.current();
-        }
-        return;
-      }
-      if (event.key !== "Tab") return;
-
-      const focusable = Array.from(form.querySelectorAll<HTMLElement>(
-        'a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
-      )).filter((element) => !element.hidden && element.getClientRects().length > 0);
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      const active = document.activeElement;
-      if (!first || !last) {
-        event.preventDefault();
-        form.focus();
-      } else if (event.shiftKey && (active === first || !form.contains(active) || active === form)) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && (active === last || !form.contains(active) || active === form)) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      if (previousFocus?.isConnected) previousFocus.focus();
-    };
-  }, [open]);
+  useModalStack({
+    open,
+    closeBlocked: saving,
+    layerRef,
+    panelRef: formRef,
+    initialFocusRef: titleRef,
+    onClose,
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -187,11 +145,11 @@ export function ActivityFormModal({
     }
   };
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm"
+      ref={layerRef}
+      className="fixed inset-0 flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm"
       role="dialog"
-      aria-modal="true"
       aria-labelledby="activity-form-title"
       onClick={(event) => {
         if (event.target === event.currentTarget && !saving) onClose();
@@ -324,6 +282,7 @@ export function ActivityFormModal({
           </button>
         </div>
       </form>
-    </div>
+    </div>,
+    document.body,
   );
 }

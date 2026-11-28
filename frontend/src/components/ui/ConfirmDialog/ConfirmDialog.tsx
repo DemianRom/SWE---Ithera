@@ -1,4 +1,6 @@
-import { useEffect, useId, useRef, type ReactNode } from "react";
+import { useId, useRef, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { useModalStack } from "../useModalStack";
 
 export type ConfirmDialogVariant = "danger" | "warning" | "info" | "success";
 
@@ -64,78 +66,27 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   const titleId = useId();
   const descriptionId = useId();
+  const layerRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
-  const loadingRef = useRef(loading);
-  const onCancelRef = useRef(onCancel);
-  useEffect(() => {
-    loadingRef.current = loading;
-    onCancelRef.current = onCancel;
-  }, [loading, onCancel]);
-
-  useEffect(() => {
-    if (!open) return;
-
-    const previousFocus = document.activeElement instanceof HTMLElement
-      ? document.activeElement
-      : null;
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-
-    if (cancelRef.current && !cancelRef.current.disabled) {
-      cancelRef.current.focus();
-    } else {
-      dialog.focus();
-    }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        if (!loadingRef.current) {
-          event.preventDefault();
-          onCancelRef.current();
-        }
-        return;
-      }
-      if (event.key !== "Tab") return;
-
-      const focusable = Array.from(dialog.querySelectorAll<HTMLElement>(
-        'a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
-      )).filter((element) => !element.hidden && element.getClientRects().length > 0);
-      if (focusable.length === 0) {
-        event.preventDefault();
-        dialog.focus();
-        return;
-      }
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      const active = document.activeElement;
-      if (event.shiftKey && (active === first || !dialog.contains(active))) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && (active === last || !dialog.contains(active) || active === dialog)) {
-        event.preventDefault();
-        first.focus();
-      } else if (event.shiftKey && active === dialog) {
-        event.preventDefault();
-        last.focus();
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      if (previousFocus?.isConnected) previousFocus.focus();
-    };
-  }, [open]);
+  useModalStack({
+    open,
+    closeBlocked: loading,
+    layerRef,
+    panelRef: dialogRef,
+    initialFocusRef: cancelRef,
+    onClose: onCancel,
+  });
 
   if (!open) return null;
 
   const styles = VARIANT_STYLES[variant];
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm"
+      ref={layerRef}
+      className="fixed inset-0 flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm"
       role="dialog"
-      aria-modal="true"
       aria-labelledby={titleId}
       aria-describedby={descriptionId}
       onClick={(event) => {
@@ -190,6 +141,7 @@ export function ConfirmDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
