@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { FC } from 'react'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { RegisterExpenseModal } from './RegisterExpenseModal'
@@ -1332,7 +1332,7 @@ export const BudgetDashboard: FC<Props> = ({
                 </p>
                 <h3 className="mt-2 font-heading text-2xl font-extrabold text-[#073B52]">Distribucion del gasto</h3>
               </div>
-              <span className="rounded-full bg-[#E8F4FA] px-3 py-1.5 font-body text-sm font-extrabold text-[#0878CF]">
+              <span className="rounded-full bg-[#E8F4FA] px-3 py-1.5 font-body text-sm font-extrabold text-[#075EAA]">
                 {formatMXN(chartTotal)}
               </span>
             </div>
@@ -1495,7 +1495,7 @@ export const BudgetDashboard: FC<Props> = ({
                 <button
                   type="button"
                   onClick={() => setExpenseFilters(EMPTY_EXPENSE_FILTERS)}
-                  className="font-semibold text-[#0878CF] hover:underline"
+                  className="font-semibold text-[#075EAA] hover:underline"
                 >
                   Limpiar filtros
                 </button>
@@ -1525,7 +1525,7 @@ export const BudgetDashboard: FC<Props> = ({
                             key={entityKey(entity)}
                             type="button"
                             onClick={() => onOpenItinerary?.()}
-                            className="max-w-full rounded-full border border-[#CFE0FF] bg-[#E8F4FA] px-2.5 py-1 font-body text-[11px] font-semibold text-[#0878CF] hover:bg-[#E2EDFF]"
+                            className="max-w-full rounded-full border border-[#CFE0FF] bg-[#E8F4FA] px-2.5 py-1 font-body text-[11px] font-semibold text-[#075EAA] hover:bg-[#E2EDFF]"
                             title={entity.label}
                           >
                             Actividad:{' '}
@@ -1555,7 +1555,7 @@ export const BudgetDashboard: FC<Props> = ({
                     <button
                       onClick={() => openEdit(expense)}
                       aria-label="Editar gasto"
-                      className="shrink-0 rounded-lg p-1.5 text-[#7A8799] transition-colors hover:bg-[#F4F9FA] hover:text-[#0878CF]"
+                      className="shrink-0 rounded-lg p-1.5 text-[#7A8799] transition-colors hover:bg-[#F4F9FA] hover:text-[#075EAA]"
                     >
                       Editar/asociar
                     </button>

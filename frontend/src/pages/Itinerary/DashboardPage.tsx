@@ -1896,7 +1896,7 @@ export function DashboardPage() {
                             <span
                               className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-body text-[11px] font-bold uppercase tracking-wider ${
                                 isActive
-                                  ? "bg-[#0878CF]/12 text-[#0878CF]"
+                                  ? "bg-[#0878CF]/12 text-[#075EAA]"
                                   : "bg-white/10 text-white/55"
                               }`}
                             >

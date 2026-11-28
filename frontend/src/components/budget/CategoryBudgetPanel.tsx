@@ -12,7 +12,7 @@ const LABELS: Record<BudgetCategory, string> = {
 // Estado del medidor: el color acompaña al texto, nunca va solo.
 const METER = {
   track: '#D6F2F7',
-  ok: '#0878CF',
+  ok: '#075EAA',
   warning: '#B45309',
   over: '#DC2626',
 }

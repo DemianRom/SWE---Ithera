@@ -77,7 +77,7 @@ export function BudgetSummaryPanel({ groupId, token, refreshKey, disabled = fals
             type="button"
             disabled={disabled || downloading !== null || !summary}
             onClick={() => void download('pdf')}
-            className="rounded-xl border border-[#91DEF0] bg-[#E8F4FA] px-3 py-2 font-body text-xs font-semibold text-[#0878CF] transition-colors hover:bg-[#D6F2F7] disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-xl border border-[#91DEF0] bg-[#E8F4FA] px-3 py-2 font-body text-xs font-semibold text-[#075EAA] transition-colors hover:bg-[#D6F2F7] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {downloading === 'pdf' ? 'Generando…' : 'Descargar resumen (PDF)'}
           </button>

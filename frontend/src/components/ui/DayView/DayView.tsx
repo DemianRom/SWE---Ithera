@@ -162,7 +162,7 @@ function LinkedContext({
     <div className="mt-3 rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-3 py-2.5">
       {expenses.length > 0 && (
         <p className="mb-2 font-body text-sm font-semibold text-[#073B52]">
-          Gastado aquí: <span className="text-[#0878CF]">{formatMoney(spent)}</span>
+          Gastado aquí: <span className="text-[#075EAA]">{formatMoney(spent)}</span>
         </p>
       )}
       <div className="flex flex-wrap gap-1.5">
@@ -171,7 +171,7 @@ function LinkedContext({
             key={`${entity.type}:${entity.id}`}
             type="button"
             onClick={onOpenBudget}
-            className="max-w-full truncate rounded-full border border-[#CBDDE3] bg-[#E8F4FA] px-2.5 py-1 font-body text-[13px] font-semibold text-[#0878CF] hover:bg-[#D5F0F5]"
+            className="max-w-full truncate rounded-full border border-[#CBDDE3] bg-[#E8F4FA] px-2.5 py-1 font-body text-[13px] font-semibold text-[#075EAA] hover:bg-[#D5F0F5]"
             title={entity.subtitle ?? entity.label}
           >
             Gasto: <span className="font-medium">{entity.label}</span>
