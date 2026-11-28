@@ -1,0 +1,11 @@
+/* Keep landing-specific styling separate from the shared navigation. */
+.landing-brand {
+  color: #073b52;
+}
+
+.landing-brand button:focus-visible,
+.landing-brand a:focus-visible,
+.landing-brand input:focus-visible {
+  outline: 3px solid #91def0;
+  outline-offset: 3px;
+}
