@@ -1,0 +1,21 @@
+.document-vault-card {
+  box-shadow: 0 10px 30px rgba(13, 64, 84, .07);
+}
+
+.document-vault-intro {
+  border-top: 4px solid #16b9d0;
+  background: linear-gradient(110deg, #fff 55%, #e8f7fa);
+}
+
+.document-vault-modal {
+  border-top: 4px solid #16b9d0;
+}
+
+.document-vault button:disabled {
+  cursor: not-allowed;
+}
+
+.document-vault :is(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid #005aaf;
+  outline-offset: 3px;
+}
