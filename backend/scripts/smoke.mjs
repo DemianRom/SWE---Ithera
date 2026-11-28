@@ -447,9 +447,6 @@ async function main() {
     assertBalances(afterRetry.data, afterPayment);
   });
 
-<<<<<<< HEAD
-  const rejectedPayment = await step('Rechazar pago parcial sin alterar saldos', async () => {
-=======
   await step('Eliminar un pago pendiente y conservar los saldos y el documento', async () => {
     assert(doc, 'falta el comprobante');
     const registered = await api(c.token, 'POST', paymentsRoute, {
@@ -471,8 +468,7 @@ async function main() {
     assert(!error && data?.id === doc.id, 'el borrado del pago eliminó el documento');
   });
 
-  await step('Rechazar pago parcial sin alterar saldos', async () => {
->>>>>>> bc0bbfd (fix: proteger la edición y eliminación concurrente de pagos)
+  const rejectedPayment = await step('Rechazar pago parcial sin alterar saldos', async () => {
     const route = `/budget/${gid}/settlements/payments`;
     const registered = await api(c.token, 'POST', route, {
       from_user_id: uc,
