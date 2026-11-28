@@ -376,8 +376,8 @@ export const MyWalletView: FC<Props> = ({
             </div>
           </div>
           <div className="wallet-metrics grid gap-3 md:grid-cols-3">
-            <div className="wallet-metric rounded-xl border border-[#CBDDE3] bg-[#E8F4FA] px-3 py-2"><p className="text-xs text-[#075B85]">Te deben</p><p className="text-lg font-bold text-[#075B85]">{formatMXN(totalOweMe)}</p></div>
-            <div className="wallet-metric rounded-xl border border-[#EAC8C0] bg-[#FAEDE7] px-3 py-2"><p className="text-xs text-[#8D4034]">Tú debes</p><p className="text-lg font-bold text-[#8D4034]">{formatMXN(totalIOwe)}</p></div>
+            <div className="wallet-metric wallet-metric-receive rounded-xl border border-[#CBDDE3] bg-[#E8F4FA] px-3 py-2"><p className="text-xs text-[#075B85]">Te deben</p><p className="text-lg font-bold text-[#075B85]">{formatMXN(totalOweMe)}</p></div>
+            <div className="wallet-metric wallet-metric-owe rounded-xl border border-[#EAC8C0] bg-[#FAEDE7] px-3 py-2"><p className="text-xs text-[#8D4034]">Tú debes</p><p className="text-lg font-bold text-[#8D4034]">{formatMXN(totalIOwe)}</p></div>
             <div className="wallet-metric wallet-metric-net rounded-xl border border-[#CBDDE3] bg-[#E8F4FA] px-3 py-2"><p className="text-xs text-[#075675]">Balance neto</p><p className="text-lg font-bold text-[#075675]">{formatMXN(net)}</p></div>
           </div>
           {sentByMe.some((p) => p.status === 'pendiente_validacion') && (
@@ -435,7 +435,7 @@ export const MyWalletView: FC<Props> = ({
           </div>
         </section>
 
-        <section className="rounded-2xl border border-[#CBDDE3] bg-white p-4">
+        <section className="wallet-payment-section rounded-2xl border border-[#CBDDE3] bg-white p-4">
           <h2 className="mb-3 text-sm font-bold text-[#073B52]">Pagos por validar</h2>
           {pendingToReview.length === 0 ? <p className="text-xs text-[#526C79]">No hay pagos pendientes de tu validación.</p> : pendingToReview.map((p) => (
             <div key={p.id} className="mb-2 rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-3 py-3">
@@ -467,7 +467,7 @@ export const MyWalletView: FC<Props> = ({
           ))}
         </section>
 
-        <section className="rounded-2xl border border-[#CBDDE3] bg-white p-4">
+        <section className="wallet-payment-section rounded-2xl border border-[#CBDDE3] bg-white p-4">
           <h2 className="mb-3 text-sm font-bold text-[#073B52]">Pagos enviados por ti</h2>
           {sentByMe.length === 0 ? <p className="text-xs text-[#526C79]">No tienes pagos enviados pendientes/rechazados.</p> : sentByMe.map((p) => (
             <div key={p.id} className="mb-2 rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-3 py-3">
@@ -509,7 +509,7 @@ export const MyWalletView: FC<Props> = ({
           ))}
         </section>
 
-        <section className="overflow-hidden rounded-2xl border border-[#CBDDE3] bg-white">
+        <section className="wallet-history overflow-hidden rounded-2xl border border-[#CBDDE3] bg-white">
           <button aria-expanded={historialOpen} aria-controls={paymentFieldId + '-history'} onClick={() => setHistorialOpen((v) => !v)} className="flex w-full items-center justify-between px-4 py-4"><span className="text-sm font-bold text-[#073B52]">Historial de pagos</span><span className="text-xs text-[#526C79]">{historialOpen ? 'Ocultar' : 'Ver'}</span></button>
           {historialOpen && <div id={paymentFieldId + '-history'} className="border-t border-[#CBDDE3] px-4 pb-4 pt-3">{paymentHistory.length === 0 ? <p className="text-xs text-[#526C79]">Aún no hay pagos.</p> : paymentHistory.map((p) => <div key={p.id} className="mb-2 rounded-xl bg-[#F4F9FA] px-3 py-2"><p className="text-xs font-semibold">{nameById.get(p.from) ?? `Usuario ${p.from}`} reportó pago a {nameById.get(p.to) ?? `Usuario ${p.to}`}</p><p className="text-[11px] text-[#526C79]">{formatMXN(p.amount)} - {paymentStatusLabel[p.status]}</p></div>)}</div>}
         </section>
