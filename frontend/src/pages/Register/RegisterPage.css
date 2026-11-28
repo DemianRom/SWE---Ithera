@@ -1,0 +1,168 @@
+.register-page {
+  --register-focus: var(--focus-on-light);
+
+  background: var(--surface-page);
+  color: var(--text);
+  font-family: var(--font-body);
+}
+
+.register-page :is(a, button, input):focus-visible {
+  outline: 2px solid var(--register-focus);
+  outline-offset: 3px;
+}
+
+.register-heading {
+  font-family: var(--font-display);
+}
+
+.register-promo {
+  --register-focus: var(--focus-on-dark);
+
+  background: var(--surface-dark);
+  background-image: radial-gradient(
+    ellipse at bottom right,
+    color-mix(in srgb, var(--surface-dark) 72%, var(--brand-cyan)),
+    transparent 64%
+  );
+  color: var(--text-on-dark);
+}
+
+.register-promo-card,
+.register-promo-badge {
+  border: 1px solid color-mix(in srgb, var(--text-on-dark) 25%, transparent);
+  background: color-mix(in srgb, var(--text-on-dark) 9%, transparent);
+}
+
+.register-promo-card {
+  border-radius: var(--radius-md);
+}
+
+.register-promo-badge {
+  border-radius: var(--radius-pill);
+  color: var(--brand-sun);
+}
+
+.register-promo-accent {
+  background: var(--brand-sun);
+}
+
+.register-promo-track {
+  background: color-mix(in srgb, var(--text-on-dark) 25%, transparent);
+}
+
+.register-promo-copy {
+  color: color-mix(in srgb, var(--text-on-dark) 86%, transparent);
+}
+
+.register-promo-label {
+  color: var(--brand-sky);
+}
+
+.register-title,
+.register-current-tab {
+  color: var(--text-strong);
+}
+
+.register-current-tab {
+  border-color: var(--action);
+}
+
+.register-nav-link,
+.register-muted,
+.register-input::placeholder {
+  color: var(--text-muted);
+}
+
+.register-nav-link:hover,
+.register-text-link {
+  color: var(--link);
+}
+
+.register-text-link {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.register-text-link:hover {
+  color: var(--action-pressed);
+}
+
+.register-divider {
+  background: var(--border-subtle);
+}
+
+.register-input,
+.register-provider {
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.register-input:focus,
+.register-provider:enabled:hover {
+  border-color: var(--action-hover);
+}
+
+.register-input[aria-invalid="true"],
+.register-input-error {
+  border-color: var(--status-error-text);
+}
+
+.register-input-success {
+  border-color: #075b85;
+}
+
+.register-provider:enabled:hover {
+  background: var(--status-info-surface);
+}
+
+.register-provider:disabled {
+  cursor: not-allowed;
+  border-color: var(--border-subtle);
+  color: var(--text-muted);
+}
+
+.register-checkbox {
+  accent-color: var(--action);
+}
+
+.register-warning,
+.register-error {
+  border: 1px solid currentColor;
+  border-radius: var(--radius-sm);
+}
+
+.register-warning {
+  background: var(--status-warning-surface);
+  color: var(--status-warning-text);
+}
+
+.register-error {
+  background: var(--status-error-surface);
+}
+
+.register-error,
+.register-error-text {
+  color: var(--status-error-text);
+}
+
+.register-action {
+  border-radius: var(--radius-pill);
+  background: var(--action);
+  color: var(--action-text);
+}
+
+.register-action:hover {
+  background: var(--action-hover);
+}
+
+.register-action:active {
+  background: var(--action-pressed);
+}
+
+.register-action:disabled {
+  cursor: not-allowed;
+  background: var(--border-subtle);
+  color: var(--text-strong);
+}

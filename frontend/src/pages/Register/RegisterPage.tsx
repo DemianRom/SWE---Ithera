@@ -8,6 +8,8 @@ import { useAuth } from "../../context/useAuth";
 import { ApiError, apiClient, isNetworkError } from "../../services/apiClient";
 import { useToast } from "../../hooks/useToast";
 import { ToastContainer } from "../../components/ui/Toast/ToastContainer";
+import "../../styles/traveling-brand.css";
+import "./RegisterPage.css";
 
 type RegisterForm = {
   name: string;
@@ -443,7 +445,7 @@ export function RegisterPage() {
   };
 
   const inputBase =
-    "w-full rounded-[14px] border border-[#CBDDE3] bg-white px-4 py-3 text-[15px] text-[#183F51] outline-none transition placeholder:text-[#526C79] focus:border-[#0878CF] focus:ring-2 focus:ring-[#0878CF]/15";
+    "register-input w-full px-4 py-3 text-[15px]";
 
   const passwordRuleClass = (valid: boolean) =>
     `flex items-center gap-2 text-[12px] ${valid ? "text-[#075B85]" : "text-[#526C79]"}`;
@@ -452,33 +454,26 @@ export function RegisterPage() {
   const strengthColors = ["bg-[#CBDDE3]", "bg-[#8D4034]", "bg-[#765000]", "bg-[#0878CF]", "bg-[#075B85]"];
 
   return (
-    <div className="h-screen overflow-hidden bg-[#F4F9FA] font-body">
+    <div className="traveling-brand register-page h-dvh overflow-hidden">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
-      <div className="grid h-screen grid-cols-1 lg:grid-cols-[45%_55%]">
-        <section className="relative hidden overflow-hidden lg:flex">
-          <div className="absolute inset-0 bg-[linear-gradient(135deg,#073B52_0%,#073B52_48%,#0878CF_100%)]" />
-          <div className="absolute inset-0 opacity-20">
-            <div className="h-full w-full bg-[radial-gradient(circle,rgba(255,255,255,0.12)_1px,transparent_1px)] [background-size:26px_26px]" />
-          </div>
-          <div className="landing-glow absolute left-10 top-28 h-40 w-40 rounded-full bg-[#0878CF]/35 blur-3xl" />
-          <div className="landing-glow absolute bottom-20 right-8 h-44 w-44 rounded-full bg-[#16B9D0]/25 blur-3xl" />
-
-          <div className="relative z-10 flex h-full w-full flex-col px-16 py-12">
+      <div className="grid h-full grid-cols-1 grid-rows-[minmax(0,1fr)] lg:grid-cols-[45%_55%]">
+        <section className="register-promo hidden overflow-y-auto lg:block">
+          <div className="flex min-h-full w-full flex-col gap-8 px-12 py-10 xl:px-16 xl:py-12">
             <Link to="/" className="inline-flex w-fit">
               <Logo variant="white" height={48} className="cursor-pointer" />
             </Link>
 
             <div className="flex flex-1 items-center">
               <div className="w-full max-w-[620px]">
-                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[12px] font-bold uppercase tracking-[0.16em] text-[#91DEF0] backdrop-blur">
-                  <span className="h-2 w-2 rounded-full bg-[#16B9D0]" />
+                <div className="register-promo-badge mb-6 inline-flex items-center gap-2 px-4 py-2 text-[12px] font-bold uppercase tracking-[0.16em]">
+                  <span className="register-promo-accent h-2 w-2 rounded-full" />
                   Plataforma colaborativa
                 </div>
-                <h1 className="font-heading text-[68px] font-extrabold leading-[0.96] tracking-[-0.04em] text-white">
+                <h1 className="register-heading text-[clamp(2.75rem,4.1vw,4.25rem)] font-semibold leading-[1.02] tracking-[-0.025em]">
                   Registra gastos, repártelos y cierra las cuentas del viaje sin pendientes.
                 </h1>
 
-                <p className="mt-8 max-w-[540px] text-[19px] leading-[1.65] text-white/75">
+                <p className="register-promo-copy mt-8 max-w-[540px] text-[19px] leading-[1.55]">
                   Itinerarios, presupuesto, decisiones y documentos conectados
                   para que cada integrante sepa qué sigue.
                 </p>
@@ -491,10 +486,10 @@ export function RegisterPage() {
                   ].map(([title, subtitle]) => (
                     <div
                       key={title}
-                      className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur"
+                      className="register-promo-card px-4 py-3"
                     >
-                      <p className="text-[13px] font-bold text-white">{title}</p>
-                      <p className="mt-1 text-[11px] leading-tight text-white/55">
+                      <p className="text-[13px] font-bold">{title}</p>
+                      <p className="register-promo-copy mt-1 text-[12px] leading-tight">
                         {subtitle}
                       </p>
                     </div>
@@ -504,25 +499,25 @@ export function RegisterPage() {
             </div>
 
             <div className="grid max-w-[560px] grid-cols-[1fr_0.9fr] gap-3">
-              <div className="rounded-3xl border border-white/15 bg-white/10 p-4 backdrop-blur">
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#91DEF0]">
+              <div className="register-promo-card p-4">
+                <p className="register-promo-label text-[12px] font-bold uppercase tracking-[0.16em]">
                   Próximo plan
                 </p>
-                <p className="mt-2 text-[16px] font-bold text-white">
+                <p className="mt-2 text-[16px] font-bold">
                   Cena frente al mar
                 </p>
-                <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/15">
-                  <div className="h-full w-3/4 rounded-full bg-[#16B9D0]" />
+                <div className="register-promo-track mt-4 h-2 overflow-hidden rounded-full">
+                  <div className="register-promo-accent h-full w-3/4 rounded-full" />
                 </div>
               </div>
-              <div className="rounded-3xl border border-white/15 bg-white/10 p-4 backdrop-blur">
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#91DEF0]">
+              <div className="register-promo-card p-4">
+                <p className="register-promo-label text-[12px] font-bold uppercase tracking-[0.16em]">
                   Presupuesto
                 </p>
-                <p className="mt-2 text-[22px] font-extrabold text-white">
+                <p className="mt-2 text-[22px] font-extrabold">
                   $50,000
                 </p>
-                <p className="mt-1 text-[12px] text-white/55">
+                <p className="register-promo-copy mt-1 text-[12px]">
                   28% comprometido
                 </p>
               </div>
@@ -530,9 +525,9 @@ export function RegisterPage() {
           </div>
         </section>
 
-        <section className="flex h-screen items-start justify-center overflow-y-auto bg-[#F4F9FA] px-6 py-10 sm:px-10 lg:px-16 lg:py-12">
+        <section className="flex min-h-0 min-w-0 items-start justify-center overflow-y-auto px-6 py-10 sm:px-10 lg:px-16 lg:py-12">
           <div className="w-full max-w-[470px]">
-            <Link to="/" className="mb-8 inline-flex items-center gap-1.5 text-[13px] text-[#526C79] transition hover:text-[#526C79]">
+            <Link to="/" className="mb-8 inline-flex items-center gap-1.5 text-[13px] register-nav-link">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M19 12H5M5 12l7-7M5 12l7 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -540,16 +535,16 @@ export function RegisterPage() {
             </Link>
 
             <div className="mb-7 flex items-center justify-center gap-8 text-[15px]">
-              <Link to="/login" className="text-[#526C79] transition hover:text-[#526C79]">
+              <Link to="/login" className="register-nav-link">
                 Iniciar sesión
               </Link>
 
-              <button type="button" className="border-b-2 border-[#073B52] pb-1 font-semibold text-[#073B52]">
+              <button type="button" aria-current="page" className="register-current-tab border-b-2 pb-1 font-semibold">
                 Registrarse
               </button>
             </div>
 
-            <h2 className="font-heading mb-8 text-center text-[52px] font-extrabold leading-none tracking-[-0.04em] text-[#073B52]">
+            <h2 className="register-heading register-title mb-8 text-center text-[clamp(2.25rem,8vw,3.25rem)] font-semibold leading-none tracking-[-0.025em]">
               Crea tu cuenta
             </h2>
 
@@ -569,7 +564,7 @@ export function RegisterPage() {
                           setServerMessage(message);
                         }
                       }}
-                      className="flex h-[54px] items-center justify-center gap-3 rounded-[14px] border border-[#CBDDE3] bg-white text-[16px] font-medium text-[#183F51] transition hover:border-[#16B9D0]"
+                      className="register-provider flex h-[54px] items-center justify-center gap-3 text-[16px] font-semibold"
                     >
                       <img src={googleIcon} alt="Google" className="h-5 w-5 object-contain" />
                       <span>Google</span>
@@ -589,7 +584,7 @@ export function RegisterPage() {
                           setServerMessage(message);
                         }
                       }}
-                      className="flex h-[54px] items-center justify-center gap-3 rounded-[14px] border border-[#CBDDE3] bg-white text-[16px] font-medium text-[#183F51] transition hover:border-[#16B9D0]"
+                      className="register-provider flex h-[54px] items-center justify-center gap-3 text-[16px] font-semibold"
                     >
                       <img src={facebookIcon} alt="Facebook" className="h-5 w-5 object-contain" />
                       <span>Facebook</span>
@@ -598,9 +593,9 @@ export function RegisterPage() {
                 </div>
 
                 <div className="mb-8 flex items-center gap-4">
-                  <div className="h-px flex-1 bg-[#CBDDE3]" />
-                  <span className="text-[14px] text-[#526C79]">o continúa con tu correo</span>
-                  <div className="h-px flex-1 bg-[#CBDDE3]" />
+                  <div className="register-divider h-px flex-1" />
+                  <span className="register-muted text-[14px]">o continúa con tu correo</span>
+                  <div className="register-divider h-px flex-1" />
                 </div>
               </>
             )}
@@ -635,7 +630,7 @@ export function RegisterPage() {
                   value={form.name}
                   onChange={(e) => handleChange("name", e.target.value)}
                   placeholder="Ej. María"
-                  className={`${inputBase} ${errors.name ? "border-[#8D4034]" : ""}`}
+                  className={`${inputBase} ${errors.name ? "register-input-error" : ""}`}
                 />
                 {errors.name && <p className="mt-1 text-[12px] text-[#8D4034]">{errors.name}</p>}
               </div>
@@ -648,7 +643,7 @@ export function RegisterPage() {
                     value={form.lastNamePaterno}
                     onChange={(e) => handleChange("lastNamePaterno", e.target.value)}
                     placeholder="Ej. García"
-                    className={`${inputBase} ${errors.lastNamePaterno ? "border-[#8D4034]" : ""}`}
+                    className={`${inputBase} ${errors.lastNamePaterno ? "register-input-error" : ""}`}
                   />
                   {errors.lastNamePaterno && <p className="mt-1 text-[12px] text-[#8D4034]">{errors.lastNamePaterno}</p>}
                 </div>
@@ -660,7 +655,7 @@ export function RegisterPage() {
                     value={form.lastNameMaterno}
                     onChange={(e) => handleChange("lastNameMaterno", e.target.value)}
                     placeholder="Ej. López"
-                    className={`${inputBase} ${errors.lastNameMaterno ? "border-[#8D4034]" : ""}`}
+                    className={`${inputBase} ${errors.lastNameMaterno ? "register-input-error" : ""}`}
                   />
                   {errors.lastNameMaterno && <p className="mt-1 text-[12px] text-[#8D4034]">{errors.lastNameMaterno}</p>}
                 </div>
@@ -677,7 +672,7 @@ export function RegisterPage() {
                   onBlur={(e) => void checkEmailAvailability(e.target.value)}
                   placeholder="nombre@correo.com"
                   aria-invalid={Boolean(errors.email)}
-                  className={`${inputBase} ${errors.email ? "border-[#8D4034]" : ""}`}
+                  className={`${inputBase} ${errors.email ? "register-input-error" : ""}`}
                 />
                 {isCheckingEmail && (
                   <p className="mt-1 text-[12px] text-[#526C79]">Verificando disponibilidad del correo...</p>
@@ -707,12 +702,12 @@ export function RegisterPage() {
                     onFocus={() => setIsPasswordFocused(true)}
                     onBlur={() => setIsPasswordFocused(false)}
                     placeholder="••••••••"
-                    className={`${inputBase} pr-12 ${errors.password ? "border-[#8D4034]" : ""}`}
+                    className={`${inputBase} pr-12 ${errors.password ? "register-input-error" : ""}`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#526C79] transition hover:text-[#526C79]"
+                    className="register-nav-link absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg"
                     aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                   >
                     {showPassword ? (
@@ -764,16 +759,16 @@ export function RegisterPage() {
                     placeholder="••••••••"
                     className={`${inputBase} pr-12 ${
                       errors.confirmPassword || passwordsMismatch
-                        ? "border-[#8D4034] ring-2 ring-[#8D4034]/15"
+                        ? "register-input-error ring-2 ring-[#8D4034]/15"
                         : passwordsMatch
-                          ? "border-[#075B85] ring-2 ring-[#075B85]/15"
+                          ? "register-input-success ring-2 ring-[#075B85]/15"
                           : ""
                     }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#526C79] transition hover:text-[#526C79]"
+                    className="register-nav-link absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg"
                     aria-label={showConfirmPassword ? "Ocultar confirmación" : "Mostrar confirmación"}
                   >
                     {showConfirmPassword ? (
@@ -806,14 +801,14 @@ export function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading || !isRegisterFormReady}
-                className="mt-2 h-[54px] w-full rounded-full bg-[linear-gradient(90deg,#075EAA_0%,#075B85_100%)] text-[18px] font-bold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70"
+                className="register-action mt-2 h-[54px] w-full text-[18px] font-bold"
               >
                 {loading ? "Creando cuenta..." : "Continuar"}
               </button>
 
-              <p className="pt-2 text-center text-[14px] text-[#526C79]">
+              <p className="register-muted pt-2 text-center text-[14px]">
                 ¿Ya tienes cuenta?{" "}
-                <Link to="/login" className="font-medium text-[#075B85] transition hover:opacity-80">
+                <Link to="/login" className="register-text-link font-semibold">
                   Inicia sesión
                 </Link>
               </p>
