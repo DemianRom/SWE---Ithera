@@ -69,7 +69,7 @@ export const ExpenseDraftForm: FC<Props> = ({
       : totalAmount
   const splitError =
     splitType === 'personalizada' && totalAmount > 0 && Math.abs(splitSum - totalAmount) > 0.01
-      ? `La suma de los montos ($${Math.round(splitSum)}) no coincide con el total ($${Math.round(totalAmount)})`
+      ? `La suma de los montos ($${splitSum.toFixed(2)}) no coincide con el total ($${totalAmount.toFixed(2)})`
       : splitType === 'porcentual'
         ? checkPercentSplit(activeMembers.map((member) => member.id), splitPercentages, totalAmount).error
         : null
