@@ -37,9 +37,9 @@ export default {
         canvas: '1536px',
       },
       fontFamily: {
-        heading: ['"Plus Jakarta Sans"', 'sans-serif'],
-        body:    ['"DM Sans"', 'sans-serif'],
-        sans:    ['"DM Sans"', 'sans-serif'],
+        heading: ['Fredoka', '"Trebuchet MS"', 'sans-serif'],
+        body:    ['Nunito', '"Segoe UI"', 'sans-serif'],
+        sans:    ['Nunito', '"Segoe UI"', 'sans-serif'],
       },
     },
   },

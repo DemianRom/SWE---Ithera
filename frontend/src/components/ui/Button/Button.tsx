@@ -2,7 +2,7 @@ import React from 'react'
 import type { ButtonVariant, Size } from '../../../types'
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant
+  variant?: ButtonVariant | 'danger'
   size?: Size
   isLoading?: boolean
   leftIcon?: React.ReactNode
@@ -11,11 +11,12 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   children: React.ReactNode
 }
 
-const variantClasses: Record<ButtonVariant, string> = {
-  primary:   'bg-primary-dark text-white hover:bg-primary focus-visible:ring-primary',
-  secondary: 'bg-primary text-white hover:bg-purple focus-visible:ring-purple',
-  outline:   'border border-primary-dark text-primary-dark bg-transparent hover:bg-primary-dark hover:text-white focus-visible:ring-primary-dark',
-  ghost:     'text-primary-dark bg-transparent hover:bg-primary-dark/10 focus-visible:ring-primary-dark',
+const variantClasses: Record<ButtonVariant | 'danger', string> = {
+  primary:   'border-[#0878cf] bg-[#0878cf] text-white enabled:hover:bg-[#075eaa] enabled:active:bg-[#064d8b]',
+  secondary: 'border-[#79aab9] bg-[#fafdfe] text-[#075675] enabled:hover:bg-[#edf8fa] enabled:active:bg-[#dceff3]',
+  outline:   'border-[#79aab9] bg-transparent text-[#075675] enabled:hover:bg-[#edf8fa] enabled:active:bg-[#dceff3]',
+  ghost:     'border-transparent bg-transparent text-[#073b52] enabled:hover:bg-[#f0f6f7] enabled:active:bg-[#e2edef]',
+  danger:    'border-[#8d4034] bg-[#8d4034] text-white enabled:hover:bg-[#733127] enabled:active:bg-[#5f281f]',
 }
 
 const sizeClasses: Record<Size, string> = {
@@ -27,7 +28,7 @@ const sizeClasses: Record<Size, string> = {
 function Spinner() {
   return (
     <svg
-      className="animate-spin w-4 h-4 flex-shrink-0"
+      className="h-4 w-4 flex-shrink-0 motion-safe:animate-spin"
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -59,19 +60,23 @@ export function Button({
       disabled={isDisabled}
       aria-busy={isLoading}
       className={[
-        'inline-flex items-center justify-center font-body font-medium rounded-lg',
-        'transition-colors duration-150',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-        'disabled:opacity-50 disabled:cursor-not-allowed',
+        'relative inline-flex items-center justify-center rounded-[15px] border font-body font-bold',
+        'transition-[background-color,border-color,color,box-shadow] duration-150 motion-reduce:transition-none',
+        'enabled:hover:shadow-[0_3px_10px_#073b521a] enabled:active:shadow-[inset_0_2px_4px_#073b5220]',
+        'focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[#005aaf]',
+        'disabled:cursor-not-allowed disabled:border-[#d4e3e8] disabled:bg-[#d4e3e8] disabled:text-[#405d69]',
         variantClasses[variant],
         sizeClasses[size],
         fullWidth ? 'w-full' : '',
         className,
       ].join(' ')}
     >
-      {isLoading ? <Spinner /> : leftIcon}
-      {children}
-      {!isLoading && rightIcon}
+      <span className={`inline-flex items-center justify-center gap-[inherit] ${isLoading ? 'opacity-0' : ''}`}>
+        {leftIcon && <span aria-hidden="true" className="inline-flex shrink-0">{leftIcon}</span>}
+        {children}
+        {rightIcon && <span aria-hidden="true" className="inline-flex shrink-0">{rightIcon}</span>}
+      </span>
+      {isLoading && <span className="absolute inset-0 flex items-center justify-center"><Spinner /></span>}
     </button>
   )
 }
