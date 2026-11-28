@@ -50,6 +50,7 @@ export function Button({
   children,
   disabled,
   className = '',
+  'aria-busy': ariaBusy,
   ...rest
 }: ButtonProps) {
   const isDisabled = disabled || isLoading
@@ -58,7 +59,7 @@ export function Button({
     <button
       {...rest}
       disabled={isDisabled}
-      aria-busy={isLoading}
+      aria-busy={ariaBusy ?? isLoading}
       className={[
         'relative inline-flex items-center justify-center rounded-[15px] border font-body font-bold',
         'transition-[background-color,border-color,color,box-shadow] duration-150 motion-reduce:transition-none',

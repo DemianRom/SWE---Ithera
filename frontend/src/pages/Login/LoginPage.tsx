@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { Logo } from "../../components/ui/Logo";
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
 import googleIcon from "../../assets/google.png";
 import facebookIcon from "../../assets/facebook.png";
 import { isOAuthProviderEnabled, oauthProviderCount } from "../../lib/oauth";
@@ -613,7 +615,7 @@ export function LoginPage() {
                 <label htmlFor="login-email" className="mb-2 block text-[15px] font-semibold">
                   Correo electrónico
                 </label>
-                <input
+                <Input
                   id="login-email"
                   type="text"
                   inputMode="email"
@@ -660,7 +662,7 @@ export function LoginPage() {
                   Contraseña
                 </label>
                 <div className="relative">
-                  <input
+                  <Input
                     id="login-password"
                     type={showPassword ? "text" : "password"}
                     autoComplete="current-password"
@@ -683,6 +685,7 @@ export function LoginPage() {
                     type="button"
                     aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                     aria-controls="login-password"
+                    aria-pressed={showPassword}
                     onClick={() => setShowPassword((prev) => !prev)}
                     className="login-nav-link absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg"
                   >
@@ -824,13 +827,14 @@ export function LoginPage() {
               </div>
 
               {/* Submit */}
-              <button
+              <Button
                 type="submit"
+                aria-busy={loading}
                 disabled={loading || isOffline || isLoginLocked || !isLoginFormReady}
                 className="login-action mt-2 h-[54px] w-full text-[18px] font-bold"
               >
                 {loading ? "Iniciando sesión..." : isOffline ? "Sin conexión" : isLoginLocked ? `Bloqueado ${lockMinutes}:${lockSeconds}` : "Iniciar sesión"}
-              </button>
+              </Button>
 
               {/* Sign-up link */}
               <p className="login-muted pt-2 text-center text-[14px]">
