@@ -277,12 +277,12 @@ export function OTPPage() {
   const timerRed = secondsLeft < 60;
   const timerProgress = Math.max(0, Math.min(100, (secondsLeft / TOTAL_SECONDS) * 100));
   const inputBase =
-    "w-12 h-14 rounded-[14px] border border-[#D9DEE7] bg-white text-center text-[22px] font-bold text-[#111827] outline-none transition focus:border-[#1E6FD9] focus:ring-2 focus:ring-[#1E6FD9]/15 caret-transparent select-none";
+    "w-12 h-14 rounded-[14px] border border-[#CBDDE3] bg-white text-center text-[22px] font-bold text-[#073B52] outline-none transition focus:border-[#0878CF] focus:ring-2 focus:ring-[#0878CF]/15 caret-transparent select-none";
 
   if (!email) return null;
 
   return (
-    <div className="min-h-screen bg-[#F4F6F8] font-body">
+    <div className="min-h-screen bg-[#F4F9FA] font-body">
       <style>{`@keyframes otp-shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }`}</style>
       <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[45%_55%]">
         {/* ── Left panel ── */}
@@ -290,7 +290,7 @@ export function OTPPage() {
           className="relative hidden lg:flex overflow-hidden"
           style={{
             background:
-              "linear-gradient(135deg, #0D0820 0%, #1E0A4E 55%, #0D0820 100%)",
+              "linear-gradient(135deg, #073B52 0%, #073B52 55%, #073B52 100%)",
           }}
         >
           <div className="absolute inset-0 opacity-[0.15]">
@@ -304,7 +304,7 @@ export function OTPPage() {
             </div>
             <div className="flex flex-1 items-center">
               <div className="w-full max-w-[600px]">
-                <h1 className="text-[72px] font-extrabold leading-[0.95] tracking-[-0.04em] text-white">
+                <h1 className="font-heading text-[72px] font-extrabold leading-[0.95] tracking-[-0.04em] text-white">
                   Planifica tus viajes en grupo sin el caos.
                 </h1>
                 <p className="mt-10 max-w-[520px] text-[20px] leading-[1.6] text-white/80">
@@ -318,11 +318,11 @@ export function OTPPage() {
         </section>
 
         {/* ── Right panel ── */}
-        <section className="flex items-center justify-center bg-[#F4F6F8] px-6 py-10 sm:px-10 lg:px-16">
+        <section className="flex items-center justify-center bg-[#F4F9FA] px-6 py-10 sm:px-10 lg:px-16">
           <div className="w-full max-w-[470px]">
             <Link
               to="/register"
-              className="mb-8 inline-flex items-center gap-1.5 text-[13px] text-[#98A2B3] transition hover:text-[#667085]"
+              className="mb-8 inline-flex items-center gap-1.5 text-[13px] text-[#526C79] transition hover:text-[#526C79]"
             >
               <svg
                 width="16"
@@ -342,12 +342,12 @@ export function OTPPage() {
               Volver al registro
             </Link>
 
-            <h2 className="mb-3 text-center text-[44px] font-extrabold leading-none tracking-[-0.04em] text-[#111827]">
+            <h2 className="font-heading mb-3 text-center text-[44px] font-extrabold leading-none tracking-[-0.04em] text-[#073B52]">
               Verifica tu correo
             </h2>
-            <p className="mb-8 text-center text-[15px] leading-[1.7] text-[#667085]">
+            <p className="mb-8 text-center text-[15px] leading-[1.7] text-[#526C79]">
               Ingresamos un código de 6 dígitos a{" "}
-              <span className="font-semibold text-[#344054]">{email}</span>
+              <span className="font-semibold text-[#183F51]">{email}</span>
             </p>
 
             {/* OTP inputs */}
@@ -372,7 +372,7 @@ export function OTPPage() {
                   }}
                   disabled={inputsDisabled}
                   aria-invalid={Boolean(error)}
-                  className={`${inputBase} ${error ? "border-[#EF4444]" : ""} disabled:cursor-not-allowed disabled:bg-[#F2F4F7] disabled:text-[#98A2B3]`}
+                  className={`${inputBase} ${error ? "border-[#8D4034]" : ""} disabled:cursor-not-allowed disabled:bg-[#F2F4F7] disabled:text-[#526C79]`}
                 />
               ))}
             </div>
@@ -381,7 +381,7 @@ export function OTPPage() {
             <div className="mb-4">
               <p
                 className={`text-center text-[13px] font-medium ${
-                  timerRed ? "text-[#EF4444]" : "text-[#667085]"
+                  timerRed ? "text-[#8D4034]" : "text-[#526C79]"
                 }`}
               >
                 {secondsLeft > 0
@@ -390,7 +390,7 @@ export function OTPPage() {
               </p>
 
               <div
-                className="mt-3 h-2 overflow-hidden rounded-full bg-[#E4E7EC]"
+                className="mt-3 h-2 overflow-hidden rounded-full bg-[#CBDDE3]"
                 role="progressbar"
                 aria-label="Tiempo restante del código OTP"
                 aria-valuemin={0}
@@ -398,7 +398,7 @@ export function OTPPage() {
                 aria-valuenow={secondsLeft}
               >
                 <div
-                  className={`h-full rounded-full transition-all duration-500 ${timerRed ? "bg-[#EF4444]" : "bg-[#7A4FD6]"}`}
+                  className={`h-full rounded-full transition-all duration-500 ${timerRed ? "bg-[#8D4034]" : "bg-[#0878CF]"}`}
                   style={{ width: `${timerProgress}%` }}
                 />
               </div>
@@ -413,7 +413,7 @@ export function OTPPage() {
             )}
 
             {error && (
-              <p className="mb-4 text-center text-[12px] text-[#EF4444]">
+              <p className="mb-4 text-center text-[12px] text-[#8D4034]">
                 {error}
               </p>
             )}
@@ -423,7 +423,7 @@ export function OTPPage() {
               type="button"
               onClick={handleSubmit}
               disabled={!isComplete || loading || verified || otpLocked || otpExpired || isOffline}
-              className="h-[54px] w-full rounded-full bg-[linear-gradient(90deg,#7A4FD6_0%,#6D46D4_35%,#6E45E6_65%,#5B35D5_100%)] text-[18px] font-bold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70"
+              className="h-[54px] w-full rounded-full bg-[linear-gradient(90deg,#075EAA_0%,#075B85_100%)] text-[18px] font-bold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {loading || verified ? "Verificando..." : "Verificar"}
             </button>
@@ -436,14 +436,14 @@ export function OTPPage() {
                 disabled={!canRequestNewCode || isOffline}
                 className={`text-[14px] font-medium transition ${
                   canRequestNewCode && !isOffline
-                    ? "text-[#7A4FD6] hover:opacity-80"
+                    ? "text-[#075B85] hover:opacity-80"
                     : "cursor-not-allowed text-[#C4C9D4]"
                 }`}
               >
                 {resending ? "Reenviando..." : "Reenviar código"}
               </button>
 
-              <p className="text-center text-[12px] leading-[1.5] text-[#98A2B3]">
+              <p className="text-center text-[12px] leading-[1.5] text-[#526C79]">
                 {resendLimitReached
                   ? "Alcanzaste el límite de reenvíos. Regresa al registro para iniciar nuevamente."
                   : resendCooldownLeft > 0
@@ -456,7 +456,7 @@ export function OTPPage() {
               <button
                 type="button"
                 onClick={() => setShowSpamHelp((current) => !current)}
-                className="text-[13px] text-[#98A2B3] underline transition hover:text-[#667085]"
+                className="text-[13px] text-[#526C79] underline transition hover:text-[#526C79]"
                 aria-expanded={showSpamHelp}
                 aria-controls="spam-help"
               >
@@ -466,9 +466,9 @@ export function OTPPage() {
               {showSpamHelp && (
                 <div
                   id="spam-help"
-                  className="mt-2 w-full rounded-2xl border border-[#D9DEE7] bg-white p-4 text-left text-[13px] leading-[1.6] text-[#475467] shadow-sm"
+                  className="mt-2 w-full rounded-2xl border border-[#CBDDE3] bg-white p-4 text-left text-[13px] leading-[1.6] text-[#475467] shadow-sm"
                 >
-                  <p className="font-semibold text-[#344054]">Revisa estas opciones:</p>
+                  <p className="font-semibold text-[#183F51]">Revisa estas opciones:</p>
                   <ol className="mt-2 list-decimal space-y-1 pl-5">
                     <li>Busca un correo de Traveling en tu bandeja de entrada.</li>
                     <li>Revisa la carpeta de spam, correo no deseado o promociones.</li>

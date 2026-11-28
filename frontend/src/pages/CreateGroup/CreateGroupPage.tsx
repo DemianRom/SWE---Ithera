@@ -121,7 +121,7 @@ function DatePickerField({
 
   return (
     <div className="relative flex flex-col gap-2" ref={ref}>
-      <label className="font-body text-sm font-extrabold uppercase tracking-[0.14em] text-[#4B2FA3]">
+      <label className="font-body text-sm font-extrabold uppercase tracking-[0.14em] text-[#075EAA]">
         {label}
       </label>
 
@@ -132,24 +132,24 @@ function DatePickerField({
           error
             ? "border-red-400"
             : open
-              ? "border-[#7A4FD6] ring-2 ring-[#7A4FD6]/15"
-              : "border-[#D8C8FF] hover:border-[#7A4FD6]/60"
+              ? "border-[#16B9D0] ring-2 ring-[#16B9D0]/15"
+              : "border-[#CBDDE3] hover:border-[#16B9D0]/60"
         }`}
       >
-        <span className={`shrink-0 ${value ? "text-[#7A4FD6]" : "text-[#94A3B8]"}`}>
+        <span className={`shrink-0 ${value ? "text-[#075EAA]" : "text-[#94A3B8]"}`}>
           <IconCalPicker />
         </span>
-        <span className={`flex-1 ${value ? "text-[#1E0A4E]" : "text-[#94A3B8]"}`}>
+        <span className={`flex-1 ${value ? "text-[#073B52]" : "text-[#94A3B8]"}`}>
           {value ? formatDisplay(value) : placeholder}
         </span>
-        <span className={`shrink-0 transition-transform duration-200 ${open ? "rotate-180 text-[#7A4FD6]" : "text-[#94A3B8]"}`}>
+        <span className={`shrink-0 transition-transform duration-200 ${open ? "rotate-180 text-[#075EAA]" : "text-[#94A3B8]"}`}>
           <IconChevSmall />
         </span>
       </button>
 
       {open && (
-        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-[60] overflow-hidden rounded-2xl border border-[#D8C8FF] bg-white shadow-[0_16px_40px_rgba(30,10,78,0.18)]">
-          <div className="flex items-center justify-between bg-[linear-gradient(135deg,#1E0A4E_0%,#7A4FD6_100%)] px-4 py-3">
+        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-[60] overflow-hidden rounded-2xl border border-[#CBDDE3] bg-white shadow-[0_16px_40px_rgba(13,64,84,0.18)]">
+          <div className="flex items-center justify-between bg-[linear-gradient(135deg,#073B52_0%,#16B9D0_100%)] px-4 py-3">
             <button
               type="button"
               onClick={() => setViewDate(new Date(vy, vm - 1, 1))}
@@ -165,7 +165,7 @@ function DatePickerField({
             >›</button>
           </div>
 
-          <div className="grid grid-cols-7 border-b border-[#EDE9FB] px-3 py-2">
+          <div className="grid grid-cols-7 border-b border-[#E8F4FA] px-3 py-2">
             {DAY_NAMES.map((d) => (
               <div key={d} className="text-center font-body text-[11px] font-bold uppercase tracking-wide text-[#94A3B8]">
                 {d}
@@ -183,12 +183,12 @@ function DatePickerField({
                     onClick={() => selectDay(day)}
                     className={`h-8 w-8 rounded-xl font-body text-sm font-semibold transition-all ${
                       isSelected(day)
-                        ? "bg-[#7A4FD6] text-white shadow-md shadow-[#7A4FD6]/30"
+                        ? "bg-[#0878CF] text-white shadow-md shadow-[#16B9D0]/30"
                         : isDisabled(day)
                           ? "cursor-not-allowed text-[#CBD5E1]"
                           : isTodayDay(day)
-                            ? "bg-[#F3EEFF] text-[#7A4FD6] ring-1 ring-[#7A4FD6]/40 hover:bg-[#7A4FD6] hover:text-white"
-                            : "text-[#1E0A4E] hover:bg-[#F3EEFF] hover:text-[#7A4FD6]"
+                            ? "bg-[#E8F4FA] text-[#075EAA] ring-1 ring-[#16B9D0]/40 hover:bg-[#0878CF] hover:text-white"
+                            : "text-[#073B52] hover:bg-[#E8F4FA] hover:text-[#075EAA]"
                     }`}
                   >
                     {day}
@@ -199,8 +199,8 @@ function DatePickerField({
           </div>
 
           {value && (
-            <div className="border-t border-[#EDE9FB] px-4 py-2.5 text-center">
-              <span className="font-body text-xs font-semibold capitalize text-[#7A4FD6]">
+            <div className="border-t border-[#E8F4FA] px-4 py-2.5 text-center">
+              <span className="font-body text-xs font-semibold capitalize text-[#075EAA]">
                 {formatDisplay(value)}
               </span>
             </div>
@@ -208,7 +208,7 @@ function DatePickerField({
         </div>
       )}
 
-      {hint && !error && <p className="font-body text-sm font-medium text-[#64748B]">{hint}</p>}
+      {hint && !error && <p className="font-body text-sm font-medium text-[#526C79]">{hint}</p>}
       {error && <p className="font-body text-sm font-bold text-red-500">{error}</p>}
     </div>
   );
@@ -243,7 +243,7 @@ function InputField({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="font-body text-sm font-extrabold text-[#4B2FA3] uppercase tracking-[0.14em]">
+      <label className="font-body text-sm font-extrabold text-[#075EAA] uppercase tracking-[0.14em]">
         {label}
       </label>
       {multiline ? (
@@ -253,11 +253,11 @@ function InputField({
           maxLength={maxLength}
           onChange={(e) => onChange(e.target.value)}
           rows={4}
-          className={`w-full resize-none font-body text-base font-medium text-[#1E0A4E] placeholder-[#94A3B8] border rounded-2xl px-4 py-3.5 outline-none transition-all duration-200 bg-white shadow-sm
+          className={`w-full resize-none font-body text-base font-medium text-[#073B52] placeholder-[#94A3B8] border rounded-2xl px-4 py-3.5 outline-none transition-all duration-200 bg-white shadow-sm
             ${
               error
                 ? "border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100"
-                : "border-[#D8C8FF] focus:border-[#7A4FD6] focus:ring-2 focus:ring-[#7A4FD6]/15"
+                : "border-[#CBDDE3] focus:border-[#16B9D0] focus:ring-2 focus:ring-[#16B9D0]/15"
             }
           `}
         />
@@ -280,22 +280,22 @@ function InputField({
             if (type === "number") e.currentTarget.blur();
           }}
           onChange={(e) => onChange(e.target.value)}
-          className={`w-full font-body text-base font-medium text-[#1E0A4E] placeholder-[#94A3B8] border rounded-2xl px-4 py-3.5 outline-none transition-all duration-200 bg-white shadow-sm
+          className={`w-full font-body text-base font-medium text-[#073B52] placeholder-[#94A3B8] border rounded-2xl px-4 py-3.5 outline-none transition-all duration-200 bg-white shadow-sm
             ${
               error
                 ? "border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100"
-                : "border-[#D8C8FF] focus:border-[#7A4FD6] focus:ring-2 focus:ring-[#7A4FD6]/15"
+                : "border-[#CBDDE3] focus:border-[#16B9D0] focus:ring-2 focus:ring-[#16B9D0]/15"
             }
           `}
         />
       )}
       <div className="flex items-center justify-between gap-2">
         {hint && !error && (
-          <p className="font-body text-sm font-medium text-[#64748B]">{hint}</p>
+          <p className="font-body text-sm font-medium text-[#526C79]">{hint}</p>
         )}
         {maxLength !== undefined && (
           <p
-            className={`font-body text-sm font-bold ${value.length >= maxLength ? "text-red-500" : "text-[#64748B]"}`}
+            className={`font-body text-sm font-bold ${value.length >= maxLength ? "text-red-500" : "text-[#526C79]"}`}
           >
             {value.length}/{maxLength}
           </p>
@@ -370,7 +370,7 @@ function MembersSection({
 
   return (
     <div className="flex flex-col gap-3">
-      <label className="font-body text-sm font-extrabold text-[#4B2FA3] uppercase tracking-[0.14em]">
+      <label className="font-body text-sm font-extrabold text-[#075EAA] uppercase tracking-[0.14em]">
         Invitar miembros (opcional)
       </label>
 
@@ -393,15 +393,15 @@ function MembersSection({
           onKeyDown={(e) => e.key === "Enter" && canAddEmail && handleAdd()}
           disabled={hasReachedInvitationLimit}
           aria-invalid={Boolean(error)}
-          className={`flex-1 font-body text-base font-medium text-[#1E0A4E] placeholder-[#94A3B8] border rounded-2xl px-4 py-3.5 outline-none transition-all duration-200 bg-white shadow-sm disabled:bg-[#F4F6F8] disabled:text-[#7A8799]
-            ${error ? "border-red-400" : "border-[#D8C8FF] focus:border-[#7A4FD6] focus:ring-2 focus:ring-[#7A4FD6]/15"}
+          className={`flex-1 font-body text-base font-medium text-[#073B52] placeholder-[#94A3B8] border rounded-2xl px-4 py-3.5 outline-none transition-all duration-200 bg-white shadow-sm disabled:bg-[#F4F6F8] disabled:text-[#7A8799]
+            ${error ? "border-red-400" : "border-[#CBDDE3] focus:border-[#16B9D0] focus:ring-2 focus:ring-[#16B9D0]/15"}
           `}
         />
         <button
           onClick={handleAdd}
           type="button"
           disabled={!canAddEmail}
-          className="flex items-center gap-1.5 whitespace-nowrap rounded-2xl bg-[linear-gradient(135deg,#1E0A4E,#7A4FD6)] px-5 py-3.5 font-body text-base font-extrabold text-white shadow-[0_12px_24px_rgba(30,10,78,0.16)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+          className="flex items-center gap-1.5 whitespace-nowrap rounded-2xl bg-[linear-gradient(135deg,#073B52,#16B9D0)] px-5 py-3.5 font-body text-base font-extrabold text-white shadow-[0_12px_24px_rgba(13,64,84,0.16)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <line
@@ -427,7 +427,7 @@ function MembersSection({
         </button>
       </div>
       {!error && (
-        <p className="font-body text-sm font-medium text-[#64748B]">
+        <p className="font-body text-sm font-medium text-[#526C79]">
           Puedes agregar{" "}
           {maxInvitations === 1
             ? "1 invitación"
@@ -442,15 +442,15 @@ function MembersSection({
           {members.map((m) => (
             <div
               key={m.id}
-              className="flex items-center justify-between rounded-2xl border border-[#D8C8FF] bg-[#F7F2FF] px-4 py-3"
+              className="flex items-center justify-between rounded-2xl border border-[#CBDDE3] bg-[#E8F4FA] px-4 py-3"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[#E8F0FF]">
-                  <span className="font-heading text-sm font-extrabold uppercase text-[#1E6FD9]">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[#E8F4FA]">
+                  <span className="font-heading text-sm font-extrabold uppercase text-[#0878CF]">
                     {m.email[0]}
                   </span>
                 </div>
-                <span className="break-all font-body text-base font-semibold text-[#1E0A4E]">
+                <span className="break-all font-body text-base font-semibold text-[#073B52]">
                   {m.email}
                 </span>
               </div>
@@ -501,10 +501,10 @@ function SectionLabel({
   return (
     <div className="mb-5 flex items-center justify-between gap-3">
       <div className="flex items-center gap-2">
-        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#1E0A4E,#7A4FD6)] shadow-[0_10px_22px_rgba(30,10,78,0.16)]">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#073B52,#16B9D0)] shadow-[0_10px_22px_rgba(13,64,84,0.16)]">
           {icon}
         </div>
-        <h3 className="font-heading text-xl font-extrabold text-[#1E0A4E]">
+        <h3 className="font-heading text-xl font-extrabold text-[#073B52]">
           {title}
         </h3>
       </div>
@@ -791,23 +791,23 @@ export function CreateGroupPage() {
           name: localUser?.nombre || "Usuario",
           role: "Organizador",
           initials: (localUser?.nombre || "U").slice(0, 2).toUpperCase(),
-          color: "#1E6FD9",
+          color: "#0878CF",
         }}
         showTripSelector={false}
         showRightPanel={false}
         sidebarContent={<SidebarCreateGroup currentStep={3} />}
       >
-        <div className="flex flex-1 items-center justify-center bg-[linear-gradient(180deg,#FFFFFF_0%,#F8F6FF_52%,#F3EEFF_100%)] px-4 py-12">
+        <div className="flex flex-1 items-center justify-center bg-[linear-gradient(180deg,#FFFFFF_0%,#F4F9FA_52%,#E8F4FA_100%)] px-4 py-12">
           <div
             className="fixed inset-0 opacity-40 pointer-events-none"
             style={{
               backgroundImage:
-                "radial-gradient(circle, rgba(30,10,78,0.04) 1px, transparent 1px)",
+                "radial-gradient(circle, rgba(13,64,84,0.04) 1px, transparent 1px)",
               backgroundSize: "24px 24px",
             }}
           />
           <div className="relative w-full max-w-xl">
-            <div className="overflow-hidden rounded-3xl border border-[#D8C8FF] bg-white p-8 text-center shadow-[0_22px_48px_rgba(30,10,78,0.16)]">
+            <div className="overflow-hidden rounded-3xl border border-[#CBDDE3] bg-white p-8 text-center shadow-[0_22px_48px_rgba(13,64,84,0.16)]">
               <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-[#EAFBF1]">
                 <svg
                   width="28"
@@ -831,16 +831,16 @@ export function CreateGroupPage() {
                   />
                 </svg>
               </div>
-              <h2 className="mb-2 font-heading text-4xl font-extrabold text-[#1E0A4E]">
+              <h2 className="mb-2 font-heading text-4xl font-extrabold text-[#073B52]">
                 Grupo creado
               </h2>
-              <p className="mb-6 font-body text-base font-medium leading-relaxed text-[#64748B]">
+              <p className="mb-6 font-body text-base font-medium leading-relaxed text-[#526C79]">
                 {invitedCount > 0
                   ? `Grupo creado correctamente. También se generaron ${invitedCount} invitación(es) por correo.`
                   : "Comparte este código con tu equipo para que se unan al viaje."}
               </p>
-              <div className="mb-6 rounded-3xl bg-[linear-gradient(135deg,#1E0A4E,#7A4FD6)] p-6">
-                <p className="mb-2 font-body text-sm font-extrabold uppercase tracking-[0.16em] text-[#D8C8FF]">
+              <div className="mb-6 rounded-3xl bg-[linear-gradient(135deg,#073B52,#16B9D0)] p-6">
+                <p className="mb-2 font-body text-sm font-extrabold uppercase tracking-[0.16em] text-[#CBDDE3]">
                   Código del grupo
                 </p>
                 <p className="font-heading text-4xl font-extrabold tracking-widest text-white">
@@ -850,7 +850,7 @@ export function CreateGroupPage() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <button
                   onClick={() => navigator.clipboard.writeText(groupCode)}
-                  className="flex items-center justify-center gap-2 rounded-2xl border border-[#D8C8FF] bg-white px-4 py-4 font-body text-base font-extrabold text-[#5B2BC0] transition hover:-translate-y-0.5 hover:bg-[#F7F2FF]"
+                  className="flex items-center justify-center gap-2 rounded-2xl border border-[#CBDDE3] bg-white px-4 py-4 font-body text-base font-extrabold text-[#0878CF] transition hover:-translate-y-0.5 hover:bg-[#E8F4FA]"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                     <rect
@@ -877,7 +877,7 @@ export function CreateGroupPage() {
                       `/dashboard?groupId=${encodeURIComponent(createdGroupId)}`,
                     )
                   }
-                  className="flex items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#1E0A4E,#7A4FD6)] px-4 py-4 font-body text-base font-extrabold text-white shadow-[0_14px_28px_rgba(30,10,78,0.18)] transition hover:-translate-y-0.5"
+                  className="flex items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#073B52,#16B9D0)] px-4 py-4 font-body text-base font-extrabold text-white shadow-[0_14px_28px_rgba(13,64,84,0.18)] transition hover:-translate-y-0.5"
                 >
                   Ir al grupo →
                 </button>
@@ -896,18 +896,18 @@ export function CreateGroupPage() {
         name: localUser?.nombre || "Usuario",
         role: "Organizador",
         initials: (localUser?.nombre || "U").slice(0, 2).toUpperCase(),
-        color: "#1E6FD9",
+        color: "#0878CF",
       }}
       showTripSelector={false}
       showRightPanel={false}
       sidebarContent={<SidebarCreateGroup currentStep={sidebarStep} />}
     >
-      <div className="flex-1 overflow-y-auto bg-[linear-gradient(180deg,#FFFFFF_0%,#F8F6FF_46%,#F3EEFF_100%)]">
+      <div className="flex-1 overflow-y-auto bg-[linear-gradient(180deg,#FFFFFF_0%,#F4F9FA_46%,#E8F4FA_100%)]">
         <div
           className="fixed inset-0 opacity-40 pointer-events-none"
           style={{
             backgroundImage:
-              "radial-gradient(circle, rgba(30,10,78,0.04) 1px, transparent 1px)",
+              "radial-gradient(circle, rgba(13,64,84,0.04) 1px, transparent 1px)",
             backgroundSize: "24px 24px",
           }}
         />
@@ -915,7 +915,7 @@ export function CreateGroupPage() {
         <div className="relative mx-auto max-w-5xl px-4 py-8 lg:px-8">
           <button
             onClick={() => navigate("/my-trips")}
-            className="mb-5 inline-flex items-center gap-2 rounded-2xl border border-[#D8C8FF] bg-white px-4 py-2.5 font-body text-sm font-extrabold text-[#5B2BC0] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#F7F2FF]"
+            className="mb-5 inline-flex items-center gap-2 rounded-2xl border border-[#CBDDE3] bg-white px-4 py-2.5 font-body text-sm font-extrabold text-[#0878CF] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#E8F4FA]"
           >
             <svg
               width="14"
@@ -934,12 +934,12 @@ export function CreateGroupPage() {
             </svg>
             Volver
           </button>
-          <div className="relative mb-6 overflow-hidden rounded-3xl border border-[#D8C8FF] bg-[linear-gradient(135deg,#1E0A4E_0%,#3C178B_52%,#7A4FD6_100%)] px-6 py-7 shadow-[0_22px_48px_rgba(30,10,78,0.18)]">
-            <div className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#B89BFF]/25 blur-3xl" />
-            <div className="absolute -bottom-24 left-12 h-52 w-52 rounded-full bg-[#1E6FD9]/20 blur-3xl" />
+          <div className="relative mb-6 overflow-hidden rounded-3xl border border-[#CBDDE3] bg-[linear-gradient(135deg,#073B52_0%,#0878CF_52%,#16B9D0_100%)] px-6 py-7 shadow-[0_22px_48px_rgba(13,64,84,0.18)]">
+            <div className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#91DEF0]/25 blur-3xl" />
+            <div className="absolute -bottom-24 left-12 h-52 w-52 rounded-full bg-[#0878CF]/20 blur-3xl" />
             <div className="relative">
-              <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 font-body text-xs font-extrabold uppercase tracking-[0.16em] text-[#D8C8FF]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#B89BFF]" />
+              <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 font-body text-xs font-extrabold uppercase tracking-[0.16em] text-white">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#FFBF20]" />
                 Nuevo viaje grupal
               </p>
               <h1 className="font-heading text-4xl font-extrabold leading-tight text-white">
@@ -953,7 +953,7 @@ export function CreateGroupPage() {
 
           <div className="space-y-5">
             {/* Section 1: Basic Info */}
-            <div className="rounded-3xl border border-[#D9E4F7] bg-white p-6 shadow-[0_14px_34px_rgba(30,10,78,0.08)]">
+            <div className="rounded-3xl border border-[#CBDDE3] bg-white p-6 shadow-[0_14px_34px_rgba(13,64,84,0.08)]">
               <SectionLabel
                 title="Información básica"
                 help="Completa los datos generales del viaje. El nombre tiene máximo 60 caracteres y la descripción máximo 300."
@@ -1025,7 +1025,7 @@ export function CreateGroupPage() {
             </div>
 
             {/* Section 2: Dates & Members */}
-            <div className="rounded-3xl border border-[#D9E4F7] bg-white p-6 shadow-[0_14px_34px_rgba(30,10,78,0.08)]">
+            <div className="rounded-3xl border border-[#CBDDE3] bg-white p-6 shadow-[0_14px_34px_rgba(13,64,84,0.08)]">
               <SectionLabel
                 title="Fechas y capacidad"
                 help="Define fechas futuras y la capacidad máxima. El regreso debe ser posterior a la salida y el viaje no debe exceder 60 días."
@@ -1100,7 +1100,7 @@ export function CreateGroupPage() {
                 />
               </div>
               <div className="mt-4">
-                <label className="mb-2 block font-body text-sm font-extrabold uppercase tracking-[0.14em] text-[#4B2FA3]">
+                <label className="mb-2 block font-body text-sm font-extrabold uppercase tracking-[0.14em] text-[#075EAA]">
                   Máximo de miembros
                 </label>
                 <div className="flex items-center gap-3">
@@ -1110,16 +1110,16 @@ export function CreateGroupPage() {
                     max={50}
                     value={form.maxMembers}
                     onChange={(e) => set("maxMembers")(e.target.value)}
-                    className="flex-1 accent-[#7A4FD6]"
+                    className="flex-1 accent-[#16B9D0]"
                   />
-                  <div className="flex h-12 w-16 items-center justify-center rounded-2xl border border-[#D8C8FF] bg-[#F3EEFF]">
-                    <span className="font-heading text-xl font-extrabold text-[#1E0A4E]">
+                  <div className="flex h-12 w-16 items-center justify-center rounded-2xl border border-[#CBDDE3] bg-[#E8F4FA]">
+                    <span className="font-heading text-xl font-extrabold text-[#073B52]">
                       {form.maxMembers}
                     </span>
                   </div>
                 </div>
                 <div className="mt-2 flex items-start justify-between gap-3">
-                  <p className="font-body text-sm font-medium text-[#64748B]">
+                  <p className="font-body text-sm font-medium text-[#526C79]">
                     Puedes crear el viaje solo para ti. Después podrás invitar a
                     más integrantes si lo necesitas.
                   </p>
@@ -1146,7 +1146,7 @@ export function CreateGroupPage() {
 
             {/* Section 3: Members */}
             {canInviteDuringCreation && (
-              <div className="rounded-3xl border border-[#D9E4F7] bg-white p-6 shadow-[0_14px_34px_rgba(30,10,78,0.08)]">
+              <div className="rounded-3xl border border-[#CBDDE3] bg-white p-6 shadow-[0_14px_34px_rgba(13,64,84,0.08)]">
                 <SectionLabel
                   title="Invitar al grupo"
                   help="Agrega correos válidos y solo hasta el límite permitido por la capacidad seleccionada. Si eliges un viaje de una persona, esta sección se oculta."
@@ -1192,13 +1192,13 @@ export function CreateGroupPage() {
             )}
 
             {/* Section 4: Privacy */}
-            <div className="rounded-3xl border border-[#D9E4F7] bg-white p-6 shadow-[0_14px_34px_rgba(30,10,78,0.08)]">
+            <div className="rounded-3xl border border-[#CBDDE3] bg-white p-6 shadow-[0_14px_34px_rgba(13,64,84,0.08)]">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="mb-1 font-heading text-xl font-extrabold text-[#1E0A4E]">
+                  <h3 className="mb-1 font-heading text-xl font-extrabold text-[#073B52]">
                     Grupo público
                   </h3>
-                  <p className="font-body text-base font-medium leading-relaxed text-[#64748B]">
+                  <p className="font-body text-base font-medium leading-relaxed text-[#526C79]">
                     Activado: cualquiera con el código entra sin aprobación.
                     Desactivado: el admin aprueba solicitudes.
                   </p>
@@ -1207,8 +1207,8 @@ export function CreateGroupPage() {
                   role="switch"
                   aria-checked={form.isPublic}
                   onClick={() => set("isPublic")(!form.isPublic)}
-                  className={`relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#7A4FD6]/30 ${
-                    form.isPublic ? "bg-[#7A4FD6]" : "bg-[#CBD5E1]"
+                  className={`relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#16B9D0]/30 ${
+                    form.isPublic ? "bg-[#16B9D0]" : "bg-[#CBD5E1]"
                   }`}
                 >
                   <span
@@ -1245,7 +1245,7 @@ export function CreateGroupPage() {
                 type="button"
                 onClick={() => navigate("/my-trips")}
                 disabled={loading}
-                className="w-full rounded-2xl border border-[#D8C8FF] bg-white px-6 py-4 font-body text-base font-extrabold text-[#5B2BC0] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#F7F2FF] disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-2xl border border-[#CBDDE3] bg-white px-6 py-4 font-body text-base font-extrabold text-[#0878CF] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#E8F4FA] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Cancelar
               </button>
@@ -1261,7 +1261,7 @@ export function CreateGroupPage() {
                     ? "Completa los campos obligatorios con valores válidos para crear el grupo."
                     : undefined
               }
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#1E0A4E,#7A4FD6)] px-6 py-4 font-body text-base font-extrabold text-white shadow-[0_14px_28px_rgba(30,10,78,0.18)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#073B52,#16B9D0)] px-6 py-4 font-body text-base font-extrabold text-white shadow-[0_14px_28px_rgba(13,64,84,0.18)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
             >
               {loading ? (
                 <>

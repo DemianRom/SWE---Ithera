@@ -81,21 +81,21 @@ function ActionModal({
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[#0D0820]/70 px-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[#073B52]/70 px-4" onClick={onClose}>
       <div
         className="max-h-[84vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white shadow-xl"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="border-b border-[#E2E8F0] px-5 py-4">
-          <h3 className="font-heading text-lg font-bold text-[#1E0A4E]">{title}</h3>
-          <p className="mt-1 font-body text-sm text-[#64748B]">{subtitle}</p>
+        <div className="border-b border-[#91DEF0] bg-[#E8F4FA] px-5 py-4">
+          <h3 className="font-heading text-lg font-bold text-[#073B52]">{title}</h3>
+          <p className="mt-1 font-body text-sm text-[#526C79]">{subtitle}</p>
         </div>
         <div className="px-5 py-4">{children}</div>
-        <div className="flex justify-end gap-3 border-t border-[#E2E8F0] px-5 py-4">
+        <div className="flex justify-end gap-3 border-t border-[#CBDDE3] px-5 py-4">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-[#D7DEEA] px-4 py-2.5 font-body text-sm font-semibold text-[#3D4A5C]"
+            className="rounded-xl border border-[#CBDDE3] px-4 py-2.5 font-body text-sm font-semibold text-[#183F51]"
           >
             Cancelar
           </button>
@@ -103,7 +103,7 @@ function ActionModal({
             type="button"
             onClick={onConfirm}
             disabled={confirmDisabled}
-            className="rounded-xl bg-[#1E6FD9] px-4 py-2.5 font-body text-sm font-semibold text-white disabled:opacity-50"
+            className="rounded-xl bg-[#0878CF] px-4 py-2.5 font-body text-sm font-semibold text-white disabled:opacity-50"
           >
             {confirmLabel}
           </button>
@@ -207,7 +207,7 @@ export const RegisterExpenseModal: FC<Props> = ({
       : totalAmount
   const splitError =
     splitType === 'personalizada' && totalAmount > 0 && Math.abs(splitSum - totalAmount) > 0.01
-      ? `La suma de los montos ($${Math.round(splitSum)}) no coincide con el total ($${Math.round(totalAmount)})`
+      ? `La suma de los montos ($${splitSum.toFixed(2)}) no coincide con el total ($${totalAmount.toFixed(2)})`
       : (percentCheck?.error ?? null)
 
   const editingPreviousAmount = editingExpense ? Number(editingExpense.monto) : 0
@@ -310,7 +310,7 @@ export const RegisterExpenseModal: FC<Props> = ({
   return (
     <div
       className="fixed inset-0 z-50 flex items-end justify-center"
-      style={{ background: 'rgba(13,8,32,0.75)' }}
+      style={{ background: 'rgba(7,59,82,0.75)' }}
       onClick={isSaving ? undefined : onClose}
     >
       <div
@@ -319,20 +319,20 @@ export const RegisterExpenseModal: FC<Props> = ({
       >
         {/* Header — siempre visible */}
         <div className="shrink-0 px-6 pt-6">
-          <div className="mx-auto mb-5 h-1 w-12 rounded-full bg-[#E2E8F0]" />
+          <div className="mx-auto mb-5 h-1 w-12 rounded-full bg-[#16B9D0]" />
 
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <h2 className="font-heading text-lg font-bold text-[#1E0A4E]">
+              <h2 className="font-heading text-lg font-bold text-[#073B52]">
                 {editingExpense ? 'Editar gasto' : 'Registrar gasto'}
               </h2>
               {editingExpense && (
-                <span className="rounded-full bg-[#7A4FD6]/10 px-2.5 py-0.5 font-body text-xs font-semibold text-[#7A4FD6]">
+                <span className="rounded-full bg-[#FFF2D1] px-2.5 py-0.5 font-body text-xs font-semibold text-[#765000]">
                   Editando
                 </span>
               )}
             </div>
-            <button onClick={isSaving ? undefined : onClose} disabled={isSaving} className="text-[#7A8799] transition-colors hover:text-[#3D4A5C] disabled:cursor-not-allowed disabled:opacity-50">
+            <button onClick={isSaving ? undefined : onClose} disabled={isSaving} className="text-[#526C79] transition-colors hover:text-[#183F51] disabled:cursor-not-allowed disabled:opacity-50">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -351,43 +351,43 @@ export const RegisterExpenseModal: FC<Props> = ({
             )}
 
             <div>
-              <label className="mb-1.5 block font-body text-sm font-medium text-[#3D4A5C]">Monto</label>
+              <label className="mb-1.5 block font-body text-sm font-medium text-[#183F51]">Monto</label>
               <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-body text-sm text-[#7A8799]">$</span>
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-body text-sm text-[#526C79]">$</span>
                 <input
                   type="number"
                   min="0"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"
-                  className="w-full rounded-xl border border-[#E2E8F0] bg-[#F4F6F8] py-3 pl-7 pr-4 font-body text-sm text-[#3D4A5C] outline-none transition-colors focus:border-[#1E6FD9]"
+                  className="w-full rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] py-3 pl-7 pr-4 font-body text-sm text-[#183F51] outline-none transition-colors focus:border-[#0878CF]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="mb-1.5 block font-body text-sm font-medium text-[#3D4A5C]">Descripción</label>
+              <label className="mb-1.5 block font-body text-sm font-medium text-[#183F51]">Descripción</label>
               <input
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="ej. Vuelos, Hotel, Tour..."
-                className="w-full rounded-xl border border-[#E2E8F0] bg-[#F4F6F8] px-4 py-3 font-body text-sm text-[#3D4A5C] outline-none transition-colors focus:border-[#1E6FD9]"
+                className="w-full rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-3 font-body text-sm text-[#183F51] outline-none transition-colors focus:border-[#0878CF]"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block font-body text-sm font-medium text-[#3D4A5C]">Fecha</label>
+              <label className="mb-1.5 block font-body text-sm font-medium text-[#183F51]">Fecha</label>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 min={minExpenseDate ?? undefined}
                 max={maxExpenseDate ?? undefined}
-                className="w-full rounded-xl border border-[#E2E8F0] bg-[#F4F6F8] px-4 py-3 font-body text-sm text-[#3D4A5C] outline-none transition-colors focus:border-[#1E6FD9]"
+                className="w-full rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-3 font-body text-sm text-[#183F51] outline-none transition-colors focus:border-[#0878CF]"
               />
               {(minExpenseDate || maxExpenseDate) && (
-                <p className="mt-1 font-body text-xs text-[#64748B]">
+                <p className="mt-1 font-body text-xs text-[#526C79]">
                   Rango permitido: {minExpenseDate ?? '...'} a {maxExpenseDate ?? '...'}
                 </p>
               )}
@@ -397,11 +397,11 @@ export const RegisterExpenseModal: FC<Props> = ({
             </div>
 
             <div>
-              <label className="mb-1.5 block font-body text-sm font-medium text-[#3D4A5C]">Categoría</label>
+              <label className="mb-1.5 block font-body text-sm font-medium text-[#183F51]">Categoría</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as Expense['categoria'])}
-                className="w-full rounded-xl border border-[#E2E8F0] bg-[#F4F6F8] px-4 py-3 font-body text-sm text-[#3D4A5C] outline-none transition-colors focus:border-[#1E6FD9]"
+                className="w-full rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-3 font-body text-sm text-[#183F51] outline-none transition-colors focus:border-[#0878CF]"
               >
                 {CATEGORIES.map((c) => (
                   <option key={c.value} value={c.value}>{c.label}</option>
@@ -410,11 +410,11 @@ export const RegisterExpenseModal: FC<Props> = ({
             </div>
 
             <div>
-              <label className="mb-1.5 block font-body text-sm font-medium text-[#3D4A5C]">¿Quién pagó?</label>
+              <label className="mb-1.5 block font-body text-sm font-medium text-[#183F51]">¿Quién pagó?</label>
               <select
                 value={paidBy}
                 onChange={(e) => setPaidBy(e.target.value)}
-                className="w-full rounded-xl border border-[#E2E8F0] bg-[#F4F6F8] px-4 py-3 font-body text-sm text-[#3D4A5C] outline-none transition-colors focus:border-[#1E6FD9]"
+                className="w-full rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-3 font-body text-sm text-[#183F51] outline-none transition-colors focus:border-[#0878CF]"
               >
                 {effectiveMembers.filter((member) => selectedMemberIds.includes(member.usuario_id)).map((m) => (
                   <option key={m.usuario_id} value={m.usuario_id}>{m.nombre || m.email}</option>
@@ -423,8 +423,8 @@ export const RegisterExpenseModal: FC<Props> = ({
             </div>
 
             <div>
-              <label className="mb-1.5 block font-body text-sm font-medium text-[#3D4A5C]">Participantes</label>
-              <div className="flex flex-wrap gap-2 rounded-xl border border-[#E2E8F0] bg-[#F4F6F8] px-3 py-3">
+              <label className="mb-1.5 block font-body text-sm font-medium text-[#183F51]">Participantes</label>
+              <div className="flex flex-wrap gap-2 rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-3 py-3">
                 {effectiveMembers.map((member) => {
                   const selected = selectedMemberIds.includes(member.usuario_id)
                   return (
@@ -435,8 +435,8 @@ export const RegisterExpenseModal: FC<Props> = ({
                       className={[
                         'rounded-full border px-3 py-1.5 font-body text-xs font-semibold transition-colors',
                         selected
-                          ? 'border-[#1E6FD9] bg-[#1E6FD9] text-white'
-                          : 'border-[#E2E8F0] bg-white text-[#7A8799]',
+                          ? 'border-[#0878CF] bg-[#0878CF] text-white'
+                          : 'border-[#CBDDE3] bg-white text-[#526C79]',
                       ].join(' ')}
                     >
                       {member.nombre || member.email}
@@ -447,7 +447,7 @@ export const RegisterExpenseModal: FC<Props> = ({
             </div>
 
             <div>
-              <label className="mb-1.5 block font-body text-sm font-medium text-[#3D4A5C]">¿Cómo dividir la cuenta?</label>
+              <label className="mb-1.5 block font-body text-sm font-medium text-[#183F51]">¿Cómo dividir la cuenta?</label>
               <div className="flex gap-2">
                 {SPLIT_TYPE_OPTIONS.map(({ value: type, label }) => (
                   <button
@@ -457,8 +457,8 @@ export const RegisterExpenseModal: FC<Props> = ({
                     className={[
                       'flex-1 rounded-xl border px-2 py-2.5 font-body text-sm font-medium transition-colors',
                       splitType === type
-                        ? 'border-[#1E6FD9] bg-[#1E6FD9] text-white'
-                        : 'border-[#E2E8F0] bg-[#F4F6F8] text-[#7A8799] hover:border-[#1E6FD9]/50',
+                        ? 'border-[#0878CF] bg-[#0878CF] text-white'
+                        : 'border-[#CBDDE3] bg-[#F4F9FA] text-[#526C79] hover:border-[#0878CF]/50',
                     ].join(' ')}
                   >
                     {label}
@@ -468,20 +468,20 @@ export const RegisterExpenseModal: FC<Props> = ({
             </div>
 
             {splitType === 'personalizada' && (
-              <div className="flex flex-col gap-2 rounded-xl border border-[#E2E8F0] bg-[#F4F6F8] px-4 py-3">
-                <p className="font-body text-xs font-medium text-[#7A8799]">Monto por persona</p>
+              <div className="flex flex-col gap-2 rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-3">
+                <p className="font-body text-xs font-medium text-[#526C79]">Monto por persona</p>
                 {effectiveMembers.filter((member) => selectedMemberIds.includes(member.usuario_id)).map((member) => (
                   <div key={member.usuario_id} className="flex items-center gap-3">
-                    <span className="w-20 shrink-0 font-body text-sm text-[#3D4A5C]">{member.nombre || member.email}</span>
+                    <span className="w-20 shrink-0 font-body text-sm text-[#183F51]">{member.nombre || member.email}</span>
                     <div className="relative flex-1">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 font-body text-sm text-[#7A8799]">$</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 font-body text-sm text-[#526C79]">$</span>
                       <input
                         type="number"
                         min="0"
                         value={splitAmounts[member.usuario_id] ?? ''}
                         onChange={(e) => setSplitAmounts((prev) => ({ ...prev, [member.usuario_id]: e.target.value }))}
                         placeholder="0"
-                        className="w-full rounded-lg border border-[#E2E8F0] bg-white py-2 pl-6 pr-3 font-body text-sm text-[#3D4A5C] outline-none transition-colors focus:border-[#1E6FD9]"
+                        className="w-full rounded-lg border border-[#CBDDE3] bg-white py-2 pl-6 pr-3 font-body text-sm text-[#183F51] outline-none transition-colors focus:border-[#0878CF]"
                       />
                     </div>
                   </div>
@@ -503,16 +503,16 @@ export const RegisterExpenseModal: FC<Props> = ({
             )}
 
             {(activityOptions.length > 0 || documentOptions.length > 0) && (
-              <div className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-3">
-                <p className="font-body text-sm font-semibold text-[#3D4A5C]">Vincular este gasto con una actividad o comprobante</p>
-                <p className="mt-1 font-body text-xs text-[#7A8799]">
+              <div className="rounded-xl border border-[#CBDDE3] bg-white px-4 py-3">
+                <p className="font-body text-sm font-semibold text-[#183F51]">Vincular este gasto con una actividad o comprobante</p>
+                <p className="mt-1 font-body text-xs text-[#526C79]">
                   Relaciona este gasto con una actividad (tour, cena, traslado) o con un comprobante (ticket, reservacion, recibo).
                 </p>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
                   <button
                     type="button"
                     onClick={() => setActiveContextModal('activity')}
-                    className="rounded-xl border border-[#D7DEEA] bg-[#F8FAFC] px-3 py-2.5 text-left font-body text-sm font-semibold text-[#1E6FD9]"
+                    className="rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-3 py-2.5 text-left font-body text-sm font-semibold text-[#0878CF]"
                   >
                     Elegir actividad
                   </button>
@@ -522,7 +522,7 @@ export const RegisterExpenseModal: FC<Props> = ({
                       setDocumentModalTab('associate')
                       setActiveContextModal('document')
                     }}
-                    className="rounded-xl border border-[#D7DEEA] bg-[#F8FAFC] px-3 py-2.5 text-left font-body text-sm font-semibold text-[#7A4FD6]"
+                    className="rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-3 py-2.5 text-left font-body text-sm font-semibold text-[#0878CF]"
                   >
                     Elegir comprobante
                   </button>
@@ -532,7 +532,7 @@ export const RegisterExpenseModal: FC<Props> = ({
                     const activity = activityOptions.find((item) => entityKey(item) === key)
                     if (!activity) return null
                     return (
-                      <span key={key} className="rounded-full border border-[#CFE0FF] bg-[#EEF4FF] px-3 py-1.5 font-body text-xs font-semibold text-[#1E6FD9]">
+                      <span key={key} className="rounded-full border border-[#91DEF0] bg-[#E8F4FA] px-3 py-1.5 font-body text-xs font-semibold text-[#0878CF]">
                         Actividad: {activity.label}
                       </span>
                     )
@@ -541,13 +541,13 @@ export const RegisterExpenseModal: FC<Props> = ({
                     const document = documentOptions.find((item) => item.id === documentId)
                     if (!document) return null
                     return (
-                      <span key={documentId} className="rounded-full border border-[#D8C8FF] bg-[#F3EEFF] px-3 py-1.5 font-body text-xs font-semibold text-[#5B35B1]">
+                      <span key={documentId} className="rounded-full border border-[#91DEF0] bg-[#E8F4FA] px-3 py-1.5 font-body text-xs font-semibold text-[#075EAA]">
                         Documento: {document.label}
                       </span>
                     )
                   })}
                   {draftDocumentFile && (
-                    <span className="rounded-full border border-[#D8C8FF] bg-[#F3EEFF] px-3 py-1.5 font-body text-xs font-semibold text-[#5B35B1]">
+                    <span className="rounded-full border border-[#91DEF0] bg-[#E8F4FA] px-3 py-1.5 font-body text-xs font-semibold text-[#075EAA]">
                       Documento por subir: {draftDocumentFile.name}
                     </span>
                   )}
@@ -564,7 +564,7 @@ export const RegisterExpenseModal: FC<Props> = ({
               type="button"
               onClick={isSaving ? undefined : onClose}
               disabled={isSaving}
-              className="flex-1 rounded-xl border border-[#E2E8F0] bg-[#F4F6F8] py-3.5 font-body text-sm font-semibold text-[#7A8799] transition-colors hover:border-[#3D4A5C] hover:text-[#3D4A5C] disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex-1 rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] py-3.5 font-body text-sm font-semibold text-[#526C79] transition-colors hover:border-[#183F51] hover:text-[#183F51] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancelar
             </button>
@@ -573,7 +573,7 @@ export const RegisterExpenseModal: FC<Props> = ({
               onClick={() => void handleSave()}
               disabled={isSaving || !canSave}
               aria-busy={isSaving}
-              className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-[#1E6FD9] py-3.5 font-body text-sm font-semibold text-white transition-colors hover:bg-[#2C8BE6] disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-[#0878CF] py-3.5 font-body text-sm font-semibold text-white transition-colors hover:bg-[#075EAA] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {isSaving && <InlineSpinner size={15} />}
               {isSaving ? 'Guardando...' : editingExpense ? 'Guardar cambios' : 'Guardar gasto'}
@@ -591,14 +591,14 @@ export const RegisterExpenseModal: FC<Props> = ({
         onConfirm={() => setActiveContextModal(null)}
       >
         {activityOptions.length === 0 ? (
-          <p className="font-body text-sm text-[#64748B]">No hay actividades disponibles para asociar.</p>
+          <p className="font-body text-sm text-[#526C79]">No hay actividades disponibles para asociar.</p>
         ) : (
           <div className="space-y-3">
             <input
               value={activityFilter}
               onChange={(event) => setActivityFilter(event.target.value)}
               placeholder="Filtrar actividades"
-              className="w-full rounded-xl border border-[#D7DEEA] bg-white px-3 py-2.5 font-body text-sm outline-none focus:border-[#1E6FD9]"
+              className="w-full rounded-xl border border-[#CBDDE3] bg-white px-3 py-2.5 font-body text-sm outline-none focus:border-[#0878CF]"
             />
             <div className="flex max-h-56 flex-wrap gap-2 overflow-y-auto">
               {activityOptions
@@ -618,8 +618,8 @@ export const RegisterExpenseModal: FC<Props> = ({
                       className={[
                         'max-w-full rounded-full border px-3 py-1.5 font-body text-xs font-semibold transition-colors',
                         selected
-                          ? 'border-[#1E6FD9] bg-[#1E6FD9] text-white'
-                          : 'border-[#D7DEEA] bg-white text-[#3D4A5C]',
+                          ? 'border-[#0878CF] bg-[#0878CF] text-white'
+                          : 'border-[#CBDDE3] bg-white text-[#183F51]',
                       ].join(' ')}
                     >
                       <span className="mr-1 text-[10px] opacity-75">
@@ -645,32 +645,32 @@ export const RegisterExpenseModal: FC<Props> = ({
           else confirmDraftDocument()
         }}
       >
-        <div className="mb-4 inline-flex rounded-lg border border-[#D7DEEA] bg-[#F8FAFC] p-1">
+        <div className="mb-4 inline-flex rounded-lg border border-[#CBDDE3] bg-[#F4F9FA] p-1">
           <button
             type="button"
             onClick={() => setDocumentModalTab('associate')}
-            className={`rounded-md px-3 py-1.5 text-sm font-semibold ${documentModalTab === 'associate' ? 'bg-[#7A4FD6] text-white' : 'text-[#475569]'}`}
+            className={`rounded-md px-3 py-1.5 text-sm font-semibold ${documentModalTab === 'associate' ? 'bg-[#0878CF] text-white' : 'text-[#475569]'}`}
           >
             Asociar
           </button>
           <button
             type="button"
             onClick={() => setDocumentModalTab('create')}
-            className={`rounded-md px-3 py-1.5 text-sm font-semibold ${documentModalTab === 'create' ? 'bg-[#7A4FD6] text-white' : 'text-[#475569]'}`}
+            className={`rounded-md px-3 py-1.5 text-sm font-semibold ${documentModalTab === 'create' ? 'bg-[#0878CF] text-white' : 'text-[#475569]'}`}
           >
             Crear
           </button>
         </div>
         {documentModalTab === 'associate' ? (
           documentOptions.length === 0 ? (
-            <p className="font-body text-sm text-[#64748B]">No hay documentos en la boveda para asociar.</p>
+            <p className="font-body text-sm text-[#526C79]">No hay documentos en la boveda para asociar.</p>
           ) : (
             <div className="space-y-3">
               <input
                 value={draftDocumentNotes}
                 onChange={(event) => setDraftDocumentNotes(event.target.value)}
                 placeholder="Filtrar documentos"
-                className="w-full rounded-xl border border-[#D7DEEA] bg-white px-3 py-2.5 font-body text-sm outline-none focus:border-[#7A4FD6]"
+                className="w-full rounded-xl border border-[#CBDDE3] bg-white px-3 py-2.5 font-body text-sm outline-none focus:border-[#0878CF]"
               />
               <div className="flex max-h-56 flex-wrap gap-2 overflow-y-auto">
                 {documentOptions
@@ -689,8 +689,8 @@ export const RegisterExpenseModal: FC<Props> = ({
                         className={[
                           'max-w-full rounded-full border px-3 py-1.5 font-body text-xs font-semibold transition-colors',
                           selected
-                            ? 'border-[#7A4FD6] bg-[#7A4FD6] text-white'
-                            : 'border-[#D7DEEA] bg-white text-[#3D4A5C]',
+                            ? 'border-[#0878CF] bg-[#0878CF] text-white'
+                            : 'border-[#CBDDE3] bg-white text-[#183F51]',
                         ].join(' ')}
                       >
                         <span className="inline-block max-w-[220px] truncate align-bottom">{document.label}</span>
@@ -705,12 +705,12 @@ export const RegisterExpenseModal: FC<Props> = ({
             <input
               type="file"
               onChange={(event) => setDraftDocumentFile(event.target.files?.[0] ?? null)}
-              className="rounded-xl border border-[#D7DEEA] bg-white px-3 py-2.5 font-body text-sm text-[#3D4A5C] outline-none focus:border-[#7A4FD6]"
+              className="rounded-xl border border-[#CBDDE3] bg-white px-3 py-2.5 font-body text-sm text-[#183F51] outline-none focus:border-[#0878CF]"
             />
             <select
               value={draftDocumentCategory}
               onChange={(event) => setDraftDocumentCategory(event.target.value as TripDocumentCategory)}
-              className="rounded-xl border border-[#D7DEEA] bg-white px-3 py-2.5 font-body text-sm outline-none focus:border-[#7A4FD6]"
+              className="rounded-xl border border-[#CBDDE3] bg-white px-3 py-2.5 font-body text-sm outline-none focus:border-[#0878CF]"
             >
               {(Object.keys(documentCategoryLabels) as TripDocumentCategory[]).map((category) => (
                 <option key={category} value={category}>{documentCategoryLabels[category]}</option>
@@ -721,7 +721,7 @@ export const RegisterExpenseModal: FC<Props> = ({
               onChange={(event) => setDraftDocumentNotes(event.target.value)}
               placeholder="Nota obligatoria del documento"
               rows={3}
-              className="w-full resize-none rounded-xl border border-[#D7DEEA] bg-white px-3 py-2.5 font-body text-sm outline-none focus:border-[#7A4FD6]"
+              className="w-full resize-none rounded-xl border border-[#CBDDE3] bg-white px-3 py-2.5 font-body text-sm outline-none focus:border-[#0878CF]"
             />
           </div>
         )}

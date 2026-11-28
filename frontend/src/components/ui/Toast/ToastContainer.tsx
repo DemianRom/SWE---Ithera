@@ -8,25 +8,25 @@ type ToastContainerProps = {
 const TOAST_STYLES: Record<ToastType, { wrapper: string; icon: string; label: string }> = {
   error: {
     wrapper:
-      "bg-[#1C1010] border border-[#7F1D1D]/60 text-[#FECACA] shadow-[0_4px_24px_rgba(220,38,38,0.18)]",
+      "bg-[#faede7] border border-[#8d4034] text-[#8d4034] shadow-[0_10px_30px_rgba(13,64,84,0.07)]",
     icon: "⚠️",
     label: "Error",
   },
   warning: {
     wrapper:
-      "bg-[#1C1700] border border-[#78350F]/60 text-[#FEF08A] shadow-[0_4px_24px_rgba(234,179,8,0.15)]",
+      "bg-[#fff2d1] border border-[#765000] text-[#765000] shadow-[0_10px_30px_rgba(13,64,84,0.07)]",
     icon: "🔔",
     label: "Aviso",
   },
   success: {
     wrapper:
-      "bg-[#071C12] border border-[#14532D]/60 text-[#BBF7D0] shadow-[0_4px_24px_rgba(22,163,74,0.15)]",
+      "bg-[#e8f4fa] border border-[#075b85] text-[#075b85] shadow-[0_10px_30px_rgba(13,64,84,0.07)]",
     icon: "✓",
     label: "Listo",
   },
   info: {
     wrapper:
-      "bg-[#0A1628] border border-[#1E3A5F]/60 text-[#BAE6FD] shadow-[0_4px_24px_rgba(30,111,217,0.15)]",
+      "bg-[#f4f9fa] border border-[#0878cf] text-[#073b52] shadow-[0_10px_30px_rgba(13,64,84,0.07)]",
     icon: "ℹ",
     label: "Info",
   },
@@ -61,7 +61,7 @@ export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
               type="button"
               onClick={() => onDismiss(toast.id)}
               aria-label="Cerrar notificación"
-              className="ml-1 shrink-0 rounded-full p-1 opacity-60 transition hover:opacity-100"
+              className="ml-1 shrink-0 rounded-full p-1 transition hover:bg-black/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#005aaf]"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path

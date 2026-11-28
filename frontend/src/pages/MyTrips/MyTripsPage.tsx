@@ -1,3 +1,4 @@
+import './MyTripsPage.css'
 import { useCallback, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AppLayout } from '../../components/layout/AppLayout/AppLayout'
@@ -7,24 +8,30 @@ import { groupsService, saveCurrentGroup } from '../../services/groups'
 import { isNetworkError } from '../../services/apiClient'
 import type { GroupHistoryItem } from '../../types/groups'
 
-// ── Date helper ───────────────────────────────────────────────────────────────
-  function formatRange(
-    start: string | null | undefined,
-    end: string | null | undefined
-  ): string {
+// Trip dates are calendar dates, independent of the browser's time zone.
+function parseTripDate(value: string): Date {
+  return new Date(`${value.slice(0, 10)}T00:00:00Z`)
+}
+
+function formatRange(
+  start: string | null | undefined,
+  end: string | null | undefined
+): string {
   if (!start && !end) return 'Fechas por definir'
 
   const fmt = (iso: string, withYear: boolean) =>
     new Intl.DateTimeFormat('es-MX', {
       day: 'numeric',
       month: 'short',
+      timeZone: 'UTC',
       ...(withYear ? { year: 'numeric' } : {}),
-    }).format(new Date(iso))
+    }).format(parseTripDate(iso))
 
-  if (!end) return `Desde ${fmt(start!, true)}`
+  if (!start) return `Hasta ${fmt(end!, true)}`
+  if (!end) return `Desde ${fmt(start, true)}`
 
-  const startYear = new Date(start!).getFullYear()
-  const endYear   = new Date(end).getFullYear()
+  const startYear = parseTripDate(start!).getUTCFullYear()
+  const endYear   = parseTripDate(end).getUTCFullYear()
   const sameYear  = startYear === endYear
 
   return `${fmt(start!, !sameYear)} – ${fmt(end, true)}`
@@ -37,20 +44,21 @@ function formatTripDate(
   if (!start && !end) return 'Fechas por definir'
 
   const dayMonth = (iso: string) =>
-    new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'long' }).format(new Date(iso))
+    new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(parseTripDate(iso))
   const dayMonthYear = (iso: string) =>
-    new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(iso))
+    new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(parseTripDate(iso))
 
-  if (!end) return `Desde el ${dayMonthYear(start!)}`
+  if (!start) return `Hasta el ${dayMonthYear(end!)}`
+  if (!end) return `Desde el ${dayMonthYear(start)}`
 
-  const s = new Date(start!)
-  const e = new Date(end)
+  const s = parseTripDate(start!)
+  const e = parseTripDate(end)
   const days = Math.round((e.getTime() - s.getTime()) / 86400000)
   const dur = days > 0 ? ` · ${days} ${days === 1 ? 'día' : 'días'}` : ''
 
-  if (s.getMonth() === e.getMonth() && s.getFullYear() === e.getFullYear()) {
-    const monthYear = new Intl.DateTimeFormat('es-MX', { month: 'long', year: 'numeric' }).format(e)
-    return `${s.getDate()} al ${e.getDate()} de ${monthYear}${dur}`
+  if (s.getUTCMonth() === e.getUTCMonth() && s.getUTCFullYear() === e.getUTCFullYear()) {
+    const monthYear = new Intl.DateTimeFormat('es-MX', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(e)
+    return `${s.getUTCDate()} al ${e.getUTCDate()} de ${monthYear}${dur}`
   }
 
   return `${dayMonth(start!)} → ${dayMonthYear(end)}${dur}`
@@ -153,10 +161,10 @@ function IconUsers() {
 function IconLuggage() {
   return (
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <rect x="6" y="8" width="12" height="13" rx="2" stroke="#1E0A4E" strokeWidth="1.5"/>
-      <path d="M9 8V6a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#1E0A4E" strokeWidth="1.5" strokeLinecap="round"/>
-      <line x1="12" y1="11" x2="12" y2="18" stroke="#1E0A4E" strokeWidth="1.5" strokeLinecap="round"/>
-      <line x1="9" y1="14.5" x2="15" y2="14.5" stroke="#1E0A4E" strokeWidth="1.5" strokeLinecap="round"/>
+      <rect x="6" y="8" width="12" height="13" rx="2" stroke="#073B52" strokeWidth="1.5"/>
+      <path d="M9 8V6a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#073B52" strokeWidth="1.5" strokeLinecap="round"/>
+      <line x1="12" y1="11" x2="12" y2="18" stroke="#073B52" strokeWidth="1.5" strokeLinecap="round"/>
+      <line x1="9" y1="14.5" x2="15" y2="14.5" stroke="#073B52" strokeWidth="1.5" strokeLinecap="round"/>
     </svg>
   )
 }
@@ -173,8 +181,8 @@ function IconPlaneBadge() {
 function IconWifiOff() {
   return (
     <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <line x1="1" y1="1" x2="23" y2="23" stroke="#1E0A4E" strokeWidth="1.5" strokeLinecap="round"/>
-      <path d="M16.72 11.06A10.94 10.94 0 0119 12.55M5 12.55a10.94 10.94 0 015.17-2.8M10.71 5.05A16 16 0 0122.56 9M1.42 9a15.91 15.91 0 014.7-2.88M8.53 16.11a6 6 0 016.95 0M12 20h.01" stroke="#1E0A4E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <line x1="1" y1="1" x2="23" y2="23" stroke="#073B52" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M16.72 11.06A10.94 10.94 0 0119 12.55M5 12.55a10.94 10.94 0 015.17-2.8M10.71 5.05A16 16 0 0122.56 9M1.42 9a15.91 15.91 0 014.7-2.88M8.53 16.11a6 6 0 016.95 0M12 20h.01" stroke="#073B52" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   )
 }
@@ -250,14 +258,15 @@ function JoinCodePanel({ onJoined }: { onJoined: () => void }) {
           onChange={(e) => { setCode(e.target.value.toUpperCase()); setError(''); setInfo('') }}
           onKeyDown={(e) => e.key === 'Enter' && !isOffline && handleJoin()}
           disabled={isOffline}
+          aria-label="Código de invitación"
           placeholder="Ej: ABCD1234"
           maxLength={8}
-          className="flex-1 font-body text-sm text-[#1E0A4E] placeholder-gray-400 border border-[#E2E8F0] rounded-xl px-4 py-2.5 outline-none focus:border-[#1E6FD9] focus:ring-2 focus:ring-[#1E6FD9]/10 tracking-widest uppercase bg-white"
+          className="flex-1 font-body text-sm text-[#073B52] placeholder-gray-400 border border-[#E2E8F0] rounded-xl px-4 py-2.5 outline-none focus:border-[#0878CF] focus:ring-2 focus:ring-[#0878CF]/10 tracking-widest uppercase bg-white"
         />
         <button
           onClick={handleJoin}
           disabled={loading || isOffline}
-          className="font-body text-sm font-semibold bg-[#1E0A4E] text-white rounded-xl px-4 py-2.5 hover:opacity-90 transition-opacity disabled:opacity-50 whitespace-nowrap"
+          className="font-body text-sm font-semibold bg-[#073B52] text-white rounded-xl px-4 py-2.5 hover:opacity-90 transition-opacity disabled:opacity-50 whitespace-nowrap"
         >
           {loading ? 'Uniéndome…' : 'Unirme'}
         </button>
@@ -281,7 +290,7 @@ function JoinCodePanel({ onJoined }: { onJoined: () => void }) {
 
 function StatusChip({ estado }: { estado: string }) {
   const map: Record<string, { label: string; className: string }> = {
-    activo:     { label: 'ACTIVO',     className: 'bg-[#35C56A] text-white' },
+    activo:     { label: 'ACTIVO',     className: 'bg-[#075B85] text-white' },
     finalizado: { label: 'FINALIZADO', className: 'bg-[#E5E7EB] text-[#6B7280]' },
     cerrado:    { label: 'CERRADO',    className: 'bg-[#D1D5DB] text-[#374151]' },
     archivado:  { label: 'ARCHIVADO',  className: 'bg-[#D1D5DB] text-[#374151]' },
@@ -311,7 +320,7 @@ function PastTripCard({ item, onClick }: { item: GroupHistoryItem; onClick: () =
         <RolBadge rol={item.rol} />
       </div>
 
-      <h2 className="font-heading text-lg font-bold leading-tight mb-1 text-[#1E0A4E]">
+      <h2 className="font-heading text-lg font-bold leading-tight mb-1 text-[#073B52]">
         {g.nombre}
       </h2>
 
@@ -356,9 +365,9 @@ function RolBadge({ rol, dark = false }: { rol: string; dark?: boolean }) {
       className={`inline-block rounded-full px-2.5 py-0.5 font-body text-[10px] font-bold ${
         isAdmin
           ? dark
-            ? 'bg-white text-[#1E0A4E]'
-            : 'bg-[#1E0A4E] text-white'
-          : 'bg-[#1E6FD9] text-white'
+            ? 'bg-white text-[#073B52]'
+            : 'bg-[#073B52] text-white'
+          : 'bg-[#0878CF] text-white'
       }`}
     >
       {isAdmin ? 'Organizador' : 'Viajero'}
@@ -372,14 +381,14 @@ function FeaturedCard({ item, onClick }: { item: GroupHistoryItem; onClick: () =
   const g = item.grupos_viaje
 
   return (
-    <div className="relative overflow-hidden rounded-3xl shadow-[0_22px_46px_rgba(30,10,78,0.28)]">
+    <div className="relative overflow-hidden rounded-3xl shadow-[0_22px_46px_rgba(7,59,82,0.22)]">
 
-      {/* Purple gradient overlay — photo bleeds through */}
-      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(30,10,78,0.90)_0%,rgba(79,36,168,0.80)_50%,rgba(122,79,214,0.88)_100%)]" />
+      {/* Traveling gradient */}
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(7,59,82,0.96)_0%,rgba(8,120,207,0.94)_50%,rgba(22,185,208,0.90)_100%)]" />
 
       {/* Ambient glow blobs */}
-      <div className="absolute -bottom-24 left-10 h-56 w-56 rounded-full bg-[#1E6FD9]/25 blur-3xl" />
-      <div className="absolute -right-20 top-8 h-48 w-48 rounded-full bg-[#D8C8FF]/20 blur-3xl" />
+      <div className="absolute -bottom-24 left-10 h-56 w-56 rounded-full bg-[#0878CF]/25 blur-3xl" />
+      <div className="absolute -right-20 top-8 h-48 w-48 rounded-full bg-[#91DEF0]/20 blur-3xl" />
 
       {/* Content */}
       <div className="relative z-10 p-5 sm:p-6">
@@ -395,15 +404,15 @@ function FeaturedCard({ item, onClick }: { item: GroupHistoryItem; onClick: () =
         <div className="mt-4 grid gap-3">
           {g.destino && (
             <div className="flex min-w-0 items-start gap-2.5">
-              <span className="mt-0.5 shrink-0 text-[#FFD166]"><IconMap /></span>
-              <p className="min-w-0 break-words font-body text-sm font-semibold leading-snug text-[#FFD166] [overflow-wrap:anywhere]">
+              <span className="mt-0.5 shrink-0 text-[#FFDF80]"><IconMap /></span>
+              <p className="min-w-0 break-words font-body text-sm font-semibold leading-snug text-[#FFDF80] [overflow-wrap:anywhere]">
                 {g.destino}
               </p>
             </div>
           )}
           <div className="flex min-w-0 items-start gap-2.5">
-            <span className="mt-0.5 shrink-0 text-[#9AF0B8]"><IconClock /></span>
-            <p className="font-body text-sm font-semibold leading-snug text-[#9AF0B8]">
+            <span className="mt-0.5 shrink-0 text-[#D7F6FC]"><IconClock /></span>
+            <p className="font-body text-sm font-semibold leading-snug text-[#D7F6FC]">
               {formatTripDate(g.fecha_inicio, g.fecha_fin)}
             </p>
           </div>
@@ -412,7 +421,7 @@ function FeaturedCard({ item, onClick }: { item: GroupHistoryItem; onClick: () =
         <div className="mt-8 flex justify-end">
           <button
             onClick={onClick}
-            className="inline-flex min-w-[132px] items-center justify-center rounded-full border border-white/80 bg-white px-5 py-2.5 font-body text-[13px] font-bold text-[#1E0A4E] shadow-sm transition-all hover:-translate-y-[1px] hover:shadow-md"
+            className="inline-flex min-w-[132px] items-center justify-center rounded-full border border-white/80 bg-white px-5 py-2.5 font-body text-[13px] font-bold text-[#073B52] shadow-sm transition-all hover:-translate-y-[1px] hover:shadow-md"
           >
             Abrir viaje →
           </button>
@@ -436,7 +445,7 @@ function TripCard({ item, onClick }: { item: GroupHistoryItem; onClick: () => vo
 
       {/* Gradient overlay */}
       <div className={`absolute inset-0 ${
-        isAdmin ? 'bg-[linear-gradient(135deg,#1E0A4E,#5B2BC0)]' : 'bg-white'
+        isAdmin ? 'bg-[linear-gradient(135deg,#073B52,#0878CF)]' : 'bg-white'
       }`} />
 
       {/* Content */}
@@ -447,7 +456,7 @@ function TripCard({ item, onClick }: { item: GroupHistoryItem; onClick: () => vo
         </div>
 
         <h2 className={`mb-4 break-words font-heading text-xl font-extrabold leading-tight [overflow-wrap:anywhere] ${
-          isAdmin ? 'text-white' : 'text-[#1E0A4E]'
+          isAdmin ? 'text-white' : 'text-[#073B52]'
         }`}>
           {g.nombre}
         </h2>
@@ -455,11 +464,11 @@ function TripCard({ item, onClick }: { item: GroupHistoryItem; onClick: () => vo
         <div className="grid gap-2.5">
           {g.destino && (
             <div className="flex min-w-0 items-start gap-2">
-              <span className={`mt-0.5 shrink-0 ${isAdmin ? 'text-[#FFD166]' : 'text-[#D97706]'}`}>
+              <span className={`mt-0.5 shrink-0 ${isAdmin ? 'text-[#FFDF80]' : 'text-[#765000]'}`}>
                 <IconMap />
               </span>
               <p className={`min-w-0 line-clamp-2 break-words font-body text-sm font-semibold leading-snug [overflow-wrap:anywhere] ${
-                isAdmin ? 'text-[#FFD166]' : 'text-[#D97706]'
+                isAdmin ? 'text-[#FFDF80]' : 'text-[#765000]'
               }`}>
                 {g.destino}
               </p>
@@ -467,11 +476,11 @@ function TripCard({ item, onClick }: { item: GroupHistoryItem; onClick: () => vo
           )}
 
           <div className="flex min-w-0 items-start gap-2">
-            <span className={`mt-0.5 shrink-0 ${isAdmin ? 'text-[#9AF0B8]' : 'text-[#059669]'}`}>
+            <span className={`mt-0.5 shrink-0 ${isAdmin ? 'text-[#D7F6FC]' : 'text-[#075B85]'}`}>
               <IconClock />
             </span>
             <p className={`font-body text-sm font-semibold leading-snug ${
-              isAdmin ? 'text-[#9AF0B8]' : 'text-[#059669]'
+              isAdmin ? 'text-[#D7F6FC]' : 'text-[#075B85]'
             }`}>
               {formatTripDate(g.fecha_inicio, g.fecha_fin)}
             </p>
@@ -484,8 +493,8 @@ function TripCard({ item, onClick }: { item: GroupHistoryItem; onClick: () => vo
           </span>
           <span className={`inline-flex min-w-[132px] items-center justify-center rounded-full border px-5 py-2.5 font-body text-[13px] font-semibold shadow-sm transition-all ${
             isAdmin
-              ? 'border-white/80 bg-white text-[#1E0A4E]'
-              : 'border-[#D8C8FF] bg-[#F3EEFF] text-[#6D45C0]'
+              ? 'border-white/80 bg-white text-[#073B52]'
+              : 'border-[#91DEF0] bg-[#E8F4FA] text-[#075EAA]'
           }`}>
             Abrir viaje →
           </span>
@@ -500,14 +509,14 @@ function TripCard({ item, onClick }: { item: GroupHistoryItem; onClick: () => vo
 function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#1E0A4E]/5">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#073B52]/5">
         <IconWifiOff/>
       </div>
-      <h2 className="mb-2 font-heading text-lg font-bold text-[#1E0A4E]">Sin conexión</h2>
+      <h2 className="mb-2 font-heading text-lg font-bold text-[#073B52]">Sin conexión</h2>
       <p className="mb-5 font-body text-sm text-[#6B7280]">No pudimos cargar tus viajes.</p>
       <button
         onClick={onRetry}
-        className="rounded-xl bg-[#1E6FD9] px-6 py-3 font-body text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+        className="rounded-xl bg-[#0878CF] px-6 py-3 font-body text-sm font-semibold text-white hover:opacity-90 transition-opacity"
       >
         Reintentar
       </button>
@@ -623,26 +632,27 @@ export function MyTripsPage() {
 
   return (
     <AppLayout showTripSelector={false} user={navUser}>
+      <div className="traveling-trips-shell">
       {loading ? (
         <SkeletonCards/>
       ) : error ? (
         <ErrorState onRetry={() => { void fetchTrips() }}/>
       ) : (
-        <div className="flex-1 overflow-y-auto bg-[linear-gradient(180deg,#FFFFFF_0%,#F8F6FF_48%,#F3EEFF_100%)]">
+        <div className="flex-1 overflow-y-auto bg-[linear-gradient(180deg,#FFFFFF_0%,#F4F9FA_48%,#E8F4FA_100%)]">
 
           {/* ── Header ── */}
           <div className="border-b border-[#D9E4F7] bg-white/85 px-6 py-6 backdrop-blur">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex min-w-0 items-center gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#1E0A4E,#7A4FD6)] text-white shadow-[0_14px_28px_rgba(30,10,78,0.22)]">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#073B52,#16B9D0)] text-white shadow-[0_14px_28px_rgba(7,59,82,0.18)]">
                   <IconPlaneBadge />
                 </div>
                 <div className="min-w-0">
-                  <p className="mb-1 inline-flex items-center gap-2 rounded-full bg-[#F3EEFF] px-3 py-1 font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#6D45C0]">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#7A4FD6]" />
+                  <p className="mb-1 inline-flex items-center gap-2 rounded-full bg-[#E8F4FA] px-3 py-1 font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#075EAA]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#16B9D0]" />
                     Centro de viajes
                   </p>
-                  <h1 className="font-heading text-3xl font-extrabold leading-tight text-[#1E0A4E]">
+                  <h1 className="font-heading text-3xl font-extrabold leading-tight text-[#073B52]">
                     Hola, {firstName}
                   </h1>
                   <p className="mt-1 font-body text-sm text-[#64748B]">
@@ -654,19 +664,19 @@ export function MyTripsPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-3 sm:w-[320px]">
-                <div className="rounded-2xl border border-[#D8C8FF] bg-[#F3EEFF] px-4 py-3">
-                  <p className="font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#6D45C0]">
+                <div className="rounded-2xl border border-[#91DEF0] bg-[#E8F4FA] px-4 py-3">
+                  <p className="font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#075EAA]">
                     Activos
                   </p>
-                  <p className="mt-1 font-heading text-2xl font-extrabold text-[#1E0A4E]">
+                  <p className="mt-1 font-heading text-2xl font-extrabold text-[#073B52]">
                     {activos.length}
                   </p>
                 </div>
                 <div className="rounded-2xl border border-[#CFE0FF] bg-[#EEF4FF] px-4 py-3">
-                  <p className="font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#1E6FD9]">
+                  <p className="font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#0878CF]">
                     Historial
                   </p>
-                  <p className="mt-1 font-heading text-2xl font-extrabold text-[#1E0A4E]">
+                  <p className="mt-1 font-heading text-2xl font-extrabold text-[#073B52]">
                     {pasados.length}
                   </p>
                 </div>
@@ -678,7 +688,7 @@ export function MyTripsPage() {
           <div className="grid gap-3 px-6 py-4 md:grid-cols-2">
             <button
               onClick={() => navigate('/create-group')}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#1E0A4E,#7A4FD6)] py-3.5 font-body text-sm font-bold text-white shadow-[0_14px_28px_rgba(30,10,78,0.18)] transition hover:-translate-y-0.5"
+              className="flex items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#073B52,#16B9D0)] py-3.5 font-body text-sm font-bold text-white shadow-[0_14px_28px_rgba(7,59,82,0.16)] transition hover:-translate-y-0.5"
             >
               <IconPlus/>
               Crear viaje
@@ -687,8 +697,8 @@ export function MyTripsPage() {
               onClick={() => setShowJoin((v) => !v)}
               className={`flex items-center justify-center gap-2 rounded-2xl border py-3.5 font-body text-sm font-bold shadow-sm transition-all hover:-translate-y-0.5
                 ${showJoin
-                  ? 'bg-[#1E0A4E] text-white border-[#1E0A4E]'
-                  : 'bg-white text-[#1E0A4E] border-[#D9E4F7] hover:border-[#7A4FD6]/60'
+                  ? 'bg-[#073B52] text-white border-[#073B52]'
+                  : 'bg-white text-[#073B52] border-[#D9E4F7] hover:border-[#16B9D0]/60'
                 }`}
             >
               <IconKey/>
@@ -700,7 +710,7 @@ export function MyTripsPage() {
           {showJoin && (
             <div className="px-6 pb-4">
               <div className="bg-white border border-[#E2E8F0] rounded-2xl p-4 shadow-sm">
-                <p className="font-body text-xs font-semibold text-[#1E0A4E]/50 uppercase tracking-wide mb-3">
+                <p className="font-body text-xs font-semibold text-[#073B52]/50 uppercase tracking-wide mb-3">
                   Código de invitación
                 </p>
                 <JoinCodePanel onJoined={() => { setShowJoin(false); void fetchTrips() }}/>
@@ -713,10 +723,10 @@ export function MyTripsPage() {
             {/* ── Sin viajes ── */}
             {!hasTrips && (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-[#1E0A4E]/5">
+                <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-[#073B52]/5">
                   <IconLuggage/>
                 </div>
-                <h2 className="mb-2 font-heading text-lg font-bold text-[#1E0A4E]">
+                <h2 className="mb-2 font-heading text-lg font-bold text-[#073B52]">
                   Aún no tienes viajes
                 </h2>
                 <p className="mb-2 font-body text-sm text-[#6B7280] max-w-xs leading-relaxed">
@@ -731,11 +741,11 @@ export function MyTripsPage() {
                     { icon: <IconUsers/>, title: 'Planeen juntos', desc: 'Propón actividades, voten y coordínense.' },
                   ].map((tip) => (
                     <div key={tip.title} className="flex items-start gap-3 bg-white border border-[#E2E8F0] rounded-2xl p-4">
-                      <div className="w-8 h-8 rounded-xl bg-[#1E6FD9]/10 flex items-center justify-center shrink-0 text-[#1E6FD9]">
+                      <div className="w-8 h-8 rounded-xl bg-[#0878CF]/10 flex items-center justify-center shrink-0 text-[#0878CF]">
                         {tip.icon}
                       </div>
                       <div>
-                        <p className="font-body text-sm font-semibold text-[#1E0A4E]">{tip.title}</p>
+                        <p className="font-body text-sm font-semibold text-[#073B52]">{tip.title}</p>
                         <p className="font-body text-xs text-[#6B7280]">{tip.desc}</p>
                       </div>
                     </div>
@@ -783,7 +793,7 @@ export function MyTripsPage() {
                     <p className="font-body text-[11px] font-semibold uppercase tracking-wider text-[#6B7280]">
                       Viajes pasados
                     </p>
-                    <p className="mt-1 font-body text-sm text-[#1E0A4E]">
+                    <p className="mt-1 font-body text-sm text-[#073B52]">
                       {pasados.length} viaje{pasados.length !== 1 ? 's' : ''} cerrado{pasados.length !== 1 ? 's' : ''} disponible{pasados.length !== 1 ? 's' : ''} para consulta.
                     </p>
                   </div>
@@ -811,6 +821,7 @@ export function MyTripsPage() {
           </div>
         </div>
       )}
+      </div>
     </AppLayout>
   )
 }

@@ -12,7 +12,7 @@ export function Logo({ variant = 'color', height = 36, className = '' }: LogoPro
   return (
     <span
       className={`inline-flex shrink-0 select-none items-center ${className}`}
-      style={variant === 'white' ? { backgroundColor: '#fff', borderRadius: 8, padding: '2px 6px' } : undefined}
+      data-variant={variant}
     >
       <img src={logoHorizontal} alt="Traveling" height={height} style={{ height, width: 'auto', maxWidth: 'none', flexShrink: 0 }} />
     </span>

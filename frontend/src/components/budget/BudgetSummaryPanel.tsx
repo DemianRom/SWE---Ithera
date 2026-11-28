@@ -14,7 +14,7 @@ interface Props {
 
 function BalanceLabel({ balance }: { balance: number }) {
   if (Math.abs(balance) < 0.01) {
-    return <span className="font-semibold text-[#64748B]">Al corriente</span>
+    return <span className="font-semibold text-[#526C79]">Al corriente</span>
   }
   return balance > 0 ? (
     <span className="font-semibold text-[#047857]">Le deben {formatMXN(balance)}</span>
@@ -62,13 +62,13 @@ export function BudgetSummaryPanel({ groupId, token, refreshKey, disabled = fals
   }
 
   return (
-    <section className="rounded-2xl border border-[#E2E8F0] bg-white p-5" aria-labelledby="budget-summary-title">
+    <section className="rounded-2xl border border-[#CBDDE3] border-t-4 border-t-[#16B9D0] bg-white p-5 shadow-[0_10px_30px_rgba(13,64,84,0.07)]" aria-labelledby="budget-summary-title">
       <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 id="budget-summary-title" className="font-heading text-sm font-bold text-[#3D4A5C]">
+          <h2 id="budget-summary-title" className="font-heading text-base font-semibold text-[#073B52]">
             Resumen por integrante
           </h2>
-          <p className="mt-0.5 font-body text-xs text-[#7A8799]">
+          <p className="mt-0.5 font-body text-xs text-[#526C79]">
             Lo que pagó cada quien, lo que le toca y su saldo (incluye pagos ya confirmados).
           </p>
         </div>
@@ -77,7 +77,7 @@ export function BudgetSummaryPanel({ groupId, token, refreshKey, disabled = fals
             type="button"
             disabled={disabled || downloading !== null || !summary}
             onClick={() => void download('pdf')}
-            className="rounded-xl border border-[#CFE0FF] bg-[#EEF4FF] px-3 py-2 font-body text-xs font-semibold text-[#1E6FD9] transition-colors hover:bg-[#E2EDFF] disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-xl border border-[#91DEF0] bg-[#E8F4FA] px-3 py-2 font-body text-xs font-semibold text-[#075EAA] transition-colors hover:bg-[#D6F2F7] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {downloading === 'pdf' ? 'Generando…' : 'Descargar resumen (PDF)'}
           </button>
@@ -85,7 +85,7 @@ export function BudgetSummaryPanel({ groupId, token, refreshKey, disabled = fals
             type="button"
             disabled={disabled || downloading !== null || !summary}
             onClick={() => void download('csv')}
-            className="rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 font-body text-xs font-semibold text-[#3D4A5C] transition-colors hover:bg-[#F8FAFC] disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-xl border border-[#CBDDE3] bg-white px-3 py-2 font-body text-xs font-semibold text-[#073B52] transition-colors hover:bg-[#F4F9FA] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {downloading === 'csv' ? 'Exportando…' : 'Exportar gastos (CSV)'}
           </button>
@@ -99,16 +99,16 @@ export function BudgetSummaryPanel({ groupId, token, refreshKey, disabled = fals
       )}
 
       {loadError ? (
-        <p className="font-body text-sm text-[#7A8799]">{loadError}</p>
+        <p className="font-body text-sm text-[#526C79]">{loadError}</p>
       ) : !summary ? (
-        <p className="font-body text-sm text-[#7A8799]">Cargando resumen…</p>
+        <p className="font-body text-sm text-[#526C79]">Cargando resumen…</p>
       ) : summary.byMember.length === 0 ? (
-        <p className="font-body text-sm text-[#7A8799]">Aún no hay integrantes con gastos.</p>
+        <p className="font-body text-sm text-[#526C79]">Aún no hay integrantes con gastos.</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[420px] font-body text-sm text-[#3D4A5C]">
+          <table className="w-full min-w-[420px] font-body text-sm text-[#073B52]">
             <thead>
-              <tr className="border-b border-[#E2E8F0] text-left text-xs uppercase tracking-wide text-[#7A8799]">
+              <tr className="border-b border-[#CBDDE3] text-left text-xs uppercase tracking-wide text-[#526C79]">
                 <th scope="col" className="py-2 pr-3 font-semibold">Integrante</th>
                 <th scope="col" className="py-2 pr-3 text-right font-semibold">Pagó</th>
                 <th scope="col" className="py-2 pr-3 text-right font-semibold">Le toca</th>
@@ -117,7 +117,7 @@ export function BudgetSummaryPanel({ groupId, token, refreshKey, disabled = fals
             </thead>
             <tbody>
               {summary.byMember.map((member) => (
-                <tr key={member.usuarioId} className="border-b border-[#F1F5F9] last:border-0">
+                <tr key={member.usuarioId} className="border-b border-[#E8F4FA] last:border-0">
                   <td className="py-2 pr-3 font-semibold">{member.nombre}</td>
                   <td className="py-2 pr-3 text-right tabular-nums">{formatMXN(member.paid)}</td>
                   <td className="py-2 pr-3 text-right tabular-nums">{formatMXN(member.share)}</td>

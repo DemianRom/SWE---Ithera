@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import './shell-brand.css'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Navbar } from '../Navbar'
 import type { NavUserInfo, TripInfo } from '../Navbar'
@@ -73,18 +74,18 @@ function IconSuitcaseSmall() {
 }
 
 const GENERAL_NAV = [
-  { to: '/my-trips', label: 'Mis viajes', icon: <IconSuitcaseSmall />, iconColor: 'text-[#9AF0B8]' },
-  { to: '/create-group', label: 'Crear grupo', icon: <IconCompass />, iconColor: 'text-[#BFD7FF]' },
-  { to: '/my-trips#viajes-pasados', label: 'Viajes pasados', icon: <IconCalendar />, iconColor: 'text-[#FFD166]' },
-  { to: '/profile', label: 'Configuración', icon: <IconSettings />, iconColor: 'text-[#D8C8FF]' },
+  { to: '/my-trips', label: 'Mis viajes', icon: <IconSuitcaseSmall />, iconColor: 'text-[#91def0]' },
+  { to: '/create-group', label: 'Crear grupo', icon: <IconCompass />, iconColor: 'text-[#b9eaf5]' },
+  { to: '/my-trips#viajes-pasados', label: 'Viajes pasados', icon: <IconCalendar />, iconColor: 'text-[#ffbf20]' },
+  { to: '/profile', label: 'Configuración', icon: <IconSettings />, iconColor: 'text-[#91def0]' },
 ]
 
 function GeneralNav({ currentPath, onNavigate }: { currentPath: string; onNavigate: (to: string) => void }) {
   return (
     <nav className="flex h-full flex-col space-y-5">
       <div>
-        <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#35C56A]/15 px-3 py-1 font-body text-xs font-bold uppercase tracking-widest text-[#9AF0B8]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#35C56A]" />
+        <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#16b9d0]/15 px-3 py-1 font-body text-xs font-bold uppercase tracking-widest text-[#91def0]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#16b9d0]" />
           Navegación
         </p>
         <ul className="flex flex-col gap-1">
@@ -97,11 +98,11 @@ function GeneralNav({ currentPath, onNavigate }: { currentPath: string; onNaviga
                   onClick={() => onNavigate(item.to)}
                   className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left font-body text-sm font-semibold transition-all duration-150 ${
                     isActive
-                      ? 'bg-white text-[#1E0A4E] shadow-[0_12px_26px_rgba(0,0,0,0.16)]'
+                      ? 'bg-white text-[#073b52] shadow-[0_12px_26px_rgba(0,0,0,0.16)]'
                       : 'text-white/75 hover:bg-white/10 hover:text-white'
                   }`}
                 >
-                  <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${isActive ? 'bg-[#EAF2FF] text-[#1E6FD9]' : `bg-white/10 ${item.iconColor}`}`}>
+                  <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${isActive ? 'bg-[#e8f4fa] text-[#0878cf]' : `bg-white/10 ${item.iconColor}`}`}>
                     {item.icon}
                   </span>
                   {item.label}
@@ -148,7 +149,7 @@ export function AppLayout({
     : undefined
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-surface font-body">
+    <div className="traveling-shell flex h-screen flex-col overflow-hidden bg-[#f4f9fa] font-body">
       <Navbar
         variant="dashboard"
         trip={tripInfo}
@@ -164,7 +165,7 @@ export function AppLayout({
       <div className="flex min-w-0 flex-1 overflow-hidden pt-20">
         <aside
           className={[
-            'shrink-0 overflow-hidden bg-[linear-gradient(180deg,#24105E_0%,#1E0A4E_42%,#34106F_100%)] transition-all duration-300 ease-in-out',
+            'shrink-0 overflow-hidden bg-[linear-gradient(180deg,#073b52_0%,#073b52_42%,#075b85_100%)] transition-all duration-300 ease-in-out',
             sidebarOpen ? 'w-[256px]' : 'w-0',
           ].join(' ')}
         >
@@ -173,25 +174,25 @@ export function AppLayout({
               <>
                 <div className="mb-4 rounded-2xl border border-white/15 bg-white/[0.07] shadow-[0_14px_32px_rgba(0,0,0,0.18)]">
                   <div className="relative overflow-hidden rounded-2xl px-3.5 pb-3.5 pt-3.5">
-                    <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-[#1E6FD9]/25 blur-2xl" />
-                    <div className="absolute -bottom-10 left-4 h-20 w-20 rounded-full bg-[#35C56A]/20 blur-2xl" />
+                    <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-[#0878cf]/25 blur-2xl" />
+                    <div className="absolute -bottom-10 left-4 h-20 w-20 rounded-full bg-[#16b9d0]/20 blur-2xl" />
                     <div className="relative">
-                      <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 font-body text-[11px] font-bold uppercase tracking-[0.16em] text-[#9AF0B8]">
-                        <span className="h-1.5 w-1.5 rounded-full bg-[#35C56A]" />
-                        Viaje activo
+                      <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 font-body text-[11px] font-bold uppercase tracking-[0.16em] text-[#91def0]">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#16b9d0]" />
+                        Viaje
                       </p>
                       <h2 className="max-w-full break-words font-heading text-lg font-extrabold leading-tight text-white" title={trip.name}>
                         {trip.name}
                       </h2>
 
                       <div className="mt-3 grid gap-1.5">
-                        <div className="flex items-center gap-2 rounded-xl border border-[#BFD7FF]/20 bg-[#1E6FD9]/20 px-2.5 py-1.5">
-                          <span className="shrink-0 text-[#BFD7FF]"><IconCalendar /></span>
-                          <span className="min-w-0 font-body text-xs font-semibold leading-snug text-[#D9E8FF]">{trip.dates}</span>
+                        <div className="flex items-center gap-2 rounded-xl border border-[#b9eaf5]/20 bg-[#0878cf]/20 px-2.5 py-1.5">
+                          <span className="shrink-0 text-[#b9eaf5]"><IconCalendar /></span>
+                          <span className="min-w-0 font-body text-xs font-semibold leading-snug text-[#e3f8fc]">{trip.dates}</span>
                         </div>
-                        <div className="flex items-center gap-2 rounded-xl border border-[#BFF4CE]/20 bg-[#35C56A]/15 px-2.5 py-1.5">
-                          <span className="shrink-0 text-[#9AF0B8]"><IconUsers /></span>
-                          <span className="font-body text-xs font-semibold leading-none text-[#D7FBE2]">{trip.people}</span>
+                        <div className="flex items-center gap-2 rounded-xl border border-[#91def0]/20 bg-[#16b9d0]/15 px-2.5 py-1.5">
+                          <span className="shrink-0 text-[#91def0]"><IconUsers /></span>
+                          <span className="font-body text-xs font-semibold leading-none text-[#e3f8fc]">{trip.people}</span>
                         </div>
                       </div>
                     </div>
@@ -222,12 +223,12 @@ export function AppLayout({
           </div>
         </aside>
 
-        <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[#F0EEF8]">
+        <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[#f4f9fa]">
           {children}
         </main>
 
         {showRightPanel && rightPanel && (
-          <aside className="hidden w-[280px] shrink-0 flex-col gap-3 overflow-y-auto border-l border-[#E2E8F0] bg-[#FAF9FD] px-5 py-4 xl:flex">
+          <aside className="hidden w-[280px] shrink-0 flex-col gap-3 overflow-y-auto border-l border-[#cbdde3] bg-[#f4f9fa] px-5 py-4 xl:flex">
             {rightPanel}
           </aside>
         )}
