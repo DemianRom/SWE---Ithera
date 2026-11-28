@@ -64,8 +64,8 @@ const toIso = (date: string, time: string): string =>
   new Date(`${date}T${time}:00${MEXICO_CITY_OFFSET}`).toISOString();
 
 const inputClass =
-  "w-full rounded-xl border border-[#E2E8F0] bg-white px-4 py-2.5 font-body text-sm text-[#1E0A4E] outline-none transition focus:border-[#1E6FD9] focus:ring-2 focus:ring-[#1E6FD9]/15 disabled:bg-[#F8FAFC]";
-const labelClass = "mb-1.5 block font-body text-xs font-semibold uppercase tracking-wide text-[#1E0A4E]/60";
+  "w-full rounded-xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-2.5 font-body text-sm text-[#073B52] outline-none transition focus:border-[#0878CF] focus:ring-2 focus:ring-[#91DEF0] disabled:bg-[#F4F9FA]";
+const labelClass = "mb-1.5 block font-body text-xs font-semibold uppercase tracking-wide text-[#073B52]/60";
 
 export function ActivityFormModal({
   open,
@@ -159,12 +159,12 @@ export function ActivityFormModal({
         ref={formRef}
         tabIndex={-1}
         onSubmit={handleSubmit}
-        className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-[28px] border border-white/80 bg-white p-6 shadow-2xl shadow-[#1E0A4E]/20 ring-1 ring-[#E2E8F0]/70"
+        className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-[28px] border border-[#91DEF0] border-t-4 border-t-[#16B9D0] bg-white p-6 shadow-2xl shadow-[#073B52]/20 ring-1 ring-[#CBDDE3]/70"
       >
-        <h2 id="activity-form-title" className="font-heading text-lg font-extrabold text-[#1E0A4E]">
+        <h2 id="activity-form-title" className="border-l-4 border-[#FFBF20] pl-3 font-heading text-xl font-semibold text-[#073B52]">
           {isEditing ? "Editar actividad" : "Agregar actividad"}
         </h2>
-        <p className="mt-1 font-body text-sm text-[#64748B]">
+        <p className="mt-1 font-body text-sm text-[#526C79]">
           Las horas son de la Ciudad de México y van en intervalos de 30 minutos.
         </p>
 
@@ -269,14 +269,14 @@ export function ActivityFormModal({
             type="button"
             disabled={saving}
             onClick={onClose}
-            className="inline-flex items-center justify-center rounded-xl border border-[#E2E8F0] px-4 py-2.5 font-body text-sm font-extrabold text-[#1E0A4E] transition hover:bg-[#F8FAFC] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center rounded-xl border border-[#CBDDE3] px-4 py-2.5 font-body text-sm font-extrabold text-[#073B52] transition hover:bg-[#F4F9FA] disabled:cursor-not-allowed disabled:opacity-60"
           >
             Cancelar
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center justify-center rounded-xl bg-[#1E6FD9] px-4 py-2.5 font-body text-sm font-extrabold text-white transition hover:bg-[#2C8BE6] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center rounded-xl bg-[#0878CF] px-4 py-2.5 font-body text-sm font-extrabold text-white transition hover:bg-[#075EAA] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving ? "Guardando…" : isEditing ? "Guardar cambios" : "Agregar actividad"}
           </button>
