@@ -22,8 +22,8 @@ export function OfflineBanner() {
         alignItems: 'center',
         justifyContent: 'center',
         gap: '10px',
-        backgroundColor: '#FFF7ED',
-        borderBottom: '1px solid #FED7AA',
+        backgroundColor: '#fff2d1',
+        borderBottom: '1px solid #765000',
         padding: '10px 16px',
         boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
       }}
@@ -35,7 +35,7 @@ export function OfflineBanner() {
         viewBox="0 0 24 24"
         fill="none"
         aria-hidden="true"
-        style={{ color: '#B45309', flexShrink: 0 }}
+        style={{ color: '#765000', flexShrink: 0 }}
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
@@ -46,13 +46,13 @@ export function OfflineBanner() {
         <path d="M10.71 5.05A16 16 0 0 1 22.56 9" />
         <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88" />
         <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
-        <circle cx="12" cy="20" r="1" fill="#B45309" stroke="none" />
+        <circle cx="12" cy="20" r="1" fill="#765000" stroke="none" />
       </svg>
 
-      <span style={{ fontSize: '14px', fontWeight: 600, color: '#B45309' }}>
+      <span style={{ fontSize: '14px', fontWeight: 600, color: '#765000' }}>
         Sin conexión a internet
       </span>
-      <span style={{ fontSize: '13px', color: '#92400E' }}>
+      <span style={{ fontSize: '13px', color: '#765000' }}>
         — La aplicación está en modo solo lectura hasta recuperar la señal.
       </span>
     </div>

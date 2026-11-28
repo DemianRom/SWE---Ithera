@@ -91,7 +91,7 @@ function getInitials(name: string): string {
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 const inputBase =
-  'w-full rounded-xl border border-[#E2E8F0] bg-white px-4 py-2.5 font-body text-sm text-[#1E0A4E] placeholder-gray-400 outline-none transition focus:border-[#1E6FD9] focus:ring-2 focus:ring-[#1E6FD9]/20 disabled:bg-[#F8FAFC] disabled:text-gray-400 disabled:cursor-default'
+  'w-full rounded-xl border border-[#CBDDE3] bg-white px-4 py-2.5 font-body text-sm text-[#073B52] placeholder-gray-400 outline-none transition focus:border-[#0878CF] focus:ring-2 focus:ring-[#0878CF]/20 disabled:bg-[#F4F9FA] disabled:text-gray-400 disabled:cursor-default'
 
 function Field({
   label,
@@ -110,7 +110,7 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="font-body text-xs font-semibold text-[#1E0A4E]/60 uppercase tracking-wide">
+      <label className="font-body text-xs font-semibold text-[#526C79] uppercase tracking-wide">
         {label}
       </label>
       <div className="relative">
@@ -143,18 +143,18 @@ function Toggle({
   onChange: (v: boolean) => void
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 py-4 border-b border-[#E2E8F0] last:border-none">
+    <div className="flex items-center justify-between gap-4 py-4 border-b border-[#CBDDE3] last:border-none">
       <div>
-        <p className="font-body text-sm font-semibold text-[#1E0A4E]">{label}</p>
-        <p className="font-body text-xs text-[#1E0A4E]/50 mt-0.5">{description}</p>
+        <p className="font-body text-sm font-semibold text-[#073B52]">{label}</p>
+        <p className="font-body text-xs text-[#526C79] mt-0.5">{description}</p>
       </div>
       <button
         role="switch"
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={[
-          'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#1E6FD9]/30',
-          checked ? 'bg-[#1E6FD9]' : 'bg-gray-200',
+          'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#0878CF]/30',
+          checked ? 'bg-[#0878CF]' : 'bg-gray-200',
         ].join(' ')}
       >
         <span
@@ -545,7 +545,7 @@ export function ProfilePage() {
     name:     displayName,
     role:     'Organizador',
     initials: getInitials(displayName),
-    color:    '#1E6FD9',
+    color:    '#0878CF',
   }
 
   const avatarInitials = getInitials(displayName)
@@ -554,15 +554,15 @@ export function ProfilePage() {
     <AppLayout user={navUser} showRightPanel={false} showTripSelector={false}>
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 flex flex-col gap-6">
-          <h1 className="font-heading font-bold text-2xl text-[#1E0A4E]">Mi perfil</h1>
+          <h1 className="font-heading font-bold text-2xl text-[#073B52]">Mi perfil</h1>
 
           {/* ── Header ──────────────────────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm p-6 flex flex-col sm:flex-row items-center sm:items-start gap-5">
+          <div className="bg-white rounded-2xl border border-[#CBDDE3] shadow-sm p-6 flex flex-col sm:flex-row items-center sm:items-start gap-5">
             {/* Avatar / photo */}
             <div className="relative shrink-0">
               <div
                 className="w-20 h-20 rounded-full flex items-center justify-center text-white font-heading font-bold text-2xl overflow-hidden"
-                style={{ backgroundColor: '#1E6FD9' }}
+                style={{ backgroundColor: '#0878CF' }}
               >
                 {photoPreview || localUser?.avatar_url
                   ? (
@@ -577,7 +577,7 @@ export function ProfilePage() {
               </div>
               <button
                 onClick={() => fileRef.current?.click()}
-                className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#1E6FD9] text-white rounded-full flex items-center justify-center hover:bg-[#1a5fc2] transition-colors shadow"
+                className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#0878CF] text-white rounded-full flex items-center justify-center hover:bg-[#075EAA] transition-colors shadow"
                 aria-label="Cambiar foto de perfil"
               >
                 <IconCamera />
@@ -593,18 +593,18 @@ export function ProfilePage() {
 
             {/* Info */}
             <div className="flex-1 text-center sm:text-left">
-              <h1 className="font-heading font-bold text-[#1E0A4E] text-xl leading-tight">
+              <h1 className="font-heading font-bold text-[#073B52] text-xl leading-tight">
                 {displayName || 'Usuario'}
               </h1>
-              <p className="font-body text-sm text-[#1E0A4E]/50 mt-0.5">Usuario</p>
-              <p className="font-body text-xs text-[#1E0A4E]/40 mt-1">{savedEmail}</p>
+              <p className="font-body text-sm text-[#526C79] mt-0.5">Usuario</p>
+              <p className="font-body text-xs text-[#526C79] mt-1">{savedEmail}</p>
             </div>
 
             {/* Edit button */}
             {!editing && (
               <button
                 onClick={handleEdit}
-                className="flex items-center gap-2 bg-[#1E6FD9] text-white font-body text-sm font-semibold rounded-xl px-4 py-2 hover:bg-[#1a5fc2] transition-colors shrink-0"
+                className="flex items-center gap-2 bg-[#0878CF] text-white font-body text-sm font-semibold rounded-xl px-4 py-2 hover:bg-[#075EAA] transition-colors shrink-0"
               >
                 <IconEdit />
                 Editar perfil
@@ -613,46 +613,46 @@ export function ProfilePage() {
           </div>
 
           {/* ── Travel statistics ─────────────────────────────────────────────── */}
-          <section className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm overflow-hidden">
+          <section className="bg-white rounded-2xl border border-[#CBDDE3] shadow-sm overflow-hidden">
             <button
               type="button"
               onClick={() => setStatsExpanded((current) => !current)}
-              className="w-full px-6 py-4 flex items-center justify-between gap-3 text-left transition-colors hover:bg-[#F8FAFC]"
+              className="w-full px-6 py-4 flex items-center justify-between gap-3 text-left transition-colors hover:bg-[#F4F9FA]"
               aria-expanded={statsExpanded}
               aria-controls="travel-statistics-panel"
             >
               <div>
-                <h2 className="font-heading font-bold text-[#1E0A4E] text-base">Mis estadísticas de viaje</h2>
-                <p className="mt-0.5 font-body text-xs text-[#64748B]">
+                <h2 className="font-heading font-bold text-[#073B52] text-base">Mis estadísticas de viaje</h2>
+                <p className="mt-0.5 font-body text-xs text-[#526C79]">
                   Resumen acumulado de tus viajes y del gasto registrado.
                 </p>
               </div>
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EEF4FF] text-[#1E6FD9]">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E8F4FA] text-[#0878CF]">
                 <IconChevron open={statsExpanded} />
               </span>
             </button>
             {statsExpanded && (
-              <div id="travel-statistics-panel" className="border-t border-[#E2E8F0] px-6 py-5">
+              <div id="travel-statistics-panel" className="border-t border-[#CBDDE3] px-6 py-5">
                 {statsLoading ? (
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {[0, 1, 2, 3].map((item) => (
-                      <div key={item} className="h-24 animate-pulse rounded-2xl bg-[#F1F5F9]" />
+                      <div key={item} className="h-24 animate-pulse rounded-2xl bg-[#E8F4FA]" />
                     ))}
                   </div>
                 ) : statsError ? (
-                  <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 font-body text-sm text-red-700">
+                  <div className="rounded-2xl border border-[#8D4034]/30 bg-[#FAEDE7] px-4 py-3 font-body text-sm text-[#8D4034]">
                     {statsError}
                   </div>
                 ) : !travelStats || (travelStats.tripsAsAdmin + travelStats.tripsAsTraveler === 0) ? (
-                  <div className="rounded-2xl border border-dashed border-[#D7DEEA] bg-[#F8FAFC] px-4 py-8 text-center">
-                    <p className="font-body text-sm font-semibold text-[#1E0A4E]">Aún no tienes estadísticas.</p>
-                    <p className="mt-1 font-body text-xs text-[#64748B]">
+                  <div className="rounded-2xl border border-dashed border-[#CBDDE3] bg-[#F4F9FA] px-4 py-8 text-center">
+                    <p className="font-body text-sm font-semibold text-[#073B52]">Aún no tienes estadísticas.</p>
+                    <p className="mt-1 font-body text-xs text-[#526C79]">
                       Crea o únete a tu primer viaje para empezar a construir tu historial.
                     </p>
                     <button
                       type="button"
                       onClick={() => navigate('/my-trips')}
-                      className="mt-4 rounded-xl bg-[#1E6FD9] px-4 py-2 font-body text-sm font-semibold text-white transition hover:bg-[#1a5fc2]"
+                      className="mt-4 rounded-xl bg-[#0878CF] px-4 py-2 font-body text-sm font-semibold text-white transition hover:bg-[#075EAA]"
                     >
                       Ir a mis viajes
                     </button>
@@ -660,50 +660,50 @@ export function ProfilePage() {
                 ) : (
                   <div className="space-y-5">
                     <div className="grid gap-3 sm:grid-cols-3">
-                      <div className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-4">
-                        <p className="font-body text-xs font-semibold uppercase tracking-wide text-[#64748B]">Como Admin</p>
-                        <p className="mt-2 font-heading text-2xl font-extrabold text-[#1E0A4E]">{travelStats.tripsAsAdmin}</p>
+                      <div className="rounded-2xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-4">
+                        <p className="font-body text-xs font-semibold uppercase tracking-wide text-[#526C79]">Como Admin</p>
+                        <p className="mt-2 font-heading text-2xl font-extrabold text-[#073B52]">{travelStats.tripsAsAdmin}</p>
                       </div>
-                      <div className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-4">
-                        <p className="font-body text-xs font-semibold uppercase tracking-wide text-[#64748B]">Como Viajero</p>
-                        <p className="mt-2 font-heading text-2xl font-extrabold text-[#1E0A4E]">{travelStats.tripsAsTraveler}</p>
+                      <div className="rounded-2xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-4">
+                        <p className="font-body text-xs font-semibold uppercase tracking-wide text-[#526C79]">Como Viajero</p>
+                        <p className="mt-2 font-heading text-2xl font-extrabold text-[#073B52]">{travelStats.tripsAsTraveler}</p>
                       </div>
-                      <div className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-4">
-                        <p className="font-body text-xs font-semibold uppercase tracking-wide text-[#64748B]">Gasto registrado</p>
-                        <p className="mt-2 font-heading text-xl font-extrabold text-[#1E0A4E]">{formatMoney(travelStats.totalSpent)}</p>
+                      <div className="rounded-2xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-4">
+                        <p className="font-body text-xs font-semibold uppercase tracking-wide text-[#526C79]">Gasto registrado</p>
+                        <p className="mt-2 font-heading text-xl font-extrabold text-[#073B52]">{formatMoney(travelStats.totalSpent)}</p>
                       </div>
                     </div>
 
                     <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-                      <div className="rounded-2xl border border-[#E2E8F0] px-4 py-4">
-                        <p className="font-body text-sm font-semibold text-[#1E0A4E]">Destinos registrados</p>
-                        <p className="mt-1 font-body text-xs text-[#64748B]">
+                      <div className="rounded-2xl border border-[#CBDDE3] px-4 py-4">
+                        <p className="font-body text-sm font-semibold text-[#073B52]">Destinos registrados</p>
+                        <p className="mt-1 font-body text-xs text-[#526C79]">
                           {travelStats.countriesVisited} destino(s) detectado(s) en tu historial.
                         </p>
                         <div className="mt-3 flex flex-wrap gap-2">
                           {travelStats.destinations.slice(0, 6).map((destination) => (
-                            <span key={destination} className="rounded-full bg-[#EEF4FF] px-3 py-1 font-body text-xs font-semibold text-[#1E6FD9]">
+                            <span key={destination} className="rounded-full bg-[#E8F4FA] px-3 py-1 font-body text-xs font-semibold text-[#0878CF]">
                               {destination}
                             </span>
                           ))}
                         </div>
                       </div>
-                      <div className="rounded-2xl border border-[#E2E8F0] px-4 py-4">
-                        <p className="font-body text-sm font-semibold text-[#1E0A4E]">Viajes recientes</p>
-                        <div className="mt-3 divide-y divide-[#E2E8F0]">
+                      <div className="rounded-2xl border border-[#CBDDE3] px-4 py-4">
+                        <p className="font-body text-sm font-semibold text-[#073B52]">Viajes recientes</p>
+                        <div className="mt-3 divide-y divide-[#CBDDE3]">
                           {travelStats.recentTrips.length === 0 ? (
-                            <p className="py-3 font-body text-sm text-[#64748B]">Sin viajes recientes.</p>
+                            <p className="py-3 font-body text-sm text-[#526C79]">Sin viajes recientes.</p>
                           ) : (
                             travelStats.recentTrips.map((trip) => (
                               <div key={`${trip.id}-${trip.rol}`} className="py-3 first:pt-0 last:pb-0">
                                 <div className="flex items-center justify-between gap-3">
-                                  <p className="font-body text-sm font-semibold text-[#1E0A4E]">{trip.nombre}</p>
-                                  <span className="rounded-full bg-[#F1F5F9] px-2.5 py-1 font-body text-[11px] font-semibold text-[#64748B]">
+                                  <p className="font-body text-sm font-semibold text-[#073B52]">{trip.nombre}</p>
+                                  <span className="rounded-full bg-[#E8F4FA] px-2.5 py-1 font-body text-[11px] font-semibold text-[#526C79]">
                                     {trip.rol}
                                   </span>
                                 </div>
-                                <p className="mt-0.5 font-body text-xs text-[#64748B]">{trip.destino || 'Destino sin definir'}</p>
-                                <p className="mt-0.5 font-body text-[11px] text-[#94A3B8]">{formatTripDateRange(trip.fecha_inicio, trip.fecha_fin)}</p>
+                                <p className="mt-0.5 font-body text-xs text-[#526C79]">{trip.destino || 'Destino sin definir'}</p>
+                                <p className="mt-0.5 font-body text-[11px] text-[#526C79]">{formatTripDateRange(trip.fecha_inicio, trip.fecha_fin)}</p>
                               </div>
                             ))
                           )}
@@ -717,11 +717,11 @@ export function ProfilePage() {
           </section>
 
           {/* ── Personal data ────────────────────────────────────────────────── */}
-          <section className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-[#E2E8F0] flex items-center justify-between">
-              <h2 className="font-heading font-bold text-[#1E0A4E] text-base">Datos personales</h2>
+          <section className="bg-white rounded-2xl border border-[#CBDDE3] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#CBDDE3] flex items-center justify-between">
+              <h2 className="font-heading font-bold text-[#073B52] text-base">Datos personales</h2>
               {editing && (
-                <span className="font-body text-xs text-[#1E6FD9] bg-[#1E6FD9]/10 px-2.5 py-1 rounded-full">
+                <span className="font-body text-xs text-[#0878CF] bg-[#0878CF]/10 px-2.5 py-1 rounded-full">
                   Modo edición
                 </span>
               )}
@@ -759,13 +759,13 @@ export function ProfilePage() {
                 <div className="flex gap-3 pt-1">
                   <button
                     onClick={handleSave}
-                    className="flex-1 sm:flex-none bg-[#1E6FD9] text-white font-body text-sm font-semibold rounded-xl px-6 py-2.5 hover:bg-[#1a5fc2] transition-colors"
+                    className="flex-1 sm:flex-none bg-[#0878CF] text-white font-body text-sm font-semibold rounded-xl px-6 py-2.5 hover:bg-[#075EAA] transition-colors"
                   >
                     Guardar
                   </button>
                   <button
                     onClick={handleCancel}
-                    className="flex-1 sm:flex-none border border-[#E2E8F0] text-[#1E0A4E]/60 font-body text-sm font-semibold rounded-xl px-6 py-2.5 hover:bg-[#F8FAFC] transition-colors"
+                    className="flex-1 sm:flex-none border border-[#CBDDE3] text-[#526C79] font-body text-sm font-semibold rounded-xl px-6 py-2.5 hover:bg-[#F4F9FA] transition-colors"
                   >
                     Cancelar
                   </button>
@@ -775,21 +775,21 @@ export function ProfilePage() {
           </section>
 
           {/* ── Change password ───────────────────────────────────────────────── */}
-          <section className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm overflow-hidden">
+          <section className="bg-white rounded-2xl border border-[#CBDDE3] shadow-sm overflow-hidden">
             <button
               onClick={() => setPwOpen((o) => !o)}
-              className="w-full px-6 py-4 flex items-center justify-between hover:bg-[#F8FAFC] transition-colors"
+              className="w-full px-6 py-4 flex items-center justify-between hover:bg-[#F4F9FA] transition-colors"
               aria-expanded={pwOpen}
             >
               <div className="flex items-center gap-3">
-                <span className="text-[#7A4FD6]"><IconKey /></span>
-                <h2 className="font-heading font-bold text-[#1E0A4E] text-base">Cambiar contraseña</h2>
+                <span className="text-[#0878CF]"><IconKey /></span>
+                <h2 className="font-heading font-bold text-[#073B52] text-base">Cambiar contraseña</h2>
               </div>
-              <span className="text-[#1E0A4E]/40"><IconChevron open={pwOpen} /></span>
+              <span className="text-[#526C79]"><IconChevron open={pwOpen} /></span>
             </button>
 
             {pwOpen && (
-              <div className="px-6 pb-6 flex flex-col gap-4 border-t border-[#E2E8F0] pt-5">
+              <div className="px-6 pb-6 flex flex-col gap-4 border-t border-[#CBDDE3] pt-5">
                 <Field
                   label="Confirma tu contraseña actual"
                   value={pwCurrent}
@@ -799,7 +799,7 @@ export function ProfilePage() {
                     <button
                       type="button"
                       onClick={() => setShowPw((s) => ({ ...s, current: !s.current }))}
-                      className="text-[#1E0A4E]/40 hover:text-[#1E0A4E] transition-colors"
+                      className="text-[#526C79] hover:text-[#073B52] transition-colors"
                     >
                       <IconEye show={showPw.current} />
                     </button>
@@ -814,7 +814,7 @@ export function ProfilePage() {
                     <button
                       type="button"
                       onClick={() => setShowPw((s) => ({ ...s, new: !s.new }))}
-                      className="text-[#1E0A4E]/40 hover:text-[#1E0A4E] transition-colors"
+                      className="text-[#526C79] hover:text-[#073B52] transition-colors"
                     >
                       <IconEye show={showPw.new} />
                     </button>
@@ -829,7 +829,7 @@ export function ProfilePage() {
                     <button
                       type="button"
                       onClick={() => setShowPw((s) => ({ ...s, confirm: !s.confirm }))}
-                      className="text-[#1E0A4E]/40 hover:text-[#1E0A4E] transition-colors"
+                      className="text-[#526C79] hover:text-[#073B52] transition-colors"
                     >
                       <IconEye show={showPw.confirm} />
                     </button>
@@ -837,19 +837,19 @@ export function ProfilePage() {
                 />
 
                 {pwError && (
-                  <p className="font-body text-xs text-[#EF4444] bg-[#FEF2F2] border border-[#EF4444]/20 rounded-xl px-4 py-2.5">
+                  <p className="font-body text-xs text-[#8D4034] bg-[#FAEDE7] border border-[#8D4034]/20 rounded-xl px-4 py-2.5">
                     {pwError}
                   </p>
                 )}
                 {pwSuccess && (
-                  <p className="font-body text-xs text-[#35C56A] bg-[#35C56A]/10 border border-[#35C56A]/20 rounded-xl px-4 py-2.5">
+                  <p className="font-body text-xs text-[#075B85] bg-[#075B85]/10 border border-[#075B85]/20 rounded-xl px-4 py-2.5">
                     Contraseña actualizada correctamente.
                   </p>
                 )}
 
                 <button
                   onClick={handlePasswordUpdate}
-                  className="w-full sm:w-auto bg-[#1E6FD9] text-white font-body text-sm font-semibold rounded-xl px-6 py-2.5 hover:bg-[#1a5fc2] transition-colors"
+                  className="w-full sm:w-auto bg-[#0878CF] text-white font-body text-sm font-semibold rounded-xl px-6 py-2.5 hover:bg-[#075EAA] transition-colors"
                 >
                   Actualizar contraseña
                 </button>
@@ -858,14 +858,14 @@ export function ProfilePage() {
           </section>
 
           {/* ── Photo upload ───────────────────────────────────────────────────── */}
-          <section className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-[#E2E8F0]">
-              <h2 className="font-heading font-bold text-[#1E0A4E] text-base">Foto de perfil</h2>
+          <section className="bg-white rounded-2xl border border-[#CBDDE3] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#CBDDE3]">
+              <h2 className="font-heading font-bold text-[#073B52] text-base">Foto de perfil</h2>
             </div>
             <div className="px-6 py-5 flex flex-col sm:flex-row items-center gap-5">
               {/* Preview */}
               <div
-                className="w-20 h-20 rounded-2xl border-2 border-dashed border-[#E2E8F0] flex items-center justify-center overflow-hidden shrink-0 bg-[#F8FAFC]"
+                className="w-20 h-20 rounded-2xl border-2 border-dashed border-[#CBDDE3] flex items-center justify-center overflow-hidden shrink-0 bg-[#F4F9FA]"
               >
                 {photoPreview || localUser?.avatar_url
                   ? (
@@ -880,13 +880,13 @@ export function ProfilePage() {
               </div>
 
               <div className="flex flex-col gap-2 text-center sm:text-left">
-                <p className="font-body text-sm text-[#1E0A4E]/60">
+                <p className="font-body text-sm text-[#526C79]">
                   JPG, PNG o WEBP. Máximo 5 MB.
                 </p>
                 <div className="flex gap-2 justify-center sm:justify-start">
                   <button
                     onClick={() => fileRef.current?.click()}
-                    className="flex items-center gap-2 bg-[#1E6FD9] text-white font-body text-sm font-semibold rounded-xl px-4 py-2 hover:bg-[#1a5fc2] transition-colors"
+                    className="flex items-center gap-2 bg-[#0878CF] text-white font-body text-sm font-semibold rounded-xl px-4 py-2 hover:bg-[#075EAA] transition-colors"
                   >
                     <IconCamera />
                     Seleccionar imagen
@@ -896,7 +896,7 @@ export function ProfilePage() {
                     <button
                       onClick={handleSavePhoto}
                       disabled={photoSaving}
-                      className="bg-[#35C56A] text-white font-body text-sm font-semibold rounded-xl px-4 py-2 hover:bg-[#2eae5d] transition-colors disabled:opacity-60"
+                      className="bg-[#075B85] text-white font-body text-sm font-semibold rounded-xl px-4 py-2 hover:bg-[#064A6C] transition-colors disabled:opacity-60"
                     >
                       {photoSaving ? 'Guardando...' : 'Guardar foto'}
                     </button>
@@ -910,7 +910,7 @@ export function ProfilePage() {
                         setPhotoError('')
                         if (fileRef.current) fileRef.current.value = ''
                       }}
-                      className="border border-[#E2E8F0] text-[#1E0A4E]/60 font-body text-sm font-semibold rounded-xl px-4 py-2 hover:bg-[#F8FAFC] transition-colors"
+                      className="border border-[#CBDDE3] text-[#526C79] font-body text-sm font-semibold rounded-xl px-4 py-2 hover:bg-[#F4F9FA] transition-colors"
                     >
                       Cancelar
                     </button>
@@ -920,20 +920,20 @@ export function ProfilePage() {
                     <button
                       onClick={handleDeletePhoto}
                       disabled={photoDeleting}
-                      className="border border-[#EF4444]/30 text-[#EF4444] font-body text-sm font-semibold rounded-xl px-4 py-2 hover:bg-[#FEF2F2] transition-colors disabled:opacity-60"
+                      className="border border-[#8D4034]/30 text-[#8D4034] font-body text-sm font-semibold rounded-xl px-4 py-2 hover:bg-[#FAEDE7] transition-colors disabled:opacity-60"
                     >
                       {photoDeleting ? 'Eliminando...' : 'Eliminar foto'}
                     </button>
                   )}
                 </div>
                 {photoError && (
-                  <p className="font-body text-xs text-[#EF4444] bg-[#FEF2F2] border border-[#EF4444]/20 rounded-xl px-4 py-2.5">
+                  <p className="font-body text-xs text-[#8D4034] bg-[#FAEDE7] border border-[#8D4034]/20 rounded-xl px-4 py-2.5">
                     {photoError}
                   </p>
                 )}
 
                 {photoSuccess && (
-                  <p className="font-body text-xs text-[#35C56A] bg-[#35C56A]/10 border border-[#35C56A]/20 rounded-xl px-4 py-2.5">
+                  <p className="font-body text-xs text-[#075B85] bg-[#075B85]/10 border border-[#075B85]/20 rounded-xl px-4 py-2.5">
                     Foto de perfil actualizada correctamente.
                   </p>
                 )}
@@ -942,10 +942,10 @@ export function ProfilePage() {
           </section>
 
           {/* ── Preferences ───────────────────────────────────────────────────── */}
-          <section className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-[#E2E8F0] flex items-center gap-3">
-              <span className="text-[#1E6FD9]"><IconBell /></span>
-              <h2 className="font-heading font-bold text-[#1E0A4E] text-base">Preferencias</h2>
+          <section className="bg-white rounded-2xl border border-[#CBDDE3] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#CBDDE3] flex items-center gap-3">
+              <span className="text-[#0878CF]"><IconBell /></span>
+              <h2 className="font-heading font-bold text-[#073B52] text-base">Preferencias</h2>
             </div>
             <div className="px-6 pt-2 pb-2">
               <Toggle
@@ -976,21 +976,21 @@ export function ProfilePage() {
           </section>
 
           {/* ── Danger zone ───────────────────────────────────────────────────── */}
-          <section className="bg-white rounded-2xl border border-[#EF4444]/30 shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-[#EF4444]/20 flex items-center gap-3">
-              <h2 className="font-heading font-bold text-[#B91C1C] text-base">Zona de peligro</h2>
+          <section className="bg-white rounded-2xl border border-[#8D4034]/30 shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#8D4034]/20 flex items-center gap-3">
+              <h2 className="font-heading font-bold text-[#8D4034] text-base">Zona de peligro</h2>
             </div>
             <div className="px-6 py-5 flex items-center justify-between gap-4">
               <div>
-                <p className="font-body text-sm font-semibold text-[#1E0A4E]">Eliminar cuenta</p>
-                <p className="font-body text-xs text-[#6b7280] mt-0.5">
+                <p className="font-body text-sm font-semibold text-[#073B52]">Eliminar cuenta</p>
+                <p className="font-body text-xs text-[#526C79] mt-0.5">
                   Esta acción es permanente e irreversible. Se eliminarán todos tus datos.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => { setShowDeleteModal(true); setDeleteConfirmText(''); setDeleteError('') }}
-                className="shrink-0 rounded-xl border border-[#EF4444] px-4 py-2 font-body text-sm font-semibold text-[#EF4444] transition hover:bg-[#FEF2F2]"
+                className="shrink-0 rounded-xl border border-[#8D4034] px-4 py-2 font-body text-sm font-semibold text-[#8D4034] transition hover:bg-[#FAEDE7]"
               >
                 Eliminar cuenta
               </button>
@@ -1004,10 +1004,10 @@ export function ProfilePage() {
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
-            <h3 className="font-heading text-xl font-extrabold text-[#1E0A4E] mb-2">
+            <h3 className="font-heading text-xl font-extrabold text-[#073B52] mb-2">
               ¿Eliminar tu cuenta?
             </h3>
-            <p className="font-body text-sm text-[#6b7280] mb-5">
+            <p className="font-body text-sm text-[#526C79] mb-5">
               Esta acción es <strong>permanente e irreversible</strong>. Se eliminarán todos tus datos, grupos y configuración. Para confirmar, escribe <strong>ELIMINAR</strong> abajo.
             </p>
             <input
@@ -1015,17 +1015,17 @@ export function ProfilePage() {
               value={deleteConfirmText}
               onChange={(e) => setDeleteConfirmText(e.target.value)}
               placeholder="Escribe ELIMINAR para confirmar"
-              className="w-full rounded-xl border border-[#D9DEE7] px-4 py-3 font-body text-sm outline-none focus:border-[#EF4444] focus:ring-2 focus:ring-[#EF4444]/15 mb-4"
+              className="w-full rounded-xl border border-[#CBDDE3] px-4 py-3 font-body text-sm outline-none focus:border-[#8D4034] focus:ring-2 focus:ring-[#8D4034]/15 mb-4"
             />
             {deleteError && (
-              <p className="font-body text-xs text-[#EF4444] mb-3">{deleteError}</p>
+              <p className="font-body text-xs text-[#8D4034] mb-3">{deleteError}</p>
             )}
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
                 disabled={deleting}
-                className="flex-1 rounded-xl border border-[#D9DEE7] py-2.5 font-body text-sm font-semibold text-[#344054] transition hover:bg-[#F9FAFB] disabled:opacity-50"
+                className="flex-1 rounded-xl border border-[#CBDDE3] py-2.5 font-body text-sm font-semibold text-[#183F51] transition hover:bg-[#F4F9FA] disabled:opacity-50"
               >
                 Cancelar
               </button>
@@ -1033,7 +1033,7 @@ export function ProfilePage() {
                 type="button"
                 onClick={handleDeleteAccount}
                 disabled={deleteConfirmText !== 'ELIMINAR' || deleting}
-                className="flex-1 rounded-xl bg-[#EF4444] py-2.5 font-body text-sm font-semibold text-white transition hover:bg-[#DC2626] disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex-1 rounded-xl bg-[#8D4034] py-2.5 font-body text-sm font-semibold text-white transition hover:bg-[#703228] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {deleting ? 'Eliminando...' : 'Sí, eliminar'}
               </button>

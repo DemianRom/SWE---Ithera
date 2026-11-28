@@ -1,3 +1,4 @@
+import './document-vault-brand.css'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Dispatch, FC, ReactNode, SetStateAction } from 'react'
 import { useAuth } from '../../context/useAuth'
@@ -101,14 +102,14 @@ function VaultSkeleton() {
   return (
     <div className="space-y-3" aria-busy="true" aria-live="polite">
       {[0, 1, 2].map((item) => (
-        <div key={item} className="rounded-2xl border border-[#E2E8F0] bg-[#FCFDFE] px-4 py-4">
-          <div className="h-4 w-56 animate-pulse rounded-full bg-[#E8EEF7]" />
+        <div key={item} className="rounded-2xl border border-[#cbdde3] bg-[#ffffff] px-4 py-4">
+          <div className="h-4 w-56 animate-pulse rounded-full bg-[#d8eef4]" />
           <div className="mt-3 flex gap-2">
-            <div className="h-7 w-20 animate-pulse rounded-full bg-[#F1F5F9]" />
-            <div className="h-7 w-16 animate-pulse rounded-full bg-[#F1F5F9]" />
-            <div className="h-7 w-28 animate-pulse rounded-full bg-[#F1F5F9]" />
+            <div className="h-7 w-20 animate-pulse rounded-full bg-[#e8f4fa]" />
+            <div className="h-7 w-16 animate-pulse rounded-full bg-[#e8f4fa]" />
+            <div className="h-7 w-28 animate-pulse rounded-full bg-[#e8f4fa]" />
           </div>
-          <div className="mt-4 h-10 animate-pulse rounded-xl bg-[#F8FAFC]" />
+          <div className="mt-4 h-10 animate-pulse rounded-xl bg-[#f4f9fa]" />
         </div>
       ))}
     </div>
@@ -160,21 +161,21 @@ function ActionModal({
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[#0D0820]/70 px-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[#073b52]/70 px-4" onClick={onClose}>
       <div
-        className={`max-h-[84vh] w-full overflow-y-auto rounded-2xl bg-white shadow-xl ${panelClassName}`}
+        className={`document-vault-modal max-h-[84vh] w-full overflow-y-auto rounded-2xl bg-white shadow-xl ${panelClassName}`}
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="border-b border-[#E2E8F0] px-5 py-4">
-          <h3 className="font-heading text-lg font-bold text-[#1E0A4E]">{title}</h3>
-          <p className="mt-1 font-body text-sm text-[#64748B]">{subtitle}</p>
+        <div className="border-b border-[#cbdde3] px-5 py-4">
+          <h3 className="font-heading text-lg font-bold text-[#073b52]">{title}</h3>
+          <p className="mt-1 font-body text-sm text-[#526c79]">{subtitle}</p>
         </div>
         <div className="px-5 py-4">{children}</div>
-        <div className="flex justify-end gap-3 border-t border-[#E2E8F0] px-5 py-4">
+        <div className="flex justify-end gap-3 border-t border-[#cbdde3] px-5 py-4">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-[#D7DEEA] px-4 py-2.5 font-body text-sm font-semibold text-[#3D4A5C]"
+            className="rounded-xl border border-[#cbdde3] px-4 py-2.5 font-body text-sm font-semibold text-[#183f51]"
           >
             Cancelar
           </button>
@@ -182,7 +183,7 @@ function ActionModal({
             type="button"
             onClick={onConfirm}
             disabled={confirmDisabled}
-            className="rounded-xl bg-[#1E6FD9] px-4 py-2.5 font-body text-sm font-semibold text-white disabled:opacity-50"
+            className="rounded-xl bg-[#075eaa] px-4 py-2.5 font-body text-sm font-semibold text-white hover:bg-[#073b52] disabled:opacity-50"
           >
             {confirmLabel}
           </button>
@@ -728,23 +729,23 @@ export const DocumentVaultPanel: FC<Props> = ({
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-4 overflow-y-auto bg-surface px-6 py-6">
-      <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5">
+    <div className="document-vault flex flex-1 flex-col gap-4 overflow-y-auto bg-[#f4f9fa] px-6 py-6">
+      <div className="document-vault-card document-vault-intro rounded-2xl border border-[#cbdde3] bg-white p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-2xl">
-            <h2 className="font-heading text-[28px] font-bold text-[#1E0A4E]">Archivos del viaje</h2>
-            <p className="mt-2 font-body text-sm text-[#64748B]">
+            <h2 className="font-heading text-[28px] font-bold text-[#073b52]">Archivos del viaje</h2>
+            <p className="mt-2 font-body text-sm text-[#526c79]">
               Ten a la mano tus boletos, reservas y comprobantes para que el viaje fluya sin estar buscando entre fotos,
               chats o correos. Guarda cada archivo con una nota y, si te sirve, relaciónalo después con un gasto o una actividad.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <span className="rounded-full border border-[#D7DEEA] bg-[#F8FAFC] px-3 py-1.5 font-body text-xs font-semibold text-[#475569]">
+              <span className="rounded-full border border-[#cbdde3] bg-[#f4f9fa] px-3 py-1.5 font-body text-xs font-semibold text-[#183f51]">
                 Archivo obligatorio
               </span>
-              <span className="rounded-full border border-[#D7DEEA] bg-[#F8FAFC] px-3 py-1.5 font-body text-xs font-semibold text-[#475569]">
+              <span className="rounded-full border border-[#cbdde3] bg-[#f4f9fa] px-3 py-1.5 font-body text-xs font-semibold text-[#183f51]">
                 Nota obligatoria
               </span>
-              <span className="rounded-full border border-[#D7DEEA] bg-[#F8FAFC] px-3 py-1.5 font-body text-xs font-semibold text-[#475569]">
+              <span className="rounded-full border border-[#cbdde3] bg-[#f4f9fa] px-3 py-1.5 font-body text-xs font-semibold text-[#183f51]">
                 Relacionar actividad o gasto
               </span>
             </div>
@@ -759,7 +760,7 @@ export const DocumentVaultPanel: FC<Props> = ({
                   setShowUploadModal(true)
                 }}
                 disabled={isUploading}
-                className="rounded-xl bg-[#1E6FD9] px-4 py-2.5 font-body text-sm font-semibold text-white hover:bg-[#2C8BE6] disabled:opacity-50"
+                className="rounded-xl bg-[#075eaa] px-4 py-2.5 font-body text-sm font-semibold text-white hover:bg-[#073b52] disabled:opacity-50"
               >
                 {isUploading ? 'Subiendo...' : 'Subir documento'}
               </button>
@@ -768,7 +769,7 @@ export const DocumentVaultPanel: FC<Props> = ({
               type="button"
               onClick={() => void load()}
               disabled={isLoading}
-              className="rounded-xl border border-[#E2E8F0] px-4 py-2.5 font-body text-sm font-semibold text-[#3D4A5C] hover:bg-[#F8FAFC] disabled:opacity-50"
+              className="rounded-xl border border-[#cbdde3] px-4 py-2.5 font-body text-sm font-semibold text-[#183f51] hover:bg-[#f4f9fa] disabled:opacity-50"
             >
               {isLoading ? 'Cargando...' : 'Refrescar'}
             </button>
@@ -776,27 +777,27 @@ export const DocumentVaultPanel: FC<Props> = ({
         </div>
 
         {isReadOnly && (
-          <div className="mt-4 rounded-xl border border-[#CBD5E1] bg-[#F8FAFC] px-4 py-3 font-body text-sm text-[#64748B]">
+          <div className="mt-4 rounded-xl border border-[#cbdde3] bg-[#f4f9fa] px-4 py-3 font-body text-sm text-[#526c79]">
             Este viaje ya finalizó. La bóveda está en modo lectura: puedes abrir documentos existentes, pero no subir, relacionar ni eliminar archivos.
           </div>
         )}
 
         {error && (
-          <div className="mt-3 rounded-xl border border-[#FBC7C7] bg-[#FFF5F5] px-3 py-2 font-body text-sm text-[#C03535]">
+          <div className="mt-3 rounded-xl border border-[#e8c1b9] bg-[#faede7] px-3 py-2 font-body text-sm text-[#8d4034]">
             {error}
           </div>
         )}
       </div>
 
-      <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5">
+      <div className="document-vault-card rounded-2xl border border-[#cbdde3] bg-white p-5">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
-            <h3 className="font-heading text-base font-bold text-[#1E0A4E]">Documentos del viaje</h3>
-            <p className="mt-1 font-body text-sm text-[#7A8799]">
+            <h3 className="font-heading text-base font-bold text-[#073b52]">Documentos del viaje</h3>
+            <p className="mt-1 font-body text-sm text-[#526c79]">
               Filtra por tipo y encuentra rápido lo que necesitas antes de salir o mientras están en ruta.
             </p>
           </div>
-          <span className="rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 font-body text-xs font-semibold text-[#475569]">
+          <span className="rounded-full border border-[#cbdde3] bg-[#f4f9fa] px-3 py-1.5 font-body text-xs font-semibold text-[#183f51]">
             {filteredItems.length} {filteredItems.length === 1 ? 'documento' : 'documentos'}
           </span>
         </div>
@@ -805,7 +806,7 @@ export const DocumentVaultPanel: FC<Props> = ({
           <button
             type="button"
             onClick={() => setActiveFilter('todos')}
-            className={`rounded-full px-3 py-1.5 font-body text-xs font-semibold ${activeFilter === 'todos' ? 'bg-[#1E6FD9] text-white' : 'bg-[#EEF2FF] text-[#1E0A4E]'}`}
+            className={`rounded-full px-3 py-1.5 font-body text-xs font-semibold ${activeFilter === 'todos' ? 'bg-[#075eaa] text-white' : 'bg-[#e8f4fa] text-[#073b52]'}`}
           >
             Todos
           </button>
@@ -814,7 +815,7 @@ export const DocumentVaultPanel: FC<Props> = ({
               key={option.value}
               type="button"
               onClick={() => setActiveFilter(option.value)}
-              className={`rounded-full px-3 py-1.5 font-body text-xs font-semibold ${activeFilter === option.value ? 'bg-[#1E6FD9] text-white' : 'bg-[#EEF2FF] text-[#1E0A4E]'}`}
+              className={`rounded-full px-3 py-1.5 font-body text-xs font-semibold ${activeFilter === option.value ? 'bg-[#075eaa] text-white' : 'bg-[#e8f4fa] text-[#073b52]'}`}
             >
               {option.label}
             </button>
@@ -824,11 +825,11 @@ export const DocumentVaultPanel: FC<Props> = ({
         {isLoading && items.length === 0 ? (
           <VaultSkeleton />
         ) : filteredItems.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[#CBD5E1] bg-[#F8FAFC] px-4 py-12 text-center">
-            <p className="font-body text-sm font-semibold text-[#1E0A4E]">
+          <div className="rounded-2xl border border-dashed border-[#cbdde3] bg-[#f4f9fa] px-4 py-12 text-center">
+            <p className="font-body text-sm font-semibold text-[#073b52]">
               {activeFilter === 'todos' ? 'Todavía no hay documentos guardados.' : 'No hay documentos en esta categoría.'}
             </p>
-            <p className="mt-1 font-body text-sm text-[#7A8799]">
+            <p className="mt-1 font-body text-sm text-[#526c79]">
               {isReadOnly
                 ? 'No hay documentos guardados para consultar en este viaje cerrado.'
                 : 'Sube un boleto, una reservación o cualquier comprobante que quieras tener listo durante el viaje.'}
@@ -840,7 +841,7 @@ export const DocumentVaultPanel: FC<Props> = ({
                   setError(null)
                   setShowUploadModal(true)
                 }}
-                className="mt-4 rounded-xl bg-[#1E6FD9] px-4 py-2.5 font-body text-sm font-semibold text-white hover:bg-[#2C8BE6]"
+                className="mt-4 rounded-xl bg-[#075eaa] px-4 py-2.5 font-body text-sm font-semibold text-white hover:bg-[#073b52]"
               >
                 Subir primer documento
               </button>
@@ -854,36 +855,36 @@ export const DocumentVaultPanel: FC<Props> = ({
               const linkedActivities = linkedEntities.filter((entity) => entity.type === 'activity')
 
               return (
-                <div key={item.id} className="rounded-2xl border border-[#E2E8F0] bg-[#FCFDFE] px-4 py-4">
+                <div key={item.id} className="rounded-2xl border border-[#cbdde3] bg-[#ffffff] px-4 py-4">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div className="min-w-0 flex-1">
                       <a
                         href={item.file_url ?? undefined}
                         target="_blank"
                         rel="noreferrer"
-                        className="truncate font-body text-base font-semibold text-[#1E6FD9] hover:underline"
+                        className="truncate font-body text-base font-semibold text-[#075eaa] hover:underline"
                       >
                         {item.file_name}
                       </a>
                       <div className="mt-2 flex flex-wrap gap-2">
-                        <span className="rounded-full border border-[#D7DEEA] bg-white px-2.5 py-1 font-body text-[11px] font-semibold text-[#475569]">
+                        <span className="rounded-full border border-[#cbdde3] bg-white px-2.5 py-1 font-body text-[11px] font-semibold text-[#183f51]">
                           {categoryLabel(item.category)}
                         </span>
-                        <span className="rounded-full border border-[#D7DEEA] bg-white px-2.5 py-1 font-body text-[11px] font-semibold text-[#475569]">
+                        <span className="rounded-full border border-[#cbdde3] bg-white px-2.5 py-1 font-body text-[11px] font-semibold text-[#183f51]">
                           {formatBytes(item.file_size)}
                         </span>
-                        <span className="rounded-full border border-[#D7DEEA] bg-white px-2.5 py-1 font-body text-[11px] font-semibold text-[#475569]">
+                        <span className="rounded-full border border-[#cbdde3] bg-white px-2.5 py-1 font-body text-[11px] font-semibold text-[#183f51]">
                           {formatDate(item.created_at)}
                         </span>
                       </div>
                       {item.metadata?.notes && (
-                        <p className="mt-3 rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 font-body text-sm text-[#3D4A5C]">
+                        <p className="mt-3 rounded-xl border border-[#cbdde3] bg-white px-3 py-2 font-body text-sm text-[#183f51]">
                           {String(item.metadata.notes)}
                         </p>
                       )}
                       <div className="mt-3">
-                        <p className="font-body text-xs font-semibold uppercase tracking-wide text-[#7A8799]">Asociaciones confirmadas</p>
-                        <p className="mt-1 font-body text-xs text-[#7A8799]">Estos gastos y comprobantes ya estan vinculados a este elemento.</p>
+                        <p className="font-body text-xs font-semibold uppercase tracking-wide text-[#526c79]">Asociaciones confirmadas</p>
+                        <p className="mt-1 font-body text-xs text-[#526c79]">Estos gastos y comprobantes ya estan vinculados a este elemento.</p>
                         {(linkedExpenses.length > 0 || linkedActivities.length > 0) ? (
                           <div className="mt-2 flex flex-wrap gap-1.5">
                             {linkedExpenses.map((entity) => (
@@ -891,7 +892,7 @@ export const DocumentVaultPanel: FC<Props> = ({
                                 key={entityKey(entity)}
                                 type="button"
                                 onClick={onOpenBudget}
-                                className="max-w-full rounded-full border border-[#CFE0FF] bg-[#EEF4FF] px-2.5 py-1 font-body text-[11px] font-semibold text-[#1E6FD9] hover:bg-[#E2EDFF]"
+                                className="max-w-full rounded-full border border-[#b7dce6] bg-[#e8f4fa] px-2.5 py-1 font-body text-[11px] font-semibold text-[#075eaa] hover:bg-[#d8eef4]"
                                 title={entity.label}
                               >
                                 Gasto: <span className="font-medium">{entity.label}</span>
@@ -902,7 +903,7 @@ export const DocumentVaultPanel: FC<Props> = ({
                                 key={entityKey(entity)}
                                 type="button"
                                 onClick={() => onOpenItinerary?.()}
-                                className="max-w-full rounded-full border border-[#D8C8FF] bg-[#F3EEFF] px-2.5 py-1 font-body text-[11px] font-semibold text-[#5B35B1] hover:bg-[#ECE4FF]"
+                                className="max-w-full rounded-full border border-[#b7dce6] bg-[#e8f4fa] px-2.5 py-1 font-body text-[11px] font-semibold text-[#075b85] hover:bg-[#d8eef4]"
                                 title={entity.label}
                               >
                                 Actividad:{' '}
@@ -911,7 +912,7 @@ export const DocumentVaultPanel: FC<Props> = ({
                             ))}
                           </div>
                         ) : (
-                          <p className="mt-2 rounded-lg bg-[#F8FAFC] px-2.5 py-1.5 font-body text-xs text-[#7A8799]">
+                          <p className="mt-2 rounded-lg bg-[#f4f9fa] px-2.5 py-1.5 font-body text-xs text-[#526c79]">
                             Aun no hay asociaciones confirmadas.
                           </p>
                         )}
@@ -926,21 +927,21 @@ export const DocumentVaultPanel: FC<Props> = ({
                           setExpenseModalTab('associate')
                           openDocumentAction(item, 'expense')
                         }}
-                        className="rounded-xl border border-[#D7DEEA] px-3 py-2 font-body text-xs font-semibold text-[#3D4A5C] hover:bg-[#F8FAFC]"
+                        className="rounded-xl border border-[#cbdde3] px-3 py-2 font-body text-xs font-semibold text-[#183f51] hover:bg-[#f4f9fa]"
                       >
                         Elegir gasto
                       </button>
                       <button
                         type="button"
                         onClick={() => openDocumentAction(item, 'activity')}
-                        className="rounded-xl border border-[#D7DEEA] px-3 py-2 font-body text-xs font-semibold text-[#5B35B1] hover:bg-[#F3EEFF]"
+                        className="rounded-xl border border-[#cbdde3] px-3 py-2 font-body text-xs font-semibold text-[#075b85] hover:bg-[#e8f4fa]"
                       >
                         Elegir actividad
                       </button>
                       <button
                         type="button"
                         onClick={() => requestDeleteDocument(item)}
-                        className="rounded-xl border border-[#FBC7C7] px-3 py-2 font-body text-xs font-semibold text-[#C03535] hover:bg-[#FFF5F5]"
+                        className="rounded-xl border border-[#e8c1b9] px-3 py-2 font-body text-xs font-semibold text-[#8d4034] hover:bg-[#faede7]"
                       >
                         Eliminar
                       </button>
@@ -987,30 +988,30 @@ export const DocumentVaultPanel: FC<Props> = ({
         onConfirm={() => void handleUpload(uploadFile)}
       >
         <div className="grid gap-4">
-          <div className="rounded-2xl border border-dashed border-[#C9D8F5] bg-[#F8FBFF] px-4 py-4">
-            <label className="mb-2 block font-body text-xs font-semibold uppercase tracking-wide text-[#7A8799]">
+          <div className="rounded-2xl border border-dashed border-[#b7dce6] bg-[#f4f9fa] px-4 py-4">
+            <label className="mb-2 block font-body text-xs font-semibold uppercase tracking-wide text-[#526c79]">
               Archivo
             </label>
             <input
               type="file"
               accept={ACCEPTED_FILES}
               onChange={(event) => setUploadFile(event.target.files?.[0] ?? null)}
-              className="w-full rounded-xl border border-[#D7DEEA] bg-white px-3 py-2.5 font-body text-sm text-[#3D4A5C] outline-none focus:border-[#1E6FD9]"
+              className="w-full rounded-xl border border-[#cbdde3] bg-white px-3 py-2.5 font-body text-sm text-[#183f51] outline-none focus:border-[#075eaa]"
             />
-            <p className="mt-2 font-body text-xs text-[#7A8799]">
+            <p className="mt-2 font-body text-xs text-[#526c79]">
               PDF, imagen o comprobante digital.
             </p>
           </div>
 
           <div className="grid gap-3">
             <div className="max-w-[220px]">
-              <label className="mb-1.5 block font-body text-xs font-semibold uppercase tracking-wide text-[#7A8799]">
+              <label className="mb-1.5 block font-body text-xs font-semibold uppercase tracking-wide text-[#526c79]">
                 Categoría
               </label>
               <select
                 value={category}
                 onChange={(event) => setCategory(event.target.value as TripDocumentCategory)}
-                className="w-full rounded-xl border border-[#D7DEEA] bg-white px-3 py-2.5 font-body text-sm outline-none focus:border-[#1E6FD9]"
+                className="w-full rounded-xl border border-[#cbdde3] bg-white px-3 py-2.5 font-body text-sm outline-none focus:border-[#075eaa]"
               >
                 {CATEGORY_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
@@ -1018,7 +1019,7 @@ export const DocumentVaultPanel: FC<Props> = ({
               </select>
             </div>
             <div>
-              <label className="mb-1.5 block font-body text-xs font-semibold uppercase tracking-wide text-[#7A8799]">
+              <label className="mb-1.5 block font-body text-xs font-semibold uppercase tracking-wide text-[#526c79]">
                 Nota
               </label>
               <textarea
@@ -1026,16 +1027,16 @@ export const DocumentVaultPanel: FC<Props> = ({
                 onChange={(event) => setNotes(event.target.value)}
                 placeholder="Ej. Boleto de ferry, reservación del hotel o recibo de la comida del primer día."
                 rows={4}
-                className="w-full resize-none rounded-xl border border-[#D7DEEA] bg-white px-3 py-3 font-body text-sm outline-none focus:border-[#1E6FD9]"
+                className="w-full resize-none rounded-xl border border-[#cbdde3] bg-white px-3 py-3 font-body text-sm outline-none focus:border-[#075eaa]"
               />
             </div>
           </div>
 
-          <div className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-4">
+          <div className="rounded-2xl border border-[#cbdde3] bg-[#f4f9fa] px-4 py-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <p className="font-body text-sm font-semibold text-[#1E0A4E]">Vincular este comprobante con una actividad o gasto</p>
-                <p className="mt-1 font-body text-xs text-[#64748B]">
+                <p className="font-body text-sm font-semibold text-[#073b52]">Vincular este comprobante con una actividad o gasto</p>
+                <p className="mt-1 font-body text-xs text-[#526c79]">
                   Relaciona este comprobante con un gasto (taxi, entradas, comida) o una actividad (tour, cena, traslado).
                 </p>
               </div>
@@ -1046,7 +1047,7 @@ export const DocumentVaultPanel: FC<Props> = ({
                     setExpenseModalTab('associate')
                     setActionModal({ target: 'upload', mode: 'expense' })
                   }}
-                  className="rounded-xl border border-[#D7DEEA] bg-white px-3 py-2 font-body text-xs font-semibold text-[#1E6FD9]"
+                  className="rounded-xl border border-[#cbdde3] bg-white px-3 py-2 font-body text-xs font-semibold text-[#075eaa]"
                 >
                   Elegir gasto
                 </button>
@@ -1055,7 +1056,7 @@ export const DocumentVaultPanel: FC<Props> = ({
                   onClick={() => {
                     setActionModal({ target: 'upload', mode: 'activity' })
                   }}
-                  className="rounded-xl border border-[#D7DEEA] bg-white px-3 py-2 font-body text-xs font-semibold text-[#7A4FD6]"
+                  className="rounded-xl border border-[#cbdde3] bg-white px-3 py-2 font-body text-xs font-semibold text-[#075eaa]"
                 >
                   Elegir actividad
                 </button>
@@ -1068,7 +1069,7 @@ export const DocumentVaultPanel: FC<Props> = ({
                   const expense = linkOptions.expenses.find((item) => item.id === expenseId)
                   if (!expense) return null
                   return (
-                    <span key={expenseId} className="rounded-full border border-[#CFE0FF] bg-[#EEF4FF] px-3 py-1.5 font-body text-xs font-semibold text-[#1E6FD9]">
+                    <span key={expenseId} className="rounded-full border border-[#b7dce6] bg-[#e8f4fa] px-3 py-1.5 font-body text-xs font-semibold text-[#075eaa]">
                       Gasto: {expense.label}
                     </span>
                   )
@@ -1077,14 +1078,14 @@ export const DocumentVaultPanel: FC<Props> = ({
                   const activity = linkOptions.activities.find((item) => entityKey(item) === activityKey)
                   if (!activity) return null
                   return (
-                    <span key={activityKey} className="rounded-full border border-[#D8C8FF] bg-[#F3EEFF] px-3 py-1.5 font-body text-xs font-semibold text-[#5B35B1]">
+                    <span key={activityKey} className="rounded-full border border-[#b7dce6] bg-[#e8f4fa] px-3 py-1.5 font-body text-xs font-semibold text-[#075b85]">
                       Actividad: {activity.label}
                     </span>
                   )
                 })}
               </div>
             ) : (
-              <p className="mt-3 font-body text-xs text-[#7A8799]">
+              <p className="mt-3 font-body text-xs text-[#526c79]">
                 Sin relaciones seleccionadas por ahora.
               </p>
             )}
@@ -1113,18 +1114,18 @@ export const DocumentVaultPanel: FC<Props> = ({
           else setActionModal(null)
         }}
       >
-        <div className="mb-4 inline-flex rounded-lg border border-[#D7DEEA] bg-[#F8FAFC] p-1">
+        <div className="mb-4 inline-flex rounded-lg border border-[#cbdde3] bg-[#f4f9fa] p-1">
           <button
             type="button"
             onClick={() => setExpenseModalTab('associate')}
-            className={`rounded-md px-3 py-1.5 text-sm font-semibold ${expenseModalTab === 'associate' ? 'bg-[#1E6FD9] text-white' : 'text-[#475569]'}`}
+            className={`rounded-md px-3 py-1.5 text-sm font-semibold ${expenseModalTab === 'associate' ? 'bg-[#075eaa] text-white' : 'text-[#183f51]'}`}
           >
             Asociar
           </button>
           <button
             type="button"
             onClick={() => setExpenseModalTab('create')}
-            className={`rounded-md px-3 py-1.5 text-sm font-semibold ${expenseModalTab === 'create' ? 'bg-[#1E6FD9] text-white' : 'text-[#475569]'}`}
+            className={`rounded-md px-3 py-1.5 text-sm font-semibold ${expenseModalTab === 'create' ? 'bg-[#075eaa] text-white' : 'text-[#183f51]'}`}
           >
             Crear
           </button>
@@ -1135,7 +1136,7 @@ export const DocumentVaultPanel: FC<Props> = ({
               value={expenseFilter}
               onChange={(event) => setExpenseFilter(event.target.value)}
               placeholder="Filtrar gastos"
-              className="w-full rounded-xl border border-[#D7DEEA] bg-white px-3 py-2.5 font-body text-sm outline-none focus:border-[#1E6FD9]"
+              className="w-full rounded-xl border border-[#cbdde3] bg-white px-3 py-2.5 font-body text-sm outline-none focus:border-[#075eaa]"
             />
             <div className="flex max-h-56 flex-wrap gap-2 overflow-y-auto">
               {linkOptions.expenses
@@ -1158,7 +1159,7 @@ export const DocumentVaultPanel: FC<Props> = ({
                       ? toggleValue(expense.id, setEditingExpenseIds)
                       : toggleValue(expense.id, setSelectedExpenseIds)
                   }
-                  className={`max-w-full rounded-full border px-3 py-1.5 font-body text-xs font-semibold ${selected ? 'border-[#1E6FD9] bg-[#1E6FD9] text-white' : 'border-[#D7DEEA] bg-white text-[#3D4A5C]'}`}
+                  className={`max-w-full rounded-full border px-3 py-1.5 font-body text-xs font-semibold ${selected ? 'border-[#075eaa] bg-[#075eaa] text-white' : 'border-[#cbdde3] bg-white text-[#183f51]'}`}
                 >
                   <span className="inline-block max-w-[220px] truncate align-bottom">{expense.label}</span>
                 </button>
@@ -1222,7 +1223,7 @@ export const DocumentVaultPanel: FC<Props> = ({
                     ? toggleValue(key, setEditingActivityKeys)
                     : toggleValue(key, setSelectedActivityKeys)
                 }
-                className={`max-w-full rounded-full border px-3 py-1.5 font-body text-xs font-semibold ${selected ? 'border-[#7A4FD6] bg-[#7A4FD6] text-white' : 'border-[#D7DEEA] bg-white text-[#3D4A5C]'}`}
+                className={`max-w-full rounded-full border px-3 py-1.5 font-body text-xs font-semibold ${selected ? 'border-[#075eaa] bg-[#075eaa] text-white' : 'border-[#cbdde3] bg-white text-[#183f51]'}`}
               >
                 <span className="mr-1 text-[10px] opacity-75">
                   Itinerario

@@ -253,31 +253,31 @@ export function ResetPasswordPage() {
   };
 
   const inputBase =
-    "w-full rounded-[14px] border border-[#D9DEE7] bg-white px-4 py-3 text-[15px] text-[#3D4A5C] outline-none transition placeholder:text-[#98A2B3] focus:border-[#1E6FD9] focus:ring-2 focus:ring-[#1E6FD9]/15";
+    "w-full rounded-[14px] border border-[#CBDDE3] bg-white px-4 py-3 text-[15px] text-[#183F51] outline-none transition placeholder:text-[#526C79] focus:border-[#0878CF] focus:ring-2 focus:ring-[#0878CF]/15";
 
   const passwordRuleClass = (valid: boolean) =>
     `flex items-center gap-2 text-[12px] ${
-      valid ? "text-[#16A34A]" : "text-[#7A8799]"
+      valid ? "text-[#075B85]" : "text-[#526C79]"
     }`;
 
   const strengthWidths = ["w-0", "w-1/4", "w-2/4", "w-3/4", "w-full"];
   const strengthColors = [
-    "bg-[#E4E7EC]",
-    "bg-[#EF4444]",
-    "bg-[#F97316]",
-    "bg-[#22C55E]",
-    "bg-[#16A34A]",
+    "bg-[#CBDDE3]",
+    "bg-[#8D4034]",
+    "bg-[#765000]",
+    "bg-[#0878CF]",
+    "bg-[#075B85]",
   ];
 
   return (
-    <div className="min-h-screen bg-[#F4F6F8] font-body">
+    <div className="min-h-screen bg-[#F4F9FA] font-body">
       <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[45%_55%]">
         {/* Panel izquierdo */}
         <section
           className="relative hidden overflow-hidden lg:flex"
           style={{
             background:
-              "linear-gradient(135deg, #0D0820 0%, #1E0A4E 55%, #0D0820 100%)",
+              "linear-gradient(135deg, #073B52 0%, #073B52 55%, #073B52 100%)",
           }}
         >
           <div className="absolute inset-0 opacity-[0.15]">
@@ -297,7 +297,7 @@ export function ResetPasswordPage() {
                   Acceso protegido
                 </div>
 
-                <h1 className="text-[64px] font-extrabold leading-[0.96] tracking-[-0.04em] text-white">
+                <h1 className="font-heading text-[64px] font-extrabold leading-[0.96] tracking-[-0.04em] text-white">
                   Crea una nueva contraseña y continúa tu viaje.
                 </h1>
 
@@ -311,11 +311,11 @@ export function ResetPasswordPage() {
         </section>
 
         {/* Panel derecho */}
-        <section className="flex items-center justify-center bg-[#F4F6F8] px-6 py-10 sm:px-10 lg:px-16">
+        <section className="flex items-center justify-center bg-[#F4F9FA] px-6 py-10 sm:px-10 lg:px-16">
           <div className="w-full max-w-[470px]">
             <Link
               to="/login"
-              className="mb-8 inline-flex items-center gap-1.5 text-[13px] text-[#98A2B3] transition hover:text-[#667085]"
+              className="mb-8 inline-flex items-center gap-1.5 text-[13px] text-[#526C79] transition hover:text-[#526C79]"
             >
               <svg
                 width="16"
@@ -337,7 +337,7 @@ export function ResetPasswordPage() {
 
             <div className="rounded-[28px] border border-white/70 bg-white/90 p-8 shadow-[0_18px_60px_rgba(17,24,39,0.08)] backdrop-blur-sm sm:p-10">
               <div className="mb-8">
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EEF4FF] text-[#1E6FD9]">
+                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E8F4FA] text-[#075B85]">
                   <svg
                     width="22"
                     height="22"
@@ -355,11 +355,11 @@ export function ResetPasswordPage() {
                   </svg>
                 </div>
 
-                <h1 className="text-[42px] font-extrabold leading-none tracking-[-0.04em] text-[#111827]">
+                <h1 className="font-heading text-[42px] font-extrabold leading-none tracking-[-0.04em] text-[#073B52]">
                   Nueva contraseña
                 </h1>
 
-                <p className="mt-4 text-[15px] leading-[1.7] text-[#667085]">
+                <p className="mt-4 text-[15px] leading-[1.7] text-[#526C79]">
                   Define una nueva contraseña para restablecer el acceso a tu
                   cuenta.
                 </p>
@@ -367,7 +367,7 @@ export function ResetPasswordPage() {
 
               <div className="space-y-5">
                 <div>
-                  <label className="mb-2 block text-[15px] font-semibold text-[#344054]">
+                  <label className="mb-2 block text-[15px] font-semibold text-[#183F51]">
                     Nueva contraseña
                   </label>
                   <div className="relative">
@@ -382,13 +382,13 @@ export function ResetPasswordPage() {
                       onBlur={() => setIsPasswordFocused(false)}
                       placeholder="••••••••"
                       className={`${inputBase} pr-12 ${
-                        error ? "border-[#EF4444]" : ""
+                        error ? "border-[#8D4034]" : ""
                       }`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword((prev) => !prev)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[#98A2B3] transition hover:text-[#667085]"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[#526C79] transition hover:text-[#526C79]"
                       aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                     >
                       {showPassword ? (
@@ -408,12 +408,12 @@ export function ResetPasswordPage() {
                   </div>
 
                   {showPasswordHelp && (
-                    <div className="mt-3 rounded-[14px] border border-[#E4E7EC] bg-white px-3 py-3 shadow-sm">
-                      <div className="mb-2 flex items-center justify-between text-[12px] font-semibold text-[#667085]">
+                    <div className="mt-3 rounded-[14px] border border-[#CBDDE3] bg-white px-3 py-3 shadow-sm">
+                      <div className="mb-2 flex items-center justify-between text-[12px] font-semibold text-[#526C79]">
                         <span>Fortaleza</span>
                         <span>{passwordStrength.label}</span>
                       </div>
-                      <div className="mb-3 h-2 rounded-full bg-[#E4E7EC]">
+                      <div className="mb-3 h-2 rounded-full bg-[#CBDDE3]">
                         <div
                           className={`h-2 rounded-full transition-all ${
                             strengthWidths[passwordStrength.score]
@@ -455,7 +455,7 @@ export function ResetPasswordPage() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-[15px] font-semibold text-[#344054]">
+                  <label className="mb-2 block text-[15px] font-semibold text-[#183F51]">
                     Confirmar contraseña
                   </label>
                   <div className="relative">
@@ -470,13 +470,13 @@ export function ResetPasswordPage() {
                       onBlur={() => setIsConfirmPasswordFocused(false)}
                       placeholder="••••••••"
                       className={`${inputBase} pr-12 ${
-                        error ? "border-[#EF4444]" : ""
+                        error ? "border-[#8D4034]" : ""
                       }`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword((prev) => !prev)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[#98A2B3] transition hover:text-[#667085]"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[#526C79] transition hover:text-[#526C79]"
                       aria-label={showConfirmPassword ? "Ocultar confirmación" : "Mostrar confirmación"}
                     >
                       {showConfirmPassword ? (
@@ -499,7 +499,7 @@ export function ResetPasswordPage() {
                     confirmPassword.length > 0 && (
                       <p
                         className={`mt-2 text-[13px] font-semibold ${
-                          passwordsMatch ? "text-[#16A34A]" : "text-[#EF4444]"
+                          passwordsMatch ? "text-[#075B85]" : "text-[#8D4034]"
                         }`}
                       >
                         {passwordsMatch
@@ -510,7 +510,7 @@ export function ResetPasswordPage() {
                 </div>
 
                 {validating && !error && (
-                  <div className="rounded-2xl border border-[#D0D5DD] bg-[#F8FAFC] px-4 py-3 text-sm text-[#667085]">
+                  <div className="rounded-2xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-3 text-sm text-[#526C79]">
                     Validando enlace de recuperación...
                   </div>
                 )}
@@ -523,13 +523,13 @@ export function ResetPasswordPage() {
                 )}
 
                 {error && (
-                  <div className="rounded-2xl border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-sm text-[#B42318]">
+                  <div className="rounded-2xl border border-[#EAC8C0] bg-[#FAEDE7] px-4 py-3 text-sm text-[#8D4034]">
                     {error}
                   </div>
                 )}
 
                 {message && (
-                  <div className="rounded-2xl border border-[#ABEFC6] bg-[#ECFDF3] px-4 py-3 text-sm text-[#067647]">
+                  <div className="rounded-2xl border border-[#CBDDE3] bg-[#E8F4FA] px-4 py-3 text-sm text-[#075B85]">
                     {message}
                   </div>
                 )}
@@ -538,12 +538,12 @@ export function ResetPasswordPage() {
                   type="button"
                   onClick={handleSubmit}
                   disabled={!canUpdatePassword}
-                  className="w-full rounded-[16px] bg-[#1E6FD9] py-3.5 text-[15px] font-semibold text-white transition hover:bg-[#175FC0] disabled:cursor-not-allowed disabled:bg-[#A8B3C7] disabled:opacity-70"
+                  className="w-full rounded-[16px] bg-[#075EAA] py-3.5 text-[15px] font-semibold text-white transition hover:bg-[#075EAA] disabled:cursor-not-allowed disabled:bg-[#A8B3C7] disabled:opacity-70"
                 >
                   {loading ? "Actualizando..." : "Actualizar contraseña"}
                 </button>
 
-                <p className="text-center text-[13px] text-[#98A2B3]">
+                <p className="text-center text-[13px] text-[#526C79]">
                   Usa una contraseña segura y fácil de recordar para ti.
                 </p>
               </div>

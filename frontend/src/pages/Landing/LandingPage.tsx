@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, type ReactNode } from 'react'
 import { Logo } from '../../components/ui/Logo'
 import { Navbar } from '../../components/layout/Navbar'
 import { useNavigate } from 'react-router-dom'
+import './LandingBrand.css'
 
 // ── Hooks ─────────────────────────────────────────────────────────────────────
 
@@ -129,8 +130,8 @@ function Icon({
 
 function SectionEyebrow({ children }: { children: ReactNode }) {
   return (
-    <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#D9E4F7] bg-white px-3 py-1 font-body text-[11px] font-bold uppercase tracking-[0.18em] text-[#1E6FD9] shadow-sm">
-      <span className="h-1.5 w-1.5 rounded-full bg-[#35C56A]" />
+    <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#CBDDE3] bg-white px-3 py-1 font-body text-[11px] font-bold uppercase tracking-[0.18em] text-[#0878CF] shadow-sm">
+      <span className="h-1.5 w-1.5 rounded-full bg-[#0878CF]" />
       {children}
     </p>
   )
@@ -140,21 +141,21 @@ function HeroProductPreview() {
   return (
     <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
       <div className="landing-float relative overflow-hidden rounded-[26px] border border-white/20 bg-white/95 shadow-[0_30px_90px_rgba(9,5,28,0.45)] backdrop-blur">
-        <div className="flex h-12 items-center gap-2 border-b border-[#E2E8F0] bg-[#FAFCFF] px-4">
+        <div className="flex h-12 items-center gap-2 border-b border-[#CBDDE3] bg-[#F4F9FA] px-4">
           <span className="h-3 w-3 rounded-full bg-[#EF4444]" />
-          <span className="h-3 w-3 rounded-full bg-[#F59E0B]" />
-          <span className="h-3 w-3 rounded-full bg-[#35C56A]" />
-          <div className="ml-3 h-6 flex-1 rounded-full bg-[#EEF4FF]" />
+          <span className="h-3 w-3 rounded-full bg-[#FFBF20]" />
+          <span className="h-3 w-3 rounded-full bg-[#0878CF]" />
+          <div className="ml-3 h-6 flex-1 rounded-full bg-[#E8F4FA]" />
         </div>
 
-        <div className="grid min-h-[430px] grid-cols-[82px_minmax(0,1fr)] bg-[#F0EEF8] sm:grid-cols-[170px_minmax(0,1fr)]">
-          <aside className="bg-[#1E0A4E] p-4">
+        <div className="grid min-h-[430px] grid-cols-[82px_minmax(0,1fr)] bg-[#E8F4FA] sm:grid-cols-[170px_minmax(0,1fr)]">
+          <aside className="bg-[#073B52] p-4">
             <div className="mb-5 h-10 rounded-2xl bg-white/10" />
             <div className="space-y-2">
               {[
-                ['Gastos', '#35C56A'],
-                ['Saldos', '#7A4FD6'],
-                ['Itinerario', '#1E6FD9'],
+                ['Gastos', '#0878CF'],
+                ['Saldos', '#075B85'],
+                ['Itinerario', '#0878CF'],
               ].map(([label, color]) => (
                 <div key={label} className="rounded-2xl border border-white/10 bg-white/10 px-3 py-3">
                   <div className="mb-2 h-2 w-16 rounded-full bg-white/25" />
@@ -167,11 +168,11 @@ function HeroProductPreview() {
           <main className="min-w-0 p-4 sm:p-5">
             <div className="mb-4 overflow-hidden rounded-2xl bg-white shadow-sm">
               <div className="relative h-28 bg-[url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=300&fit=crop')] bg-cover bg-center">
-                <div className="absolute inset-0 bg-[#1E0A4E]/45" />
+                <div className="absolute inset-0 bg-[#073B52]/45" />
                 <div className="absolute bottom-4 left-4 right-4">
                   <div className="mb-2 flex gap-2">
-                    <span className="rounded-full bg-[#1E6FD9]/80 px-2 py-1 text-[10px] font-bold text-white">ACAPULCO</span>
-                    <span className="rounded-full bg-[#F59E0B]/80 px-2 py-1 text-[10px] font-bold text-white">19 MAY</span>
+                    <span className="rounded-full bg-[#0878CF]/80 px-2 py-1 text-[10px] font-bold text-white">ACAPULCO</span>
+                    <span className="rounded-full bg-[#FFBF20] px-2 py-1 text-[10px] font-bold text-[#073B52]">19 MAY</span>
                   </div>
                   <p className="font-heading text-xl font-bold text-white">Despedida de Soltero</p>
                 </div>
@@ -181,19 +182,19 @@ function HeroProductPreview() {
             <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_150px]">
               <div className="space-y-3">
                 {[
-                  ['$4,800', 'Hotel en Cancún', 'Pagó Ana', '#35C56A'],
-                  ['$1,200', 'Cena frente al mar', 'Pagó Beto', '#1E6FD9'],
-                  ['$350', 'Taxi al aeropuerto', 'Por validar', '#F59E0B'],
+                  ['$4,800', 'Hotel en Cancún', 'Pagó Ana', '#0878CF'],
+                  ['$1,200', 'Cena frente al mar', 'Pagó Beto', '#0878CF'],
+                  ['$350', 'Taxi al aeropuerto', 'Por validar', '#FFBF20'],
                 ].map(([time, title, status, color]) => (
-                  <div key={title} className="rounded-2xl border border-[#E2E8F0] bg-white p-3 shadow-sm">
+                  <div key={title} className="rounded-2xl border border-[#CBDDE3] bg-white p-3 shadow-sm">
                     <div className="mb-2 flex items-center justify-between gap-2">
-                      <span className="font-body text-xs font-bold text-[#64748B]">{time}</span>
+                      <span className="font-body text-xs font-bold text-[#526C79]">{time}</span>
                       <span className="rounded-full px-2 py-1 font-body text-[10px] font-bold text-white" style={{ backgroundColor: color }}>
                         {status}
                       </span>
                     </div>
-                    <p className="font-heading text-sm font-bold text-[#1E0A4E]">{title}</p>
-                    <div className="mt-3 h-2 rounded-full bg-[#EEF2FF]">
+                    <p className="font-heading text-sm font-bold text-[#073B52]">{title}</p>
+                    <div className="mt-3 h-2 rounded-full bg-[#E8F4FA]">
                       <div className="h-full w-2/3 rounded-full" style={{ backgroundColor: color }} />
                     </div>
                   </div>
@@ -201,24 +202,24 @@ function HeroProductPreview() {
               </div>
 
               <div className="hidden space-y-3 md:block">
-                <div className="rounded-2xl border border-[#D7F3E1] bg-white p-3 shadow-sm">
-                  <div className="mb-3 flex items-center gap-2 text-[#35C56A]">
+                <div className="rounded-2xl border border-[#CBDDE3] bg-white p-3 shadow-sm">
+                  <div className="mb-3 flex items-center gap-2 text-[#0878CF]">
                     <Icon type="budget" />
                     <span className="font-body text-xs font-bold">Presupuesto</span>
                   </div>
-                  <p className="font-heading text-lg font-bold text-[#1E0A4E]">$50,000</p>
-                  <div className="mt-2 h-2 rounded-full bg-[#EAFBF1]">
-                    <div className="h-full w-[28%] rounded-full bg-[#35C56A]" />
+                  <p className="font-heading text-lg font-bold text-[#073B52]">$50,000</p>
+                  <div className="mt-2 h-2 rounded-full bg-[#E8F4FA]">
+                    <div className="h-full w-[28%] rounded-full bg-[#0878CF]" />
                   </div>
                 </div>
-                <div className="rounded-2xl border border-[#E2D8FF] bg-white p-3 shadow-sm">
-                  <div className="mb-3 flex items-center gap-2 text-[#7A4FD6]">
+                <div className="rounded-2xl border border-[#CBDDE3] bg-white p-3 shadow-sm">
+                  <div className="mb-3 flex items-center gap-2 text-[#075B85]">
                     <Icon type="chat" />
                     <span className="font-body text-xs font-bold">Chat activo</span>
                   </div>
                   <div className="space-y-2">
-                    <div className="h-2 rounded-full bg-[#F3EEFF]" />
-                    <div className="h-2 w-2/3 rounded-full bg-[#F3EEFF]" />
+                    <div className="h-2 rounded-full bg-[#E8F4FA]" />
+                    <div className="h-2 w-2/3 rounded-full bg-[#E8F4FA]" />
                   </div>
                 </div>
               </div>
@@ -228,12 +229,12 @@ function HeroProductPreview() {
       </div>
 
       <div className="landing-float-delayed absolute -bottom-5 -left-3 hidden rounded-2xl border border-white/20 bg-white px-4 py-3 shadow-[0_18px_44px_rgba(9,5,28,0.28)] sm:block">
-        <p className="font-body text-[11px] font-bold uppercase tracking-wide text-[#7A4FD6]">Saldos al día</p>
-        <p className="font-heading text-sm font-bold text-[#1E0A4E]">Beto le paga $350 a Ana</p>
+        <p className="font-body text-[11px] font-bold uppercase tracking-wide text-[#075B85]">Saldos al día</p>
+        <p className="font-heading text-sm font-bold text-[#073B52]">Beto le paga $350 a Ana</p>
       </div>
       <div className="landing-float absolute -right-3 top-12 hidden rounded-2xl border border-white/20 bg-white px-4 py-3 shadow-[0_18px_44px_rgba(9,5,28,0.28)] md:block">
-        <p className="font-body text-[11px] font-bold uppercase tracking-wide text-[#35C56A]">Sincronizado</p>
-        <p className="font-heading text-sm font-bold text-[#1E0A4E]">Presupuesto actualizado</p>
+        <p className="font-body text-[11px] font-bold uppercase tracking-wide text-[#0878CF]">Sincronizado</p>
+        <p className="font-heading text-sm font-bold text-[#073B52]">Presupuesto actualizado</p>
       </div>
     </div>
   )
@@ -255,7 +256,7 @@ function LandingNavbar() {
   }, [])
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 h-14 bg-white border-b border-[#E2E8F0] px-6 flex items-center transition-shadow duration-300 ${
+    <nav className={`fixed top-0 left-0 right-0 z-50 h-14 bg-white border-b border-[#CBDDE3] px-6 flex items-center transition-shadow duration-300 ${
       scrolled ? 'shadow-sm' : ''
     }`}>
       <a href="#" className="shrink-0">
@@ -263,16 +264,16 @@ function LandingNavbar() {
       </a>
 
       <div className="hidden md:flex items-center gap-6 ml-8">
-        <a href="#features" className="font-body text-sm text-[#7A8799] hover:text-[#1E0A4E] transition-colors">Explorar</a>
-        <a href="#how" className="font-body text-sm text-[#7A8799] hover:text-[#1E0A4E] transition-colors">Cómo funciona</a>
+        <a href="#features" className="font-body text-sm text-[#526C79] hover:text-[#073B52] transition-colors">Explorar</a>
+        <a href="#how" className="font-body text-sm text-[#526C79] hover:text-[#073B52] transition-colors">Cómo funciona</a>
       </div>
 
       <div className="ml-auto flex items-center gap-3">
-        <a href="#" className="hidden md:block font-body text-sm text-[#7A8799] hover:text-[#1E0A4E] transition-colors">Mis viajes</a>
-        <a href="/login" className="font-body text-sm border border-[#E2E8F0] text-[#3D4A5C] rounded-lg px-4 py-1.5 hover:border-[#1E6FD9] hover:text-[#1E6FD9] transition-colors">
+        <a href="#" className="hidden md:block font-body text-sm text-[#526C79] hover:text-[#073B52] transition-colors">Mis viajes</a>
+        <a href="/login" className="font-body text-sm border border-[#CBDDE3] text-[#3D4A5C] rounded-lg px-4 py-1.5 hover:border-[#0878CF] hover:text-[#0878CF] transition-colors">
           Iniciar sesión
         </a>
-        <a href="/register" className="font-body text-sm font-medium bg-[#1E6FD9] text-white rounded-full px-4 py-1.5 hover:opacity-90 transition-opacity">
+        <a href="/register" className="font-body text-sm font-medium bg-[#0878CF] text-white rounded-full px-4 py-1.5 hover:opacity-90 transition-opacity">
           Crear cuenta
         </a>
       </div>
@@ -340,14 +341,14 @@ function HeroSection({ isOnline }: { isOnline: boolean }) {
   }
 
   return (
-    <section className="relative flex min-h-screen items-center overflow-hidden bg-primary-dark px-4 pb-16 pt-24">
+    <section className="relative flex min-h-screen items-center overflow-hidden bg-[#073B52] px-4 pb-16 pt-24">
       <img
         src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1400&h=900&fit=crop"
         alt=""
         aria-hidden="true"
         className="absolute inset-0 h-full w-full object-cover"
       />
-      <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(30,10,78,0.96)_0%,rgba(30,10,78,0.86)_42%,rgba(30,10,78,0.58)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(7,59,82,0.96)_0%,rgba(7,59,82,0.86)_42%,rgba(7,59,82,0.58)_100%)]" />
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className="absolute inset-0 opacity-25"
@@ -356,16 +357,16 @@ function HeroSection({ isOnline }: { isOnline: boolean }) {
             backgroundSize: '30px 30px',
           }}
         />
-        <div className="landing-glow absolute left-[8%] top-[18%] h-28 w-28 rounded-full bg-[#35C56A]/30 blur-3xl" />
-        <div className="landing-glow absolute bottom-[14%] right-[18%] h-36 w-36 rounded-full bg-[#1E6FD9]/35 blur-3xl" />
+        <div className="landing-glow absolute left-[8%] top-[18%] h-28 w-28 rounded-full bg-[#16B9D0]/30 blur-3xl" />
+        <div className="landing-glow absolute bottom-[14%] right-[18%] h-36 w-36 rounded-full bg-[#0878CF]/35 blur-3xl" />
       </div>
 
       <div className="relative mx-auto grid w-full max-w-7xl items-center gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(520px,1.05fr)]">
         <div className="text-left">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur">
             <span className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green opacity-75" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#0878CF] opacity-75" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#0878CF]" />
             </span>
             <span className="font-body text-xs font-semibold text-white/85">Colaboracion en tiempo real</span>
           </div>
@@ -379,7 +380,7 @@ function HeroSection({ isOnline }: { isOnline: boolean }) {
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <button onClick={() => navigate('/create-group')} className="inline-flex items-center justify-center gap-2 rounded-xl bg-green px-6 py-3 font-body text-sm font-bold text-white shadow-[0_14px_30px_rgba(53,197,106,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_38px_rgba(53,197,106,0.34)]">
+            <button onClick={() => navigate('/create-group')} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0878CF] px-6 py-3 font-body text-sm font-bold text-white shadow-[0_14px_30px_rgba(8,120,207,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_38px_rgba(8,120,207,0.34)]">
               Crear mi primer viaje
               <Icon type="spark" />
             </button>
@@ -403,8 +404,8 @@ function HeroSection({ isOnline }: { isOnline: boolean }) {
 
           <div className="mt-8 w-full max-w-3xl rounded-2xl border border-white/20 bg-white/95 p-2 shadow-[0_24px_60px_rgba(9,5,28,0.35)] backdrop-blur-md">
             <div className="grid gap-2 md:grid-cols-[1.2fr_1.2fr_0.7fr_auto]">
-              <div className="flex min-w-0 flex-col rounded-xl px-4 py-3 transition-all duration-300 hover:bg-[#F0F5FF] focus-within:bg-[#F0F5FF] focus-within:ring-2 focus-within:ring-[#1E6FD9]/20">
-                <label className="mb-1.5 flex items-center gap-1.5 font-body text-[10px] font-bold uppercase tracking-wider text-[#1E6FD9]">
+              <div className="flex min-w-0 flex-col rounded-xl px-4 py-3 transition-all duration-300 hover:bg-[#E8F4FA] focus-within:bg-[#E8F4FA] focus-within:ring-2 focus-within:ring-[#0878CF]/20">
+                <label className="mb-1.5 flex items-center gap-1.5 font-body text-[10px] font-bold uppercase tracking-wider text-[#0878CF]">
                   <Icon type="calendar" className="h-3 w-3" />
                   Nombre del viaje
                 </label>
@@ -413,11 +414,11 @@ function HeroSection({ isOnline }: { isOnline: boolean }) {
                   placeholder="Ej: Aventura verano 2026"
                   value={tripName}
                   onChange={e => setTripName(e.target.value)}
-                  className="bg-transparent font-body text-base font-medium text-primary-dark outline-none placeholder-gray-400"
+                  className="bg-transparent font-body text-base font-medium text-[#073B52] outline-none placeholder-gray-400"
                 />
               </div>
-              <div className="flex min-w-0 flex-col rounded-xl px-4 py-3 transition-all duration-300 hover:bg-[#F0F5FF] focus-within:bg-[#F0F5FF] focus-within:ring-2 focus-within:ring-[#1E6FD9]/20 md:border-l md:border-gray-100">
-                <label className="mb-1.5 flex items-center gap-1.5 font-body text-[10px] font-bold uppercase tracking-wider text-[#7A4FD6]">
+              <div className="flex min-w-0 flex-col rounded-xl px-4 py-3 transition-all duration-300 hover:bg-[#E8F4FA] focus-within:bg-[#E8F4FA] focus-within:ring-2 focus-within:ring-[#0878CF]/20 md:border-l md:border-gray-100">
+                <label className="mb-1.5 flex items-center gap-1.5 font-body text-[10px] font-bold uppercase tracking-wider text-[#075B85]">
                   <Icon type="map" className="h-3 w-3" />
                   Destino
                 </label>
@@ -426,11 +427,11 @@ function HeroSection({ isOnline }: { isOnline: boolean }) {
                   placeholder="A donde vamos"
                   value={dates}
                   onChange={e => setDates(e.target.value)}
-                  className="bg-transparent font-body text-base font-medium text-primary-dark outline-none placeholder-gray-400"
+                  className="bg-transparent font-body text-base font-medium text-[#073B52] outline-none placeholder-gray-400"
                 />
               </div>
-              <div className="flex min-w-0 flex-col rounded-xl px-4 py-3 transition-all duration-300 hover:bg-[#F0F5FF] focus-within:bg-[#F0F5FF] focus-within:ring-2 focus-within:ring-[#1E6FD9]/20 md:border-l md:border-gray-100">
-                <label className="mb-1.5 flex items-center gap-1.5 font-body text-[10px] font-bold uppercase tracking-wider text-[#35C56A]">
+              <div className="flex min-w-0 flex-col rounded-xl px-4 py-3 transition-all duration-300 hover:bg-[#E8F4FA] focus-within:bg-[#E8F4FA] focus-within:ring-2 focus-within:ring-[#0878CF]/20 md:border-l md:border-gray-100">
+                <label className="mb-1.5 flex items-center gap-1.5 font-body text-[10px] font-bold uppercase tracking-wider text-[#0878CF]">
                   <Icon type="vote" className="h-3 w-3" />
                   Personas
                 </label>
@@ -446,14 +447,14 @@ function HeroSection({ isOnline }: { isOnline: boolean }) {
                   onBlur={() => {
                     if (!people) setPeople('2')
                   }}
-                  className="w-full bg-transparent font-body text-base font-medium text-primary-dark outline-none placeholder-gray-400"
+                  className="w-full bg-transparent font-body text-base font-medium text-[#073B52] outline-none placeholder-gray-400"
                 />
               </div>
               <button
                 onClick={isOnline ? handleCreateItinerary : undefined}
                 disabled={!isOnline}
                 title={!isOnline ? 'Sin conexión a internet' : undefined}
-                className="flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r from-[#1E6FD9] to-[#7A4FD6] px-7 py-3 font-body text-sm font-bold text-white transition-all duration-300 hover:opacity-90 hover:shadow-[0_10px_24px_rgba(30,111,217,0.35)] disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r from-[#0878CF] to-[#075B85] px-7 py-3 font-body text-sm font-bold text-white transition-all duration-300 hover:opacity-90 hover:shadow-[0_10px_24px_rgba(8,120,207,0.35)] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Crear
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/><path d="M12 5l7 7-7 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -476,26 +477,26 @@ function HeroSection({ isOnline }: { isOnline: boolean }) {
 // ── Stats ─────────────────────────────────────────────────────────────────────
 
 const stats = [
-  { value: 'Repartos', label: 'iguales o personalizados', color: '#1E6FD9', icon: 'budget' as const },
-  { value: 'Saldos', label: 'con el mínimo de transferencias', color: '#7A4FD6', icon: 'vote' as const },
-  { value: 'Presupuesto', label: 'planeado vs. gastado', color: '#35C56A', icon: 'calendar' as const },
-  { value: 'PDF y CSV', label: 'resumen del viaje', color: '#F59E0B', icon: 'vault' as const },
+  { value: 'Repartos', label: 'iguales o personalizados', color: '#0878CF', icon: 'budget' as const },
+  { value: 'Saldos', label: 'con el mínimo de transferencias', color: '#075B85', icon: 'vote' as const },
+  { value: 'Presupuesto', label: 'planeado vs. gastado', color: '#0878CF', icon: 'calendar' as const },
+  { value: 'PDF y CSV', label: 'resumen del viaje', color: '#FFBF20', icon: 'vault' as const },
 ]
 
 function StatsSection() {
   return (
-    <section className="border-b border-[#E2E8F0] bg-white px-4 py-8">
+    <section className="border-b border-[#CBDDE3] bg-white px-4 py-8">
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-3 md:grid-cols-4">
         {stats.map((s) => (
-          <div key={s.label} className="group rounded-2xl border border-[#E2E8F0] bg-[#FAFCFF] px-4 py-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#CFE0FF] hover:shadow-[0_18px_40px_rgba(30,10,78,0.08)]">
+          <div key={s.label} className="group rounded-2xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#91DEF0] hover:shadow-[0_18px_40px_rgba(7,59,82,0.08)]">
             <div className="mb-3 flex items-center justify-between gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ color: s.color, backgroundColor: `${s.color}18` }}>
                 <Icon type={s.icon} />
               </span>
               <span className="h-2 w-2 rounded-full landing-glow" style={{ backgroundColor: s.color }} />
             </div>
-            <p className="font-heading text-2xl font-bold text-[#1E0A4E]">{s.value}</p>
-            <p className="font-body text-xs font-semibold text-[#7A8799]">{s.label}</p>
+            <p className="font-heading text-2xl font-bold text-[#073B52]">{s.value}</p>
+            <p className="font-body text-xs font-semibold text-[#526C79]">{s.label}</p>
           </div>
         ))}
       </div>
@@ -508,21 +509,21 @@ function StatsSection() {
 const features = [
   {
     icon: 'budget' as const,
-    color: '#35C56A',
+    color: '#0878CF',
     title: 'Cuentas claras desde el primer gasto',
     description: 'Cada gasto guarda quién pagó y entre quiénes se divide, por partes iguales o con montos personalizados.',
     preview: 'budget',
   },
   {
     icon: 'vote' as const,
-    color: '#1E6FD9',
+    color: '#0878CF',
     title: 'Saldos sin perseguir a nadie',
     description: 'Traveling calcula quién le debe a quién con el mínimo de transferencias y cada pago se confirma con su comprobante.',
     preview: 'votes',
   },
   {
     icon: 'vault' as const,
-    color: '#7A4FD6',
+    color: '#075B85',
     title: 'Comprobantes y resumen en un solo lugar',
     description: 'Guarden tickets y transferencias en privado y descarguen el resumen del viaje en PDF o CSV.',
     preview: 'vault',
@@ -532,17 +533,17 @@ const features = [
 function FeaturePreview({ type, color }: { type: string; color: string }) {
   if (type === 'budget') {
     return (
-      <div className="mt-5 rounded-2xl border border-[#E2E8F0] bg-[#FAFCFF] p-4">
+      <div className="mt-5 rounded-2xl border border-[#CBDDE3] bg-[#F4F9FA] p-4">
         <div className="mb-3 flex items-center justify-between">
-          <span className="font-body text-xs font-bold text-[#64748B]">Disponible</span>
-          <span className="font-heading text-lg font-bold text-[#1E0A4E]">$38,200</span>
+          <span className="font-body text-xs font-bold text-[#526C79]">Disponible</span>
+          <span className="font-heading text-lg font-bold text-[#073B52]">$38,200</span>
         </div>
-        <div className="h-2.5 overflow-hidden rounded-full bg-[#E2E8F0]">
-          <div className="h-full w-[42%] rounded-full bg-[#35C56A]" />
+        <div className="h-2.5 overflow-hidden rounded-full bg-[#CBDDE3]">
+          <div className="h-full w-[42%] rounded-full bg-[#0878CF]" />
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2">
-          <span className="rounded-xl bg-white px-3 py-2 font-body text-[11px] font-bold text-[#7A8799]">Comprometido $11,800</span>
-          <span className="rounded-xl bg-white px-3 py-2 font-body text-[11px] font-bold text-[#35C56A]">0 deudas</span>
+          <span className="rounded-xl bg-white px-3 py-2 font-body text-[11px] font-bold text-[#526C79]">Comprometido $11,800</span>
+          <span className="rounded-xl bg-white px-3 py-2 font-body text-[11px] font-bold text-[#0878CF]">0 deudas</span>
         </div>
       </div>
     )
@@ -551,11 +552,11 @@ function FeaturePreview({ type, color }: { type: string; color: string }) {
     return (
       <div className="mt-5 grid gap-2">
         {['Ticket de la cena', 'Transferencia del hotel', 'Resumen del viaje.pdf'].map((item) => (
-          <div key={item} className="flex items-center gap-3 rounded-2xl border border-[#E2E8F0] bg-[#FAFCFF] px-3 py-2">
+          <div key={item} className="flex items-center gap-3 rounded-2xl border border-[#CBDDE3] bg-[#F4F9FA] px-3 py-2">
             <span className="flex h-8 w-8 items-center justify-center rounded-xl" style={{ color, backgroundColor: `${color}18` }}>
               <Icon type="vault" />
             </span>
-            <span className="font-body text-xs font-bold text-[#1E0A4E]">{item}</span>
+            <span className="font-body text-xs font-bold text-[#073B52]">{item}</span>
           </div>
         ))}
       </div>
@@ -565,11 +566,11 @@ function FeaturePreview({ type, color }: { type: string; color: string }) {
     <div className="mt-5 grid gap-2">
       {[
         ['Beto → Ana', '$350', 'Por validar', '#B45309'],
-        ['Caro → Ana', '$120', 'Confirmado', '#047857'],
+        ['Caro → Ana', '$120', 'Confirmado', '#075B85'],
       ].map(([pair, amount, status, statusColor]) => (
-        <div key={pair} className="flex items-center justify-between gap-3 rounded-2xl border border-[#E2E8F0] bg-[#FAFCFF] px-3 py-2">
-          <span className="font-body text-xs font-bold text-[#1E0A4E]">{pair}</span>
-          <span className="font-body text-xs font-bold text-[#1E0A4E]">{amount}</span>
+        <div key={pair} className="flex items-center justify-between gap-3 rounded-2xl border border-[#CBDDE3] bg-[#F4F9FA] px-3 py-2">
+          <span className="font-body text-xs font-bold text-[#073B52]">{pair}</span>
+          <span className="font-body text-xs font-bold text-[#073B52]">{amount}</span>
           <span className="font-body text-[11px] font-bold" style={{ color: statusColor }}>{status}</span>
         </div>
       ))}
@@ -584,18 +585,18 @@ function FeaturesSection() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-12 text-center">
           <SectionEyebrow>Producto</SectionEyebrow>
-          <h2 className="mx-auto max-w-3xl font-heading text-3xl font-bold text-primary-dark md:text-4xl">
+          <h2 className="mx-auto max-w-3xl font-heading text-3xl font-bold text-[#073B52] md:text-4xl">
             Una app pensada para cuentas compartidas, no para hojas de cálculo sueltas.
           </h2>
         </div>
 
         <div className="grid gap-5 lg:grid-cols-3">
           {features.map((f) => (
-            <div key={f.title} className="group rounded-[26px] border border-[#E2E8F0] bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#CFE0FF] hover:shadow-[0_24px_60px_rgba(30,10,78,0.10)]">
+            <div key={f.title} className="group rounded-[26px] border border-[#CBDDE3] bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#91DEF0] hover:shadow-[0_24px_60px_rgba(7,59,82,0.10)]">
               <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl" style={{ color: f.color, backgroundColor: `${f.color}18` }}>
                 <Icon type={f.icon} />
               </div>
-              <h3 className="font-heading text-lg font-bold leading-tight text-primary-dark">{f.title}</h3>
+              <h3 className="font-heading text-lg font-bold leading-tight text-[#073B52]">{f.title}</h3>
               <p className="mt-2 font-body text-sm leading-7 text-gray-500">{f.description}</p>
               <FeaturePreview type={f.preview} color={f.color} />
             </div>
@@ -618,12 +619,12 @@ const demoPoints = [
 function DemoSection() {
   const ref = useFadeIn()
   return (
-    <section ref={ref} className="overflow-hidden bg-[linear-gradient(135deg,#1E0A4E_0%,#2D1368_48%,#111827_100%)] px-4 py-24">
+    <section ref={ref} className="overflow-hidden bg-[linear-gradient(135deg,#073B52_0%,#075B85_48%,#0878CF_100%)] px-4 py-24">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-12 lg:flex-row">
         {/* Left */}
         <div className="w-full flex-1 lg:max-w-md">
-          <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 font-body text-[11px] font-bold uppercase tracking-[0.18em] text-[#9ED4FF]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#35C56A]" />
+          <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 font-body text-[11px] font-bold uppercase tracking-[0.18em] text-[#91DEF0]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#0878CF]" />
             En accion
           </p>
           <h2 className="mb-5 font-heading text-3xl font-bold text-white md:text-4xl">
@@ -636,7 +637,7 @@ function DemoSection() {
           <ul className="space-y-3">
             {demoPoints.map((point) => (
               <li key={point} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-4 py-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#35C56A]/15 text-[#9AF0B8]">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#0878CF]/15 text-[#91DEF0]">
                   <Icon type="vote" />
                 </span>
                 <span className="font-body text-sm font-semibold text-white/75">{point}</span>
@@ -647,19 +648,19 @@ function DemoSection() {
 
         {/* Right — App Mockup */}
         <div className="flex w-full flex-[1.5] justify-center">
-          <div className="relative flex h-[420px] w-full max-w-2xl overflow-hidden rounded-[26px] border border-white/20 bg-[#F4F6F8] font-body text-left shadow-[0_28px_80px_rgba(0,0,0,0.34)] transition-transform duration-500 hover:-translate-y-1">
+          <div className="relative flex h-[420px] w-full max-w-2xl overflow-hidden rounded-[26px] border border-white/20 bg-[#F4F9FA] font-body text-left shadow-[0_28px_80px_rgba(0,0,0,0.34)] transition-transform duration-500 hover:-translate-y-1">
             
             {/* Mock Sidebar */}
-            <div className="w-16 sm:w-56 bg-white border-r border-[#E2E8F0] flex flex-col shrink-0">
-              <div className="h-16 flex items-center px-4 border-b border-[#E2E8F0] gap-3">
-                <div className="w-8 h-8 bg-blue rounded-xl flex items-center justify-center text-white font-heading font-bold text-sm shrink-0">A</div>
+            <div className="w-16 sm:w-56 bg-white border-r border-[#CBDDE3] flex flex-col shrink-0">
+              <div className="h-16 flex items-center px-4 border-b border-[#CBDDE3] gap-3">
+                <div className="w-8 h-8 bg-[#0878CF] rounded-xl flex items-center justify-center text-white font-heading font-bold text-sm shrink-0">A</div>
                 <div className="hidden sm:block min-w-0">
-                  <p className="text-sm font-bold text-[#1E0A4E] truncate">Aventura Verano</p>
+                  <p className="text-sm font-bold text-[#073B52] truncate">Aventura Verano</p>
                   <p className="text-[10px] text-gray-500 truncate">12 Ago - 18 Ago</p>
                 </div>
               </div>
               <div className="flex-1 py-4 space-y-1.5 px-3">
-                <div className="px-3 py-2.5 bg-[#1E6FD9]/10 rounded-xl flex items-center gap-3 text-[#1E6FD9] cursor-pointer">
+                <div className="px-3 py-2.5 bg-[#0878CF]/10 rounded-xl flex items-center gap-3 text-[#0878CF] cursor-pointer">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" strokeWidth="2"/></svg>
                   <span className="hidden sm:block text-xs font-bold">Itinerario</span>
                 </div>
@@ -675,33 +676,33 @@ function DemoSection() {
             </div>
 
             {/* Mock Main Content */}
-            <div className="flex-1 flex flex-col min-w-0 bg-[#F4F6F8]">
+            <div className="flex-1 flex flex-col min-w-0 bg-[#F4F9FA]">
               {/* Top bar */}
-              <div className="h-16 bg-white border-b border-[#E2E8F0] flex items-center justify-between px-6 shrink-0">
-                <div className="text-base font-bold text-[#1E0A4E]">Día 1 <span className="text-gray-400 font-medium text-xs ml-2">Jueves, 12 Ago</span></div>
+              <div className="h-16 bg-white border-b border-[#CBDDE3] flex items-center justify-between px-6 shrink-0">
+                <div className="text-base font-bold text-[#073B52]">Día 1 <span className="text-gray-400 font-medium text-xs ml-2">Jueves, 12 Ago</span></div>
                 <div className="flex -space-x-2">
-                  <div className="w-7 h-7 rounded-full bg-[#1E6FD9] text-white flex items-center justify-center text-[10px] font-bold border-2 border-white z-20">S</div>
-                  <div className="w-7 h-7 rounded-full bg-[#35C56A] text-white flex items-center justify-center text-[10px] font-bold border-2 border-white z-10">M</div>
-                  <div className="w-7 h-7 rounded-full bg-[#7A4FD6] text-white flex items-center justify-center text-[10px] font-bold border-2 border-white z-0">+4</div>
+                  <div className="w-7 h-7 rounded-full bg-[#0878CF] text-white flex items-center justify-center text-[10px] font-bold border-2 border-white z-20">S</div>
+                  <div className="w-7 h-7 rounded-full bg-[#0878CF] text-white flex items-center justify-center text-[10px] font-bold border-2 border-white z-10">M</div>
+                  <div className="w-7 h-7 rounded-full bg-[#075B85] text-white flex items-center justify-center text-[10px] font-bold border-2 border-white z-0">+4</div>
                 </div>
               </div>
 
               {/* Itinerary Area */}
               <div className="flex-1 p-6 overflow-hidden relative">
                 {/* Timeline line */}
-                <div className="absolute left-11 top-0 bottom-0 w-0.5 bg-[#E2E8F0]" />
+                <div className="absolute left-11 top-0 bottom-0 w-0.5 bg-[#CBDDE3]" />
 
                 <div className="space-y-6 relative">
                   {/* Activity 1 */}
                   <div className="relative pl-12">
                     <div className="absolute left-0 w-8 text-right text-[11px] font-bold text-gray-500 mt-1">10:00</div>
-                    <div className="absolute left-[38px] top-1.5 w-3 h-3 rounded-full bg-green border-2 border-white ring-2 ring-green/20" />
-                    <div className="bg-white border border-[#E2E8F0] rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="absolute left-[38px] top-1.5 w-3 h-3 rounded-full bg-[#0878CF] border-2 border-white ring-2 ring-[#0878CF]/20" />
+                    <div className="bg-white border border-[#CBDDE3] rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex justify-between items-start mb-2.5">
-                        <span className="text-[10px] font-bold text-green uppercase tracking-wider bg-green/10 px-2 py-1 rounded-md">Pagó Ana</span>
-                        <span className="text-xs font-bold text-[#1E0A4E] bg-gray-100 px-2 py-1 rounded-md">$4,500 MXN</span>
+                        <span className="text-[10px] font-bold text-[#075B85] uppercase tracking-wider bg-[#0878CF]/10 px-2 py-1 rounded-md">Pagó Ana</span>
+                        <span className="text-xs font-bold text-[#073B52] bg-gray-100 px-2 py-1 rounded-md">$4,500 MXN</span>
                       </div>
-                      <h4 className="text-sm font-bold text-[#1E0A4E]">Vuelo a Cancún</h4>
+                      <h4 className="text-sm font-bold text-[#073B52]">Vuelo a Cancún</h4>
                       <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                         Dividido entre 3 · $1,500 c/u
@@ -712,41 +713,41 @@ function DemoSection() {
                   {/* Activity 2 */}
                   <div className="relative pl-12 opacity-90 hover:opacity-100 transition-opacity">
                     <div className="absolute left-0 w-8 text-right text-[11px] font-bold text-gray-500 mt-1">14:30</div>
-                    <div className="absolute left-[38px] top-1.5 w-3 h-3 rounded-full bg-[#F59E0B] border-2 border-white ring-2 ring-[#F59E0B]/20" />
-                    <div className="bg-white border border-[#F59E0B]/30 rounded-xl p-4 shadow-sm relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-12 h-12 bg-gradient-to-bl from-[#F59E0B]/10 to-transparent rounded-bl-full" />
+                    <div className="absolute left-[38px] top-1.5 w-3 h-3 rounded-full bg-[#FFBF20] border-2 border-white ring-2 ring-[#FFBF20]/20" />
+                    <div className="bg-white border border-[#FFBF20]/30 rounded-xl p-4 shadow-sm relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-12 h-12 bg-gradient-to-bl from-[#FFBF20]/10 to-transparent rounded-bl-full" />
                       <div className="flex justify-between items-start mb-2.5">
-                        <span className="text-[10px] font-bold text-[#F59E0B] uppercase tracking-wider bg-[#F59E0B]/10 px-2 py-1 rounded-md flex items-center gap-1">
+                        <span className="text-[10px] font-bold text-[#765000] uppercase tracking-wider bg-[#FFBF20]/10 px-2 py-1 rounded-md flex items-center gap-1">
                           <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                           Por validar
                         </span>
                       </div>
-                      <h4 className="text-sm font-bold text-[#1E0A4E]">Cena en Rosa Negra</h4>
+                      <h4 className="text-sm font-bold text-[#073B52]">Cena en Rosa Negra</h4>
                       <div className="flex items-center justify-between mt-3">
                         <div className="flex items-center gap-1.5">
-                          <span className="w-5 h-5 bg-[#1E6FD9] rounded-full text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white">✓</span>
-                          <span className="w-5 h-5 bg-[#35C56A] rounded-full text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white">✓</span>
+                          <span className="w-5 h-5 bg-[#0878CF] rounded-full text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white">✓</span>
+                          <span className="w-5 h-5 bg-[#0878CF] rounded-full text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white">✓</span>
                           <span className="w-5 h-5 bg-gray-200 rounded-full text-gray-500 text-[9px] font-bold flex items-center justify-center ring-2 ring-white">?</span>
                         </div>
-                        <button className="text-[10px] font-bold text-white bg-[#1E6FD9] px-3 py-1.5 rounded-lg">Confirmar pago</button>
+                        <button className="text-[10px] font-bold text-white bg-[#0878CF] px-3 py-1.5 rounded-lg">Confirmar pago</button>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Floating chat mock */}
-                <div className="absolute bottom-6 right-6 bg-white border border-[#E2E8F0] shadow-[0_15px_30px_-5px_rgba(0,0,0,0.15)] rounded-2xl w-56 overflow-hidden hidden sm:flex flex-col animate-[bounce_3s_ease-in-out_infinite] z-30">
-                  <div className="bg-[#1E0A4E] px-3 py-2.5 text-white text-[11px] font-bold flex justify-between items-center">
+                <div className="absolute bottom-6 right-6 bg-white border border-[#CBDDE3] shadow-[0_15px_30px_-5px_rgba(0,0,0,0.15)] rounded-2xl w-56 overflow-hidden hidden sm:flex flex-col animate-[bounce_3s_ease-in-out_infinite] z-30">
+                  <div className="bg-[#073B52] px-3 py-2.5 text-white text-[11px] font-bold flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" strokeWidth="2"/></svg>
                       Chat de grupo
                     </div>
-                    <span className="w-2 h-2 bg-green rounded-full shadow-[0_0_8px_rgba(53,197,106,0.8)]" />
+                    <span className="w-2 h-2 bg-[#0878CF] rounded-full shadow-[0_0_8px_rgba(8,120,207,0.8)]" />
                   </div>
                   <div className="p-3 bg-[#F8FAFC] text-[11px] space-y-3">
                     <div className="flex gap-2 items-end">
-                      <div className="w-5 h-5 rounded-full bg-[#35C56A] shrink-0 flex items-center justify-center text-white text-[9px] font-bold mb-0.5">M</div>
-                      <div className="bg-white border border-[#E2E8F0] px-2.5 py-1.5 rounded-xl rounded-bl-sm shadow-sm text-gray-600">
+                      <div className="w-5 h-5 rounded-full bg-[#0878CF] shrink-0 flex items-center justify-center text-white text-[9px] font-bold mb-0.5">M</div>
+                      <div className="bg-white border border-[#CBDDE3] px-2.5 py-1.5 rounded-xl rounded-bl-sm shadow-sm text-gray-600">
                         ¿Ya registraron el taxi del aeropuerto?
                       </div>
                     </div>
@@ -768,31 +769,31 @@ const destinations = [
   {
     name: 'Cancún',
     image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=600&fit=crop',
-    fallback: '#4B8A6E',
+    fallback: '#0878CF',
     tag: 'Playa',
   },
   {
     name: 'Ciudad de México',
     image: 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=400&h=600&fit=crop',
-    fallback: '#8A6E4B',
+    fallback: '#075B85',
     tag: 'Cultura',
   },
   {
     name: 'Oaxaca',
     image: 'https://images.unsplash.com/photo-1518638150340-f706e86654de?w=400&h=600&fit=crop',
-    fallback: '#8A4B6E',
+    fallback: '#16B9D0',
     tag: 'Gastronomia',
   },
   {
     name: 'Los Cabos',
     image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=600&fit=crop',
-    fallback: '#4B6E8A',
+    fallback: '#0878CF',
     tag: 'Relax',
   },
   {
     name: 'Puerto Vallarta',
     image: 'https://images.unsplash.com/photo-1510097467424-192d713fd8b2?w=400&h=600&fit=crop',
-    fallback: '#6E4B8A',
+    fallback: '#073B52',
     tag: 'Grupo',
   },
 ]
@@ -805,15 +806,15 @@ function DestinationsSection() {
         <div className="mb-10 flex items-end justify-between gap-4">
           <div>
             <SectionEyebrow>Inspiracion</SectionEyebrow>
-            <h2 className="font-heading text-2xl font-bold text-primary-dark md:text-3xl">
+            <h2 className="font-heading text-2xl font-bold text-[#073B52] md:text-3xl">
               Destinos que se prestan para decidir en grupo
             </h2>
           </div>
           <div className="flex gap-2">
-            <button className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 transition-colors hover:border-primary-dark">
+            <button className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 transition-colors hover:border-[#073B52]">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="15 18 9 12 15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
             </button>
-            <button className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 transition-colors hover:border-primary-dark">
+            <button className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 transition-colors hover:border-[#073B52]">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="9 18 15 12 9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
             </button>
           </div>
@@ -855,9 +856,9 @@ function DestinationsSection() {
 const steps = [
   {
     number: '1',
-    color: '#1E6FD9',
+    color: '#0878CF',
     icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-[#1E6FD9]">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-[#0878CF]">
         <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
         <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
         <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -868,9 +869,9 @@ const steps = [
   },
   {
     number: '2',
-    color: '#7A4FD6',
+    color: '#075B85',
     icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-[#7A4FD6]">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-[#075B85]">
         <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
         <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
       </svg>
@@ -880,9 +881,9 @@ const steps = [
   },
   {
     number: '3',
-    color: '#35C56A',
+    color: '#0878CF',
     icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-[#35C56A]">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-[#0878CF]">
         <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
         <path d="M12 8v4l3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
       </svg>
@@ -895,9 +896,9 @@ const steps = [
 function HowItWorksSection() {
   const ref = useFadeIn()
   return (
-    <section id="how" ref={ref} className="bg-background py-24 px-4">
+    <section id="how" ref={ref} className="bg-[#F4F9FA] py-24 px-4">
       <div className="max-w-4xl mx-auto text-center">
-        <h2 className="font-heading font-bold text-primary-dark text-3xl md:text-4xl mb-16">
+        <h2 className="font-heading font-bold text-[#073B52] text-3xl md:text-4xl mb-16">
           ¿Cómo funciona?
         </h2>
 
@@ -916,7 +917,7 @@ function HowItWorksSection() {
                 </span>
                 {step.icon}
               </div>
-              <h3 className="font-heading font-semibold text-primary-dark text-base mb-2">{step.title}</h3>
+              <h3 className="font-heading font-semibold text-[#073B52] text-base mb-2">{step.title}</h3>
               <p className="font-body text-gray-500 text-sm">{step.description}</p>
             </div>
           ))}
@@ -933,17 +934,17 @@ function CTASection() {
   const navigate = useNavigate()
   return (
     <section ref={ref} className="bg-white px-4 py-20">
-      <div className="relative mx-auto grid max-w-6xl overflow-hidden rounded-[30px] bg-[#1E0A4E] px-6 py-12 shadow-[0_24px_70px_rgba(30,10,78,0.20)] md:grid-cols-[1fr_360px] md:px-10">
+      <div className="relative mx-auto grid max-w-6xl overflow-hidden rounded-[30px] bg-[#073B52] px-6 py-12 shadow-[0_24px_70px_rgba(7,59,82,0.20)] md:grid-cols-[1fr_360px] md:px-10">
         <img
           src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=900&h=600&fit=crop"
           alt=""
           aria-hidden="true"
           className="absolute inset-0 h-full w-full object-cover opacity-20"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(30,10,78,0.94),rgba(30,10,78,0.72))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,59,82,0.94),rgba(7,59,82,0.72))]" />
         <div className="relative">
-          <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 font-body text-[11px] font-bold uppercase tracking-[0.18em] text-[#9AF0B8]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#35C56A]" />
+          <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 font-body text-[11px] font-bold uppercase tracking-[0.18em] text-[#91DEF0]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#0878CF]" />
             Empezar
           </p>
           <h2 className="max-w-2xl font-heading text-4xl font-bold leading-tight text-white md:text-5xl">
@@ -953,7 +954,7 @@ function CTASection() {
             En menos de dos minutos puedes abrir un espacio compartido para
             registrar gastos, repartirlos y cerrar cuentas sin pendientes.
           </p>
-          <button onClick={() => navigate('/create-group')} className="mt-8 inline-flex items-center gap-2 rounded-xl bg-green px-7 py-3 font-body text-sm font-bold text-white shadow-[0_16px_34px_rgba(53,197,106,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_42px_rgba(53,197,106,0.34)]">
+          <button onClick={() => navigate('/create-group')} className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#0878CF] px-7 py-3 font-body text-sm font-bold text-white shadow-[0_16px_34px_rgba(8,120,207,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_42px_rgba(8,120,207,0.34)]">
             Empezar ahora
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="9 18 15 12 9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
           </button>
@@ -962,18 +963,18 @@ function CTASection() {
         <div className="relative mt-10 hidden md:block">
           <div className="landing-float rounded-3xl border border-white/20 bg-white/95 p-4 shadow-2xl">
             <div className="mb-4 flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#EEF4FF] text-[#1E6FD9]">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#E8F4FA] text-[#0878CF]">
                 <Icon type="calendar" />
               </span>
               <div>
-                <p className="font-heading text-sm font-bold text-[#1E0A4E]">Viaje creado</p>
-                <p className="font-body text-xs text-[#7A8799]">8 dias · 10 personas</p>
+                <p className="font-heading text-sm font-bold text-[#073B52]">Viaje creado</p>
+                <p className="font-body text-xs text-[#526C79]">8 dias · 10 personas</p>
               </div>
             </div>
             <div className="grid gap-2">
-              <span className="rounded-xl bg-[#EAFBF1] px-3 py-2 font-body text-xs font-bold text-[#167A3D]">Invitacion lista</span>
-              <span className="rounded-xl bg-[#F3EEFF] px-3 py-2 font-body text-xs font-bold text-[#6D45C0]">Presupuesto configurado</span>
-              <span className="rounded-xl bg-[#EEF4FF] px-3 py-2 font-body text-xs font-bold text-[#1E6FD9]">Primer dia preparado</span>
+              <span className="rounded-xl bg-[#E8F4FA] px-3 py-2 font-body text-xs font-bold text-[#075B85]">Invitacion lista</span>
+              <span className="rounded-xl bg-[#E8F4FA] px-3 py-2 font-body text-xs font-bold text-[#075B85]">Presupuesto configurado</span>
+              <span className="rounded-xl bg-[#E8F4FA] px-3 py-2 font-body text-xs font-bold text-[#0878CF]">Primer dia preparado</span>
             </div>
           </div>
         </div>
@@ -992,7 +993,7 @@ const footerLinks = {
 
 function Footer() {
   return (
-    <footer className="bg-primary-dark border-t border-white/10 py-14 px-4">
+    <footer className="bg-[#073B52] border-t border-white/10 py-14 px-4">
       <div className="max-w-5xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-10">
           {/* Brand */}
@@ -1052,14 +1053,16 @@ export function LandingPage() {
     <div className={`font-body${!isOnline ? ' pt-[44px]' : ''}`}>
       {!isOnline && <OfflineBanner />}
       <Navbar variant="landing" />
-      <HeroSection isOnline={isOnline} />
-      <StatsSection />
-      <FeaturesSection />
-      <DemoSection />
-      <DestinationsSection />
-      <HowItWorksSection />
-      <CTASection />
-      <Footer />
+      <div className="landing-brand">
+        <HeroSection isOnline={isOnline} />
+        <StatsSection />
+        <FeaturesSection />
+        <DemoSection />
+        <DestinationsSection />
+        <HowItWorksSection />
+        <CTASection />
+        <Footer />
+      </div>
     </div>
   )
 }

@@ -231,15 +231,15 @@ function DashboardSwitchLoading({
   ];
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-[#F0EEF8] px-6 py-8">
-      <div className="w-full max-w-2xl overflow-hidden rounded-3xl border border-[#E2E8F0] bg-white shadow-[0_24px_60px_rgba(30,10,78,0.14)]">
-        <div className="relative h-48 overflow-hidden bg-purpleNavbar">
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1E6FD9] via-[#7A4FD6] to-[#1E0A4E]">
+    <div className="flex flex-1 items-center justify-center bg-[#F4F9FA] px-6 py-8">
+      <div className="w-full max-w-2xl overflow-hidden rounded-3xl border border-[#CBDDE3] bg-white shadow-[0_24px_60px_rgba(7,59,82,0.14)]">
+        <div className="relative h-48 overflow-hidden bg-[#073B52]">
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0878CF] via-[#075B85] to-[#073B52]">
             <span className="font-heading text-6xl font-bold text-white/70">
               {title[0] ?? "V"}
             </span>
           </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1E0A4E]/95 via-[#1E0A4E]/45 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#073B52]/95 via-[#073B52]/45 to-transparent" />
           <div className="absolute bottom-5 left-6 right-6">
             <p className="font-body text-xs font-semibold uppercase tracking-[0.24em] text-white/60">
               Cambiando de grupo
@@ -255,14 +255,14 @@ function DashboardSwitchLoading({
 
         <div className="px-6 py-6">
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-bluePrimary/10 text-bluePrimary">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#0878CF]/10 text-[#075B85]">
               <span className="h-6 w-6 animate-spin rounded-full border-2 border-current border-t-transparent" />
             </div>
             <div>
-              <p className="font-heading text-base font-bold text-purpleNavbar">
+              <p className="font-heading text-base font-bold text-[#073B52]">
                 Cargando información del viaje...
               </p>
-              <p className="mt-1 font-body text-sm leading-relaxed text-gray500">
+              <p className="mt-1 font-body text-sm leading-relaxed text-[#526C79]">
                 Estamos actualizando itinerario, participantes, presupuesto y
                 chat del grupo seleccionado.
               </p>
@@ -273,15 +273,15 @@ function DashboardSwitchLoading({
             {loadingDetails.map((item) => (
               <div
                 key={item.label}
-                className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3"
+                className="rounded-2xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-3"
               >
-                <p className="font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-[#64748B]">
+                <p className="font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-[#526C79]">
                   {item.label}
                 </p>
-                <p className="mt-1 font-heading text-base font-bold text-[#1E0A4E]">
+                <p className="mt-1 font-heading text-base font-bold text-[#073B52]">
                   {item.value}
                 </p>
-                <p className="mt-1 font-body text-xs text-[#64748B]">
+                <p className="mt-1 font-body text-xs text-[#526C79]">
                   {item.hint}
                 </p>
               </div>
@@ -296,14 +296,14 @@ function DashboardSwitchLoading({
 function EmptyState({ onAdd }: { onAdd?: () => void }) {
   return (
     <div className="flex flex-1 items-center justify-center px-6 py-16">
-      <div className="w-full max-w-2xl rounded-2xl border border-[#D9E4F7] bg-white px-6 py-8 text-center shadow-sm">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-bluePrimary/10">
+      <div className="w-full max-w-2xl rounded-2xl border border-[#CBDDE3] bg-white px-6 py-8 text-center shadow-sm">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0878CF]/10">
           <svg
             width="36"
             height="36"
             viewBox="0 0 24 24"
             fill="none"
-            className="text-bluePrimary"
+            className="text-[#075B85]"
             aria-hidden="true"
           >
             <rect
@@ -361,16 +361,16 @@ function EmptyState({ onAdd }: { onAdd?: () => void }) {
             />
           </svg>
         </div>
-        <h3 className="mb-2 font-heading text-xl font-bold text-purpleNavbar">
+        <h3 className="mb-2 font-heading text-xl font-bold text-[#073B52]">
           Aún no hay actividades en el itinerario.
         </h3>
-        <p className="mx-auto mb-5 max-w-md font-body text-sm leading-relaxed text-gray500">
+        <p className="mx-auto mb-5 max-w-md font-body text-sm leading-relaxed text-[#526C79]">
           ¡Empieza añadiendo la primera!
         </p>
         {onAdd && (
           <button
             onClick={onAdd}
-            className="inline-flex items-center gap-2 rounded-xl bg-greenAccent px-5 py-3 font-body text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#0878CF] px-5 py-3 font-body text-sm font-semibold text-white transition-opacity hover:opacity-90"
           >
             <IconPlus size={14} />
             Agregar primera actividad
@@ -447,8 +447,8 @@ function HeroCard({
   const content = (
     <div className="relative flex min-h-[280px] flex-col justify-between gap-6 p-5">
       <div className="flex max-w-full flex-col items-start gap-2 sm:flex-row sm:flex-wrap">
-        <span className="inline-flex max-w-full items-center gap-2 rounded-xl border border-[#BFD7FF]/50 bg-[#1E6FD9]/45 px-3 py-2 font-body text-[13px] font-bold uppercase tracking-wide text-white shadow-sm backdrop-blur-md">
-          <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/20 text-[#D9E8FF]">
+        <span className="inline-flex max-w-full items-center gap-2 rounded-xl border border-[#91DEF0]/50 bg-[#0878CF]/45 px-3 py-2 font-body text-[13px] font-bold uppercase tracking-wide text-white shadow-sm backdrop-blur-md">
+          <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/20 text-[#E8F4FA]">
             <IconMapPinSmall />
           </span>
           <span className="min-w-0 break-words [overflow-wrap:anywhere]">
@@ -457,7 +457,7 @@ function HeroCard({
               : `${destination.toUpperCase()}`}
           </span>
         </span>
-        <span className="inline-flex items-center gap-2 rounded-xl border border-[#FFD166]/60 bg-[#F59E0B]/80 px-3 py-2 font-body text-[13px] font-bold text-white shadow-md backdrop-blur-md">
+        <span className="inline-flex items-center gap-2 rounded-xl border border-[#FFD166]/60 bg-[#765000]/80 px-3 py-2 font-body text-[13px] font-bold text-white shadow-md backdrop-blur-md">
           <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/20 text-[#FFF4D6]">
             <IconCalendarSmall />
           </span>
@@ -476,7 +476,7 @@ function HeroCard({
         </h1>
         <div className="mb-4 flex flex-wrap gap-2">
           <span className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/20 px-3 py-2 font-body text-sm font-bold text-white shadow-sm backdrop-blur-md">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#35C56A]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#16B9D0]" />
             {activities.length} actividad{activities.length !== 1 ? "es" : ""}{" "}
             planeada
             {activities.length !== 1 ? "s" : ""}
@@ -486,7 +486,7 @@ function HeroCard({
           {onAdd && (
             <button
               onClick={onAdd}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-greenAccent px-4 py-2.5 font-body text-base font-semibold text-white transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#0878CF] px-4 py-2.5 font-body text-base font-semibold text-white transition-opacity hover:opacity-90"
             >
               <IconPlus size={14} />
               Agregar actividad
@@ -507,7 +507,7 @@ function HeroCard({
   // Con Google Maps: el viaje a la izquierda y el mapa de sus actividades a la derecha.
   if (mapsAvailable && !mapFailed) {
     return (
-      <div className="mb-4 grid shrink-0 overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#1E0A4E_0%,#2D1368_60%,#1E6FD9_160%)] xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+      <div className="mb-4 grid shrink-0 overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#073B52_0%,#075B85_60%,#0878CF_160%)] xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
         {content}
         <TripMap
           activities={mapActivities}
@@ -545,15 +545,15 @@ function TimelineStrip({
 }) {
   if (activeDay === null) {
     return (
-      <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-[#BCD4FF] bg-[#EEF4FF] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-[#91DEF0] bg-[#E8F4FA] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-bluePrimary/10">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0878CF]/10">
             <svg
               width="20"
               height="20"
               viewBox="0 0 24 24"
               fill="none"
-              className="text-bluePrimary"
+              className="text-[#075B85]"
               aria-hidden="true"
             >
               <rect
@@ -594,10 +594,10 @@ function TimelineStrip({
             </svg>
           </div>
           <div>
-            <p className="font-heading text-base font-bold text-purpleNavbar">
+            <p className="font-heading text-base font-bold text-[#073B52]">
               Selecciona un día para revisar el avance
             </p>
-            <p className="font-body text-sm text-gray500">
+            <p className="font-body text-sm text-[#526C79]">
               O agrega directamente una actividad al itinerario.
             </p>
           </div>
@@ -606,7 +606,7 @@ function TimelineStrip({
           <button
             type="button"
             onClick={onAdd}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-bluePrimary px-4 py-2 font-body text-sm font-semibold text-white hover:bg-[#1E5EEA]"
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#0878CF] px-4 py-2 font-body text-sm font-semibold text-white hover:bg-[#075EAA]"
           >
             <IconPlus size={13} />
             Agregar actividad
@@ -631,17 +631,17 @@ function TimelineStrip({
   const lastActivity = sortedActivities[sortedActivities.length - 1];
 
   return (
-    <div className="mb-4 rounded-2xl border border-[#E2E8F0] bg-white px-5 py-4">
+    <div className="mb-4 rounded-2xl border border-[#CBDDE3] bg-white px-5 py-4">
       <div className="flex items-start gap-5">
         <div className="shrink-0">
-          <span className="inline-flex rounded-full bg-bluePrimary/10 px-3 py-1 font-body text-[13px] font-bold leading-none text-bluePrimary">
+          <span className="inline-flex rounded-full bg-[#0878CF]/10 px-3 py-1 font-body text-[13px] font-bold leading-none text-[#075B85]">
             DÍA {activeDay}
             {date ? ` · ${date.toUpperCase()}` : ""}
           </span>
-          <p className="mt-2 font-heading text-base font-bold leading-none text-purpleNavbar">
+          <p className="mt-2 font-heading text-base font-bold leading-none text-[#073B52]">
             Resumen del día
           </p>
-          <p className="mt-1 font-body text-sm leading-none text-gray500">
+          <p className="mt-1 font-body text-sm leading-none text-[#526C79]">
             {total === 0
               ? "Sin actividades todavía"
               : `${total} actividad${total !== 1 ? "es" : ""} planeada${total !== 1 ? "s" : ""}`}
@@ -652,12 +652,12 @@ function TimelineStrip({
       {total > 0 && (
         <div className="mt-3 flex flex-wrap gap-2">
           {firstActivity && (
-            <span className="rounded-full bg-[#EEF4FF] px-3 py-1 font-body text-[13px] leading-none text-bluePrimary">
+            <span className="rounded-full bg-[#E8F4FA] px-3 py-1 font-body text-[13px] leading-none text-[#075B85]">
               Primera: {firstActivity.time}
             </span>
           )}
           {lastActivity && lastActivity.id !== firstActivity?.id && (
-            <span className="rounded-full bg-[#F3EEFF] px-3 py-1 font-body text-[13px] leading-none text-purpleMedium">
+            <span className="rounded-full bg-[#E8F4FA] px-3 py-1 font-body text-[13px] leading-none text-[#075B85]">
               Ultima: {lastActivity.time}
             </span>
           )}
@@ -1493,38 +1493,38 @@ export function DashboardPage() {
           <title>Itinerario - ${tripName}</title>
           <style>
             :root {
-              --ink:#1E0A4E;
-              --ink-soft:#2E1767;
-              --blue:#1E6FD9;
-              --blue-soft:#EEF4FF;
-              --purple:#7A4FD6;
-              --purple-soft:#F3EEFF;
-              --green:#35C56A;
+              --ink:#073B52;
+              --ink-soft:#075B85;
+              --blue:#0878CF;
+              --blue-soft:#E8F4FA;
+              --purple:#16B9D0;
+              --purple-soft:#E8F4FA;
+              --green:#16B9D0;
               --paper:#FFFFFF;
-              --text:#243247;
-              --muted:#64748B;
+              --text:#183F51;
+              --muted:#526C79;
             }
             * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             body {
               margin:0;
               font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
               color:var(--text);
-              background:linear-gradient(145deg,#EBE6FA 0%,#EAF2FF 100%);
+              background:linear-gradient(145deg,#F4F9FA 0%,#E8F4FA 100%);
               padding:24px;
             }
             .sheet {
               max-width:900px;
               margin:0 auto;
               background:var(--paper);
-              border:1px solid #D9E4F7;
+              border:1px solid #CBDDE3;
               border-radius:20px;
               overflow:hidden;
-              box-shadow:0 24px 56px rgba(30,10,78,0.18);
+              box-shadow:0 24px 56px rgba(7,59,82,0.18);
             }
             .hero {
               background:
-                radial-gradient(circle at top right, rgba(122,79,214,.24), transparent 44%),
-                radial-gradient(circle at top left, rgba(30,111,217,.22), transparent 38%),
+                radial-gradient(circle at top right, rgba(22,185,208,.24), transparent 44%),
+                radial-gradient(circle at top left, rgba(8,120,207,.22), transparent 38%),
                 linear-gradient(120deg,var(--ink),var(--ink-soft));
               color:#fff;
               padding:28px 30px;
@@ -1540,10 +1540,10 @@ export function DashboardPage() {
               font-size:11px;
               font-weight:600;
             }
-            .content { padding:18px 20px 26px; background:linear-gradient(180deg,#FAFCFF 0%,#FFFFFF 18%); }
+            .content { padding:18px 20px 26px; background:linear-gradient(180deg,#F4F9FA 0%,#FFFFFF 18%); }
             .day-section + .day-section { margin-top:14px; }
             .day-section {
-              border:1px solid #DEE7FB;
+              border:1px solid #CBDDE3;
               border-radius:16px;
               background:#fff;
               overflow:hidden;
@@ -1554,17 +1554,17 @@ export function DashboardPage() {
               justify-content:space-between;
               gap:10px;
               padding:12px 14px;
-              background:linear-gradient(90deg,var(--purple-soft),#F8FAFF);
-              border-bottom:1px solid #E5ECFA;
+              background:linear-gradient(90deg,var(--purple-soft),#F4F9FA);
+              border-bottom:1px solid #CBDDE3;
             }
             .day-header h3 { margin:0; color:var(--ink); font-size:16px; }
-            .day-header span { color:#4B5F86; font-size:12px; font-weight:700; }
+            .day-header span { color:#526C79; font-size:12px; font-weight:700; }
             .activity-card {
               display:flex;
               gap:12px;
               background:#fff;
               border-left:4px solid var(--blue);
-              border-bottom:1px solid #EEF2FB;
+              border-bottom:1px solid #E8F4FA;
               padding:12px 14px;
               margin:0;
             }
@@ -1573,30 +1573,30 @@ export function DashboardPage() {
               width:28px;
               height:28px;
               border-radius:999px;
-              background:linear-gradient(140deg,var(--blue),#4A8DF0);
+              background:linear-gradient(140deg,var(--blue),#075EAA);
               color:#fff;
               display:grid;
               place-items:center;
               font-size:12px;
               font-weight:800;
               flex-shrink:0;
-              box-shadow:0 6px 14px rgba(30,111,217,.26);
+              box-shadow:0 6px 14px rgba(8,120,207,.26);
             }
             .activity-content h4 { margin:0; color:var(--ink); font-size:15px; }
-            .activity-content .desc { margin:4px 0 0; color:#4A5C77; font-size:12px; line-height:1.45; }
+            .activity-content .desc { margin:4px 0 0; color:#526C79; font-size:12px; line-height:1.45; }
             .chips { display:flex; gap:6px; flex-wrap:wrap; margin-top:9px; }
             .chips span {
               background:var(--purple-soft);
-              border:1px solid #DCCEFF;
-              color:#452A84;
+              border:1px solid #91DEF0;
+              color:#075B85;
               font-size:10.5px;
               padding:4px 8px;
               border-radius:999px;
               font-weight:600;
             }
             .footer {
-              border-top:1px solid #E5ECFA;
-              background:#FAFCFF;
+              border-top:1px solid #CBDDE3;
+              background:#F4F9FA;
               padding:12px 20px;
               color:var(--muted);
               font-size:11px;
@@ -1606,7 +1606,7 @@ export function DashboardPage() {
             }
             .dot { width:8px; height:8px; border-radius:999px; background:var(--green); display:inline-block; margin-right:6px; }
             @media print {
-              body { background:#EEE8FB; padding:0; }
+              body { background:#F4F9FA; padding:0; }
               .sheet { border:0; border-radius:0; box-shadow:none; max-width:100%; }
               @page { size:A4; margin:10mm; }
             }
@@ -1770,7 +1770,7 @@ export function DashboardPage() {
                 <circle cx="12" cy="16" r="1" fill="currentColor" />
               </svg>
               <p className="font-body text-[12px] text-[#64748B] leading-relaxed">
-                Presupuesto en modo lectura. Puedes consultar balances y deudas,
+                Este viaje está cerrado. Puedes consultar balances y liquidar deudas,
                 pero no registrar nuevos gastos.
               </p>
             </div>
@@ -1867,7 +1867,7 @@ export function DashboardPage() {
               return (
                 <div className="space-y-3">
                   {/* Tab strip */}
-                  <div className="overflow-x-auto rounded-2xl bg-[linear-gradient(135deg,#24105E_0%,#1E0A4E_52%,#2B1163_100%)] px-4 py-3 shadow-[0_8px_28px_rgba(30,10,78,0.22)]">
+                  <div className="overflow-x-auto rounded-2xl bg-[linear-gradient(135deg,#073B52_0%,#073B52_52%,#075B85_100%)] px-4 py-3 shadow-[0_8px_28px_rgba(7,59,82,0.22)]">
                     <div className="flex gap-2">
                       {daysWithContext.map((day) => {
                         const isActive = day.dayNumber === activeDayNumber;
@@ -1896,18 +1896,18 @@ export function DashboardPage() {
                             <span
                               className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-body text-[11px] font-bold uppercase tracking-wider ${
                                 isActive
-                                  ? "bg-[#1E6FD9]/12 text-[#1E6FD9]"
+                                  ? "bg-[#0878CF]/12 text-[#075EAA]"
                                   : "bg-white/10 text-white/55"
                               }`}
                             >
                               <span
-                                className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-[#1E6FD9]" : "bg-white/30"}`}
+                                className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-[#0878CF]" : "bg-white/30"}`}
                               />
                               Día {day.dayNumber}
                             </span>
                             {/* Date */}
                             <span
-                              className={`font-body text-sm font-semibold leading-tight text-center ${isActive ? "text-[#1E0A4E]" : "text-white/80"}`}
+                              className={`font-body text-sm font-semibold leading-tight text-center ${isActive ? "text-[#073B52]" : "text-white/80"}`}
                             >
                               {day.date}
                             </span>
@@ -1921,7 +1921,7 @@ export function DashboardPage() {
                                 </span>
                               ) : (
                                 <span
-                                  className={`inline-flex items-center rounded-full px-2 py-0.5 font-body text-xs font-semibold ${isActive ? "bg-[#D1FAE5] text-[#065F46]" : "bg-[#35C56A]/20 text-[#9AF0B8]"}`}
+                                  className={`inline-flex items-center rounded-full px-2 py-0.5 font-body text-xs font-semibold ${isActive ? "bg-[#E8F4FA] text-[#075B85]" : "bg-[#16B9D0]/20 text-[#91DEF0]"}`}
                                 >
                                   {count} actividad{count !== 1 ? "es" : ""}
                                 </span>

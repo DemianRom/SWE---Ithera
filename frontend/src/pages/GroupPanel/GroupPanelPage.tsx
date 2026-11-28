@@ -783,11 +783,11 @@ export function GroupPanelPage() {
           name: navUserName,
           role: "",
           initials: navInitials,
-          color: "#7A4FD6",
+          color: "#075B85",
         }}
       >
         <div className="flex flex-1 items-center justify-center">
-          <p className="font-body text-sm text-[#7A8799]">Cargando grupo...</p>
+          <p className="font-body text-sm text-[#526C79]">Cargando grupo...</p>
         </div>
       </AppLayout>
     );
@@ -802,12 +802,12 @@ export function GroupPanelPage() {
           name: navUserName,
           role: "",
           initials: navInitials,
-          color: "#7A4FD6",
+          color: "#075B85",
         }}
       >
         <div className="flex flex-1 items-center justify-center px-4">
-          <div className="w-full max-w-md rounded-2xl border border-[#E2E8F0] bg-white p-6 text-center">
-            <h2 className="mb-2 font-heading text-xl text-[#1E0A4E]">
+          <div className="w-full max-w-md rounded-2xl border border-[#CBDDE3] bg-white p-6 text-center">
+            <h2 className="mb-2 font-heading text-xl text-[#073B52]">
               No se pudo abrir el grupo
             </h2>
             <p className="font-body text-sm text-red-500">
@@ -815,7 +815,7 @@ export function GroupPanelPage() {
             </p>
             <button
               onClick={() => navigate("/my-trips")}
-              className="mt-4 rounded-xl bg-[#1E6FD9] px-4 py-3 text-sm text-white"
+              className="mt-4 rounded-xl bg-[#075EAA] px-4 py-3 text-sm text-white"
             >
               Volver a mis viajes
             </button>
@@ -844,87 +844,87 @@ export function GroupPanelPage() {
           name: navUserName,
           role: getDisplayRole(isAdmin ? "admin" : "viajero"),
           initials: navInitials,
-          color: "#7A4FD6",
+          color: "#075B85",
         }}
         showTripSelector={false}
         showRightPanel={false}
       >
-        <div className="flex-1 overflow-x-hidden overflow-y-auto bg-[radial-gradient(circle_at_top_left,#EEF4FF_0%,transparent_34%),linear-gradient(180deg,#FFFFFF_0%,#F5F2FF_100%)] px-4 py-8">
+        <div className="flex-1 overflow-x-hidden overflow-y-auto bg-[radial-gradient(circle_at_top_left,#E8F4FA_0%,transparent_34%),linear-gradient(180deg,#FFFFFF_0%,#E8F4FA_100%)] px-4 py-8">
           <div className="mx-auto w-full max-w-5xl space-y-5">
-            <div className="relative overflow-hidden rounded-3xl border border-[#D9E4F7] bg-white shadow-[0_18px_46px_rgba(30,10,78,0.10)]">
-              <div className="absolute inset-0 bg-[linear-gradient(135deg,#FFFFFF_0%,#F8FAFF_45%,#F3EEFF_100%)]" />
-              <div className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#7A4FD6]/20 blur-3xl" />
-              <div className="absolute -bottom-20 left-16 h-48 w-48 rounded-full bg-[#35C56A]/20 blur-3xl" />
+            <div className="relative overflow-hidden rounded-3xl border border-[#CBDDE3] bg-white shadow-[0_18px_46px_rgba(7,59,82,0.10)]">
+              <div className="absolute inset-0 bg-[linear-gradient(135deg,#FFFFFF_0%,#F4F9FA_45%,#E8F4FA_100%)]" />
+              <div className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#075B85]/20 blur-3xl" />
+              <div className="absolute -bottom-20 left-16 h-48 w-48 rounded-full bg-[#075EAA]/20 blur-3xl" />
 
               <div className="relative grid gap-6 p-6 lg:grid-cols-[minmax(0,1fr)_320px]">
                 <div className="min-w-0">
                   <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center gap-2 rounded-full bg-[#1E0A4E] px-3 py-1.5 font-body text-[11px] font-bold uppercase tracking-[0.16em] text-white">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#35C56A]" />
+                    <span className="inline-flex items-center gap-2 rounded-full bg-[#073B52] px-3 py-1.5 font-body text-[11px] font-bold uppercase tracking-[0.16em] text-white">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#075EAA]" />
                       Panel del grupo
                     </span>
                     <span
-                      className={`rounded-full px-3 py-1.5 font-body text-[11px] font-bold ${group.es_publico ? "bg-[#EAFBF1] text-[#167A3D]" : "bg-[#FFF7E6] text-[#A86B00]"}`}
+                      className={`rounded-full px-3 py-1.5 font-body text-[11px] font-bold ${group.es_publico ? "bg-[#E8F4FA] text-[#075B85]" : "bg-[#FFF2D1] text-[#765000]"}`}
                     >
                       {group.es_publico ? "Grupo público" : "Grupo privado"}
                     </span>
                   </div>
 
                   <h1
-                    className="max-w-full break-words font-heading text-3xl font-extrabold leading-tight text-[#1E0A4E]"
+                    className="max-w-full break-words font-heading text-3xl font-extrabold leading-tight text-[#073B52]"
                     title={group.nombre}
                   >
                     {group.nombre}
                   </h1>
 
                   <p
-                    className="mt-2 max-w-2xl break-words font-body text-sm leading-relaxed text-[#64748B]"
+                    className="mt-2 max-w-2xl break-words font-body text-sm leading-relaxed text-[#526C79]"
                     title={group.descripcion || "Sin descripción"}
                   >
                     {group.descripcion || "Sin descripción"}
                   </p>
 
                   <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-[#CFE0FF] bg-[#EEF4FF] px-4 py-3">
-                      <p className="font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#1E6FD9]">
+                    <div className="rounded-2xl border border-[#CBDDE3] bg-[#E8F4FA] px-4 py-3">
+                      <p className="font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#075EAA]">
                         Destino
                       </p>
-                      <p className="mt-1 break-words font-body text-sm font-bold text-[#1E0A4E]">
+                      <p className="mt-1 break-words font-body text-sm font-bold text-[#073B52]">
                         {group.destino || "Pendiente"}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-[#D8C8FF] bg-[#F3EEFF] px-4 py-3">
-                      <p className="font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#7A4FD6]">
+                    <div className="rounded-2xl border border-[#CBDDE3] bg-[#E8F4FA] px-4 py-3">
+                      <p className="font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#075B85]">
                         Fechas
                       </p>
-                      <p className="mt-1 break-words font-body text-sm font-bold text-[#1E0A4E]">
+                      <p className="mt-1 break-words font-body text-sm font-bold text-[#073B52]">
                         {formatDateRange(group.fecha_inicio, group.fecha_fin)}
                       </p>
                     </div>
                     {!hasReachedCapacity && (
-                      <div className="rounded-2xl border border-[#E2E8F0] bg-white px-4 py-3">
-                        <p className="font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#64748B]">
+                      <div className="rounded-2xl border border-[#CBDDE3] bg-white px-4 py-3">
+                        <p className="font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#526C79]">
                           Código
                         </p>
-                        <p className="mt-1 break-words font-body text-sm font-bold text-[#1E0A4E]">
+                        <p className="mt-1 break-words font-body text-sm font-bold text-[#073B52]">
                           {group.codigo_invitacion}
                         </p>
                       </div>
                     )}
-                    <div className="rounded-2xl border border-[#BCEBCB] bg-[#EAFBF1] px-4 py-3">
-                      <p className="font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#167A3D]">
+                    <div className="rounded-2xl border border-[#CBDDE3] bg-[#E8F4FA] px-4 py-3">
+                      <p className="font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#075B85]">
                         Tu rol
                       </p>
-                      <p className="mt-1 font-body text-sm font-bold text-[#1E0A4E]">
+                      <p className="mt-1 font-body text-sm font-bold text-[#073B52]">
                         {getDisplayRole(isAdmin ? "admin" : "viajero")}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex flex-col justify-between rounded-3xl border border-white/80 bg-white/85 p-4 shadow-[0_14px_34px_rgba(30,10,78,0.10)] backdrop-blur">
+                <div className="flex flex-col justify-between rounded-3xl border border-white/80 bg-white/85 p-4 shadow-[0_14px_34px_rgba(7,59,82,0.10)] backdrop-blur">
                   <div>
-                    <p className="font-body text-[11px] font-bold uppercase tracking-[0.16em] text-[#64748B]">
+                    <p className="font-body text-[11px] font-bold uppercase tracking-[0.16em] text-[#526C79]">
                       Acciones rápidas
                     </p>
                     <div className="mt-4 grid gap-3">
@@ -932,7 +932,7 @@ export function GroupPanelPage() {
                         <button
                           type="button"
                           onClick={() => setIsInviteModalOpen(true)}
-                          className="flex min-h-12 items-center justify-between rounded-2xl bg-[#35C56A] px-4 py-3 text-left font-body text-sm font-bold text-white shadow-[0_12px_24px_rgba(53,197,106,0.24)] transition hover:-translate-y-0.5 hover:bg-[#2FB95F]"
+                          className="flex min-h-12 items-center justify-between rounded-2xl bg-[#075EAA] px-4 py-3 text-left font-body text-sm font-bold text-white shadow-[0_12px_24px_rgba(8,120,207,0.24)] transition hover:-translate-y-0.5 hover:bg-[#075B85]"
                         >
                           <span>Invitar miembros</span>
                           <span>+</span>
@@ -942,7 +942,7 @@ export function GroupPanelPage() {
                       <button
                         type="button"
                         onClick={goToItinerary}
-                        className="flex min-h-12 items-center justify-between rounded-2xl bg-[#1E6FD9] px-4 py-3 text-left font-body text-sm font-bold text-white shadow-[0_12px_24px_rgba(30,111,217,0.22)] transition hover:-translate-y-0.5 hover:bg-[#1E5FC0]"
+                        className="flex min-h-12 items-center justify-between rounded-2xl bg-[#075EAA] px-4 py-3 text-left font-body text-sm font-bold text-white shadow-[0_12px_24px_rgba(8,120,207,0.22)] transition hover:-translate-y-0.5 hover:bg-[#075EAA]"
                       >
                         <span>Abrir itinerario</span>
                         <span>›</span>
@@ -950,19 +950,19 @@ export function GroupPanelPage() {
                     </div>
                   </div>
 
-                  <div className="mt-5 rounded-2xl border border-[#D9E4F7] bg-[linear-gradient(135deg,#F8FAFF,#FFFFFF)] px-4 py-3">
-                    <p className="font-body text-[11px] font-bold uppercase tracking-[0.16em] text-[#64748B]">
+                  <div className="mt-5 rounded-2xl border border-[#CBDDE3] bg-[linear-gradient(135deg,#F4F9FA,#FFFFFF)] px-4 py-3">
+                    <p className="font-body text-[11px] font-bold uppercase tracking-[0.16em] text-[#526C79]">
                       Ocupación
                     </p>
-                    <p className="mt-1 font-heading text-2xl font-extrabold text-[#1E0A4E]">
+                    <p className="mt-1 font-heading text-2xl font-extrabold text-[#073B52]">
                       {members.length}
                       {group.maximo_miembros
                         ? ` / ${group.maximo_miembros}`
                         : ""}
                     </p>
-                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#E2E8F0]">
+                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#CBDDE3]">
                       <div
-                        className="h-full rounded-full bg-[linear-gradient(90deg,#1E6FD9,#35C56A)]"
+                        className="h-full rounded-full bg-[linear-gradient(90deg,#075EAA,#075EAA)]"
                         style={{
                           width: `${group.maximo_miembros ? Math.min((members.length / Number(group.maximo_miembros)) * 100, 100) : 100}%`,
                         }}
@@ -973,18 +973,18 @@ export function GroupPanelPage() {
               </div>
 
               {copied && (
-                <p className="relative px-6 pb-5 text-sm font-semibold text-[#35C56A]">
+                <p className="relative px-6 pb-5 text-sm font-semibold text-[#075EAA]">
                   Enlace copiado correctamente.
                 </p>
               )}
             </div>
 
             {isReadOnly && (
-              <div className="rounded-2xl border border-[#CBD5E1] bg-white px-5 py-4 shadow-sm">
-                <p className="font-heading text-sm font-semibold text-[#1E0A4E]">
+              <div className="rounded-2xl border border-[#CBDDE3] bg-white px-5 py-4 shadow-sm">
+                <p className="font-heading text-sm font-semibold text-[#073B52]">
                   Viaje cerrado · modo solo lectura
                 </p>
-                <p className="mt-1 font-body text-sm leading-relaxed text-[#64748B]">
+                <p className="mt-1 font-body text-sm leading-relaxed text-[#526C79]">
                   Este viaje ya finalizó. Puedes consultar integrantes,
                   invitaciones históricas e itinerario, pero las acciones de
                   gestión, invitación y expulsión están deshabilitadas.
@@ -993,11 +993,11 @@ export function GroupPanelPage() {
             )}
 
             {outgoingAdminDelegation && (
-              <div className="rounded-2xl border border-[#F7D37A] bg-[#FFF8E5] px-5 py-4 shadow-sm">
-                <p className="font-heading text-sm font-semibold text-[#8A5A00]">
+              <div className="rounded-2xl border border-[#F7D37A] bg-[#FFF2D1] px-5 py-4 shadow-sm">
+                <p className="font-heading text-sm font-semibold text-[#765000]">
                   Delegación de administración pendiente
                 </p>
-                <p className="mt-1 font-body text-sm leading-relaxed text-[#8A5A00]">
+                <p className="mt-1 font-body text-sm leading-relaxed text-[#765000]">
                   Esperando respuesta de{" "}
                   {outgoingAdminDelegation.to_nombre ||
                     outgoingAdminDelegation.to_email ||
@@ -1015,11 +1015,11 @@ export function GroupPanelPage() {
             )}
 
             {incomingAdminDelegation && (
-              <div className="rounded-2xl border border-[#BFDBFE] bg-[#EFF6FF] px-5 py-4 shadow-sm">
-                <p className="font-heading text-sm font-semibold text-[#1D4ED8]">
+              <div className="rounded-2xl border border-[#91DEF0] bg-[#E8F4FA] px-5 py-4 shadow-sm">
+                <p className="font-heading text-sm font-semibold text-[#075B85]">
                   Tienes una solicitud para ser organizador
                 </p>
-                <p className="mt-1 font-body text-sm leading-relaxed text-[#1E40AF]">
+                <p className="mt-1 font-body text-sm leading-relaxed text-[#075B85]">
                   {incomingAdminDelegation.from_nombre ||
                     incomingAdminDelegation.from_email ||
                     "El organizador"}{" "}
@@ -1053,15 +1053,15 @@ export function GroupPanelPage() {
                   : "grid grid-cols-1 gap-5"
               }
             >
-              <div className="overflow-hidden rounded-3xl border border-[#D9E4F7] bg-white shadow-[0_16px_38px_rgba(30,10,78,0.08)]">
-                <div className="border-b border-[#E2E8F0] bg-[linear-gradient(90deg,#FFFFFF,#F8FAFF)] px-6 py-5">
+              <div className="overflow-hidden rounded-3xl border border-[#CBDDE3] bg-white shadow-[0_16px_38px_rgba(7,59,82,0.08)]">
+                <div className="border-b border-[#CBDDE3] bg-[linear-gradient(90deg,#FFFFFF,#F4F9FA)] px-6 py-5">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="mb-1 inline-flex items-center gap-2 rounded-full bg-[#EEF4FF] px-3 py-1 font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#1E6FD9]">
-                        <span className="h-1.5 w-1.5 rounded-full bg-[#1E6FD9]" />
+                      <p className="mb-1 inline-flex items-center gap-2 rounded-full bg-[#E8F4FA] px-3 py-1 font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#075EAA]">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#075EAA]" />
                         Comunidad
                       </p>
-                      <h2 className="font-heading text-xl font-extrabold text-[#1E0A4E]">
+                      <h2 className="font-heading text-xl font-extrabold text-[#073B52]">
                         Miembros del grupo
                       </h2>
                     </div>
@@ -1085,27 +1085,27 @@ export function GroupPanelPage() {
                     return (
                       <div
                         key={member.id}
-                        className="grid grid-cols-1 gap-3 rounded-2xl border border-[#E2E8F0] bg-[#FAFCFF] px-4 py-4 transition hover:border-[#CFE0FF] hover:bg-white hover:shadow-sm sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+                        className="grid grid-cols-1 gap-3 rounded-2xl border border-[#CBDDE3] bg-[#F4F9FA] px-4 py-4 transition hover:border-[#CBDDE3] hover:bg-white hover:shadow-sm sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
                       >
                         <div className="flex min-w-0 items-center gap-3">
                           <div
-                            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl font-heading text-sm font-bold text-white ${member.rol === "admin" ? "bg-[#1E6FD9]" : "bg-[#7A4FD6]"}`}
+                            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl font-heading text-sm font-bold text-white ${member.rol === "admin" ? "bg-[#075EAA]" : "bg-[#075B85]"}`}
                           >
                             {memberInitials}
                           </div>
                           <div className="min-w-0">
                             <p
-                              className="truncate font-body text-sm font-bold text-[#1E0A4E]"
+                              className="truncate font-body text-sm font-bold text-[#073B52]"
                               title={memberName}
                             >
                               {memberName}{" "}
                               {isSelf && (
-                                <span className="text-[#7A8799]">(tú)</span>
+                                <span className="text-[#526C79]">(tú)</span>
                               )}
                             </p>
 
                             <p
-                              className="truncate font-body text-xs text-[#7A8799]"
+                              className="truncate font-body text-xs text-[#526C79]"
                               title={member.email || ""}
                             >
                               {member.email}
@@ -1117,8 +1117,8 @@ export function GroupPanelPage() {
                           <span
                             className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${
                               member.rol === "admin"
-                                ? "bg-[#E8F0FF] text-[#1E6FD9]"
-                                : "bg-[#F4F6F8] text-[#1E0A4E]"
+                                ? "bg-[#E8F4FA] text-[#075EAA]"
+                                : "bg-[#F4F9FA] text-[#073B52]"
                             }`}
                           >
                             {getDisplayRole(member.rol)}
@@ -1128,7 +1128,7 @@ export function GroupPanelPage() {
                             <>
                               <button
                                 onClick={() => setRoleChangeTarget(member)}
-                                className="whitespace-nowrap rounded-xl border border-[#D8C8FF] bg-white px-3 py-2 text-xs font-semibold text-[#6D45C0] hover:bg-[#F7F2FF]"
+                                className="whitespace-nowrap rounded-xl border border-[#CBDDE3] bg-white px-3 py-2 text-xs font-semibold text-[#075B85] hover:bg-[#E8F4FA]"
                               >
                                 Cambiar rol
                               </button>
@@ -1149,18 +1149,18 @@ export function GroupPanelPage() {
               </div>
 
               {canInviteGroup && (
-                <div className="overflow-hidden rounded-3xl border border-[#D9E4F7] bg-white shadow-[0_16px_38px_rgba(30,10,78,0.08)]">
-                  <div className="border-b border-[#E2E8F0] bg-[linear-gradient(90deg,#FFFFFF,#F7F2FF)] px-6 py-5">
+                <div className="overflow-hidden rounded-3xl border border-[#CBDDE3] bg-white shadow-[0_16px_38px_rgba(7,59,82,0.08)]">
+                  <div className="border-b border-[#CBDDE3] bg-[linear-gradient(90deg,#FFFFFF,#E8F4FA)] px-6 py-5">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="mb-1 inline-flex items-center gap-2 rounded-full bg-[#F3EEFF] px-3 py-1 font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#7A4FD6]">
-                          <span className="h-1.5 w-1.5 rounded-full bg-[#7A4FD6]" />
+                        <p className="mb-1 inline-flex items-center gap-2 rounded-full bg-[#E8F4FA] px-3 py-1 font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#075B85]">
+                          <span className="h-1.5 w-1.5 rounded-full bg-[#075B85]" />
                           Acceso
                         </p>
-                        <h2 className="font-heading text-xl font-extrabold text-[#1E0A4E]">
+                        <h2 className="font-heading text-xl font-extrabold text-[#073B52]">
                           Invitación del grupo
                         </h2>
-                        <p className="mt-1 font-body text-sm text-[#7A8799]">
+                        <p className="mt-1 font-body text-sm text-[#526C79]">
                           Comparte el QR, el enlace o envía invitaciones por
                           correo.
                         </p>
@@ -1174,60 +1174,60 @@ export function GroupPanelPage() {
                   </div>
 
                   <div className="p-6">
-                    <div className="rounded-3xl border border-[#E2E8F0] bg-[linear-gradient(180deg,#F8FAFC,#FFFFFF)] p-5 text-center">
+                    <div className="rounded-3xl border border-[#CBDDE3] bg-[linear-gradient(180deg,#F4F9FA,#FFFFFF)] p-5 text-center">
                       {qrBase64 ? (
                         <img
                           src={qrBase64}
                           alt="QR de invitación"
-                          className="mx-auto h-48 w-48 rounded-2xl border border-[#E2E8F0] bg-white p-2 shadow-sm"
+                          className="mx-auto h-48 w-48 rounded-2xl border border-[#CBDDE3] bg-white p-2 shadow-sm"
                         />
                       ) : (
-                        <div className="mx-auto h-48 w-48 rounded-xl border border-[#E2E8F0] bg-white" />
+                        <div className="mx-auto h-48 w-48 rounded-xl border border-[#CBDDE3] bg-white" />
                       )}
 
-                      <p className="mt-4 break-all font-body text-xs text-[#7A8799]">
+                      <p className="mt-4 break-all font-body text-xs text-[#526C79]">
                         {inviteLink}
                       </p>
 
                       <button
                         onClick={() => setIsInviteModalOpen(true)}
-                        className="mt-4 w-full rounded-2xl border border-[#D8C8FF] bg-white px-4 py-3 text-sm font-bold text-[#6D45C0] transition hover:-translate-y-0.5 hover:bg-[#F7F2FF]"
+                        className="mt-4 w-full rounded-2xl border border-[#CBDDE3] bg-white px-4 py-3 text-sm font-bold text-[#075B85] transition hover:-translate-y-0.5 hover:bg-[#E8F4FA]"
                       >
                         Compartir invitación
                       </button>
 
                       <button
                         onClick={handleCopy}
-                        className="mt-2 w-full rounded-2xl bg-[#1E0A4E] px-4 py-3 text-sm font-bold text-white shadow-[0_12px_24px_rgba(30,10,78,0.18)] transition hover:-translate-y-0.5 hover:opacity-90"
+                        className="mt-2 w-full rounded-2xl bg-[#073B52] px-4 py-3 text-sm font-bold text-white shadow-[0_12px_24px_rgba(7,59,82,0.18)] transition hover:-translate-y-0.5 hover:opacity-90"
                       >
                         Copiar enlace
                       </button>
                     </div>
 
                     {isPrivateGroup && (
-                      <div className="mt-6 rounded-3xl border border-[#FFE2A8] bg-[#FFFBF0] p-4">
+                      <div className="mt-6 rounded-3xl border border-[#FFE2A8] bg-[#FFF2D1] p-4">
                         <div className="flex items-start justify-between gap-3">
                           <div>
-                            <p className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#A86B00]">
-                              <span className="h-1.5 w-1.5 rounded-full bg-[#F59E0B]" />
+                            <p className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#765000]">
+                              <span className="h-1.5 w-1.5 rounded-full bg-[#765000]" />
                               Privado
                             </p>
-                            <h3 className="mt-2 font-heading text-base font-bold text-[#1E0A4E]">
+                            <h3 className="mt-2 font-heading text-base font-bold text-[#073B52]">
                               Solicitudes de unión
                             </h3>
                           </div>
-                          <span className="rounded-full bg-[#FFF4D6] px-3 py-1 text-xs font-bold text-[#A86B00]">
+                          <span className="rounded-full bg-[#FFF2D1] px-3 py-1 text-xs font-bold text-[#765000]">
                             {joinRequests.length}
                           </span>
                         </div>
-                        <p className="mt-2 font-body text-xs leading-relaxed text-[#7A8799]">
+                        <p className="mt-2 font-body text-xs leading-relaxed text-[#526C79]">
                           En grupos privados, quienes usen el código quedan
                           pendientes hasta que el administrador apruebe o
                           rechace la solicitud.
                         </p>
 
                         {joinRequests.length === 0 ? (
-                          <p className="mt-3 rounded-2xl border border-[#FFE2A8] bg-white px-4 py-3 font-body text-sm font-medium text-[#A86B00]">
+                          <p className="mt-3 rounded-2xl border border-[#FFE2A8] bg-white px-4 py-3 font-body text-sm font-medium text-[#765000]">
                             No hay solicitudes pendientes.
                           </p>
                         ) : (
@@ -1239,18 +1239,18 @@ export function GroupPanelPage() {
                               >
                                 <div className="flex items-start justify-between gap-3">
                                   <div>
-                                    <p className="font-body text-sm font-medium text-[#1E0A4E]">
+                                    <p className="font-body text-sm font-medium text-[#073B52]">
                                       {request.nombre ||
                                         request.email ||
                                         `Usuario ${request.usuario_id}`}
                                     </p>
                                     {request.email && (
-                                      <p className="font-body text-xs text-[#7A8799]">
+                                      <p className="font-body text-xs text-[#526C79]">
                                         {request.email}
                                       </p>
                                     )}
                                   </div>
-                                  <span className="rounded-full bg-[#FFF4D6] px-3 py-1 text-xs font-semibold text-[#A86B00]">
+                                  <span className="rounded-full bg-[#FFF2D1] px-3 py-1 text-xs font-semibold text-[#765000]">
                                     Pendiente
                                   </span>
                                 </div>
@@ -1264,7 +1264,7 @@ export function GroupPanelPage() {
                                         "approve",
                                       )
                                     }
-                                    className="rounded-xl bg-[#35C56A] px-3 py-2 text-xs font-bold text-white hover:bg-[#2FB95F] disabled:cursor-not-allowed disabled:opacity-60"
+                                    className="rounded-xl bg-[#075EAA] px-3 py-2 text-xs font-bold text-white hover:bg-[#075B85] disabled:cursor-not-allowed disabled:opacity-60"
                                   >
                                     {joinRequestActionLoading ===
                                     `${request.id}:approve`
@@ -1295,24 +1295,24 @@ export function GroupPanelPage() {
                       </div>
                     )}
 
-                    <div className="mt-6 rounded-3xl border border-[#D8C8FF] bg-[#FBF8FF] p-4">
+                    <div className="mt-6 rounded-3xl border border-[#CBDDE3] bg-[#F4F9FA] p-4">
                       <div className="flex items-center justify-between gap-3">
                         <div>
-                          <p className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#7A4FD6]">
-                            <span className="h-1.5 w-1.5 rounded-full bg-[#7A4FD6]" />
+                          <p className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 font-body text-[10px] font-bold uppercase tracking-[0.16em] text-[#075B85]">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#075B85]" />
                             Enviadas
                           </p>
-                          <h3 className="mt-2 font-heading text-base font-bold text-[#1E0A4E]">
+                          <h3 className="mt-2 font-heading text-base font-bold text-[#073B52]">
                             Invitaciones pendientes
                           </h3>
                         </div>
-                        <span className="rounded-full bg-[#F3EEFF] px-3 py-1 text-xs font-bold text-[#7A4FD6]">
+                        <span className="rounded-full bg-[#E8F4FA] px-3 py-1 text-xs font-bold text-[#075B85]">
                           {pendingInvitations.length}
                         </span>
                       </div>
 
                       {pendingInvitations.length === 0 ? (
-                        <p className="mt-3 rounded-2xl border border-[#D8C8FF] bg-white px-4 py-3 font-body text-sm font-medium text-[#7A4FD6]">
+                        <p className="mt-3 rounded-2xl border border-[#CBDDE3] bg-white px-4 py-3 font-body text-sm font-medium text-[#075B85]">
                           Todavía no hay invitaciones pendientes.
                         </p>
                       ) : (
@@ -1320,19 +1320,19 @@ export function GroupPanelPage() {
                           {pendingInvitations.map((invitation) => (
                             <div
                               key={invitation.id}
-                              className="flex items-center justify-between gap-3 rounded-2xl border border-[#D8C8FF] bg-white px-4 py-3"
+                              className="flex items-center justify-between gap-3 rounded-2xl border border-[#CBDDE3] bg-white px-4 py-3"
                             >
                               <div className="min-w-0">
-                                <p className="break-words font-body text-sm font-medium text-[#1E0A4E]">
+                                <p className="break-words font-body text-sm font-medium text-[#073B52]">
                                   {invitation.email}
                                 </p>
 
-                                <p className="font-body text-xs text-[#7A8799]">
+                                <p className="font-body text-xs text-[#526C79]">
                                   Pendiente de aceptar
                                 </p>
                               </div>
 
-                              <span className="rounded-full bg-[#FFF4D6] px-3 py-1 text-xs font-semibold text-[#A86B00]">
+                              <span className="rounded-full bg-[#FFF2D1] px-3 py-1 text-xs font-semibold text-[#765000]">
                                 Pendiente
                               </span>
                             </div>
@@ -1394,18 +1394,18 @@ export function GroupPanelPage() {
           }}
         >
           <div
-            className="w-full max-w-md rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-xl"
+            className="w-full max-w-md rounded-2xl border border-[#CBDDE3] bg-white p-5 shadow-xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <h3 className="font-heading text-lg font-bold text-[#1E0A4E]">
+            <h3 className="font-heading text-lg font-bold text-[#073B52]">
               Confirmar cambio de rol
             </h3>
-            <p className="mt-2 font-body text-sm leading-relaxed text-[#475569]">
+            <p className="mt-2 font-body text-sm leading-relaxed text-[#526C79]">
               {roleChangeTarget.rol === "admin"
                 ? `¿Confirmas que quieres cambiar a ${roleChangeTarget.nombre || roleChangeTarget.email} a viajero?`
                 : `Se enviará una solicitud a ${roleChangeTarget.nombre || roleChangeTarget.email}. La transferencia solo se completará si esa persona acepta ser organizadora.`}
             </p>
-            <p className="mt-2 font-body text-xs text-[#64748B]">
+            <p className="mt-2 font-body text-xs text-[#526C79]">
               {roleChangeTarget.rol === "admin"
                 ? "Este cambio afecta los permisos de administración del grupo y se sincroniza para todos los integrantes."
                 : "La delegación requiere aceptación activa del receptor y expira en 5 minutos. Mientras esté pendiente, tú sigues siendo organizador."}
@@ -1416,7 +1416,7 @@ export function GroupPanelPage() {
                 type="button"
                 disabled={roleChangeLoading}
                 onClick={() => setRoleChangeTarget(null)}
-                className="rounded-lg border border-[#E2E8F0] px-3 py-2 text-xs font-semibold text-[#1E0A4E] hover:bg-[#F8FAFC] disabled:opacity-60"
+                className="rounded-lg border border-[#CBDDE3] px-3 py-2 text-xs font-semibold text-[#073B52] hover:bg-[#F4F9FA] disabled:opacity-60"
               >
                 Cancelar
               </button>
@@ -1424,7 +1424,7 @@ export function GroupPanelPage() {
                 type="button"
                 disabled={roleChangeLoading}
                 onClick={() => handleToggleRole(roleChangeTarget)}
-                className="rounded-lg bg-[#1E6FD9] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2C8BE6] disabled:opacity-60"
+                className="rounded-lg bg-[#075EAA] px-3 py-2 text-xs font-semibold text-white hover:bg-[#0878CF] disabled:opacity-60"
               >
                 {roleChangeLoading
                   ? "Procesando..."
@@ -1439,11 +1439,11 @@ export function GroupPanelPage() {
 
       {incomingAdminDelegation && (
         <div className="fixed inset-0 z-[95] flex items-center justify-center bg-black/45 px-4">
-          <div className="w-full max-w-md rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-xl">
-            <h3 className="font-heading text-lg font-bold text-[#1E0A4E]">
+          <div className="w-full max-w-md rounded-2xl border border-[#CBDDE3] bg-white p-5 shadow-xl">
+            <h3 className="font-heading text-lg font-bold text-[#073B52]">
               ¿Aceptar administración del viaje?
             </h3>
-            <p className="mt-2 font-body text-sm leading-relaxed text-[#475569]">
+            <p className="mt-2 font-body text-sm leading-relaxed text-[#526C79]">
               {incomingAdminDelegation.from_nombre ||
                 incomingAdminDelegation.from_email ||
                 "El organizador"}{" "}
@@ -1451,7 +1451,7 @@ export function GroupPanelPage() {
               permisos de administración y el organizador actual pasará a
               viajero.
             </p>
-            <p className="mt-2 font-body text-xs text-[#64748B]">
+            <p className="mt-2 font-body text-xs text-[#526C79]">
               Esta solicitud expira a las{" "}
               {new Date(incomingAdminDelegation.expires_at).toLocaleTimeString(
                 [],
@@ -1470,7 +1470,7 @@ export function GroupPanelPage() {
                     "reject",
                   )
                 }
-                className="rounded-lg border border-[#E2E8F0] px-3 py-2 text-xs font-semibold text-[#1E0A4E] hover:bg-[#F8FAFC] disabled:opacity-60"
+                className="rounded-lg border border-[#CBDDE3] px-3 py-2 text-xs font-semibold text-[#073B52] hover:bg-[#F4F9FA] disabled:opacity-60"
               >
                 {delegationActionLoading ===
                 `${incomingAdminDelegation.id}:reject`
@@ -1486,7 +1486,7 @@ export function GroupPanelPage() {
                     "accept",
                   )
                 }
-                className="rounded-lg bg-[#1E6FD9] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2C8BE6] disabled:opacity-60"
+                className="rounded-lg bg-[#075EAA] px-3 py-2 text-xs font-semibold text-white hover:bg-[#0878CF] disabled:opacity-60"
               >
                 {delegationActionLoading ===
                 `${incomingAdminDelegation.id}:accept`

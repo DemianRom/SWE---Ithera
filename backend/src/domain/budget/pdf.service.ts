@@ -33,6 +33,7 @@ type PdfDocumentData = {
   /** Etiquetas de los tres datos del encabezado (por defecto: Folio, Total, Autorizacion). */
   labels?: { folio?: string; total?: string; auth?: string };
   footer?: string;
+  summaryBudget?: string;
 };
 
 
@@ -88,6 +89,16 @@ const addRect = (commands: string[], x: number, y: number, width: number, height
   commands.push(`${color} rg`);
   commands.push(`${x} ${y} ${width} ${height} re f`);
   commands.push('Q');
+};
+
+const addRoundedRect = (commands: string[], x: number, y: number, width: number, height: number, radius: number, color: string): void => {
+  const r = Math.min(radius, width / 2, height / 2);
+  const k = r * 0.55228475;
+  commands.push('q', `${color} rg`, `${x + r} ${y} m`, `${x + width - r} ${y} l`,
+    `${x + width - r + k} ${y} ${x + width} ${y + r - k} ${x + width} ${y + r} c`,
+    `${x + width} ${y + height - r} l`, `${x + width} ${y + height - r + k} ${x + width - r + k} ${y + height} ${x + width - r} ${y + height} c`,
+    `${x + r} ${y + height} l`, `${x + r - k} ${y + height} ${x} ${y + height - r + k} ${x} ${y + height - r} c`,
+    `${x} ${y + r} l`, `${x} ${y + r - k} ${x + r - k} ${y} ${x + r} ${y} c`, 'f', 'Q');
 };
 
 const addImage = (commands: string[], name: string, x: number, y: number, width: number, height: number): void => {
@@ -244,26 +255,26 @@ const buildElegantPdf = async (data: PdfDocumentData): Promise<Buffer> => {
   const images: Record<string, PdfImage> = {};
   if (heroImage) images.ImHero = heroImage;
 
-  addRect(commands, 0, 720, 612, 72, '0.118 0.039 0.306');
+  addRect(commands, 0, 720, 612, 72, '0.027 0.231 0.322');
   addRect(commands, 390, 720, 222, 72, '1 1 1');
-  addRect(commands, 390, 720, 1, 72, '0.875 0.906 0.953');
+  addRect(commands, 390, 720, 1, 72, '0.796 0.867 0.890');
   addText(commands, 'TRAVELING', 48, 758, 18, 'F2', '1 1 1');
   addText(commands, data.title, 48, 735, 15, 'F2', '1 1 1');
 
   // Encabezado de texto: sin logo en imagen hasta que el equipo defina el suyo.
-  addText(commands, data.subtitle, 408, 744, 9, 'F1', '0.118 0.039 0.306');
+  addText(commands, data.subtitle, 408, 744, 9, 'F1', '0.027 0.231 0.322');
 
-  addRect(commands, 48, 654, 516, 46, '0.948 0.965 0.996');
-  addText(commands, data.labels?.folio ?? 'Folio', 64, 681, 8, 'F2', '0.392 0.455 0.545');
-  addText(commands, data.folio, 64, 665, 13, 'F2', '0.118 0.039 0.306');
-  addText(commands, data.labels?.total ?? 'Total', 330, 681, 8, 'F2', '0.392 0.455 0.545');
-  addText(commands, moneyText(data.total), 330, 665, 13, 'F2', '0.118 0.039 0.306');
-  addText(commands, data.labels?.auth ?? 'Autorizacion', 448, 681, 8, 'F2', '0.392 0.455 0.545');
-  addText(commands, data.authCode ?? 'N/A', 448, 665, 13, 'F2', '0.118 0.039 0.306');
+  addRect(commands, 48, 654, 516, 46, '0.957 0.976 0.980');
+  addText(commands, data.labels?.folio ?? 'Folio', 64, 681, 8, 'F2', '0.322 0.424 0.475');
+  addText(commands, data.folio, 64, 665, 13, 'F2', '0.027 0.231 0.322');
+  addText(commands, data.labels?.total ?? 'Total', 330, 681, 8, 'F2', '0.322 0.424 0.475');
+  addText(commands, moneyText(data.total), 330, 665, 13, 'F2', '0.027 0.231 0.322');
+  addText(commands, data.labels?.auth ?? 'Autorizacion', 448, 681, 8, 'F2', '0.322 0.424 0.475');
+  addText(commands, data.authCode ?? 'N/A', 448, 665, 13, 'F2', '0.027 0.231 0.322');
 
   let y = 622;
   if (heroImage) {
-    addRect(commands, 48, 500, 516, 112, '0.948 0.965 0.996');
+    addRect(commands, 48, 500, 516, 112, '0.957 0.976 0.980');
     const fitted = fitImage(heroImage, 516, 112);
     addImage(commands, 'ImHero', 48 + (516 - fitted.width) / 2, 500 + (112 - fitted.height) / 2, fitted.width, fitted.height);
     y = 466;
@@ -275,7 +286,7 @@ const buildElegantPdf = async (data: PdfDocumentData): Promise<Buffer> => {
   const markTruncated = () => {
     if (truncated) return;
     truncated = true;
-    addText(commands, 'Contenido truncado: consulta la exportacion CSV para el detalle completo.', 64, y, 9, 'F2', '0.725 0.110 0.110');
+    addText(commands, 'Contenido truncado: consulta la exportacion CSV para el detalle completo.', 64, y, 9, 'F2', '0.553 0.251 0.204');
   };
 
   data.sections.forEach((section) => {
@@ -284,9 +295,9 @@ const buildElegantPdf = async (data: PdfDocumentData): Promise<Buffer> => {
       markTruncated();
       return;
     }
-    addText(commands, section.title, 48, y, 12, 'F2', '0.118 0.039 0.306');
+    addText(commands, section.title, 48, y, 12, 'F2', '0.027 0.231 0.322');
     y -= 14;
-    addRect(commands, 48, y - 7, 516, 1, '0.875 0.906 0.953');
+    addRect(commands, 48, y - 7, 516, 1, '0.796 0.867 0.890');
     y -= 22;
 
     section.lines.forEach((line) => {
@@ -296,11 +307,11 @@ const buildElegantPdf = async (data: PdfDocumentData): Promise<Buffer> => {
         return;
       }
       const label = line.label ? `${line.label}:` : '';
-      if (label) addText(commands, label, 64, y, 9, 'F2', '0.392 0.455 0.545');
+      if (label) addText(commands, label, 64, y, 9, 'F2', '0.322 0.424 0.475');
       const valueX = label ? 180 : 64;
       const wrapped = wrapText(line.value, label ? 58 : 86).slice(0, 4);
       wrapped.forEach((textLine, index) => {
-        addText(commands, textLine, valueX, y - index * 12, 9, 'F1', '0.118 0.039 0.306');
+        addText(commands, textLine, valueX, y - index * 12, 9, 'F1', '0.027 0.231 0.322');
       });
       y -= Math.max(18, wrapped.length * 12 + 6);
     });
@@ -308,9 +319,9 @@ const buildElegantPdf = async (data: PdfDocumentData): Promise<Buffer> => {
     y -= 8;
   });
 
-  addRect(commands, 48, 54, 516, 40, '0.948 0.965 0.996');
-  addText(commands, data.footer ?? 'Documento generado por Traveling. Conserva este comprobante en los archivos del viaje.', 64, 77, 9, 'F1', '0.118 0.039 0.306');
-  if (data.recipientEmail) addText(commands, `PDF enviado a: ${data.recipientEmail}`, 64, 63, 8, 'F1', '0.392 0.455 0.545');
+  addRect(commands, 48, 54, 516, 40, '0.957 0.976 0.980');
+  addText(commands, data.footer ?? 'Documento generado por Traveling. Conserva este comprobante en los archivos del viaje.', 64, 77, 9, 'F1', '0.027 0.231 0.322');
+  if (data.recipientEmail) addText(commands, `PDF enviado a: ${data.recipientEmail}`, 64, 63, 8, 'F1', '0.322 0.424 0.475');
 
   const imageData = buildImageObjects(images, 7);
   const xObjectEntries = Object.entries(imageData.names).map(([name, id]) => `/${name} ${id} 0 R`).join(' ');
@@ -388,7 +399,134 @@ export const generateCollectionReceiptPdf = async (data: {
 const formatPdfMoney = (value: number): string =>
   `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN`;
 
-/** Resumen de gastos del viaje en una pagina (el detalle por gasto va en el CSV). */
+// El resumen usa una plantilla propia para no alterar los comprobantes de liquidacion.
+// Cada linea puede continuar en otra pagina, incluso cuando un nombre es muy largo.
+const buildBudgetSummaryPdf = (data: PdfDocumentData): Buffer => {
+  const pages: string[][] = [];
+  let commands: string[] = [];
+  let y = 0;
+  const navy = '0.027 0.231 0.322';
+  const blue = '0.027 0.357 0.522';
+  const muted = '0.322 0.424 0.475';
+  const border = '0.796 0.867 0.89';
+  const pale = '0.91 0.957 0.98';
+  const startPage = () => {
+    commands = [];
+    pages.push(commands);
+    if (pages.length > 1) {
+      addRect(commands, 0, 724, 612, 68, navy);
+      addText(commands, 'Resumen de gastos', 48, 755, 17, 'F2', '1 1 1');
+      addText(commands, 'Traveling / Continuacion', 48, 736, 9, 'F1', '0.9 0.95 0.97');
+    }
+    addRect(commands, 30, 18, 552, 32, '0.957 0.976 0.98');
+    addRect(commands, 30, 50, 552, 1, border);
+    addText(commands, 'Generado por Traveling', 48, 30, 8, 'F1', muted);
+    addText(commands, `Pagina ${pages.length}`, 510, 30, 8, 'F1', muted);
+    y = 700;
+  };
+  const ensureSpace = (height: number) => {
+    if (y - height < 62) startPage();
+  };
+  // wrapText no divide palabras largas; este envoltorio tambien las divide.
+  const wrap = (value: string, width: number): string[] => {
+    const words = toPdfSafeText(value).split(/\s+/).filter(Boolean);
+    const chunks = words.flatMap((word) => word.match(new RegExp(`.{1,${width}}`, 'g')) ?? []);
+    return wrapText(chunks.join(' '), width);
+  };
+  const writeWrapped = (value: string, x: number, width: number, size: number, font: string, color: string, leading: number) => {
+    wrap(value, width).forEach((line) => {
+      ensureSpace(leading);
+      addText(commands, line, x, y, size, font, color);
+      y -= leading;
+    });
+  };
+
+  startPage();
+  // El mismo degradado azul de las exportaciones de liquidacion, sin perder
+  // la paginacion propia del resumen de gastos.
+  for (let i = 0; i < 46; i += 1) {
+    const t = i / 45;
+    const color = [0.027, 0.231 + 0.126 * t, 0.322 + 0.2 * t]
+      .map((channel) => channel.toFixed(3)).join(' ');
+    addRect(commands, 30 + i * 12, 586, i === 45 ? 12 : 12.1, 176, color);
+  }
+  addText(commands, data.title, 54, 732, 23, 'F2', '1 1 1');
+  const subtitleLines = wrap(data.subtitle, 67);
+  subtitleLines.slice(0, 3).forEach((line, index) => {
+    addText(commands, line, 54, 707 - index * 15, 11, 'F1', '0.9 0.95 0.97');
+  });
+  addRoundedRect(commands, 54, 605, 160, 57, 9, '0.165 0.369 0.443');
+  addRoundedRect(commands, 226, 605, 160, 57, 9, '0.165 0.400 0.490');
+  addRoundedRect(commands, 398, 605, 160, 57, 9, '0.165 0.430 0.530');
+  addText(commands, 'Total gastado', 64, 643, 10, 'F1', '1 1 1');
+  addText(commands, moneyText(data.total), 64, 622, 14, 'F2', '1 1 1');
+  addText(commands, 'Presupuesto', 236, 643, 10, 'F1', '1 1 1');
+  addText(commands, data.summaryBudget ?? 'Sin definir', 236, 622, 14, 'F2', '1 1 1');
+  addText(commands, 'Gastos', 408, 643, 10, 'F1', '1 1 1');
+  addText(commands, data.authCode ?? '0', 408, 622, 14, 'F2', '1 1 1');
+  y = 565;
+  // Los nombres largos continuan fuera del encabezado sin perder contenido.
+  subtitleLines.slice(3).forEach((line) => {
+    ensureSpace(15);
+    addText(commands, line, 48, y, 11, 'F1', navy);
+    y -= 15;
+  });
+
+  data.sections.forEach((section) => {
+    const lines = section.lines.flatMap((line) => [
+      ...(line.label ? wrap(line.label, 78).map((text) => ({ text, font: 'F2', color: navy, size: 10 })) : []),
+      ...wrap(line.value, 86).map((text) => ({ text, font: 'F1', color: blue, size: 10 })),
+      { text: '', font: 'F1', color: navy, size: 10 },
+    ]);
+    if (lines.length === 0) return;
+    while (lines.length) {
+      ensureSpace(76);
+      const count = Math.min(lines.length, Math.max(1, Math.floor((y - 62 - 48) / 14)));
+      const fragment = lines.splice(0, count);
+      const height = 46 + fragment.length * 14;
+      addRoundedRect(commands, 48, y - height, 516, height, 12, border);
+      addRoundedRect(commands, 49, y - height + 1, 514, height - 2, 11, '1 1 1');
+      addRoundedRect(commands, 49, y - 38, 514, 37, 11, pale);
+      addRect(commands, 49, y - 38, 514, 10, pale);
+      addRect(commands, 49, y - 38, 514, 1, border);
+      addText(commands, section.title, 62, y - 25, 13, 'F2', navy);
+      fragment.forEach((item, index) => addText(commands, item.text, 62, y - 55 - index * 14, item.size, item.font, item.color));
+      y -= height + 16;
+    }
+  });
+  if (data.footer) {
+    ensureSpace(36);
+    writeWrapped(data.footer, 48, 95, 8, 'F1', muted, 11);
+  }
+
+  // Objetos por pagina: pagina y contenido; las fuentes son compartidas.
+  const pageIds = pages.map((_, index) => 5 + index * 2);
+  const objects = [
+    '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n',
+    `2 0 obj\n<< /Type /Pages /Kids [${pageIds.map((id) => `${id} 0 R`).join(' ')}] /Count ${pages.length} >>\nendobj\n`,
+    '3 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>\nendobj\n',
+    '4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>\nendobj\n',
+  ];
+  pages.forEach((page, index) => {
+    const id = pageIds[index];
+    const content = page.join('\n');
+    objects.push(`${id} 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${id + 1} 0 R >>\nendobj\n`);
+    objects.push(`${id + 1} 0 obj\n<< /Length ${Buffer.byteLength(content, 'binary')} >>\nstream\n${content}\nendstream\nendobj\n`);
+  });
+  let pdf = '%PDF-1.4\n';
+  const offsets = [0];
+  objects.forEach((object) => {
+    offsets.push(Buffer.byteLength(pdf, 'binary'));
+    pdf += object;
+  });
+  const xrefOffset = Buffer.byteLength(pdf, 'binary');
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  offsets.slice(1).forEach((offset) => { pdf += `${String(offset).padStart(10, '0')} 00000 n \n`; });
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+  return Buffer.from(pdf, 'binary');
+};
+
+/** Resumen de gastos del viaje; el detalle por gasto va en el CSV. */
 export const generateBudgetSummaryPdf = async (summary: BudgetSummary): Promise<Buffer> => {
   const { group, totals } = summary;
   const dates = [group.fechaInicio, group.fechaFin].filter(Boolean).join(' a ');
@@ -406,15 +544,23 @@ export const generateBudgetSummaryPdf = async (summary: BudgetSummary): Promise<
         ? formatPdfMoney(totals.available)
         : `Excedido por ${formatPdfMoney(Math.abs(totals.available))}`;
 
-  return buildElegantPdf({
+  return buildBudgetSummaryPdf({
     title: 'Resumen de gastos',
     subtitle: group.nombre,
     folio: `RES-${group.id}-${dateKey}`,
     total: formatPdfMoney(totals.committed),
+    summaryBudget: totals.budget === null ? 'Sin definir' : formatPdfMoney(totals.budget),
     authCode: String(totals.expenseCount),
     labels: { folio: 'Resumen', total: 'Total gastado', auth: 'Gastos' },
     footer: `Resumen generado el ${generated}. El detalle de cada gasto esta en la exportacion CSV.`,
     sections: [
+      {
+        title: 'Por integrante (saldo positivo = le deben)',
+        lines: summary.byMember.map((member) => ({
+          label: member.nombre?.trim() || `Integrante ${member.usuarioId}`,
+          value: `Pago ${formatPdfMoney(member.paid)} | Le toca ${formatPdfMoney(member.share)} | Saldo ${member.balance >= 0 ? '+' : '-'}${formatPdfMoney(Math.abs(member.balance))}`,
+        })),
+      },
       {
         title: 'Viaje',
         lines: [
@@ -443,13 +589,7 @@ export const generateBudgetSummaryPdf = async (summary: BudgetSummary): Promise<
                 : formatPdfMoney(item.spent),
           })),
       },
-      {
-        title: 'Por integrante (saldo positivo = le deben)',
-        lines: summary.byMember.map((member) => ({
-          label: member.nombre.length > 18 ? `${member.nombre.slice(0, 17)}.` : member.nombre,
-          value: `Pago ${formatPdfMoney(member.paid)} | Le toca ${formatPdfMoney(member.share)} | Saldo ${member.balance >= 0 ? '+' : '-'}${formatPdfMoney(Math.abs(member.balance))}`,
-        })),
-      },
+
     ],
   });
 };

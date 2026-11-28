@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { FC } from 'react'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { RegisterExpenseModal } from './RegisterExpenseModal'
@@ -110,7 +110,7 @@ function formatMXN(n: number): string {
   return new Intl.NumberFormat('es-MX', {
     style: 'currency',
     currency: 'MXN',
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 2,
   }).format(n)
 }
 
@@ -163,7 +163,7 @@ function buildReceiptPdfDocument(data: {
     '0 -24 Td (Traveling - Comprobante financiero) Tj',
     // Body labels/values
     '/F1 12 Tf',
-    '0.16 0.22 0.36 rg',
+    '0.094 0.247 0.318 rg',
     '0 -70 Td (Folio) Tj',
     '240 0 Td (Fecha de emision) Tj',
     '-240 -20 Td',
@@ -190,35 +190,35 @@ function buildReceiptPdfDocument(data: {
     '0 -52 Td (Monto) Tj',
     '0 -20 Td',
     '/F1 22 Tf',
-    '0.12 0.44 0.86 rg',
+    '0.031 0.471 0.812 rg',
     `(${esc(data.monto)}) Tj`,
     '/F1 11 Tf',
-    '0.32 0.40 0.54 rg',
+    '0.322 0.424 0.475 rg',
     '0 -42 Td (Snapshot inmutable del estado de deuda al momento de emision.) Tj',
     'ET',
   ].join('\n')
 
   const draw = [
     // Header background
-    '0.12 0.04 0.36 rg',
+    '0.027 0.231 0.322 rg',
     '40 740 515 90 re',
     'f',
     // Main card
-    '0.96 0.96 0.99 rg',
+    '0.957 0.976 0.980 rg',
     '72 250 451 480 re',
     'f',
     // Card border
-    '0.82 0.85 0.93 RG',
+    '0.796 0.867 0.890 RG',
     '1 w',
     '72 250 451 480 re',
     'S',
     // Horizontal separators
-    '0.86 0.89 0.95 RG',
+    '0.796 0.867 0.890 RG',
     '0.8 w',
-    '92 586 m 503 586 l S',
-    '92 512 m 503 512 l S',
-    '92 438 m 503 438 l S',
-    '92 364 m 503 364 l S',
+    '92 574 m 503 574 l S',
+    '92 500 m 503 500 l S',
+    '92 426 m 503 426 l S',
+    '92 352 m 503 352 l S',
   ].join('\n')
 
   const contentStream = `${draw}\n${lines}`
@@ -247,11 +247,11 @@ function buildReceiptPdfDocument(data: {
 
 function categoryColor(categoria: Expense['categoria']): string {
   switch (categoria) {
-    case 'transporte': return '#2F7CF6'
-    case 'hospedaje': return '#8A63F9'
-    case 'comida': return '#F59E0B'
-    case 'actividad': return '#31C773'
-    default: return '#6B7FA6'
+    case 'transporte': return '#0878CF'
+    case 'hospedaje': return '#16B9D0'
+    case 'comida': return '#FFBF20'
+    case 'actividad': return '#075B85'
+    default: return '#91DEF0'
   }
 }
 
@@ -623,7 +623,7 @@ export const BudgetDashboard: FC<Props> = ({
   const averagePerCategory = activeCategoriesCount > 0 ? chartTotal / activeCategoriesCount : 0
   const isOverBudget = totalBudget > 0 && comprometido > totalBudget
   const pct = totalBudget > 0 ? Math.min((comprometido / totalBudget) * 100, 100) : 0
-  const barColor = pct < 70 ? '#35C56A' : pct < 90 ? '#F59E0B' : '#EF4444'
+  const barColor = pct < 70 ? '#0878CF' : pct < 90 ? '#765000' : '#EF4444'
   const barLabel = totalBudget === 0
     ? 'Define un presupuesto para activar seguimiento'
     : pct < 70 ? 'Presupuesto saludable' : pct < 90 ? 'Atencion: presupuesto al limite' : 'Presupuesto excedido'
@@ -815,7 +815,8 @@ export const BudgetDashboard: FC<Props> = ({
     return (
       <MyWalletView
         onBack={() => setView('dashboard')}
-        isReadOnly={isReadOnly || isOffline}
+        isOffline={isOffline}
+        isTripReadOnly={isReadOnly}
         settlements={dashboard?.settlements ?? []}
         paymentHistory={dashboard?.paymentHistory ?? []}
         members={members}
@@ -1037,9 +1038,9 @@ export const BudgetDashboard: FC<Props> = ({
 
   if (isLoading) {
     return (
-      <div className="flex flex-1 items-center justify-center bg-[#F4F6F8] p-8">
+      <div className="flex flex-1 items-center justify-center bg-[#F4F9FA] p-8">
         <div className="rounded-2xl border border-[#E2E8F0] bg-white px-6 py-5 text-center">
-          <div className="mx-auto mb-3 h-7 w-7 animate-spin rounded-full border-2 border-[#1E6FD9] border-t-transparent" />
+          <div className="mx-auto mb-3 h-7 w-7 animate-spin rounded-full border-2 border-[#0878CF] border-t-transparent" />
           <p className="font-body text-sm text-[#7A8799]">Cargando presupuesto...</p>
         </div>
       </div>
@@ -1047,17 +1048,17 @@ export const BudgetDashboard: FC<Props> = ({
   }
 
   return (
-    <div className="flex flex-1 flex-col overflow-y-auto bg-[linear-gradient(180deg,#F8F6FF_0%,#F4F6F8_42%,#FFFFFF_100%)]">
+    <div className="flex flex-1 flex-col overflow-y-auto bg-[linear-gradient(180deg,#F4F9FA_0%,#F4F9FA_42%,#FFFFFF_100%)]">
       <div className="px-6 pt-6">
-        <div className="relative overflow-hidden rounded-3xl border border-[#D8C8FF] bg-[linear-gradient(135deg,#1E0A4E_0%,#3C178B_50%,#7A4FD6_100%)] px-6 pb-6 pt-5 shadow-[0_22px_48px_rgba(30,10,78,0.22)]">
-          <div className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#B89BFF]/25 blur-3xl" />
-          <div className="absolute -bottom-24 left-12 h-52 w-52 rounded-full bg-[#1E6FD9]/20 blur-3xl" />
+        <div className="relative overflow-hidden rounded-3xl border border-[#91DEF0] bg-[linear-gradient(135deg,#073B52_0%,#0878CF_50%,#16B9D0_100%)] px-6 pb-6 pt-5 shadow-[0_22px_48px_rgba(13,64,84,0.22)]">
+          <div className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#91DEF0]/25 blur-3xl" />
+          <div className="absolute -bottom-24 left-12 h-52 w-52 rounded-full bg-[#0878CF]/20 blur-3xl" />
 
           <div className="relative">
             <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div>
-                <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 font-body text-xs font-bold uppercase tracking-[0.16em] text-[#D8C8FF]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#B89BFF]" />
+                <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 font-body text-xs font-bold uppercase tracking-[0.16em] text-[#91DEF0]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#91DEF0]" />
                   Presupuesto del viaje
                 </p>
                 <div className="flex items-center gap-3">
@@ -1087,21 +1088,21 @@ export const BudgetDashboard: FC<Props> = ({
             </div>
 
             <div className="grid gap-3 md:grid-cols-3">
-              <div className="rounded-2xl border border-white/15 bg-white px-4 py-4 shadow-[0_12px_28px_rgba(30,10,78,0.12)]">
+              <div className="rounded-2xl border border-white/15 bg-white px-4 py-4 shadow-[0_12px_28px_rgba(13,64,84,0.12)]">
                 <p className="mb-1 font-body text-xs font-extrabold uppercase tracking-[0.14em] text-[#64748B]">Total viaje</p>
-                <p className="font-heading text-3xl font-extrabold text-[#1E0A4E]">{formatMXN(totalBudget)}</p>
+                <p className="font-heading text-3xl font-extrabold text-[#073B52]">{formatMXN(totalBudget)}</p>
               </div>
-              <div className={['rounded-2xl border px-4 py-4 shadow-[0_12px_28px_rgba(30,10,78,0.12)]', isOverBudget ? 'border-[#FCA5A5] bg-[#EF4444]' : 'border-white/15 bg-white'].join(' ')}>
+              <div className={['rounded-2xl border px-4 py-4 shadow-[0_12px_28px_rgba(13,64,84,0.12)]', isOverBudget ? 'border-[#FCA5A5] bg-[#EF4444]' : 'border-white/15 bg-white'].join(' ')}>
                 <p className={['mb-1 font-body text-xs font-extrabold uppercase tracking-[0.14em]', isOverBudget ? 'text-white/85' : 'text-[#64748B]'].join(' ')}>
                   Comprometido
                 </p>
-                <p className={['font-heading text-3xl font-extrabold', isOverBudget ? 'text-white' : 'text-[#DC2626]'].join(' ')}>
+                <p className={['font-heading text-3xl font-extrabold', isOverBudget ? 'text-white' : 'text-[#8D4034]'].join(' ')}>
                   {formatMXN(comprometido)}
                 </p>
               </div>
-              <div className="rounded-2xl border border-white/15 bg-white px-4 py-4 shadow-[0_12px_28px_rgba(30,10,78,0.12)]">
+              <div className="rounded-2xl border border-white/15 bg-white px-4 py-4 shadow-[0_12px_28px_rgba(13,64,84,0.12)]">
                 <p className="mb-1 font-body text-xs font-extrabold uppercase tracking-[0.14em] text-[#64748B]">Disponible</p>
-                <p className="font-heading text-3xl font-extrabold text-[#15803D]">{formatMXN(disponible)}</p>
+                <p className="font-heading text-3xl font-extrabold text-[#075B85]">{formatMXN(disponible)}</p>
               </div>
             </div>
           </div>
@@ -1115,10 +1116,10 @@ export const BudgetDashboard: FC<Props> = ({
       )}
 
       <div className="px-6 pt-4">
-        <div className="rounded-3xl border border-[#E2E8F0] bg-white px-5 py-4 shadow-[0_12px_28px_rgba(30,10,78,0.06)]">
+        <div className="rounded-3xl border border-[#E2E8F0] bg-white px-5 py-4 shadow-[0_12px_28px_rgba(13,64,84,0.06)]">
           <div className="mb-2 flex items-center justify-between">
-            <span className="font-body text-base font-extrabold text-[#1E0A4E]">Comprometido del total</span>
-            <span className="rounded-full bg-[#F3EEFF] px-3 py-1.5 font-body text-sm font-extrabold" style={{ color: barColor }}>
+            <span className="font-body text-base font-extrabold text-[#073B52]">Comprometido del total</span>
+            <span className="rounded-full bg-[#E8F4FA] px-3 py-1.5 font-body text-sm font-extrabold" style={{ color: barColor }}>
               {pct.toFixed(1)}%
             </span>
           </div>
@@ -1142,25 +1143,25 @@ export const BudgetDashboard: FC<Props> = ({
           {!isReadOnly && (
             <button
               onClick={() => { setEditingExpense(null); setShowModal(true) }}
-              disabled={!groupId || members.length === 0 || isSaving}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#1E0A4E,#7A4FD6)] py-4 font-body text-base font-extrabold text-white shadow-[0_14px_28px_rgba(30,10,78,0.18)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={!groupId || members.length === 0 || isSaving || isOffline}
+              className="flex items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#073B52,#16B9D0)] py-4 font-body text-base font-extrabold text-white shadow-[0_14px_28px_rgba(13,64,84,0.18)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               + Registrar gasto
             </button>
           )}
           <button
             onClick={() => setView('wallet')}
-            className="flex items-center justify-center gap-2 rounded-2xl border border-[#D8C8FF] bg-white py-4 font-body text-base font-extrabold text-[#5B2BC0] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#F7F2FF] disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center justify-center gap-2 rounded-2xl border border-[#91DEF0] bg-white py-4 font-body text-base font-extrabold text-[#075EAA] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#F4F9FA] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Mi Cartera
           </button>
         </div>
 
-        <div className="rounded-3xl border border-[#E2E8F0] bg-white px-5 py-4 shadow-[0_12px_28px_rgba(30,10,78,0.06)]">
+        <div className="rounded-3xl border border-[#E2E8F0] bg-white px-5 py-4 shadow-[0_12px_28px_rgba(13,64,84,0.06)]">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="font-body text-sm font-extrabold uppercase tracking-[0.14em] text-[#64748B]">Liquidacion grupal</p>
-              <p className="mt-1 font-body text-xl font-extrabold text-[#1E0A4E]">
+              <p className="mt-1 font-body text-xl font-extrabold text-[#073B52]">
                 {groupSettlementSummary.totalTransfers} transferencias · {formatMXN(groupSettlementSummary.totalAmount)}
               </p>
               <p className="mt-0.5 font-body text-sm font-medium text-[#64748B]">Sin detalle sensible para proteger datos individuales.</p>
@@ -1202,26 +1203,26 @@ export const BudgetDashboard: FC<Props> = ({
                         <meta name="viewport" content="width=device-width,initial-scale=1" />
                         <title>Resumen grupal de liquidacion</title>
                         <style>
-                          :root{--ink:#1E0A4E;--ink-soft:#2E1767;--blue:#1E6FD9;--paper:#fff;--muted:#64748B;}
+                          :root{--ink:#073B52;--ink-soft:#075B85;--blue:#0878CF;--paper:#fff;--muted:#526C79;}
                           *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-                          body{margin:0;font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(145deg,#EBE6FA 0%,#EAF2FF 100%);padding:24px;color:#243247;}
-                          .sheet{max-width:920px;margin:0 auto;background:var(--paper);border:1px solid #D9E4F7;border-radius:20px;overflow:hidden;box-shadow:0 24px 56px rgba(30,10,78,.18);}
+                          body{margin:0;font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(145deg,#F4F9FA 0%,#E8F4FA 100%);padding:24px;color:#183F51;}
+                          .sheet{max-width:920px;margin:0 auto;background:var(--paper);border:1px solid #CBDDE3;border-radius:20px;overflow:hidden;box-shadow:0 24px 56px rgba(7,59,82,.18);}
                           .hero{background:linear-gradient(120deg,var(--ink),var(--ink-soft));color:#fff;padding:28px 30px;}
                           .hero h1{margin:0;font-size:30px;}
                           .hero p{margin:8px 0 0;font-size:14px;color:rgba(255,255,255,.9);}
                           .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px;}
                           .metric{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24);padding:10px;border-radius:12px;}
                           .metric b{display:block;font-size:20px;margin-top:4px;}
-                          .content{padding:18px 20px 26px;background:linear-gradient(180deg,#FAFCFF 0%,#FFFFFF 18%);}
-                          .section{border:1px solid #DEE7FB;border-radius:16px;background:#fff;overflow:hidden;}
-                          .section h3{margin:0;padding:12px 14px;background:linear-gradient(90deg,#F3EEFF,#F8FAFF);border-bottom:1px solid #E5ECFA;color:var(--ink);}
+                          .content{padding:18px 20px 26px;background:linear-gradient(180deg,#F4F9FA 0%,#FFFFFF 18%);}
+                          .section{border:1px solid #CBDDE3;border-radius:16px;background:#fff;overflow:hidden;}
+                          .section h3{margin:0;padding:12px 14px;background:linear-gradient(90deg,#E8F4FA,#F4F9FA);border-bottom:1px solid #CBDDE3;color:var(--ink);}
                           .body{padding:14px;}
-                          .row{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px dashed #E6ECFA;}
+                          .row{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px dashed #E8F4FA;}
                           .row:last-child{border-bottom:0;}
-                          .label{color:#55637E;font-size:13px;}
-                          .value{font-weight:700;color:#1E0A4E;}
-                          .footer{border-top:1px solid #E5ECFA;background:#FAFCFF;padding:12px 20px;color:var(--muted);font-size:11px;display:flex;justify-content:space-between;}
-                          @media print{body{background:#EEE8FB;padding:0}.sheet{border:0;border-radius:0;box-shadow:none;max-width:100%}@page{size:A4;margin:10mm}}
+                          .label{color:#526C79;font-size:13px;}
+                          .value{font-weight:700;color:#073B52;}
+                          .footer{border-top:1px solid #CBDDE3;background:#F4F9FA;padding:12px 20px;color:var(--muted);font-size:11px;display:flex;justify-content:space-between;}
+                          @media print{body{background:#F4F9FA;padding:0}.sheet{border:0;border-radius:0;box-shadow:none;max-width:100%}@page{size:A4;margin:10mm}}
                         </style>
                       </head>
                       <body>
@@ -1290,7 +1291,7 @@ export const BudgetDashboard: FC<Props> = ({
                     }, 700)
                   }
                 }}
-                className="rounded-xl bg-[#1E6FD9] px-4 py-2.5 font-body text-sm font-extrabold text-white shadow-sm transition hover:bg-[#2C8BE6]"
+                className="rounded-xl bg-[#0878CF] px-4 py-2.5 font-body text-sm font-extrabold text-white shadow-sm transition hover:bg-[#075EAA]"
                 disabled={exportingGroupSummary}
               >
                 {exportingGroupSummary ? 'Exportando...' : 'Exportar resumen'}
@@ -1308,7 +1309,7 @@ export const BudgetDashboard: FC<Props> = ({
               <button
                 type="button"
                 onClick={() => { setAdjustValue(''); setShowAdjustModal(true) }}
-                className="rounded-xl bg-[#1E6FD9] px-4 py-2 font-body text-sm font-semibold text-white hover:bg-[#2C8BE6]"
+                className="rounded-xl bg-[#0878CF] px-4 py-2 font-body text-sm font-semibold text-white hover:bg-[#075EAA]"
               >
                 Definir presupuesto
               </button>
@@ -1322,21 +1323,21 @@ export const BudgetDashboard: FC<Props> = ({
           </div>
         )}
 
-        <div className="flex flex-col gap-5 rounded-3xl border border-[#E2E8F0] bg-white p-5 shadow-[0_12px_28px_rgba(30,10,78,0.06)]">
+        <div className="flex flex-col gap-5 rounded-3xl border border-[#E2E8F0] bg-white p-5 shadow-[0_12px_28px_rgba(13,64,84,0.06)]">
           <div>
             <div className="mb-3 flex items-center justify-between gap-3">
               <div>
-                <p className="inline-flex items-center gap-2 rounded-full bg-[#F3EEFF] px-3 py-1.5 font-body text-xs font-extrabold uppercase tracking-[0.16em] text-[#5B2BC0]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#7A4FD6]" />
+                <p className="inline-flex items-center gap-2 rounded-full bg-[#E8F4FA] px-3 py-1.5 font-body text-xs font-extrabold uppercase tracking-[0.16em] text-[#075EAA]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#16B9D0]" />
                   Categorias
                 </p>
-                <h3 className="mt-2 font-heading text-2xl font-extrabold text-[#1E0A4E]">Distribucion del gasto</h3>
+                <h3 className="mt-2 font-heading text-2xl font-extrabold text-[#073B52]">Distribucion del gasto</h3>
               </div>
-              <span className="rounded-full bg-[#EEF4FF] px-3 py-1.5 font-body text-sm font-extrabold text-[#1E6FD9]">
+              <span className="rounded-full bg-[#E8F4FA] px-3 py-1.5 font-body text-sm font-extrabold text-[#075EAA]">
                 {formatMXN(chartTotal)}
               </span>
             </div>
-            <div className="mb-5 rounded-3xl border border-[#DDD6FE] bg-gradient-to-br from-[#F6F2FF] via-[#FFFFFF] to-[#EEF4FF] p-3 shadow-inner sm:p-4">
+            <div className="mb-5 rounded-3xl border border-[#CBDDE3] bg-gradient-to-br from-[#E8F4FA] via-[#FFFFFF] to-[#E8F4FA] p-3 shadow-inner sm:p-4">
               <div className="grid gap-3 lg:grid-cols-[0.95fr_1.05fr]">
                 <div className="h-80 rounded-2xl border border-white/70 bg-white/35 backdrop-blur-[1px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -1363,12 +1364,12 @@ export const BudgetDashboard: FC<Props> = ({
                           const pctValue = chartTotal > 0 ? (numeric / chartTotal) * 100 : 0
                           return [`${formatMXN(numeric)} (${pctValue.toFixed(1)}%)`, entry.payload?.name ?? 'Categoria']
                         }}
-                        contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #D9CCFF', borderRadius: '10px' }}
+                        contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #CBDDE3', borderRadius: '10px' }}
                       />
                       <text x="50%" y="46%" textAnchor="middle" className="fill-[#475569] text-[13px] font-bold">
                         Total comprometido
                       </text>
-                      <text x="50%" y="54%" textAnchor="middle" className="fill-[#1E0A4E] text-[18px] font-extrabold">
+                      <text x="50%" y="54%" textAnchor="middle" className="fill-[#073B52] text-[18px] font-extrabold">
                         {formatMXN(chartTotal)}
                       </text>
                       {chartVisibleData.length === 0 && (
@@ -1384,15 +1385,15 @@ export const BudgetDashboard: FC<Props> = ({
                   <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
 	                    <div className="rounded-xl border border-[#DCE5F5] bg-white px-3 py-3">
 	                      <p className="font-body text-xs font-extrabold uppercase tracking-wide text-[#64748B]">Categoria principal</p>
-	                      <p className="mt-1 font-body text-base font-extrabold text-[#1E0A4E]">{topCategory?.name ?? 'Sin datos'}</p>
+	                      <p className="mt-1 font-body text-base font-extrabold text-[#073B52]">{topCategory?.name ?? 'Sin datos'}</p>
 	                    </div>
 	                    <div className="rounded-xl border border-[#DCE5F5] bg-white px-3 py-3">
 	                      <p className="font-body text-xs font-extrabold uppercase tracking-wide text-[#64748B]">Categorias activas</p>
-	                      <p className="mt-1 font-body text-base font-extrabold text-[#1E0A4E]">{activeCategoriesCount}</p>
+	                      <p className="mt-1 font-body text-base font-extrabold text-[#073B52]">{activeCategoriesCount}</p>
 	                    </div>
 	                    <div className="rounded-xl border border-[#DCE5F5] bg-white px-3 py-3">
 	                      <p className="font-body text-xs font-extrabold uppercase tracking-wide text-[#64748B]">Promedio activo</p>
-	                      <p className="mt-1 font-body text-base font-extrabold text-[#1E0A4E]">{formatMXN(averagePerCategory)}</p>
+	                      <p className="mt-1 font-body text-base font-extrabold text-[#073B52]">{formatMXN(averagePerCategory)}</p>
                     </div>
                   </div>
 
@@ -1404,7 +1405,7 @@ export const BudgetDashboard: FC<Props> = ({
                         <div
                           key={item.categoria}
                           className={[
-	                            'rounded-xl border px-3 py-3 shadow-[0_1px_0_rgba(30,10,78,0.04)]',
+	                            'rounded-xl border px-3 py-3 shadow-[0_1px_0_rgba(13,64,84,0.04)]',
                             isZero ? 'border-[#E6ECF7] bg-[#F8FAFD]' : 'border-[#DCE5F5] bg-white/95',
                           ].join(' ')}
                         >
@@ -1419,7 +1420,7 @@ export const BudgetDashboard: FC<Props> = ({
                               </span>
                             </div>
                             <div className="text-right">
-	                              <p className={['font-body text-sm font-extrabold', isZero ? 'text-[#64748B]' : 'text-[#1E0A4E]'].join(' ')}>
+	                              <p className={['font-body text-sm font-extrabold', isZero ? 'text-[#64748B]' : 'text-[#073B52]'].join(' ')}>
                                 {formatMXN(item.value)}
                               </p>
 	                              <p className="font-body text-xs font-semibold text-[#64748B]">{pctValue.toFixed(1)}%</p>
@@ -1441,8 +1442,8 @@ export const BudgetDashboard: FC<Props> = ({
 
             <div className="flex flex-wrap gap-2">
               {members.map((member) => (
-                <div key={member.usuario_id} className="flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-[#F4F6F8] px-3 py-1.5">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1E0A4E] font-heading text-[10px] font-bold text-white">
+                <div key={member.usuario_id} className="flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-[#F4F9FA] px-3 py-1.5">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#073B52] font-heading text-[10px] font-bold text-white">
                     {(member.nombre || member.email || '?')[0]}
                   </div>
                   <span className="font-body text-xs text-[#3D4A5C]">{member.nombre || member.email}</span>
@@ -1495,7 +1496,7 @@ export const BudgetDashboard: FC<Props> = ({
                 <button
                   type="button"
                   onClick={() => setExpenseFilters(EMPTY_EXPENSE_FILTERS)}
-                  className="font-semibold text-[#1E6FD9] hover:underline"
+                  className="font-semibold text-[#075EAA] hover:underline"
                 >
                   Limpiar filtros
                 </button>
@@ -1525,7 +1526,7 @@ export const BudgetDashboard: FC<Props> = ({
                             key={entityKey(entity)}
                             type="button"
                             onClick={() => onOpenItinerary?.()}
-                            className="max-w-full rounded-full border border-[#CFE0FF] bg-[#EEF4FF] px-2.5 py-1 font-body text-[11px] font-semibold text-[#1E6FD9] hover:bg-[#E2EDFF]"
+                            className="max-w-full rounded-full border border-[#CFE0FF] bg-[#E8F4FA] px-2.5 py-1 font-body text-[11px] font-semibold text-[#075EAA] hover:bg-[#E2EDFF]"
                             title={entity.label}
                           >
                             Actividad:{' '}
@@ -1537,7 +1538,7 @@ export const BudgetDashboard: FC<Props> = ({
                             key={entityKey(entity)}
                             type="button"
                             onClick={onOpenVault}
-                            className="max-w-full rounded-full border border-[#D8C8FF] bg-[#F3EEFF] px-2.5 py-1 font-body text-[11px] font-semibold text-[#5B35B1] hover:bg-[#ECE4FF]"
+                            className="max-w-full rounded-full border border-[#91DEF0] bg-[#E8F4FA] px-2.5 py-1 font-body text-[11px] font-semibold text-[#075EAA] hover:bg-[#ECE4FF]"
                             title={entity.label}
                           >
                             Documento: <span className="font-medium">{entity.label}</span>
@@ -1555,7 +1556,7 @@ export const BudgetDashboard: FC<Props> = ({
                     <button
                       onClick={() => openEdit(expense)}
                       aria-label="Editar gasto"
-                      className="shrink-0 rounded-lg p-1.5 text-[#7A8799] transition-colors hover:bg-[#F4F6F8] hover:text-[#1E6FD9]"
+                      className="shrink-0 rounded-lg p-1.5 text-[#7A8799] transition-colors hover:bg-[#F4F9FA] hover:text-[#075EAA]"
                     >
                       Editar/asociar
                     </button>
@@ -1584,7 +1585,7 @@ export const BudgetDashboard: FC<Props> = ({
       </div>
 
       <RegisterExpenseModal
-        open={showModal && !isReadOnly}
+        open={showModal && !isReadOnly && !isOffline}
         members={members}
         editingExpense={editingExpense}
         activityOptions={linkOptions.activities}
