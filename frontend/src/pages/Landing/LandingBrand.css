@@ -6,6 +6,7 @@
 .landing-brand button:focus-visible,
 .landing-brand a:focus-visible,
 .landing-brand input:focus-visible {
-  outline: 3px solid #91def0;
+  outline: 3px solid #005aaf;
+  box-shadow: 0 0 0 5px #fff;
   outline-offset: 3px;
 }
