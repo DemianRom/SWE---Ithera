@@ -72,11 +72,11 @@ export function SharedItineraryPage() {
   }, [items])
 
   return (
-    <main className="min-h-screen bg-[#F4F6F8] px-4 py-8">
+    <main className="min-h-screen bg-[#F4F9FA] px-4 py-8 font-body">
       <div className="mx-auto w-full max-w-5xl">
-        <header className="mb-6 rounded-2xl bg-[#1E0A4E] px-6 py-5 text-white shadow-lg">
+        <header className="mb-6 rounded-2xl bg-[#073B52] px-6 py-5 text-white shadow-lg">
           <p className="text-xs uppercase tracking-wide text-white/70">Itinerario compartido</p>
-          <h1 className="mt-1 text-2xl font-bold">{group?.nombre ?? 'Cargando viaje...'}</h1>
+          <h1 className="mt-1 font-heading text-2xl font-bold">{group?.nombre ?? 'Cargando viaje...'}</h1>
           <p className="mt-1 text-sm text-white/85">
             {group?.destino_formatted_address ?? group?.destino ?? 'Destino sin definir'}
           </p>
@@ -84,28 +84,28 @@ export function SharedItineraryPage() {
             {group ? formatRange(group.fecha_inicio, group.fecha_fin) : 'Preparando fechas...'}
           </p>
           {expiresAt ? (
-            <p className="mt-1 text-xs text-white/65">Enlace válido hasta: {formatDate(expiresAt)}</p>
+            <p className="mt-1 text-xs text-white/85">Enlace válido hasta: {formatDate(expiresAt)}</p>
           ) : null}
         </header>
 
-        {loading ? <div className="rounded-2xl bg-white p-5 text-sm text-[#475569]">Cargando itinerario...</div> : null}
-        {!loading && error ? <div className="rounded-2xl border border-[#FECACA] bg-[#FEF2F2] p-5 text-sm text-[#991B1B]">{error}</div> : null}
+        {loading ? <div className="rounded-2xl bg-white p-5 text-sm text-[#183F51]">Cargando itinerario...</div> : null}
+        {!loading && error ? <div className="rounded-2xl border border-[#DAB5AA] bg-[#FAEDE7] p-5 text-sm text-[#8D4034]">{error}</div> : null}
 
         {!loading && !error && groupedByDay.length === 0 ? (
-          <div className="rounded-2xl bg-white p-5 text-sm text-[#475569]">No hay actividades públicas para mostrar.</div>
+          <div className="rounded-2xl bg-white p-5 text-sm text-[#183F51]">No hay actividades públicas para mostrar.</div>
         ) : null}
 
         {!loading && !error && groupedByDay.length > 0 ? (
           <section className="space-y-4">
             {groupedByDay.map(([day, dayItems]) => (
-              <article key={day} className="rounded-2xl border border-[#E2E8F0] bg-white p-4">
-                <h2 className="text-base font-bold text-[#1E0A4E]">{day}</h2>
+              <article key={day} className="rounded-2xl border border-[#CBDDE3] bg-white p-4">
+                <h2 className="font-heading text-base font-bold text-[#073B52]">{day}</h2>
                 <div className="mt-3 space-y-3">
                   {dayItems.map((item) => (
-                    <div key={item.id} className="rounded-xl bg-[#F8FAFC] p-3">
-                      <p className="font-semibold text-[#1E0A4E]">{item.title}</p>
-                      {item.description ? <p className="mt-1 text-sm text-[#475569]">{item.description}</p> : null}
-                      <p className="mt-1 text-xs text-[#64748B]">
+                    <div key={item.id} className="rounded-xl bg-[#F4F9FA] p-3">
+                      <p className="font-semibold text-[#073B52]">{item.title}</p>
+                      {item.description ? <p className="mt-1 text-sm text-[#183F51]">{item.description}</p> : null}
+                      <p className="mt-1 text-xs text-[#526C79]">
                         {item.location ? `${item.location} · ` : ''}
                         {formatDate(item.startsAt)}
                         {item.endsAt ? ` a ${formatDate(item.endsAt)}` : ''}
